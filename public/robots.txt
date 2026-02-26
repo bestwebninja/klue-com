@@ -1,0 +1,70 @@
+# Kluje - Service Provider Platform
+# https://kluje.co.uk
+
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard
+Disallow: /my-dashboard
+Disallow: /admin
+Disallow: /messages
+Disallow: /settings/
+Disallow: /complete-profile
+Disallow: /reset-password
+Disallow: /index.html
+Disallow: /index.php
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+Disallow: /my-dashboard
+Disallow: /admin
+Disallow: /messages
+Disallow: /settings/
+Disallow: /complete-profile
+Disallow: /reset-password
+Disallow: /index.html
+Disallow: /index.php
+Crawl-delay: 2
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+Disallow: /dashboard
+Disallow: /my-dashboard
+Disallow: /admin
+Disallow: /messages
+Disallow: /settings/
+Disallow: /complete-profile
+Disallow: /reset-password
+Disallow: /index.html
+Disallow: /index.php
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /my-dashboard
+Disallow: /admin
+Disallow: /messages
+Disallow: /settings/
+Disallow: /complete-profile
+Disallow: /reset-password
+Disallow: /index.html
+Disallow: /index.php
+
+# Sitemaps
+Sitemap: https://kluje.co.uk/sitemap.xml

@@ -12,14 +12,14 @@ const postcodeSchema = z.string()
   .regex(UK_POSTCODE_REGEX, "Please enter a valid UK postcode");
 
 interface PostcodeSearchProps {
-  mapboxToken: string;
   onLocationFound: (lat: number, lng: number, postcode: string) => void;
   placeholder?: string;
   className?: string;
+  /** @deprecated No longer needed - kept for backwards compat */
+  mapboxToken?: string;
 }
 
 export const PostcodeSearch = ({
-  mapboxToken,
   onLocationFound,
   placeholder = "Enter postcode...",
   className = "",
@@ -31,7 +31,6 @@ export const PostcodeSearch = ({
   const handleSearch = useCallback(async () => {
     setError(null);
 
-    // Validate postcode
     const validationResult = postcodeSchema.safeParse(postcode);
     if (!validationResult.success) {
       setError(validationResult.error.errors[0].message);
@@ -43,7 +42,7 @@ export const PostcodeSearch = ({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanedPostcode)}.json?access_token=${mapboxToken}&country=gb&types=postcode&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanedPostcode)}&countrycodes=gb&limit=1`
       );
       
       if (!response.ok) {
@@ -52,8 +51,9 @@ export const PostcodeSearch = ({
 
       const data = await response.json();
       
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
         onLocationFound(lat, lng, cleanedPostcode);
         setPostcode('');
       } else {
@@ -65,7 +65,7 @@ export const PostcodeSearch = ({
     } finally {
       setIsSearching(false);
     }
-  }, [postcode, mapboxToken, onLocationFound]);
+  }, [postcode, onLocationFound]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

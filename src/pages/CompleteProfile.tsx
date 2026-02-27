@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import PhoneVerification from '@/components/PhoneVerification';
 import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle } from 'lucide-react';
-import { useMapboxToken } from '@/hooks/useMapboxToken';
+
 import { isValidUKPostcode, formatUKPostcode } from '@/lib/postcodeValidation';
 
 type UserType = 'provider' | 'homeowner';
@@ -60,7 +60,6 @@ const CompleteProfile = () => {
   const [subcategories, setSubcategories] = useState<Category[]>([]);
 
   // Location state
-  const { token: mapboxToken } = useMapboxToken();
   const [locationQuery, setLocationQuery] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
@@ -133,17 +132,17 @@ const CompleteProfile = () => {
 
   // Location search
   const searchLocation = async (query: string) => {
-    if (!query || query.length < 2 || !mapboxToken) {
+    if (!query || query.length < 2) {
       setLocationSuggestions([]);
       return;
     }
     setIsSearchingLocation(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=gb&types=postcode&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5&addressdetails=1`
       );
       const data = await response.json();
-      setLocationSuggestions(data.features || []);
+      setLocationSuggestions(data || []);
       setShowLocationSuggestions(true);
     } catch {
       setLocationSuggestions([]);
@@ -157,22 +156,13 @@ const CompleteProfile = () => {
       if (locationQuery && !selectedLocation) searchLocation(locationQuery);
     }, 300);
     return () => clearTimeout(debounce);
-  }, [locationQuery, mapboxToken, selectedLocation]);
+  }, [locationQuery, selectedLocation]);
 
-  const selectLocationSuggestion = (feature: any) => {
-    const [lng, lat] = feature.center;
-    const context = feature.context || [];
-    let city = '';
-    let postcode = '';
-
-    if (feature.place_type?.includes('postcode')) {
-      postcode = feature.text || '';
-      city = context.find((c: any) => c.id.startsWith('place'))?.text ||
-        context.find((c: any) => c.id.startsWith('locality'))?.text || '';
-    } else {
-      city = context.find((c: any) => c.id.startsWith('place'))?.text || '';
-      postcode = context.find((c: any) => c.id.startsWith('postcode'))?.text || '';
-    }
+  const selectLocationSuggestion = (item: any) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    const city = item.address?.city || item.address?.town || item.address?.village || '';
+    let postcode = item.address?.postcode || '';
 
     if (postcode && isValidUKPostcode(postcode)) {
       postcode = formatUKPostcode(postcode);
@@ -184,13 +174,13 @@ const CompleteProfile = () => {
     }
 
     setSelectedLocation({
-      address: feature.place_name,
+      address: item.display_name,
       city,
       postcode: postcode && isValidUKPostcode(postcode) ? formatUKPostcode(postcode) : postcode,
       latitude: lat,
       longitude: lng,
     });
-    setLocationQuery(feature.place_name);
+    setLocationQuery(item.display_name);
     setShowLocationSuggestions(false);
     setLocationSuggestions([]);
   };
@@ -454,15 +444,15 @@ const CompleteProfile = () => {
 
                   {showLocationSuggestions && locationSuggestions.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                      {locationSuggestions.map((suggestion) => (
+                      {locationSuggestions.map((suggestion, index) => (
                         <button
-                          key={suggestion.id}
+                          key={index}
                           type="button"
                           className="w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2"
                           onClick={() => selectLocationSuggestion(suggestion)}
                         >
                           <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                          <span className="truncate">{suggestion.place_name}</span>
+                          <span className="truncate">{suggestion.display_name}</span>
                         </button>
                       ))}
                     </div>

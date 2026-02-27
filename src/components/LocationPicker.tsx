@@ -1,11 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { useMapboxToken } from '@/hooks/useMapboxToken';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { MapPin, Search, Loader2, AlertCircle } from 'lucide-react';
 import { isValidUKPostcode, formatUKPostcode } from '@/lib/postcodeValidation';
+
+// Fix default marker icon
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 interface LocationPickerProps {
   onLocationSelect: (location: {
@@ -24,91 +35,57 @@ interface LocationPickerProps {
   className?: string;
 }
 
+// Component to handle map click events
+function MapClickHandler({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
+// Component to fly map to a position
+function FlyTo({ position }: { position: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position) {
+      map.flyTo(position, 15);
+    }
+  }, [position, map]);
+  return null;
+}
+
 export const LocationPicker = ({
   onLocationSelect,
   initialLocation,
   placeholder = "Search for a location...",
   className = "",
 }: LocationPickerProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const marker = useRef<mapboxgl.Marker | null>(null);
-  const { token: mapboxToken, error, isLoading: tokenLoading } = useMapboxToken();
+  const initialCenter: [number, number] = initialLocation?.latitude && initialLocation?.longitude
+    ? [initialLocation.latitude, initialLocation.longitude]
+    : [51.5074, -0.1276]; // Default to London
+
+  const [markerPosition, setMarkerPosition] = useState<[number, number]>(initialCenter);
+  const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const [searchQuery, setSearchQuery] = useState(initialLocation?.address || '');
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [postcodeWarning, setPostcodeWarning] = useState<string | null>(null);
 
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || tokenLoading) return;
-
-    mapboxgl.accessToken = mapboxToken;
-
-    const initialCenter: [number, number] = initialLocation?.longitude && initialLocation?.latitude
-      ? [initialLocation.longitude, initialLocation.latitude]
-      : [-0.1276, 51.5074]; // Default to London
-
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: initialCenter,
-      zoom: 12,
-    });
-
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    // Add marker
-    marker.current = new mapboxgl.Marker({ color: '#2563eb', draggable: true })
-      .setLngLat(initialCenter)
-      .addTo(map.current);
-
-    // Handle marker drag
-    marker.current.on('dragend', async () => {
-      const lngLat = marker.current?.getLngLat();
-      if (lngLat) {
-        await reverseGeocode(lngLat.lng, lngLat.lat);
-      }
-    });
-
-    // Handle map click
-    map.current.on('click', async (e) => {
-      marker.current?.setLngLat(e.lngLat);
-      await reverseGeocode(e.lngLat.lng, e.lngLat.lat);
-    });
-
-    return () => {
-      map.current?.remove();
-    };
-  }, [mapboxToken, tokenLoading]);
-
-  const reverseGeocode = async (lng: number, lat: number) => {
-    if (!mapboxToken) return;
-
+  const reverseGeocode = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxToken}&types=address,place,postcode`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
       );
       const data = await response.json();
 
-      if (data.features && data.features.length > 0) {
-        const feature = data.features[0];
-        const context = feature.context || [];
-        
-        const address = feature.place_name || '';
-        const city = context.find((c: any) => c.id.startsWith('place'))?.text || 
-                    context.find((c: any) => c.id.startsWith('locality'))?.text || '';
-        
-        // Extract postcode: check if feature itself is a postcode, then check context
-        let postcode = '';
-        if (feature.place_type?.includes('postcode')) {
-          postcode = feature.text || '';
-        } else {
-          postcode = context.find((c: any) => c.id.startsWith('postcode'))?.text || '';
-        }
+      if (data && data.address) {
+        const address = data.display_name || '';
+        const city = data.address.city || data.address.town || data.address.village || '';
+        let postcode = data.address.postcode || '';
 
-        // Validate and format the postcode
         if (postcode && isValidUKPostcode(postcode)) {
           postcode = formatUKPostcode(postcode);
           setPostcodeWarning(null);
@@ -132,8 +109,13 @@ export const LocationPicker = ({
     }
   };
 
+  const handleMapClick = (lat: number, lng: number) => {
+    setMarkerPosition([lat, lng]);
+    reverseGeocode(lat, lng);
+  };
+
   const searchLocation = useCallback(async (query: string) => {
-    if (!query || query.length < 3 || !mapboxToken) {
+    if (!query || query.length < 3) {
       setSuggestions([]);
       return;
     }
@@ -141,17 +123,17 @@ export const LocationPicker = ({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=gb&types=address,place,postcode&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5&addressdetails=1`
       );
       const data = await response.json();
-      setSuggestions(data.features || []);
+      setSuggestions(data || []);
     } catch (error) {
       console.error('Search error:', error);
       setSuggestions([]);
     } finally {
       setIsSearching(false);
     }
-  }, [mapboxToken]);
+  }, []);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -160,33 +142,13 @@ export const LocationPicker = ({
     return () => clearTimeout(debounce);
   }, [searchQuery, searchLocation]);
 
-  const selectSuggestion = (feature: any) => {
-    const [lng, lat] = feature.center;
-    const context = feature.context || [];
-    
-    const address = feature.place_name || '';
-    
-    // Extract city from context or feature
-    let city = context.find((c: any) => c.id.startsWith('place'))?.text || 
-               context.find((c: any) => c.id.startsWith('locality'))?.text || '';
-    
-    // Extract postcode: check if feature itself is a postcode, then check context
-    let postcode = '';
-    if (feature.place_type?.includes('postcode')) {
-      postcode = feature.text || '';
-      // For postcodes, the place is usually in context
-      if (!city) {
-        city = context.find((c: any) => c.id.startsWith('place'))?.text || '';
-      }
-    } else {
-      postcode = context.find((c: any) => c.id.startsWith('postcode'))?.text || '';
-      // If feature is a place, use it as city
-      if (feature.place_type?.includes('place') && !city) {
-        city = feature.text || '';
-      }
-    }
+  const selectSuggestion = (item: any) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    const address = item.display_name || '';
+    const city = item.address?.city || item.address?.town || item.address?.village || '';
+    let postcode = item.address?.postcode || '';
 
-    // Validate and format the postcode
     if (postcode && isValidUKPostcode(postcode)) {
       postcode = formatUKPostcode(postcode);
       setPostcodeWarning(null);
@@ -199,12 +161,8 @@ export const LocationPicker = ({
     setSearchQuery(address);
     setSuggestions([]);
     setShowSuggestions(false);
-
-    // Update map and marker
-    if (map.current && marker.current) {
-      map.current.flyTo({ center: [lng, lat], zoom: 15 });
-      marker.current.setLngLat([lng, lat]);
-    }
+    setMarkerPosition([lat, lng]);
+    setFlyTarget([lat, lng]);
 
     onLocationSelect({
       address,
@@ -214,15 +172,6 @@ export const LocationPicker = ({
       longitude: lng,
     });
   };
-
-  if (error) {
-    return (
-      <div className={`flex flex-col items-center justify-center h-64 bg-muted rounded-lg ${className}`}>
-        <MapPin className="w-8 h-8 text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground">{error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className={`space-y-3 ${className}`}>
@@ -249,18 +198,18 @@ export const LocationPicker = ({
         {/* Suggestions dropdown */}
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
-            {suggestions.map((feature) => (
+            {suggestions.map((item, index) => (
               <button
-                key={feature.id}
+                key={index}
                 type="button"
                 className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  selectSuggestion(feature);
+                  selectSuggestion(item);
                 }}
               >
                 <MapPin className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-                <span className="truncate">{feature.place_name}</span>
+                <span className="truncate">{item.display_name}</span>
               </button>
             ))}
           </div>
@@ -277,11 +226,29 @@ export const LocationPicker = ({
 
       {/* Map container */}
       <div className="relative">
-        <div 
-          ref={mapContainer} 
-          className="w-full h-64 rounded-lg border border-border overflow-hidden"
-        />
-        <div className="absolute bottom-2 left-2 bg-background/90 backdrop-blur-sm px-2 py-1 rounded text-xs text-muted-foreground">
+        <div className="w-full h-64 rounded-lg border border-border overflow-hidden">
+          <MapContainer
+            center={initialCenter}
+            zoom={12}
+            style={{ width: '100%', height: '100%' }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker
+              position={markerPosition}
+              draggable
+              eventHandlers={{
+                dragend: (e) => {
+                  const latlng = e.target.getLatLng();
+                  setMarkerPosition([latlng.lat, latlng.lng]);
+                  reverseGeocode(latlng.lat, latlng.lng);
+                },
+              }}
+            />
+            <MapClickHandler onLocationSelect={handleMapClick} />
+            <FlyTo position={flyTarget} />
+          </MapContainer>
+        </div>
+        <div className="absolute bottom-2 left-2 bg-background/90 backdrop-blur-sm px-2 py-1 rounded text-xs text-muted-foreground z-[1000]">
           Click or drag marker to set location
         </div>
       </div>

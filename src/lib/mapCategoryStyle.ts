@@ -1,7 +1,7 @@
 type CategoryStyle = {
-  /** CSS color string for Mapbox (e.g. `hsl(var(--cat-home))`) */
+  /** CSS color string (e.g. `hsl(var(--cat-home))`) */
   color: string;
-  /** Simple icon for Mapbox symbol layer (emoji) */
+  /** Emoji icon for map markers */
   icon: string;
 };
 

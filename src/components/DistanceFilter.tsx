@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,7 +33,6 @@ const RADIUS_OPTIONS = [
 ];
 
 export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
-  const { token: mapboxToken, isLoading: tokenLoading } = useMapboxToken();
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -49,7 +47,7 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const searchLocation = useCallback(async (query: string) => {
-    if (!query || query.length < 3 || !mapboxToken || tokenLoading) {
+    if (!query || query.length < 3) {
       setSuggestions([]);
       return;
     }
@@ -57,17 +55,17 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=gb&types=place,postcode,locality&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5`
       );
       const data = await response.json();
-      setSuggestions(data.features || []);
+      setSuggestions(data || []);
     } catch (error) {
       console.error('Search error:', error);
       setSuggestions([]);
     } finally {
       setIsSearching(false);
     }
-  }, [mapboxToken, tokenLoading]);
+  }, []);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -76,9 +74,10 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
     return () => clearTimeout(debounce);
   }, [searchQuery, searchLocation]);
 
-  const selectSuggestion = (feature: any) => {
-    const [lng, lat] = feature.center;
-    const name = feature.text || feature.place_name;
+  const selectSuggestion = (item: any) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    const name = item.display_name?.split(',')[0] || item.display_name;
     
     setSelectedLocation({ latitude: lat, longitude: lng, name });
     setSearchQuery(name);
@@ -115,33 +114,30 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
       async (position) => {
         const { latitude, longitude } = position.coords;
         
-        // Reverse geocode to get location name
-        if (mapboxToken) {
-          try {
-            const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}&types=place,locality`
-            );
-            const data = await response.json();
-            const name = data.features?.[0]?.text || 'Your location';
-            
-            setSelectedLocation({ latitude, longitude, name });
-            setSearchQuery(name);
-            onFilterChange({
-              latitude,
-              longitude,
-              radius: parseInt(radius),
-              locationName: name,
-            });
-          } catch (err) {
-            setSelectedLocation({ latitude, longitude, name: 'Your location' });
-            setSearchQuery('Your location');
-            onFilterChange({
-              latitude,
-              longitude,
-              radius: parseInt(radius),
-              locationName: 'Your location',
-            });
-          }
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await response.json();
+          const name = data.address?.city || data.address?.town || data.address?.village || 'Your location';
+          
+          setSelectedLocation({ latitude, longitude, name });
+          setSearchQuery(name);
+          onFilterChange({
+            latitude,
+            longitude,
+            radius: parseInt(radius),
+            locationName: name,
+          });
+        } catch (err) {
+          setSelectedLocation({ latitude, longitude, name: 'Your location' });
+          setSearchQuery('Your location');
+          onFilterChange({
+            latitude,
+            longitude,
+            radius: parseInt(radius),
+            locationName: 'Your location',
+          });
         }
         setIsLocating(false);
       },
@@ -215,18 +211,18 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
             {/* Suggestions dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
-                {suggestions.map((feature) => (
+                {suggestions.map((item, index) => (
                   <button
-                    key={feature.id}
+                    key={index}
                     type="button"
                     className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      selectSuggestion(feature);
+                      selectSuggestion(item);
                     }}
                   >
                     <MapPin className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
-                    <span className="truncate">{feature.place_name}</span>
+                    <span className="truncate">{item.display_name}</span>
                   </button>
                 ))}
               </div>

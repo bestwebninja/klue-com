@@ -21,7 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PhoneVerification from '@/components/PhoneVerification';
 import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle } from 'lucide-react';
 
-import { isValidUKPostcode, formatUKPostcode } from '@/lib/postcodeValidation';
+import { isValidUSZipCode, formatUSZipCode } from '@/lib/zipCodeValidation';
 
 type UserType = 'provider' | 'homeowner';
 
@@ -65,7 +65,7 @@ const CompleteProfile = () => {
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
-  const [postcodeError, setPostcodeError] = useState<string | null>(null);
+  const [zipCodeError, setZipCodeError] = useState<string | null>(null);
 
   // Check if profile is already complete — redirect if so
   useEffect(() => {
@@ -139,7 +139,7 @@ const CompleteProfile = () => {
     setIsSearchingLocation(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5&addressdetails=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5&addressdetails=1`
       );
       const data = await response.json();
       setLocationSuggestions(data || []);
@@ -164,19 +164,19 @@ const CompleteProfile = () => {
     const city = item.address?.city || item.address?.town || item.address?.village || '';
     let postcode = item.address?.postcode || '';
 
-    if (postcode && isValidUKPostcode(postcode)) {
-      postcode = formatUKPostcode(postcode);
-      setPostcodeError(null);
+    if (postcode && isValidUSZipCode(postcode)) {
+      postcode = formatUSZipCode(postcode);
+      setZipCodeError(null);
     } else if (postcode) {
-      setPostcodeError('Invalid UK postcode format.');
+      setZipCodeError('Invalid US ZIP code format.');
     } else {
-      setPostcodeError('No postcode found. Please search for a specific UK postcode.');
+      setZipCodeError('No ZIP code found. Please search for a specific US ZIP code.');
     }
 
     setSelectedLocation({
       address: item.display_name,
       city,
-      postcode: postcode && isValidUKPostcode(postcode) ? formatUKPostcode(postcode) : postcode,
+      postcode: postcode && isValidUSZipCode(postcode) ? formatUSZipCode(postcode) : postcode,
       latitude: lat,
       longitude: lng,
     });
@@ -220,8 +220,8 @@ const CompleteProfile = () => {
         toast({ title: 'Service required', description: 'Please select at least one service.', variant: 'destructive' });
         return;
       }
-      if (!selectedLocation || !selectedLocation.postcode || !isValidUKPostcode(selectedLocation.postcode)) {
-        toast({ title: 'Postcode required', description: 'Please select a valid UK postcode.', variant: 'destructive' });
+      if (!selectedLocation || !selectedLocation.postcode || !isValidUSZipCode(selectedLocation.postcode)) {
+        toast({ title: 'ZIP code required', description: 'Please select a valid US ZIP code.', variant: 'destructive' });
         return;
       }
     }
@@ -416,7 +416,7 @@ const CompleteProfile = () => {
 
                 {/* Location field */}
                 <div className="relative">
-                  <Label htmlFor="cp-location">Service Area Postcode <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="cp-location">Service Area ZIP Code <span className="text-destructive">*</span></Label>
                   <div className="relative mt-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -427,7 +427,7 @@ const CompleteProfile = () => {
                         setLocationQuery(e.target.value);
                         if (selectedLocation) setSelectedLocation(null);
                       }}
-                      placeholder="Enter your postcode (e.g., SW1A 1AA)"
+                      placeholder="Enter your ZIP code (e.g., 90210)"
                       className="pl-9 pr-8"
                     />
                     {isSearchingLocation && (
@@ -458,20 +458,20 @@ const CompleteProfile = () => {
                     </div>
                   )}
 
-                  {selectedLocation && !postcodeError && (
+                  {selectedLocation && !zipCodeError && (
                     <p className="text-xs text-primary mt-1 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
                       Location set: {selectedLocation.postcode || selectedLocation.city || 'Selected'}
                     </p>
                   )}
-                  {postcodeError && (
+                  {zipCodeError && (
                     <p className="text-xs text-destructive mt-1 flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
-                      {postcodeError}
+                      {zipCodeError}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground mt-1">
-                    Enter a UK postcode to set your primary service area
+                    Enter a US ZIP code to set your primary service area
                   </p>
                 </div>
               </>

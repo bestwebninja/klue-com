@@ -185,7 +185,7 @@
             "@type": "BlogPosting",
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": `https://kluje.co.uk/blog/${post.slug}`
+              "@id": `https://klue-us.lovable.app/blog/${post.slug}`
             },
             "headline": post.title,
             "description": post.excerpt || '',
@@ -194,7 +194,7 @@
             "dateModified": post.updated_at || post.published_at,
             "wordCount": post.content?.split(/\s+/).length || 0,
             "articleSection": post.meta_keywords?.[0] || "Home Improvement",
-            "inLanguage": "en-GB",
+            "inLanguage": "en-US",
             "author": {
               "@type": "Person",
               "name": author?.full_name || "Kluje Team"
@@ -202,10 +202,10 @@
             "publisher": {
               "@type": "Organization",
               "name": "Kluje",
-              "url": "https://kluje.co.uk",
+              "url": "https://klue-us.lovable.app",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://kluje.co.uk/favicon.png"
+                "url": "https://klue-us.lovable.app/favicon.png"
               }
             }
           }}

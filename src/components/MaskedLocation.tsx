@@ -108,7 +108,7 @@ export function MaskedLocation({
 
 /**
  * Derives a general area from a full location string.
- * Extracts city/town from typical "Street, City, Postcode" format.
+ * Extracts city/town from typical "Street, City, ZIP" format.
  */
 function deriveGeneralArea(fullLocation: string): string {
   const parts = fullLocation.split(',').map(p => p.trim());
@@ -119,9 +119,10 @@ function deriveGeneralArea(fullLocation: string): string {
   }
   
   // If single part, try to mask specific details
-  // Remove specific street numbers and postcodes
+  // Remove specific street numbers and zip codes
   const masked = fullLocation
     .replace(/^\d+\s+/, '') // Remove leading numbers
+    .replace(/\b\d{5}(-\d{4})?\b/g, '') // Remove US zip codes
     .replace(/\b[A-Z]{1,2}\d{1,2}\s*\d[A-Z]{2}\b/gi, '') // Remove UK postcodes
     .replace(/\b\d{5}(-\d{4})?\b/g, '') // Remove US zip codes
     .trim();

@@ -619,9 +619,9 @@ const UserDashboard = () => {
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Not specified';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   const getCategoryName = (categoryId: string | null) => {
@@ -836,7 +836,7 @@ const UserDashboard = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="budget_min">Min Budget (£)</Label>
+                        <Label htmlFor="budget_min">Min Budget ($)</Label>
                         <Input
                           id="budget_min"
                           type="number"
@@ -847,7 +847,7 @@ const UserDashboard = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="budget_max">Max Budget (£)</Label>
+                        <Label htmlFor="budget_max">Max Budget ($)</Label>
                         <Input
                           id="budget_max"
                           type="number"
@@ -944,7 +944,7 @@ const UserDashboard = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="edit_budget_min">Min Budget (£)</Label>
+                        <Label htmlFor="edit_budget_min">Min Budget ($)</Label>
                         <Input
                           id="edit_budget_min"
                           type="number"
@@ -955,7 +955,7 @@ const UserDashboard = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit_budget_max">Max Budget (£)</Label>
+                        <Label htmlFor="edit_budget_max">Max Budget ($)</Label>
                         <Input
                           id="edit_budget_max"
                           type="number"

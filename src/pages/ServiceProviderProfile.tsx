@@ -413,20 +413,20 @@ const ServiceProviderProfile = () => {
         pageType="provider-profile"
         pageContent={profile.bio || undefined}
         ogImage={profile.avatar_url || undefined}
-        canonical={`https://kluje.co.uk/service-provider/${id}`}
+        canonical={`https://klue-us.lovable.app/service-provider/${id}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           "name": profile.full_name || "Service Provider",
           "description": profile.bio || "",
           "image": profile.avatar_url || "",
-          "url": `https://kluje.co.uk/service-provider/${id}`,
+          "url": `https://klue-us.lovable.app/service-provider/${id}`,
           ...(locations[0] && {
             "address": {
               "@type": "PostalAddress",
               "addressLocality": locations[0].city || "",
               "postalCode": locations[0].postcode || "",
-              "addressCountry": "GB"
+              "addressCountry": "US"
             }
           }),
           ...(averageRating > 0 && {

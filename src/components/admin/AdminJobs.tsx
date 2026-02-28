@@ -451,7 +451,7 @@ const AdminJobs = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label>Min Budget (£)</Label>
+                                <Label>Min Budget ($)</Label>
                                 <Input
                                   type="number"
                                   value={editingJob.budget_min || ''}
@@ -464,7 +464,7 @@ const AdminJobs = () => {
                                 />
                               </div>
                               <div>
-                                <Label>Max Budget (£)</Label>
+                                <Label>Max Budget ($)</Label>
                                 <Input
                                   type="number"
                                   value={editingJob.budget_max || ''}

@@ -180,8 +180,8 @@ export const ProvidersMap = ({ providers }: ProvidersMapProps) => {
     <div className="relative">
       <div className="w-full h-[500px] rounded-lg border border-border overflow-hidden">
         <MapContainer
-          center={[53.5, -1.5]}
-          zoom={5}
+          center={[39.8, -98.5]}
+          zoom={4}
           style={{ width: '100%', height: '100%' }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -224,7 +224,7 @@ export const ProvidersMap = ({ providers }: ProvidersMapProps) => {
           onLocationFound={(lat, lng) => {
             setFlyTarget({ lat, lng, zoom: 13 });
           }}
-          placeholder="Zoom to postcode..."
+          placeholder="Zoom to ZIP code..."
         />
         
         <div className="relative">

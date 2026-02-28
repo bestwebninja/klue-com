@@ -130,14 +130,14 @@ export default function CategoryLanding() {
     '@type': 'CollectionPage',
     name: category.name,
     description: category.tagline,
-    url: `https://kluje.co.uk/services/${category.slug}`,
-    isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://kluje.co.uk' },
+    url: `https://klue-us.lovable.app/services/${category.slug}`,
+    isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://klue-us.lovable.app' },
   };
 
   return (
     <>
       <SEOHead
-        title={`${category.name} Services in the UK | Kluje`}
+        title={`${category.name} Services in the US | Kluje`}
         description={category.article[0].substring(0, 155)}
         keywords={category.subcategories.slice(0, 8)}
         jsonLd={jsonLd}

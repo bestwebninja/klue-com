@@ -260,7 +260,7 @@ const DashboardJobs = ({ userId, isSubscribed, onSubscribe }: DashboardJobsProps
     if (!isSubscribed) {
       toast({
         title: 'Subscription Required',
-        description: 'You need an active subscription to request quotes. Upgrade for just £1.99/month.',
+        description: 'You need an active subscription to request quotes. Upgrade for just $4.99/month.',
         variant: 'destructive',
       });
       return;
@@ -302,9 +302,9 @@ const DashboardJobs = ({ userId, isSubscribed, onSubscribe }: DashboardJobsProps
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Not specified';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   const clearFilters = () => {
@@ -562,7 +562,7 @@ const DashboardJobs = ({ userId, isSubscribed, onSubscribe }: DashboardJobsProps
                                 <Crown className="w-12 h-12 mx-auto mb-4 text-amber-500" />
                                 <h3 className="font-semibold mb-2">Subscription Required</h3>
                                 <p className="text-muted-foreground mb-4">
-                                  Upgrade to Pro for just £1.99/month to request quotes on jobs.
+                                  Upgrade to Pro for just $4.99/month to request quotes on jobs.
                                 </p>
                                 <Button onClick={onSubscribe}>
                                   Upgrade Now

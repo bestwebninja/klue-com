@@ -30,34 +30,34 @@ interface SEOHeadProps {
 // Default SEO data per route for instant rendering (fallback before AI generates)
 const defaultSeoMap: Record<string, { title: string; description: string; keywords: string[] }> = {
   '/': {
-    title: 'Find Trusted Service Providers in the UK | Kluje',
-    description: 'Post a job for free and receive up to 3 quotes from verified UK tradespeople and contractors. Compare profiles, reviews, and hire with confidence.',
-    keywords: ['service providers UK', 'find tradespeople', 'post job free', 'get quotes', 'UK contractors'],
+    title: 'Find Trusted Service Providers in the US | Kluje',
+    description: 'Post a job for free and receive up to 3 quotes from verified US tradespeople and contractors. Compare profiles, reviews, and hire with confidence.',
+    keywords: ['service providers US', 'find tradespeople', 'post job free', 'get quotes', 'US contractors'],
   },
   '/browse-providers': {
     title: 'Browse Local Service Providers | Kluje',
     description: 'Search rated and verified service providers near you. Filter by trade, location and reviews to find the right professional for your project.',
-    keywords: ['browse service providers', 'find contractors', 'UK tradespeople', 'verified professionals'],
+    keywords: ['browse service providers', 'find contractors', 'US tradespeople', 'verified professionals'],
   },
   '/jobs': {
     title: 'Open Jobs & Leads for Tradespeople | Kluje',
-    description: 'Browse open jobs posted by UK homeowners and businesses. Find leads in your trade, request to quote, and grow your service provider business.',
-    keywords: ['service provider jobs', 'contractor leads', 'UK job listings', 'trade work'],
+    description: 'Browse open jobs posted by US homeowners and businesses. Find leads in your trade, request to quote, and grow your service provider business.',
+    keywords: ['service provider jobs', 'contractor leads', 'US job listings', 'trade work'],
   },
   '/post-job': {
     title: 'Post a Job for Free & Get Quotes | Kluje',
     description: 'Describe your project in minutes and get up to 3 quotes from qualified service providers. Completely free to post with no obligation to hire.',
-    keywords: ['post job free', 'get quotes', 'hire tradespeople', 'UK service quotes'],
+    keywords: ['post job free', 'get quotes', 'hire tradespeople', 'US service quotes'],
   },
   '/ask-expert': {
     title: 'Ask an Expert – Free Trade Advice | Kluje',
-    description: 'Ask home improvement, renovation or trade questions and get free answers from verified UK professionals. No sign-up needed to browse answers.',
-    keywords: ['ask expert', 'free advice', 'professional help', 'UK tradespeople advice'],
+    description: 'Ask home improvement, renovation or trade questions and get free answers from verified US professionals. No sign-up needed to browse answers.',
+    keywords: ['ask expert', 'free advice', 'professional help', 'US tradespeople advice'],
   },
   '/blog': {
     title: 'Tips & Guides for Home Improvement | Kluje',
-    description: 'Read expert articles on hiring tradespeople, home renovation tips, event planning, and business services from experienced UK professionals.',
-    keywords: ['home improvement blog', 'service tips', 'UK tradespeople guides', 'hiring advice'],
+    description: 'Read expert articles on hiring tradespeople, home renovation tips, event planning, and business services from experienced US professionals.',
+    keywords: ['home improvement blog', 'service tips', 'US tradespeople guides', 'hiring advice'],
   },
   '/how-it-works': {
     title: 'How It Works – Hire with Confidence | Kluje',
@@ -66,12 +66,12 @@ const defaultSeoMap: Record<string, { title: string; description: string; keywor
   },
   '/pricing': {
     title: 'Plans & Pricing for Providers | Kluje',
-    description: 'Affordable monthly plans for UK service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base.',
+    description: 'Affordable monthly plans for US service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base.',
     keywords: ['service provider pricing', 'subscription plans', 'contractor membership', 'trade leads cost'],
   },
   '/contact': {
     title: 'Contact Us | Kluje',
-    description: 'Get in touch with the Kluje team for support, feedback, or partnership enquiries. We are here to help customers and service providers.',
+    description: 'Get in touch with the Kluje team for support, feedback, or partnership inquiries. We are here to help customers and service providers.',
     keywords: ['contact Kluje', 'get in touch', 'support', 'help'],
   },
   '/terms': {
@@ -90,58 +90,58 @@ const defaultSeoMap: Record<string, { title: string; description: string; keywor
     keywords: ['sign in', 'create account', 'Kluje login', 'register'],
   },
   '/services/home-diy-renovation': {
-    title: 'Home DIY & Renovation Services in the UK | Kluje',
-    description: 'Find trusted UK tradespeople for home renovations, repairs and improvements. Get up to 3 quotes from verified electricians, plumbers, builders and more.',
-    keywords: ['home renovation UK', 'find tradespeople', 'DIY services', 'UK builders', 'home improvement'],
+    title: 'Home DIY & Renovation Services in the US | Kluje',
+    description: 'Find trusted US tradespeople for home renovations, repairs and improvements. Get up to 3 quotes from verified electricians, plumbers, builders and more.',
+    keywords: ['home renovation US', 'find tradespeople', 'DIY services', 'US builders', 'home improvement'],
   },
   '/services/commercial-services': {
-    title: 'Commercial Renovations & Services in the UK | Kluje',
-    description: 'Professional commercial fit-outs, shopfitting and maintenance services across the UK. Get quotes from verified commercial contractors.',
-    keywords: ['commercial renovation UK', 'shopfitting', 'office refurbishment', 'commercial contractors'],
+    title: 'Commercial Renovations & Services in the US | Kluje',
+    description: 'Professional commercial fit-outs, shopfitting and maintenance services across the US. Get quotes from verified commercial contractors.',
+    keywords: ['commercial renovation US', 'shopfitting', 'office refurbishment', 'commercial contractors'],
   },
   '/services/events-catering': {
-    title: 'Events & Catering Services in the UK | Kluje',
-    description: 'Plan unforgettable events with top UK event professionals. Find caterers, DJs, photographers, wedding planners and more.',
-    keywords: ['event services UK', 'catering', 'wedding planning', 'UK event professionals'],
+    title: 'Events & Catering Services in the US | Kluje',
+    description: 'Plan unforgettable events with top US event professionals. Find caterers, DJs, photographers, wedding planners and more.',
+    keywords: ['event services US', 'catering', 'wedding planning', 'US event professionals'],
   },
   '/services/health-fitness': {
-    title: 'Health & Fitness Services in the UK | Kluje',
-    description: 'Find qualified personal trainers, physiotherapists, nutritionists and wellness professionals near you across the UK.',
-    keywords: ['personal trainer UK', 'physiotherapy', 'health and fitness', 'wellness professionals'],
+    title: 'Health & Fitness Services in the US | Kluje',
+    description: 'Find qualified personal trainers, physiotherapists, nutritionists and wellness professionals near you across the US.',
+    keywords: ['personal trainer US', 'physiotherapy', 'health and fitness', 'wellness professionals'],
   },
   '/services/agriculture': {
-    title: 'Agriculture & Transport Services in the UK | Kluje',
-    description: 'Reliable agricultural services, removals, couriers and transport providers across the UK. Compare quotes and hire with confidence.',
-    keywords: ['agriculture UK', 'removals', 'courier services', 'transport', 'man with a van'],
+    title: 'Agriculture & Transport Services in the US | Kluje',
+    description: 'Reliable agricultural services, removals, couriers and transport providers across the US. Compare quotes and hire with confidence.',
+    keywords: ['agriculture US', 'removals', 'courier services', 'transport', 'man with a van'],
   },
   '/services/pets-services': {
-    title: 'Pet Services in the UK | Kluje',
-    description: 'Trusted UK pet care professionals including dog walkers, groomers, pet sitters and trainers. Find insured and reviewed providers near you.',
-    keywords: ['pet services UK', 'dog walking', 'pet grooming', 'pet sitting', 'dog training'],
+    title: 'Pet Services in the US | Kluje',
+    description: 'Trusted US pet care professionals including dog walkers, groomers, pet sitters and trainers. Find insured and reviewed providers near you.',
+    keywords: ['pet services US', 'dog walking', 'pet grooming', 'pet sitting', 'dog training'],
   },
   '/services/business-services': {
-    title: 'Business Services in the UK | Kluje',
-    description: 'Professional UK business support including accountancy, payroll, consulting and administrative services. Get quotes from verified providers.',
-    keywords: ['business services UK', 'accountancy', 'payroll services', 'business consulting'],
+    title: 'Business Services in the US | Kluje',
+    description: 'Professional US business support including accountancy, payroll, consulting and administrative services. Get quotes from verified providers.',
+    keywords: ['business services US', 'accountancy', 'payroll services', 'business consulting'],
   },
   '/services/it-services': {
-    title: 'IT Services in the UK | Kluje',
-    description: 'Expert UK-based IT and digital services including web design, software development, SEO and cybersecurity. Compare portfolios and quotes.',
-    keywords: ['IT services UK', 'web design', 'software development', 'SEO services', 'digital agency'],
+    title: 'IT Services in the US | Kluje',
+    description: 'Expert US-based IT and digital services including web design, software development, SEO and cybersecurity. Compare portfolios and quotes.',
+    keywords: ['IT services US', 'web design', 'software development', 'SEO services', 'digital agency'],
   },
   '/services/legal-services': {
-    title: 'Legal Services in the UK | Kluje',
-    description: 'Find qualified UK solicitors and legal professionals for conveyancing, family law, commercial contracts, immigration and more.',
-    keywords: ['solicitors UK', 'legal services', 'conveyancing', 'family law', 'UK lawyers'],
+    title: 'Legal Services in the US | Kluje',
+    description: 'Find qualified US attorneys and legal professionals for real estate, family law, commercial contracts, immigration and more.',
+    keywords: ['attorneys US', 'legal services', 'real estate law', 'family law', 'US lawyers'],
   },
   '/services/lessons': {
-    title: 'Lessons & Tutoring in the UK | Kluje',
-    description: 'Find qualified UK tutors and instructors for academic subjects, languages, music, sports and more. Compare credentials and book with confidence.',
-    keywords: ['tutoring UK', 'private lessons', 'tutors near me', 'language lessons', 'academic tutoring'],
+    title: 'Lessons & Tutoring in the US | Kluje',
+    description: 'Find qualified US tutors and instructors for academic subjects, languages, music, sports and more. Compare credentials and book with confidence.',
+    keywords: ['tutoring US', 'private lessons', 'tutors near me', 'language lessons', 'academic tutoring'],
   },
 };
 
-const BASE_URL = 'https://kluje.co.uk';
+const BASE_URL = 'https://klue-us.lovable.app';
 
 export const SEOHead = ({
   title,

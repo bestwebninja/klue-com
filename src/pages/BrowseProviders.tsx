@@ -334,14 +334,14 @@ const BrowseProviders = () => {
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ItemList",
-          "name": "Service Providers in the UK",
+          "name": "Service Providers in the US",
           "description": "Browse rated and verified service providers near you. Filter by trade, location and reviews to find the right professional for your project.",
-          "url": "https://kluje.co.uk/browse-providers",
+          "url": "https://klue-us.lovable.app/browse-providers",
           "numberOfItems": filteredProviders.length,
           "itemListElement": filteredProviders.slice(0, 10).map((provider, index) => ({
             "@type": "ListItem",
             "position": index + 1,
-            "url": `https://kluje.co.uk/service-provider/${provider.id}`,
+            "url": `https://klue-us.lovable.app/service-provider/${provider.id}`,
             "name": provider.full_name || "Service Provider",
           })),
         }}

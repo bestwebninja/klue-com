@@ -286,9 +286,9 @@ const JobsMapComponent = forwardRef<JobsMapHandle, JobsMapProps>(function JobsMa
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Budget flexible';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   if (isLoading) {
@@ -315,8 +315,8 @@ const JobsMapComponent = forwardRef<JobsMapHandle, JobsMapProps>(function JobsMa
     <div className="relative">
       <div className="w-full h-[600px] rounded-lg border border-border overflow-hidden">
         <MapContainer
-          center={[53.5, -1.5]}
-          zoom={5}
+          center={[39.8, -98.5]}
+          zoom={4}
           style={{ width: '100%', height: '100%' }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -370,7 +370,7 @@ const JobsMapComponent = forwardRef<JobsMapHandle, JobsMapProps>(function JobsMa
             onLocationFound={(lat, lng) => {
               setFlyTarget({ lat, lng, zoom: 13 });
             }}
-            placeholder="Zoom to postcode..."
+            placeholder="Zoom to ZIP code..."
           />
         </div>
         

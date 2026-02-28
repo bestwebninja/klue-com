@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Input } from '@/components/ui/input';
 import { MapPin, Search, Loader2, AlertCircle } from 'lucide-react';
-import { isValidUKPostcode, formatUKPostcode } from '@/lib/postcodeValidation';
+import { isValidUSZipCode, formatUSZipCode } from '@/lib/zipCodeValidation';
 
 // Fix default marker icon
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -64,7 +64,7 @@ export const LocationPicker = ({
 }: LocationPickerProps) => {
   const initialCenter: [number, number] = initialLocation?.latitude && initialLocation?.longitude
     ? [initialLocation.latitude, initialLocation.longitude]
-    : [51.5074, -0.1276]; // Default to London
+    : [39.8283, -98.5795]; // Default to center of US
 
   const [markerPosition, setMarkerPosition] = useState<[number, number]>(initialCenter);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
@@ -72,7 +72,7 @@ export const LocationPicker = ({
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [postcodeWarning, setPostcodeWarning] = useState<string | null>(null);
+  const [zipCodeWarning, setZipCodeWarning] = useState<string | null>(null);
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
@@ -84,22 +84,22 @@ export const LocationPicker = ({
       if (data && data.address) {
         const address = data.display_name || '';
         const city = data.address.city || data.address.town || data.address.village || '';
-        let postcode = data.address.postcode || '';
+        let zipCode = data.address.postcode || '';
 
-        if (postcode && isValidUKPostcode(postcode)) {
-          postcode = formatUKPostcode(postcode);
-          setPostcodeWarning(null);
-        } else if (postcode) {
-          setPostcodeWarning('Invalid UK postcode format detected');
+        if (zipCode && isValidUSZipCode(zipCode)) {
+          zipCode = formatUSZipCode(zipCode);
+          setZipCodeWarning(null);
+        } else if (zipCode) {
+          setZipCodeWarning('Invalid US ZIP code format detected');
         } else {
-          setPostcodeWarning('No postcode found for this location. Please search for a specific UK postcode.');
+          setZipCodeWarning('No ZIP code found for this location. Please search for a specific US ZIP code.');
         }
 
         setSearchQuery(address);
         onLocationSelect({
           address,
           city,
-          postcode: postcode && isValidUKPostcode(postcode) ? formatUKPostcode(postcode) : postcode,
+          postcode: zipCode && isValidUSZipCode(zipCode) ? formatUSZipCode(zipCode) : zipCode,
           latitude: lat,
           longitude: lng,
         });
@@ -123,7 +123,7 @@ export const LocationPicker = ({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5&addressdetails=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5&addressdetails=1`
       );
       const data = await response.json();
       setSuggestions(data || []);
@@ -147,15 +147,15 @@ export const LocationPicker = ({
     const lng = parseFloat(item.lon);
     const address = item.display_name || '';
     const city = item.address?.city || item.address?.town || item.address?.village || '';
-    let postcode = item.address?.postcode || '';
+    let zipCode = item.address?.postcode || '';
 
-    if (postcode && isValidUKPostcode(postcode)) {
-      postcode = formatUKPostcode(postcode);
-      setPostcodeWarning(null);
-    } else if (postcode) {
-      setPostcodeWarning('Invalid UK postcode format detected');
+    if (zipCode && isValidUSZipCode(zipCode)) {
+      zipCode = formatUSZipCode(zipCode);
+      setZipCodeWarning(null);
+    } else if (zipCode) {
+      setZipCodeWarning('Invalid US ZIP code format detected');
     } else {
-      setPostcodeWarning('No postcode found. Please search for a specific UK postcode (e.g., SW1A 1AA).');
+      setZipCodeWarning('No ZIP code found. Please search for a specific US ZIP code (e.g., 90210).');
     }
 
     setSearchQuery(address);
@@ -167,7 +167,7 @@ export const LocationPicker = ({
     onLocationSelect({
       address,
       city,
-      postcode: postcode && isValidUKPostcode(postcode) ? formatUKPostcode(postcode) : postcode,
+      postcode: zipCode && isValidUSZipCode(zipCode) ? formatUSZipCode(zipCode) : zipCode,
       latitude: lat,
       longitude: lng,
     });
@@ -216,11 +216,11 @@ export const LocationPicker = ({
         )}
       </div>
 
-      {/* Postcode validation warning */}
-      {postcodeWarning && (
+      {/* ZIP code validation warning */}
+      {zipCodeWarning && (
         <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md px-3 py-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{postcodeWarning}</span>
+          <span>{zipCodeWarning}</span>
         </div>
       )}
 

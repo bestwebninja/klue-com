@@ -55,7 +55,7 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=gb&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=5`
       );
       const data = await response.json();
       setSuggestions(data || []);
@@ -201,7 +201,7 @@ export const DistanceFilter = ({ onFilterChange }: DistanceFilterProps) => {
               }}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              placeholder="Enter city or postcode..."
+              placeholder="Enter city or ZIP code..."
               className="pl-10 pr-10"
             />
             {isSearching && (

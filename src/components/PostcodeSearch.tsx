@@ -3,13 +3,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, MapPin } from 'lucide-react';
 import { z } from 'zod';
-import { UK_POSTCODE_REGEX, formatUKPostcode } from '@/lib/postcodeValidation';
+import { US_ZIP_CODE_REGEX, formatUSZipCode } from '@/lib/zipCodeValidation';
 
-const postcodeSchema = z.string()
+const zipCodeSchema = z.string()
   .trim()
-  .min(1, "Please enter a postcode")
-  .max(10, "Postcode too long")
-  .regex(UK_POSTCODE_REGEX, "Please enter a valid UK postcode");
+  .min(1, "Please enter a ZIP code")
+  .max(10, "ZIP code too long")
+  .regex(US_ZIP_CODE_REGEX, "Please enter a valid US ZIP code");
 
 interface PostcodeSearchProps {
   onLocationFound: (lat: number, lng: number, postcode: string) => void;
@@ -21,32 +21,32 @@ interface PostcodeSearchProps {
 
 export const PostcodeSearch = ({
   onLocationFound,
-  placeholder = "Enter postcode...",
+  placeholder = "Enter ZIP code...",
   className = "",
 }: PostcodeSearchProps) => {
-  const [postcode, setPostcode] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = useCallback(async () => {
     setError(null);
 
-    const validationResult = postcodeSchema.safeParse(postcode);
+    const validationResult = zipCodeSchema.safeParse(zipCode);
     if (!validationResult.success) {
       setError(validationResult.error.errors[0].message);
       return;
     }
 
-    const cleanedPostcode = formatUKPostcode(validationResult.data);
+    const cleanedZipCode = formatUSZipCode(validationResult.data);
 
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanedPostcode)}&countrycodes=gb&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanedZipCode)}&countrycodes=us&limit=1`
       );
       
       if (!response.ok) {
-        throw new Error('Failed to search for postcode');
+        throw new Error('Failed to search for ZIP code');
       }
 
       const data = await response.json();
@@ -54,18 +54,18 @@ export const PostcodeSearch = ({
       if (data && data.length > 0) {
         const lat = parseFloat(data[0].lat);
         const lng = parseFloat(data[0].lon);
-        onLocationFound(lat, lng, cleanedPostcode);
-        setPostcode('');
+        onLocationFound(lat, lng, cleanedZipCode);
+        setZipCode('');
       } else {
-        setError('Postcode not found');
+        setError('ZIP code not found');
       }
     } catch (err) {
-      console.error('Postcode search error:', err);
+      console.error('ZIP code search error:', err);
       setError('Search failed. Please try again.');
     } finally {
       setIsSearching(false);
     }
-  }, [postcode, onLocationFound]);
+  }, [zipCode, onLocationFound]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -80,14 +80,14 @@ export const PostcodeSearch = ({
         <div className="relative">
           <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            value={postcode}
+            value={zipCode}
             onChange={(e) => {
-              setPostcode(e.target.value.toUpperCase());
+              setZipCode(e.target.value);
               setError(null);
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="w-[140px] pl-8 h-9 bg-background/90 backdrop-blur-sm shadow-sm uppercase"
+            className="w-[140px] pl-8 h-9 bg-background/90 backdrop-blur-sm shadow-sm"
             maxLength={10}
             disabled={isSearching}
           />
@@ -96,7 +96,7 @@ export const PostcodeSearch = ({
           size="sm"
           variant="secondary"
           onClick={handleSearch}
-          disabled={isSearching || !postcode.trim()}
+          disabled={isSearching || !zipCode.trim()}
           className="h-9 px-3 shadow-sm"
         >
           {isSearching ? (

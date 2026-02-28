@@ -428,12 +428,12 @@ const JobDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${job.title} – Job in ${job.location || 'UK'} | Kluje`}
+        title={`${job.title} – Job in ${job.location || 'US'} | Kluje`}
         description={job.description?.substring(0, 155) || `View this ${job.service_categories?.name || ''} job on Kluje and request to quote.`}
-        keywords={[job.service_categories?.name, 'job', 'quote', 'UK', job.location].filter(Boolean) as string[]}
+        keywords={[job.service_categories?.name, 'job', 'quote', 'US', job.location].filter(Boolean) as string[]}
         pageType="job-detail"
         pageContent={job.description}
-        canonical={`https://kluje.co.uk/jobs/${id}`}
+        canonical={`https://klue-us.lovable.app/jobs/${id}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "JobPosting",
@@ -445,18 +445,18 @@ const JobDetail = () => {
             "address": {
               "@type": "PostalAddress",
               "addressRegion": job.location || "",
-              "addressCountry": "GB"
+              "addressCountry": "US"
             }
           },
           "hiringOrganization": {
             "@type": "Organization",
             "name": "Kluje",
-            "sameAs": "https://kluje.co.uk"
+            "sameAs": "https://klue-us.lovable.app"
           },
           ...(job.budget_min && job.budget_max && {
             "baseSalary": {
               "@type": "MonetaryAmount",
-              "currency": "GBP",
+              "currency": "USD",
               "value": {
                 "@type": "QuantitativeValue",
                 "minValue": job.budget_min,

@@ -95,7 +95,7 @@ const DashboardSubscription = ({ profile, onSubscriptionUpdate }: DashboardSubsc
           <CardDescription>Basic features for new providers</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-3xl font-bold">£0<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+          <div className="text-3xl font-bold">$0<span className="text-lg font-normal text-muted-foreground">/month</span></div>
           
           <ul className="space-y-2">
             <li className="flex items-center gap-2 text-sm">
@@ -138,7 +138,7 @@ const DashboardSubscription = ({ profile, onSubscriptionUpdate }: DashboardSubsc
           <CardDescription>Everything you need to win jobs</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-3xl font-bold">£4.99<span className="text-lg font-normal text-muted-foreground">/month</span></div>
+          <div className="text-3xl font-bold">$4.99<span className="text-lg font-normal text-muted-foreground">/month</span></div>
           
           <ul className="space-y-2">
             <li className="flex items-center gap-2 text-sm">

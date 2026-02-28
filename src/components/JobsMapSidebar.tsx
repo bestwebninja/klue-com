@@ -39,9 +39,9 @@ export const JobsMapSidebar = ({
 }: JobsMapSidebarProps) => {
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Flexible';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   if (isCollapsed) {

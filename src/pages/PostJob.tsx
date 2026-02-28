@@ -76,38 +76,38 @@ const PostJob = () => {
     }
   }, [isProvider, roleLoading, navigate, toast]);
 
-  // Common UK locations with postcode areas
-  const ukLocations = [
-    { name: 'London', postcode: 'EC, WC, E, N, NW, SE, SW, W' },
-    { name: 'Manchester', postcode: 'M' },
-    { name: 'Birmingham', postcode: 'B' },
-    { name: 'Leeds', postcode: 'LS' },
-    { name: 'Glasgow', postcode: 'G' },
-    { name: 'Liverpool', postcode: 'L' },
-    { name: 'Bristol', postcode: 'BS' },
-    { name: 'Sheffield', postcode: 'S' },
-    { name: 'Edinburgh', postcode: 'EH' },
-    { name: 'Leicester', postcode: 'LE' },
-    { name: 'Coventry', postcode: 'CV' },
-    { name: 'Bradford', postcode: 'BD' },
-    { name: 'Cardiff', postcode: 'CF' },
-    { name: 'Belfast', postcode: 'BT' },
-    { name: 'Nottingham', postcode: 'NG' },
-    { name: 'Newcastle upon Tyne', postcode: 'NE' },
-    { name: 'Southampton', postcode: 'SO' },
-    { name: 'Portsmouth', postcode: 'PO' },
-    { name: 'Plymouth', postcode: 'PL' },
-    { name: 'Reading', postcode: 'RG' },
-    { name: 'Derby', postcode: 'DE' },
-    { name: 'Wolverhampton', postcode: 'WV' },
-    { name: 'Stoke-on-Trent', postcode: 'ST' },
-    { name: 'Cambridge', postcode: 'CB' },
-    { name: 'Oxford', postcode: 'OX' },
-    { name: 'Milton Keynes', postcode: 'MK' },
-    { name: 'Norwich', postcode: 'NR' },
-    { name: 'York', postcode: 'YO' },
-    { name: 'Swindon', postcode: 'SN' },
-    { name: 'Brighton', postcode: 'BN' },
+  // Common US locations with ZIP code areas
+  const usLocations = [
+    { name: 'New York', zipCode: '10001' },
+    { name: 'Los Angeles', zipCode: '90001' },
+    { name: 'Chicago', zipCode: '60601' },
+    { name: 'Houston', zipCode: '77001' },
+    { name: 'Phoenix', zipCode: '85001' },
+    { name: 'Philadelphia', zipCode: '19101' },
+    { name: 'San Antonio', zipCode: '78201' },
+    { name: 'San Diego', zipCode: '92101' },
+    { name: 'Dallas', zipCode: '75201' },
+    { name: 'San Jose', zipCode: '95101' },
+    { name: 'Austin', zipCode: '78701' },
+    { name: 'Jacksonville', zipCode: '32099' },
+    { name: 'San Francisco', zipCode: '94101' },
+    { name: 'Columbus', zipCode: '43085' },
+    { name: 'Indianapolis', zipCode: '46201' },
+    { name: 'Charlotte', zipCode: '28201' },
+    { name: 'Seattle', zipCode: '98101' },
+    { name: 'Denver', zipCode: '80201' },
+    { name: 'Washington DC', zipCode: '20001' },
+    { name: 'Nashville', zipCode: '37201' },
+    { name: 'Boston', zipCode: '02101' },
+    { name: 'Las Vegas', zipCode: '89101' },
+    { name: 'Portland', zipCode: '97201' },
+    { name: 'Miami', zipCode: '33101' },
+    { name: 'Atlanta', zipCode: '30301' },
+    { name: 'Minneapolis', zipCode: '55401' },
+    { name: 'Tampa', zipCode: '33601' },
+    { name: 'Orlando', zipCode: '32801' },
+    { name: 'Detroit', zipCode: '48201' },
+    { name: 'Pittsburgh', zipCode: '15201' },
   ];
 
   const [formData, setFormData] = useState({
@@ -533,7 +533,7 @@ const PostJob = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="budget_min">Min Budget (£)</Label>
+                    <Label htmlFor="budget_min">Min Budget ($)</Label>
                     <Input
                       id="budget_min"
                       type="number"
@@ -544,7 +544,7 @@ const PostJob = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="budget_max">Max Budget (£)</Label>
+                    <Label htmlFor="budget_max">Max Budget ($)</Label>
                     <Input
                       id="budget_max"
                       type="number"

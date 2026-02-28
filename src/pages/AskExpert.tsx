@@ -184,7 +184,7 @@ const AskExpert = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Ask an Expert – Free Trade Advice | Kluje" description="Ask home improvement, renovation or trade questions and get free answers from verified UK professionals. No sign-up needed to browse answers." pageType="ask-expert" />
+      <SEOHead title="Ask an Expert – Free Trade Advice | Kluje" description="Ask home improvement, renovation or trade questions and get free answers from verified US professionals. No sign-up needed to browse answers." pageType="ask-expert" />
       <Navbar />
       
       <main>

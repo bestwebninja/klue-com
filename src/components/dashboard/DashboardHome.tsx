@@ -207,9 +207,9 @@ const DashboardHome = ({ userId, profile, onNavigate }: DashboardHomeProps) => {
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Budget TBD';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   const formatTimeAgo = (date: string) => {

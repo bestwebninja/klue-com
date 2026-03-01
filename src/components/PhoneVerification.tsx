@@ -22,8 +22,8 @@ const PhoneVerification = ({ onVerified, userType }: PhoneVerificationProps) => 
 
   // Format phone: user enters without +44, we prepend it
   const getFullPhone = () => {
-    let cleaned = phoneNumber.replace(/\s/g, '').replace(/^0/, '');
-    return `+44${cleaned}`;
+    let cleaned = phoneNumber.replace(/\s/g, '').replace(/^1/, '');
+    return `+1${cleaned}`;
   };
 
   useEffect(() => {
@@ -35,10 +35,10 @@ const PhoneVerification = ({ onVerified, userType }: PhoneVerificationProps) => 
 
   const handleSendCode = async () => {
     const fullPhone = getFullPhone();
-    if (!/^\+44\d{10}$/.test(fullPhone)) {
+    if (!/^\+1\d{10}$/.test(fullPhone)) {
       toast({
         title: 'Invalid phone number',
-        description: 'Please enter a valid UK mobile number (10 digits after 0).',
+        description: 'Please enter a valid US mobile number (10 digits).',
         variant: 'destructive',
       });
       return;
@@ -205,14 +205,14 @@ const PhoneVerification = ({ onVerified, userType }: PhoneVerificationProps) => 
       <Label htmlFor="phone">Mobile Number <span className="text-destructive">*</span></Label>
       <div className="flex gap-2">
         <div className="flex items-center px-3 bg-muted border border-input rounded-md text-sm text-muted-foreground">
-          +44
+          +1
         </div>
         <Input
           id="phone"
           type="tel"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9\s]/g, ''))}
-          placeholder="7911 123456"
+          placeholder="(555) 123-4567"
           className="flex-1"
         />
       </div>

@@ -21,11 +21,11 @@ serve(async (req: Request) => {
       );
     }
 
-    // Validate UK phone format
+    // Validate US phone format
     const cleanPhone = phone.replace(/\s/g, '');
-    if (!/^\+44\d{10}$/.test(cleanPhone)) {
+    if (!/^\+1\d{10}$/.test(cleanPhone)) {
       return new Response(
-        JSON.stringify({ error: 'Please enter a valid UK mobile number' }),
+        JSON.stringify({ error: 'Please enter a valid US mobile number' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

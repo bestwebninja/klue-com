@@ -128,7 +128,7 @@ serve(async (req) => {
     });
 
     const emailResponse = await resend.emails.send({
-      from: "Kluje <notifications@kluje.co.uk>",
+      from: "Kluje <notifications@kluje.com>",
       to: [recipient.email],
       subject: `New message from ${senderName} about "${jobTitle}"`,
       html: htmlContent,

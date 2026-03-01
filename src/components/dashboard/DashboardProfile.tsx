@@ -290,7 +290,7 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+44 7700 900000"
+                    placeholder="+1 (555) 123-4567"
                     maxLength={20}
                     disabled
                   />

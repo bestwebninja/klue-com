@@ -30,7 +30,7 @@ const Privacy = () => {
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
           <p className="text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
 
           <section className="space-y-4">
@@ -65,7 +65,7 @@ const Privacy = () => {
               <li>Connect homeowners with service providers</li>
               <li>Send notifications about job updates, messages, and account activity</li>
               <li>Respond to your comments, questions, and requests</li>
-              <li>Monitor and analyse trends, usage, and activities</li>
+              <li>Monitor and analyze trends, usage, and activities</li>
               <li>Detect, investigate, and prevent fraudulent transactions and abuse</li>
             </ul>
           </section>
@@ -86,7 +86,7 @@ const Privacy = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-foreground">5. Data Security</h2>
             <p className="text-muted-foreground">
-              We implement appropriate technical and organisational measures to protect your personal information against unauthorised access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is 100% secure.
+              We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is 100% secure.
             </p>
           </section>
 

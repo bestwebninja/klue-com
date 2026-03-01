@@ -128,7 +128,7 @@ serve(async (req) => {
             content: `<strong>Issue:</strong> ${error || "Location not found"}`,
             variant: 'warning',
           }),
-          `<p style="margin: 20px 0; font-size: 16px; color: #374151; line-height: 1.6;">Please update your job with a more specific address (including postcode) to help service providers find you.</p>`,
+          `<p style="margin: 20px 0; font-size: 16px; color: #374151; line-height: 1.6;">Please update your job with a more specific address (including ZIP code) to help service providers find you.</p>`,
         ],
         buttons: [
           { href: `${siteUrl}/dashboard?tab=jobs`, text: 'Update Job Location' },
@@ -139,7 +139,7 @@ serve(async (req) => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Kluje <notifications@kluje.co.uk>",
+      from: "Kluje <notifications@kluje.com>",
       to: [email],
       subject,
       html: htmlContent,

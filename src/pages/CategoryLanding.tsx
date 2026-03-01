@@ -227,7 +227,7 @@ export default function CategoryLanding() {
                       )}
                       <p className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        {new Date(job.created_at).toLocaleDateString('en-GB')}
+                        {new Date(job.created_at).toLocaleDateString('en-US')}
                       </p>
                     </CardContent>
                   </Card>

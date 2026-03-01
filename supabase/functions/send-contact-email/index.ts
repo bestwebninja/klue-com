@@ -63,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const adminEmailResponse = await resend.emails.send({
-      from: "Kluje Contact <hello@kluje.co.uk>",
+      from: "Kluje Contact <hello@kluje.com>",
       to: ["hello@kluje.com"],
       subject: `New Contact Form: ${subject}`,
       html: adminHtmlContent,
@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const userEmailResponse = await resend.emails.send({
-      from: "Kluje <noreply@kluje.co.uk>",
+      from: "Kluje <noreply@kluje.com>",
       to: [email],
       subject: "We received your message!",
       html: userHtmlContent,

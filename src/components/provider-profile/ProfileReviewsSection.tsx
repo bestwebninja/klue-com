@@ -92,7 +92,7 @@ export const ProfileReviewsSection = ({
   const [reviewForm, setReviewForm] = useState({ rating: 0, title: '', content: '' });
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-GB', {
+    return new Date(date).toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',

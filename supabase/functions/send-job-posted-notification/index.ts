@@ -18,7 +18,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Kluje <notifications@kluje.co.uk>",
+      from: "Kluje <notifications@kluje.com>",
       to: [to],
       subject,
       html,
@@ -129,11 +129,11 @@ const handler = async (req: Request): Promise<Response> => {
     const userName = profile?.full_name || "there";
     const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.lovable.app';
     const budgetText = job.budget_min && job.budget_max 
-      ? `£${job.budget_min.toLocaleString()} - £${job.budget_max.toLocaleString()}`
+      ? `$${job.budget_min.toLocaleString()} - $${job.budget_max.toLocaleString()}`
       : job.budget_min 
-        ? `From £${job.budget_min.toLocaleString()}`
+        ? `From $${job.budget_min.toLocaleString()}`
         : job.budget_max 
-          ? `Up to £${job.budget_max.toLocaleString()}`
+          ? `Up to $${job.budget_max.toLocaleString()}`
           : "Flexible";
 
     const subject = `Your job "${job.title}" has been posted! 🎉`;

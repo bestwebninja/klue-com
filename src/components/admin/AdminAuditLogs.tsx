@@ -91,7 +91,7 @@ const AdminAuditLogs = () => {
   };
 
   const formatDateTime = (date: string) => {
-    return new Date(date).toLocaleString('en-GB', {
+    return new Date(date).toLocaleString('en-US', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',

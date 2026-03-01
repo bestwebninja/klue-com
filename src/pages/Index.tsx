@@ -20,43 +20,43 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Find Trusted Service Providers in the UK | Kluje"
-        description="Post a job for free and receive up to 3 quotes from verified UK tradespeople and contractors. Compare profiles, reviews, and hire with confidence."
+        title="Find Trusted Service Providers in the US | Kluje"
+        description="Post a job for free and receive up to 3 quotes from verified US contractors and service providers. Compare profiles, reviews, and hire with confidence."
         pageType="homepage"
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [
             {
               "@type": "Organization",
-              "@id": "https://kluje.co.uk/#organization",
+              "@id": "https://kluje.com/#organization",
               "name": "Kluje",
-              "url": "https://kluje.co.uk",
+              "url": "https://kluje.com",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://kluje.co.uk/og-image.png",
+                "url": "https://kluje.com/og-image.png",
                 "width": 1200,
                 "height": 630
               },
-              "description": "Kluje connects UK homeowners and businesses with trusted, verified service providers across trades, events, health, IT and more.",
+              "description": "Kluje connects US homeowners and businesses with trusted, verified service providers across trades, events, health, IT and more.",
               "sameAs": [
                 "https://x.com/Kluje"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
                 "contactType": "customer service",
-                "url": "https://kluje.co.uk/contact"
+                "url": "https://kluje.com/contact"
               }
             },
             {
               "@type": "WebSite",
-              "@id": "https://kluje.co.uk/#website",
+              "@id": "https://kluje.com/#website",
               "name": "Kluje",
-              "url": "https://kluje.co.uk",
-              "publisher": { "@id": "https://kluje.co.uk/#organization" },
-              "description": "Find trusted service providers in the UK. Post a job for free and get quotes from verified professionals.",
+              "url": "https://kluje.com",
+              "publisher": { "@id": "https://kluje.com/#organization" },
+              "description": "Find trusted service providers in the US. Post a job for free and get quotes from verified professionals.",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://kluje.co.uk/browse-providers?search={search_term_string}",
+                "target": "https://kluje.com/browse-providers?search={search_term_string}",
                 "query-input": "required name=search_term_string"
               }
             }

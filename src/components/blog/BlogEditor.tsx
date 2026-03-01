@@ -347,7 +347,7 @@ export function BlogEditor({
                 <Label htmlFor="keywords">Keywords (comma-separated, optional)</Label>
                 <Input
                   id="keywords"
-                  placeholder="e.g., plumber, home repairs, UK services"
+                  placeholder="e.g., plumber, home repairs, US services"
                   value={generateKeywords}
                   onChange={(e) => setGenerateKeywords(e.target.value)}
                 />

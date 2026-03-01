@@ -11,7 +11,7 @@ const steps = [
   {
     icon: Headphones,
     title: "Service providers will contact you",
-    description: "Receive up to 3 competitive quotes from qualified UK tradespeople and professionals",
+    description: "Receive up to 3 competitive quotes from qualified US contractors and professionals",
   },
   {
     icon: UserCheck,
@@ -21,7 +21,7 @@ const steps = [
   {
     icon: Star,
     title: "Rate the service",
-    description: "Leave a review to help other UK homeowners find reliable service providers",
+    description: "Leave a review to help other US homeowners find reliable service providers",
   },
 ];
 

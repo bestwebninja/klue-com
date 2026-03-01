@@ -8,14 +8,14 @@ export function WhyChooseKluje() {
         <div className="max-w-4xl mx-auto">
           <SectionHeader
             className="mb-8"
-            title="Why UK Homeowners and Businesses Choose Kluje"
-            subtitle="A smarter way to hire tradespeople and service providers"
+            title="Why US Homeowners and Businesses Choose Kluje"
+            subtitle="A smarter way to hire contractors and service providers"
           />
 
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              Finding a reliable tradesperson in the UK can be a challenge. From emergency plumbing repairs
-              in Birmingham to full kitchen renovations in Bristol, homeowners deserve a straightforward way
+              Finding a reliable contractor in the US can be a challenge. From emergency plumbing repairs
+              in Houston to full kitchen renovations in Denver, homeowners deserve a straightforward way
               to compare qualified professionals. Kluje was built to solve that problem.
             </p>
             <p>
@@ -58,7 +58,7 @@ export function WhyChooseKluje() {
             </p>
 
             <h3 className="text-lg font-semibold text-foreground pt-4">
-              Trusted by Homeowners Across England, Scotland, Wales &amp; Northern Ireland
+              Trusted by Homeowners Across All 50 States
             </h3>
             <p>
               Every service provider on Kluje can complete our verification process, which includes identity
@@ -71,10 +71,10 @@ export function WhyChooseKluje() {
               project.
             </p>
             <p>
-              Whether you are a first-time buyer renovating a flat in Leeds or a facilities manager sourcing
-              contractors for a commercial property in Cardiff, Kluje provides the tools to hire with
-              confidence. Post your first job today and discover why more UK property owners are choosing
-              Kluje to find quality tradespeople.
+              Whether you are a first-time buyer renovating an apartment in Brooklyn or a facilities manager sourcing
+              contractors for a commercial property in Dallas, Kluje provides the tools to hire with
+              confidence. Post your first job today and discover why more US property owners are choosing
+              Kluje to find quality contractors.
             </p>
           </div>
         </div>

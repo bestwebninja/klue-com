@@ -101,7 +101,7 @@ serve(async (req) => {
     }
 
     const budgetInfo = budgetMin || budgetMax 
-      ? `Budget range: £${budgetMin || 'flexible'} - £${budgetMax || 'flexible'}`
+      ? `Budget range: $${budgetMin || 'flexible'} - $${budgetMax || 'flexible'}`
       : '';
 
     const prompt = `Generate a professional, clear, and detailed job description for a home improvement/service job posting. The description should be helpful for contractors to understand exactly what work is needed.

@@ -26,15 +26,15 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are an SEO specialist for Kluje, a UK-based platform connecting customers with service providers (tradespeople, contractors, event planners, etc.). Generate Google-compliant SEO metadata.
+    const systemPrompt = `You are an SEO specialist for Kluje, a US-based platform connecting customers with service providers (contractors, tradespeople, event planners, etc.). Generate Google-compliant SEO metadata.
 
 Rules:
 - meta_title: Under 60 characters, include primary keyword, brand name "Kluje" at end
 - meta_description: Under 160 characters, compelling, include call-to-action, primary keyword
-- keywords: 5-8 relevant long-tail keywords for UK service industry
+- keywords: 5-8 relevant long-tail keywords for US service industry
 - canonical: The canonical URL path (starting with /)
-- Use British English spelling
-- Focus on local SEO for UK market
+- Use American English spelling
+- Focus on local SEO for US market
 - Follow Google's latest SEO guidelines
 
 Return ONLY valid JSON with this exact structure:

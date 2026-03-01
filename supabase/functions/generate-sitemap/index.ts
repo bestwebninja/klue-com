@@ -6,7 +6,7 @@ const corsHeaders = {
   'Content-Type': 'application/xml',
 };
 
-const BASE_URL = 'https://kluje.co.uk';
+const BASE_URL = 'https://kluje.com';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {

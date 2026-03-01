@@ -223,7 +223,7 @@ const DashboardHome = ({ userId, profile, onNavigate }: DashboardHomeProps) => {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays}d ago`;
-    return posted.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    return posted.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const quickActions = [

@@ -123,7 +123,7 @@ function deriveGeneralArea(fullLocation: string): string {
   const masked = fullLocation
     .replace(/^\d+\s+/, '') // Remove leading numbers
     .replace(/\b\d{5}(-\d{4})?\b/g, '') // Remove US zip codes
-    .replace(/\b[A-Z]{1,2}\d{1,2}\s*\d[A-Z]{2}\b/gi, '') // Remove UK postcodes
+    .replace(/\b[A-Z]{1,2}\d{1,2}\s*\d[A-Z]{2}\b/gi, '') // Remove UK-style postcodes
     .replace(/\b\d{5}(-\d{4})?\b/g, '') // Remove US zip codes
     .trim();
   

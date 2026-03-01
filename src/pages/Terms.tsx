@@ -20,7 +20,7 @@ const Terms = () => {
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
           <p className="text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
 
           <section className="space-y-4">
@@ -60,7 +60,7 @@ const Terms = () => {
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>Provide accurate and truthful information about your services and qualifications</li>
-              <li>Maintain all necessary licences, certifications, and insurance required for your trade</li>
+              <li>Maintain all necessary licenses, certifications, and insurance required for your trade</li>
               <li>Respond to quote requests in a timely and professional manner</li>
               <li>Deliver services as described and agreed upon with customers</li>
             </ul>

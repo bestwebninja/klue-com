@@ -20,7 +20,7 @@ const PhoneVerification = ({ onVerified, userType }: PhoneVerificationProps) => 
   const [countdown, setCountdown] = useState(0);
   const { toast } = useToast();
 
-  // Format phone: user enters without +44, we prepend it
+  // Format phone: user enters without +1, we prepend it
   const getFullPhone = () => {
     let cleaned = phoneNumber.replace(/\s/g, '').replace(/^1/, '');
     return `+1${cleaned}`;

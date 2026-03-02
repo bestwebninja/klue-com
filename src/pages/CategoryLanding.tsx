@@ -130,8 +130,8 @@ export default function CategoryLanding() {
     '@type': 'CollectionPage',
     name: category.name,
     description: category.tagline,
-    url: `https://klue-us.lovable.app/services/${category.slug}`,
-    isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://klue-us.lovable.app' },
+      url: `https://kluje.com/services/${category.slug}`,
+    isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://kluje.com' },
   };
 
   return (
@@ -178,7 +178,7 @@ export default function CategoryLanding() {
         {/* Article */}
         <section className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-            About {category.name} in the UK
+            About {category.name} in the US
           </h2>
           {category.article.map((p, i) => (
             <p key={i} className="text-muted-foreground leading-relaxed mb-4">{p}</p>
@@ -403,9 +403,33 @@ export default function CategoryLanding() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No articles for this category yet. Check back soon or <Link to="/blog" className="text-primary hover:underline">browse all articles</Link>.</p>
-          )}
+          <p className="text-muted-foreground">No articles for this category yet. Check back soon or <Link to="/blog" className="text-primary hover:underline">browse all articles</Link>.</p>
+        )}
         </section>
+
+        {/* Internal Links */}
+        {category.internalLinks && category.internalLinks.length > 0 && (
+          <>
+            <Separator />
+            <section className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
+                <ArrowRight className="h-6 w-6 text-primary" /> Explore More on Kluje
+              </h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {category.internalLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-sm font-medium text-foreground hover:text-primary"
+                  >
+                    <ChevronRight className="h-4 w-4 text-primary shrink-0" />
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
 
       </main>
 

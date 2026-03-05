@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 40% 96.0784%;
     --foreground: 220 13% 18%;
 
     --card: 0 0% 100%;
@@ -41,15 +42,15 @@
     --section-alt: 220 14% 97%;
     --orange-glow: 38 92% 55%;
     --circle-border: 38 92% 55%;
-    
+
     /* Page header tokens */
     --page-header-bg: 220 13% 18%;
     --page-header-foreground: 0 0% 100%;
-    
+
     /* Stats bar */
     --stats-bar-bg: 220 14% 96%;
     --stats-bar-border: 220 13% 91%;
-    
+
     /* Fonts */
     --font-sans: 'Open Sans', sans-serif;
 
@@ -117,7 +118,7 @@
     button, a, input, select, textarea {
       min-height: 44px;
     }
-    
+
     /* Better readable text on mobile */
     p, span, li {
       font-size: 1rem;
@@ -175,7 +176,6 @@
   .animate-scale-in {
     animation: scaleIn 0.5s ease-out forwards;
   }
-
 
   /* Custom scrollbar for dropdown menus and selects */
   .scrollbar-thin {

@@ -50,7 +50,7 @@ export const CookieConsent = () => {
       window.dataLayer.push(args);
     }
     gtag('js', new Date());
-    gtag('config', 'G-9LP4B0LT1R');
+    gtag('config', 'G-6360VXHKWV');
     
     // Make gtag available globally
     (window as any).gtag = gtag;

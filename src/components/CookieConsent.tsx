@@ -41,7 +41,7 @@ export const CookieConsent = () => {
     const script = document.createElement('script');
     script.id = 'ga-script';
     script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-9LP4B0LT1R';
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-6360VXHKWV';
     document.head.appendChild(script);
 
     // Initialize gtag
@@ -50,7 +50,7 @@ export const CookieConsent = () => {
       window.dataLayer.push(args);
     }
     gtag('js', new Date());
-    gtag('config', 'G-9LP4B0LT1R');
+    gtag('config', 'G-6360VXHKWV');
     
     // Make gtag available globally
     (window as any).gtag = gtag;

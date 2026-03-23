@@ -240,7 +240,7 @@ export default function Pricing() {
             <div className="bg-background rounded-lg p-6">
               <h3 className="font-semibold mb-2">How does billing work?</h3>
               <p className="text-muted-foreground">
-                You'll be charged £4.99 monthly from the date you subscribe. You can cancel at any time 
+                You'll be charged $4.99 monthly from the date you subscribe. You can cancel at any time 
                 and continue using the service until your billing period ends.
               </p>
             </div>

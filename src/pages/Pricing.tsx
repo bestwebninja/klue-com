@@ -48,7 +48,7 @@ const includedFeatures = [
   'Unlimited quote requests per month',
   'Direct access to customer contact details',
   'In-app messaging with customers',
-  'Profile customisation and portfolio',
+  'Profile customization and portfolio',
   'Customer reviews and ratings',
   'Email notifications for new jobs',
   'Priority listing in search results',

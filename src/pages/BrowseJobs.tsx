@@ -25,7 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Search, Loader2, X, Briefcase, PoundSterling, Calendar, Send, CheckCircle, Users, ArrowUpDown, MapPin, List, Map as MapIcon } from 'lucide-react';
+import { Search, Loader2, X, Briefcase, DollarSign, Calendar, Send, CheckCircle, Users, ArrowUpDown, MapPin, List, Map as MapIcon } from 'lucide-react';
 import { JobsMap } from '@/components/JobsMap';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MaskedLocation } from '@/components/MaskedLocation';

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, PoundSterling, Clock, ChevronRight, Navigation, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { MapPin, DollarSign, Clock, ChevronRight, Navigation, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JobWithLocation {

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Share2, 
   Clock, 
-  PoundSterling,
+  DollarSign,
   Facebook,
   Twitter,
   Linkedin,

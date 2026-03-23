@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { QuoteRequestDialog } from "@/components/QuoteRequestDialog";
 import { 
   Calendar, 
-  PoundSterling, 
+  DollarSign, 
   Share2, 
   MessageSquare, 
   CheckCircle, 

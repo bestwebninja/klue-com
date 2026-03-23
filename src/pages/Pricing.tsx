@@ -102,7 +102,7 @@ export default function Pricing() {
                 <CardTitle className="text-2xl">Free Account</CardTitle>
                 <CardDescription>Get started and explore</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">£0</span>
+                  <span className="text-4xl font-bold">$0</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>

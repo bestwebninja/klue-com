@@ -283,7 +283,7 @@ export default function Pricing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleGetStarted}>
-              Get Started for £4.99/month
+              Get Started for $4.99/month
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/browse-providers')}>
               View Service Providers

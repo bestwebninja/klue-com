@@ -130,7 +130,7 @@ export const JobsMapSidebar = ({
                     </div>
                   )}
                   <div className="flex items-center gap-1.5">
-                    <PoundSterling className="w-3 h-3 shrink-0" />
+                    <DollarSign className="w-3 h-3 shrink-0" />
                     <span>{formatBudget(job.budget_min, job.budget_max)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">

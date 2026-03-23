@@ -623,7 +623,7 @@ const BrowseJobs = () => {
                                 </div>
                               )}
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <PoundSterling className="w-4 h-4" />
+                                <DollarSign className="w-4 h-4" />
                                 <span>{formatBudget(job.budget_min, job.budget_max)}</span>
                               </div>
                             </div>

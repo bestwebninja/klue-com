@@ -507,7 +507,7 @@ const JobDetail = () => {
                   </span>
                   {budgetDisplay && (
                     <span className="flex items-center gap-1 text-primary font-medium">
-                      <PoundSterling className="h-4 w-4" />
+                      <DollarSign className="h-4 w-4" />
                       {budgetDisplay}
                     </span>
                   )}

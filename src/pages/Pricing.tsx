@@ -48,7 +48,7 @@ const includedFeatures = [
   'Unlimited quote requests per month',
   'Direct access to customer contact details',
   'In-app messaging with customers',
-  'Profile customisation and portfolio',
+  'Profile customization and portfolio',
   'Customer reviews and ratings',
   'Email notifications for new jobs',
   'Priority listing in search results',
@@ -79,7 +79,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Plans & Pricing for Providers | Kluje" description="Affordable monthly plans for UK service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base." pageType="pricing" />
+      <SEOHead title="Plans & Pricing for Providers | Kluje" description="Affordable monthly plans for US service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base." pageType="pricing" />
       <Navbar />
       
       <PageHero

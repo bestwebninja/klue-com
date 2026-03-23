@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, PoundSterling, Clock, ChevronRight, Navigation, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { MapPin, DollarSign, Clock, ChevronRight, Navigation, PanelLeftClose, PanelLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JobWithLocation {
@@ -130,7 +130,7 @@ export const JobsMapSidebar = ({
                     </div>
                   )}
                   <div className="flex items-center gap-1.5">
-                    <PoundSterling className="w-3 h-3 shrink-0" />
+                    <DollarSign className="w-3 h-3 shrink-0" />
                     <span>{formatBudget(job.budget_min, job.budget_max)}</span>
                   </div>
                   <div className="flex items-center gap-1.5">

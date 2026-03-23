@@ -361,9 +361,9 @@ const PostJob = () => {
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Not specified';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   const getCategoryName = (categoryId: string | null) => {

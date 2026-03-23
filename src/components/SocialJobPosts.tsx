@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Share2, 
   Clock, 
-  PoundSterling,
+  DollarSign,
   Facebook,
   Twitter,
   Linkedin,
@@ -207,7 +207,7 @@ export function SocialJobPosts() {
                     />
                   )}
                   <div className="flex items-center gap-1">
-                    <PoundSterling className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <DollarSign className="h-4 w-4 text-primary" aria-hidden="true" />
                     <span>{formatBudget(job.budget_min, job.budget_max)}</span>
                   </div>
                 </div>

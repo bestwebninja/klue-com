@@ -25,7 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Search, Loader2, X, Briefcase, PoundSterling, Calendar, Send, CheckCircle, Users, ArrowUpDown, MapPin, List, Map as MapIcon } from 'lucide-react';
+import { Search, Loader2, X, Briefcase, DollarSign, Calendar, Send, CheckCircle, Users, ArrowUpDown, MapPin, List, Map as MapIcon } from 'lucide-react';
 import { JobsMap } from '@/components/JobsMap';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MaskedLocation } from '@/components/MaskedLocation';
@@ -276,9 +276,9 @@ const BrowseJobs = () => {
 
   const formatBudget = (min: number | null, max: number | null) => {
     if (!min && !max) return 'Budget not specified';
-    if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
-    if (min) return `From £${min.toLocaleString()}`;
-    return `Up to £${max?.toLocaleString()}`;
+    if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+    if (min) return `From $${min.toLocaleString()}`;
+    return `Up to $${max?.toLocaleString()}`;
   };
 
   const getInitials = (name: string | null) => {
@@ -623,7 +623,7 @@ const BrowseJobs = () => {
                                 </div>
                               )}
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <PoundSterling className="w-4 h-4" />
+                                <DollarSign className="w-4 h-4" />
                                 <span>{formatBudget(job.budget_min, job.budget_max)}</span>
                               </div>
                             </div>

@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { QuoteRequestDialog } from "@/components/QuoteRequestDialog";
 import { 
   Calendar, 
-  PoundSterling, 
+  DollarSign, 
   Share2, 
   MessageSquare, 
   CheckCircle, 
@@ -418,11 +418,11 @@ const JobDetail = () => {
   }
 
   const budgetDisplay = job.budget_min && job.budget_max
-    ? `£${job.budget_min.toLocaleString()} - £${job.budget_max.toLocaleString()}`
+    ? `$${job.budget_min.toLocaleString()} - $${job.budget_max.toLocaleString()}`
     : job.budget_min
-    ? `From £${job.budget_min.toLocaleString()}`
+    ? `From $${job.budget_min.toLocaleString()}`
     : job.budget_max
-    ? `Up to £${job.budget_max.toLocaleString()}`
+    ? `Up to $${job.budget_max.toLocaleString()}`
     : null;
 
   return (
@@ -507,7 +507,7 @@ const JobDetail = () => {
                   </span>
                   {budgetDisplay && (
                     <span className="flex items-center gap-1 text-primary font-medium">
-                      <PoundSterling className="h-4 w-4" />
+                      <DollarSign className="h-4 w-4" />
                       {budgetDisplay}
                     </span>
                   )}

@@ -102,7 +102,7 @@ export default function Pricing() {
                 <CardTitle className="text-2xl">Free Account</CardTitle>
                 <CardDescription>Get started and explore</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">£0</span>
+                  <span className="text-4xl font-bold">$0</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
@@ -138,7 +138,7 @@ export default function Pricing() {
                 <CardTitle className="text-2xl">Pro Subscription</CardTitle>
                 <CardDescription>Everything you need to grow</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">£4.99</span>
+                  <span className="text-4xl font-bold text-primary">$4.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -240,7 +240,7 @@ export default function Pricing() {
             <div className="bg-background rounded-lg p-6">
               <h3 className="font-semibold mb-2">How does billing work?</h3>
               <p className="text-muted-foreground">
-                You'll be charged £4.99 monthly from the date you subscribe. You can cancel at any time 
+                You'll be charged $4.99 monthly from the date you subscribe. You can cancel at any time 
                 and continue using the service until your billing period ends.
               </p>
             </div>
@@ -283,7 +283,7 @@ export default function Pricing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleGetStarted}>
-              Get Started for £4.99/month
+              Get Started for $4.99/month
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/browse-providers')}>
               View Service Providers

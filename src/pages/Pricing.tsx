@@ -138,7 +138,7 @@ export default function Pricing() {
                 <CardTitle className="text-2xl">Pro Subscription</CardTitle>
                 <CardDescription>Everything you need to grow</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">£4.99</span>
+                  <span className="text-4xl font-bold text-primary">$4.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">

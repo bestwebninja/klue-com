@@ -418,11 +418,11 @@ const JobDetail = () => {
   }
 
   const budgetDisplay = job.budget_min && job.budget_max
-    ? `£${job.budget_min.toLocaleString()} - £${job.budget_max.toLocaleString()}`
+    ? `$${job.budget_min.toLocaleString()} - $${job.budget_max.toLocaleString()}`
     : job.budget_min
-    ? `From £${job.budget_min.toLocaleString()}`
+    ? `From $${job.budget_min.toLocaleString()}`
     : job.budget_max
-    ? `Up to £${job.budget_max.toLocaleString()}`
+    ? `Up to $${job.budget_max.toLocaleString()}`
     : null;
 
   return (

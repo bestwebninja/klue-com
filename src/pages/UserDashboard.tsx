@@ -1325,7 +1325,7 @@ const QuoteCard = ({ quote, messages, formatDate, userId, jobId, onQuoteUpdate }
 
   const canReview = localStatus === 'accepted' || localStatus === 'completed';
   const [providerIsTyping, setProviderIsTyping] = useState(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setLocalMessages(messages);

@@ -79,7 +79,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Plans & Pricing for Providers | Kluje" description="Affordable monthly plans for UK service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base." pageType="pricing" />
+      <SEOHead title="Plans & Pricing for Providers | Kluje" description="Affordable monthly plans for US service providers. Access job leads, showcase your portfolio, collect reviews, and grow your client base." pageType="pricing" />
       <Navbar />
       
       <PageHero

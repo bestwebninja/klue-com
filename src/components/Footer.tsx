@@ -53,9 +53,9 @@ export function Footer() {
             <Link to="/admin" className="hover:text-primary-foreground transition-colors py-1">
               Admin
             </Link>
-            <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/sitemap" className="hover:text-primary-foreground transition-colors py-1">
               Sitemap
-            </a>
+            </Link>
           </nav>
           
           <p className="text-xs md:text-sm text-primary-foreground/70 text-center">

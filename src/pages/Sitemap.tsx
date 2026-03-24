@@ -87,7 +87,6 @@ export default function Sitemap() {
       <SEOHead
         title="Sitemap | Kluje"
         description="Browse the complete sitemap for Kluje. Find all pages, service categories, blog posts, and more."
-        url="https://kluje.com/sitemap"
       />
       <Navbar />
       <main className="min-h-screen bg-background pt-20 pb-16">

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -55,8 +55,6 @@ const Dashboard = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
-  const [hasRenovationServices, setHasRenovationServices] = useState(false);
-
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 
   useEffect(() => {
@@ -74,7 +72,6 @@ const Dashboard = () => {
       fetchProfile();
       fetchUnreadCount();
       checkSetupNeeded();
-      checkRenovationServices();
     }
   }, [user]);
 
@@ -91,35 +88,6 @@ const Dashboard = () => {
     const needsSetup = !services || services.length === 0;
     setShowSetupWizard(needsSetup || isSetupParam);
     setSetupChecked(true);
-  };
-
-  // Check if provider has renovation-related services (Home DIY & Renovation or Commercial Renovations & Services)
-  const checkRenovationServices = async () => {
-    if (!user) return;
-    const { data: services } = await supabase
-      .from('provider_services')
-      .select('category_id, service_categories!inner(name, parent_id)')
-      .eq('provider_id', user.id);
-
-    if (services && services.length > 0) {
-      const renovationMainNames = ['home diy and renovation', 'commercial renovations and services'];
-      // Check if any service's parent category matches renovation categories
-      const parentIds = services
-        .map((s: any) => s.service_categories?.parent_id)
-        .filter(Boolean);
-
-      if (parentIds.length > 0) {
-        const { data: parents } = await supabase
-          .from('service_categories')
-          .select('id, name')
-          .in('id', parentIds);
-
-        const hasReno = parents?.some(p =>
-          renovationMainNames.includes(p.name.toLowerCase())
-        ) || false;
-        setHasRenovationServices(hasReno);
-      }
-    }
   };
 
   // Sync URL params with tab
@@ -208,9 +176,11 @@ const Dashboard = () => {
 
   const isSubscribed = profile?.subscription_status === 'active';
 
-  const navItems = hasRenovationServices
-    ? [...providerNavItems.slice(0, 1), { value: 'gc-command', label: 'GC Command', icon: HardHat }, ...providerNavItems.slice(1)]
-    : providerNavItems;
+  const navItems = [
+    providerNavItems[0],
+    { value: 'gc-command', label: 'GC Command', icon: HardHat },
+    ...providerNavItems.slice(1),
+  ];
 
   const renderContent = () => {
     switch (activeTab) {

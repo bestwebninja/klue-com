@@ -47,8 +47,8 @@ export function DashboardSidebar({
   const isCollapsed = state === 'collapsed';
 
   // Group items for better organization
-  const mainItems = items.filter(item => 
-    ['home', 'quotes', 'messages'].includes(item.value)
+  const mainItems = items.filter(item =>
+    ['home', 'gc-command', 'quotes', 'messages'].includes(item.value)
   );
   const profileItems = items.filter(item => 
     ['profile', 'services', 'locations', 'portfolio'].includes(item.value)

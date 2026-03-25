@@ -271,18 +271,6 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
               <p className="text-sm text-muted-foreground">
                 <strong>Email:</strong> {profile?.email || 'Not set'}
               </p>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <strong>Mobile:</strong> {profile?.phone || 'Not set'}
-                {(profile as any)?.phone_verified ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-primary">
-                    <CheckCircle className="w-3 h-3" /> Verified
-                  </span>
-                ) : profile?.phone ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-destructive">
-                    <XCircle className="w-3 h-3" /> Not verified
-                  </span>
-                ) : null}
-              </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Email cannot be changed here. Contact support if you need to update your email.
               </p>

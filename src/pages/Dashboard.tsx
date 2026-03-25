@@ -178,7 +178,7 @@ const Dashboard = () => {
 
   const navItems = [
     providerNavItems[0],
-    { value: 'gc-command', label: 'GC Command', icon: HardHat },
+    { value: 'gc-command', label: 'Contractors', icon: HardHat },
     ...providerNavItems.slice(1),
   ];
 

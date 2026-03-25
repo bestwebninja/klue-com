@@ -121,7 +121,7 @@ export default function GCCommandDashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-sm font-semibold text-foreground">GC Command — kluje.com</div>
+            <div className="text-sm font-semibold text-foreground">Contractors — kluje.com</div>
             <div className="text-[11px] text-muted-foreground">General Contractor AI Agent · kluje.com</div>
           </div>
         </div>

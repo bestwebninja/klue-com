@@ -296,7 +296,7 @@ const Dashboard = () => {
 
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav 
-          items={providerNavItems.slice(0, 5)} 
+          items={navItems.slice(0, 5)} 
           activeTab={activeTab} 
           onTabChange={handleTabChange}
           badges={{ messages: unreadMessages }}

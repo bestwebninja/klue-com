@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
 import { useNavigate, useSearchParams } from 'react-router-dom';

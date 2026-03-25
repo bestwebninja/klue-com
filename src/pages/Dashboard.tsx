@@ -74,6 +74,7 @@ const Dashboard = () => {
       fetchProfile();
       fetchUnreadCount();
       checkSetupNeeded();
+      checkRenovationServices();
     }
   }, [user]);
 

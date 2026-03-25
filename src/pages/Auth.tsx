@@ -592,7 +592,6 @@ const Auth = () => {
                       variant="outline"
                       onClick={() => {
                         setSignupStep('select-type');
-                        setVerifiedPhone(null);
                       }}
                       className="flex-shrink-0"
                     >
@@ -603,7 +602,6 @@ const Auth = () => {
                       type="button"
                       onClick={handleDetailsNext}
                       className="flex-1"
-                      disabled={!verifiedPhone}
                     >
                       Continue
                       <ArrowRight className="w-4 h-4 ml-1" />

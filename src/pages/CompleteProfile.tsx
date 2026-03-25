@@ -232,7 +232,7 @@ const CompleteProfile = () => {
       const displayName = userType === 'provider' ? companyName : fullName;
       await supabase
         .from('profiles')
-        .update({ full_name: displayName, phone: verifiedPhone })
+        .update({ full_name: displayName })
         .eq('id', user.id);
 
       if (userType === 'provider') {

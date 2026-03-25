@@ -7,7 +7,9 @@ import {
   Phone, Package, Lock, BookOpen, TrendingUp, TrendingDown,
   Mic, Mail, ClipboardList, Send, BarChart3, MapPin, Calendar,
   MessageSquare, Bot, Factory, Archive, DollarSign, Users,
-  Clock, Receipt, Ruler, FileText
+  Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
+  Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
+  FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck
 } from 'lucide-react';
 
 const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
@@ -88,6 +90,27 @@ const sidebarSections = [
       { icon: Receipt, name: 'Invoices', badge: '2', badgeType: 'red' },
       { icon: Ruler, name: 'Job Costing', badge: null },
       { icon: FileText, name: 'Lien Waivers', badge: null },
+    ],
+  },
+  {
+    label: 'Legals',
+    items: [
+      { icon: Scale, name: 'Attorneys', badge: null },
+      { icon: Handshake, name: 'Arbitration', badge: null },
+      { icon: Compass, name: 'Architects', badge: null },
+      { icon: Wrench, name: 'Engineers', badge: null },
+      { icon: FileCheck, name: 'Agreements', badge: null },
+      { icon: PenLine, name: 'E-Signature', badge: null },
+      { icon: Flame, name: 'Fire Dept', badge: null },
+      { icon: HeartPulse, name: 'Health & Safety', badge: null },
+      { icon: Umbrella, name: 'Insurance', badge: null },
+      { icon: FolderOpen, name: 'Projects', badge: null },
+      { icon: Quote, name: 'Quotes', badge: null },
+      { icon: Building2, name: 'Realtors', badge: null },
+      { icon: ShieldAlert, name: 'Security', badge: null },
+      { icon: Landmark, name: 'Title Companies', badge: null },
+      { icon: Map, name: 'Town Planning', badge: null },
+      { icon: BadgeCheck, name: 'Verification Orders', badge: null },
     ],
   },
 ];

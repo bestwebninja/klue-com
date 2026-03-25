@@ -248,7 +248,7 @@ const Dashboard = () => {
         {/* Desktop Sidebar - hidden on mobile */}
         <div className="hidden sm:block">
           <DashboardSidebar
-            items={providerNavItems}
+            items={navItems}
             activeTab={activeTab}
             onTabChange={handleTabChange}
             isSubscribed={isSubscribed}

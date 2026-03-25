@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { z } from 'zod';
 import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2 } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
-import PhoneVerification from '@/components/PhoneVerification';
+
 
 const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')

@@ -48,7 +48,7 @@ const CompleteProfile = () => {
   const [userType, setUserType] = useState<UserType>('homeowner');
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [profileChecked, setProfileChecked] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);

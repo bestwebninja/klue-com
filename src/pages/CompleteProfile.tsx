@@ -493,7 +493,7 @@ const CompleteProfile = () => {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isLoading || !verifiedPhone || !acceptedTerms}
+              disabled={isLoading || !acceptedTerms}
             >
               {isLoading ? (
                 <>

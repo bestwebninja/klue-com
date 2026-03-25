@@ -171,15 +171,6 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
-        // Save phone number and full name to profile
-        if (data?.user && verifiedPhone) {
-          const profileUpdate: Record<string, any> = { phone: verifiedPhone, phone_verified: true };
-          // For providers, also save the contact person's name in full_name if company name was used as display name
-          if (userType === 'provider' && fullName) {
-            // full_name was set to companyName by signUp, keep it as company name
-          }
-          await supabase.from('profiles').update(profileUpdate).eq('id', data.user.id);
-        }
 
         if (userType === 'provider' && data?.user) {
           // Assign provider role

@@ -83,7 +83,7 @@ const CompleteProfile = () => {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (profile?.phone && roles.length > 0) {
+      if (roles.length > 0) {
         // Profile is complete, redirect to appropriate dashboard
         navigate(roles.includes('admin') ? '/admin' : roles.includes('provider') ? '/dashboard' : '/user-dashboard');
       } else {

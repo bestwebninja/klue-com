@@ -45,7 +45,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  
   
   const { signIn, signUp, user } = useAuth();
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();

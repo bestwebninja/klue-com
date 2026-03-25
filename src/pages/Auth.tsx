@@ -132,11 +132,6 @@ const Auth = () => {
       }
     }
 
-    if (!verifiedPhone) {
-      toast({ title: 'Phone verification required', description: 'Please verify your mobile number before continuing.', variant: 'destructive' });
-      return;
-    }
-
     if (!email) {
       toast({ title: 'Email required', description: 'Please enter your email address.', variant: 'destructive' });
       return;

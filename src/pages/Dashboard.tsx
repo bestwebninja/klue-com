@@ -55,6 +55,7 @@ const Dashboard = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
+  const [hasRenovationServices, setHasRenovationServices] = useState(false);
 
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 

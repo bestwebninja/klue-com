@@ -22,7 +22,6 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [showReverify, setShowReverify] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     full_name: '',

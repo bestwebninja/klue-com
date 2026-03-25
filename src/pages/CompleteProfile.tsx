@@ -197,11 +197,6 @@ const CompleteProfile = () => {
     e.preventDefault();
     if (!user) return;
 
-    if (!verifiedPhone) {
-      toast({ title: 'Phone verification required', description: 'Please verify your mobile number.', variant: 'destructive' });
-      return;
-    }
-
     if (!fullName || fullName.trim().length < 2) {
       toast({ title: 'Name required', description: 'Please enter your full name.', variant: 'destructive' });
       return;

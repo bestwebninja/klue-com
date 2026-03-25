@@ -234,6 +234,8 @@ const Dashboard = () => {
         return <DashboardExpertAnswers userId={user.id} />;
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
+      case 'gc-command':
+        return <GCCommandDashboard />;
       default:
         return <DashboardHome userId={user.id} profile={profile} onNavigate={handleTabChange} />;
     }

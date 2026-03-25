@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import PhoneVerification from '@/components/PhoneVerification';
+
 import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle } from 'lucide-react';
 
 import { isValidUSZipCode, formatUSZipCode } from '@/lib/zipCodeValidation';

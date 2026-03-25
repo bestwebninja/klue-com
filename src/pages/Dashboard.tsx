@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen } from 'lucide-react';
+import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat } from 'lucide-react';
+import GCCommandDashboard from '@/components/dashboard/GCCommandDashboard';
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import DashboardServices from '@/components/dashboard/DashboardServices';
 import DashboardLocations from '@/components/dashboard/DashboardLocations';
@@ -54,6 +55,7 @@ const Dashboard = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
+  const [hasRenovationServices, setHasRenovationServices] = useState(false);
 
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 
@@ -72,6 +74,7 @@ const Dashboard = () => {
       fetchProfile();
       fetchUnreadCount();
       checkSetupNeeded();
+      checkRenovationServices();
     }
   }, [user]);
 
@@ -88,6 +91,35 @@ const Dashboard = () => {
     const needsSetup = !services || services.length === 0;
     setShowSetupWizard(needsSetup || isSetupParam);
     setSetupChecked(true);
+  };
+
+  // Check if provider has renovation-related services (Home DIY & Renovation or Commercial Renovations & Services)
+  const checkRenovationServices = async () => {
+    if (!user) return;
+    const { data: services } = await supabase
+      .from('provider_services')
+      .select('category_id, service_categories!inner(name, parent_id)')
+      .eq('provider_id', user.id);
+
+    if (services && services.length > 0) {
+      const renovationMainNames = ['home diy and renovation', 'commercial renovations and services'];
+      // Check if any service's parent category matches renovation categories
+      const parentIds = services
+        .map((s: any) => s.service_categories?.parent_id)
+        .filter(Boolean);
+
+      if (parentIds.length > 0) {
+        const { data: parents } = await supabase
+          .from('service_categories')
+          .select('id, name')
+          .in('id', parentIds);
+
+        const hasReno = parents?.some(p =>
+          renovationMainNames.includes(p.name.toLowerCase())
+        ) || false;
+        setHasRenovationServices(hasReno);
+      }
+    }
   };
 
   // Sync URL params with tab
@@ -176,6 +208,10 @@ const Dashboard = () => {
 
   const isSubscribed = profile?.subscription_status === 'active';
 
+  const navItems = hasRenovationServices
+    ? [...providerNavItems.slice(0, 1), { value: 'gc-command', label: 'GC Command', icon: HardHat }, ...providerNavItems.slice(1)]
+    : providerNavItems;
+
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
@@ -202,6 +238,8 @@ const Dashboard = () => {
         return <DashboardExpertAnswers userId={user.id} />;
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
+      case 'gc-command':
+        return <GCCommandDashboard />;
       default:
         return <DashboardHome userId={user.id} profile={profile} onNavigate={handleTabChange} />;
     }
@@ -214,7 +252,7 @@ const Dashboard = () => {
         {/* Desktop Sidebar - hidden on mobile */}
         <div className="hidden sm:block">
           <DashboardSidebar
-            items={providerNavItems}
+            items={navItems}
             activeTab={activeTab}
             onTabChange={handleTabChange}
             isSubscribed={isSubscribed}
@@ -258,7 +296,7 @@ const Dashboard = () => {
 
         {/* Mobile Bottom Navigation */}
         <MobileBottomNav 
-          items={providerNavItems.slice(0, 5)} 
+          items={navItems.slice(0, 5)} 
           activeTab={activeTab} 
           onTabChange={handleTabChange}
           badges={{ messages: unreadMessages }}

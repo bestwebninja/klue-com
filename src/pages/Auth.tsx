@@ -570,12 +570,6 @@ const Auth = () => {
                     </div>
                   )}
 
-                  {/* Phone Verification */}
-                  <PhoneVerification
-                    onVerified={(phone) => setVerifiedPhone(phone)}
-                    userType={userType}
-                  />
-
                   {/* Email */}
                   <div>
                     <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>

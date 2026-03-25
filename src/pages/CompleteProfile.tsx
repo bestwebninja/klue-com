@@ -472,11 +472,6 @@ const CompleteProfile = () => {
               </>
             )}
 
-            {/* Phone Verification */}
-            <PhoneVerification
-              onVerified={(phone) => setVerifiedPhone(phone)}
-              userType={userType}
-            />
 
             {/* Terms */}
             <div className="flex items-start space-x-2">

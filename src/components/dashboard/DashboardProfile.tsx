@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, User, Upload, X, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import { DashboardEmailHistory } from './DashboardEmailHistory';
-import PhoneVerification from '@/components/PhoneVerification';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 

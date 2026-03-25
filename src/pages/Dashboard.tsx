@@ -208,6 +208,10 @@ const Dashboard = () => {
 
   const isSubscribed = profile?.subscription_status === 'active';
 
+  const navItems = hasRenovationServices
+    ? [...providerNavItems.slice(0, 1), { value: 'gc-command', label: 'GC Command', icon: HardHat }, ...providerNavItems.slice(1)]
+    : providerNavItems;
+
   const renderContent = () => {
     switch (activeTab) {
       case 'home':

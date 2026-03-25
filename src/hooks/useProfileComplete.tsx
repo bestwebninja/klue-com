@@ -20,18 +20,9 @@ export function useProfileComplete() {
       return;
     }
 
-    const check = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      setIsComplete(!!data?.phone);
-      setLoading(false);
-    };
-
-    check();
+    // Profile is considered complete once user exists (no phone requirement)
+    setIsComplete(true);
+    setLoading(false);
   }, [user, authLoading]);
 
   return { isComplete, loading };

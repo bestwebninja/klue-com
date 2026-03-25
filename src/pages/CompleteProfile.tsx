@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import PhoneVerification from '@/components/PhoneVerification';
+
 import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle } from 'lucide-react';
 
 import { isValidUSZipCode, formatUSZipCode } from '@/lib/zipCodeValidation';
@@ -48,7 +48,7 @@ const CompleteProfile = () => {
   const [userType, setUserType] = useState<UserType>('homeowner');
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [profileChecked, setProfileChecked] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -83,7 +83,7 @@ const CompleteProfile = () => {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (profile?.phone && roles.length > 0) {
+      if (roles.length > 0) {
         // Profile is complete, redirect to appropriate dashboard
         navigate(roles.includes('admin') ? '/admin' : roles.includes('provider') ? '/dashboard' : '/user-dashboard');
       } else {
@@ -197,11 +197,6 @@ const CompleteProfile = () => {
     e.preventDefault();
     if (!user) return;
 
-    if (!verifiedPhone) {
-      toast({ title: 'Phone verification required', description: 'Please verify your mobile number.', variant: 'destructive' });
-      return;
-    }
-
     if (!fullName || fullName.trim().length < 2) {
       toast({ title: 'Name required', description: 'Please enter your full name.', variant: 'destructive' });
       return;
@@ -237,7 +232,7 @@ const CompleteProfile = () => {
       const displayName = userType === 'provider' ? companyName : fullName;
       await supabase
         .from('profiles')
-        .update({ full_name: displayName, phone: verifiedPhone })
+        .update({ full_name: displayName })
         .eq('id', user.id);
 
       if (userType === 'provider') {
@@ -477,11 +472,6 @@ const CompleteProfile = () => {
               </>
             )}
 
-            {/* Phone Verification */}
-            <PhoneVerification
-              onVerified={(phone) => setVerifiedPhone(phone)}
-              userType={userType}
-            />
 
             {/* Terms */}
             <div className="flex items-start space-x-2">
@@ -503,7 +493,7 @@ const CompleteProfile = () => {
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isLoading || !verifiedPhone || !acceptedTerms}
+              disabled={isLoading || !acceptedTerms}
             >
               {isLoading ? (
                 <>

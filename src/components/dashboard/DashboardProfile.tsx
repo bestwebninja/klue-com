@@ -5,12 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, User, Upload, X, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Loader2, Save, User, Upload, X } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import { DashboardEmailHistory } from './DashboardEmailHistory';
-import PhoneVerification from '@/components/PhoneVerification';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -23,7 +21,6 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [showReverify, setShowReverify] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -238,65 +235,18 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="flex items-center gap-2">
-                    {(profile as any)?.phone_verified ? (
-                      <Badge variant="secondary" className="gap-1 text-xs bg-primary/10 text-primary border-primary/20">
-                        <CheckCircle className="w-3 h-3" />
-                        Verified
-                      </Badge>
-                    ) : profile?.phone ? (
-                      <Badge variant="secondary" className="gap-1 text-xs bg-destructive/10 text-destructive border-destructive/20">
-                        <XCircle className="w-3 h-3" />
-                        Not Verified
-                      </Badge>
-                    ) : null}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs gap-1"
-                      onClick={() => setShowReverify(!showReverify)}
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      {showReverify ? 'Cancel' : (profile as any)?.phone_verified ? 'Re-verify' : 'Verify'}
-                    </Button>
-                  </div>
-                </div>
-                {showReverify ? (
-                  <div className="p-4 border border-border rounded-lg bg-muted/30">
-                    <PhoneVerification
-                      onVerified={async (phone) => {
-                        // Update profile with new verified phone
-                        if (profile) {
-                          await supabase
-                            .from('profiles')
-                            .update({ phone, phone_verified: true } as any)
-                            .eq('id', profile.id);
-                          setFormData(prev => ({ ...prev, phone }));
-                          setShowReverify(false);
-                          onProfileUpdate();
-                          toast({ title: 'Phone verified!', description: 'Your mobile number has been updated and verified.' });
-                        }
-                      }}
-                      userType="provider"
-                    />
-                  </div>
-                ) : (
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+1 (555) 123-4567"
-                    maxLength={20}
-                    disabled
-                  />
-                )}
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+1 (555) 123-4567"
+                  maxLength={20}
+                />
                 <p className="text-xs text-muted-foreground">
-                  Use the {(profile as any)?.phone_verified ? 're-verify' : 'verify'} button to change or verify your phone number.
+                  Your contact number. This will be shared with customers when they accept your quote.
                 </p>
               </div>
             </div>
@@ -320,18 +270,6 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
             <div className="p-4 bg-muted rounded-lg space-y-2">
               <p className="text-sm text-muted-foreground">
                 <strong>Email:</strong> {profile?.email || 'Not set'}
-              </p>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <strong>Mobile:</strong> {profile?.phone || 'Not set'}
-                {(profile as any)?.phone_verified ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-primary">
-                    <CheckCircle className="w-3 h-3" /> Verified
-                  </span>
-                ) : profile?.phone ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-destructive">
-                    <XCircle className="w-3 h-3" /> Not verified
-                  </span>
-                ) : null}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Email cannot be changed here. Contact support if you need to update your email.

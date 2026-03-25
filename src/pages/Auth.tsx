@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { z } from 'zod';
 import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2 } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
-import PhoneVerification from '@/components/PhoneVerification';
+
 
 const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')
@@ -45,7 +45,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
-  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  
   
   const { signIn, signUp, user } = useAuth();
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();
@@ -132,11 +132,6 @@ const Auth = () => {
       }
     }
 
-    if (!verifiedPhone) {
-      toast({ title: 'Phone verification required', description: 'Please verify your mobile number before continuing.', variant: 'destructive' });
-      return;
-    }
-
     if (!email) {
       toast({ title: 'Email required', description: 'Please enter your email address.', variant: 'destructive' });
       return;
@@ -176,15 +171,6 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
-        // Save phone number and full name to profile
-        if (data?.user && verifiedPhone) {
-          const profileUpdate: Record<string, any> = { phone: verifiedPhone, phone_verified: true };
-          // For providers, also save the contact person's name in full_name if company name was used as display name
-          if (userType === 'provider' && fullName) {
-            // full_name was set to companyName by signUp, keep it as company name
-          }
-          await supabase.from('profiles').update(profileUpdate).eq('id', data.user.id);
-        }
 
         if (userType === 'provider' && data?.user) {
           // Assign provider role
@@ -575,12 +561,6 @@ const Auth = () => {
                     </div>
                   )}
 
-                  {/* Phone Verification */}
-                  <PhoneVerification
-                    onVerified={(phone) => setVerifiedPhone(phone)}
-                    userType={userType}
-                  />
-
                   {/* Email */}
                   <div>
                     <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
@@ -603,7 +583,6 @@ const Auth = () => {
                       variant="outline"
                       onClick={() => {
                         setSignupStep('select-type');
-                        setVerifiedPhone(null);
                       }}
                       className="flex-shrink-0"
                     >
@@ -614,7 +593,6 @@ const Auth = () => {
                       type="button"
                       onClick={handleDetailsNext}
                       className="flex-1"
-                      disabled={!verifiedPhone}
                     >
                       Continue
                       <ArrowRight className="w-4 h-4 ml-1" />
@@ -648,10 +626,6 @@ const Auth = () => {
                     <span className="text-foreground font-medium">
                       {userType === 'homeowner' ? fullName : companyName}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{verifiedPhone} — Phone verified</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />

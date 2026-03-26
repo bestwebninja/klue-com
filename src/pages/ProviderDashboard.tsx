@@ -59,24 +59,7 @@ const Dashboard = () => {
   const [setupChecked, setSetupChecked] = useState(false);
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-      return;
-    }
-    if (!loading && !profileLoading && user && profileComplete === false) {
-      navigate('/complete-profile');
-    }
-  }, [user, loading, navigate, profileComplete, profileLoading]);
-
-  // Redirect non-providers to the correct dashboard
-  useEffect(() => {
-    if (!loading && !roleLoading && user) {
-      if (!isProvider && !isAdmin) {
-        navigate('/my-dashboard', { replace: true });
-      }
-    }
-  }, [user, loading, roleLoading, isProvider, isAdmin, navigate]);
+  // Auth/profile/role redirects are handled by the unified Dashboard wrapper
 
   useEffect(() => {
     if (user) {

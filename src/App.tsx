@@ -64,8 +64,8 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/my-dashboard" element={<UserDashboard />} />
-              <Route path="/user-dashboard" element={<Navigate to="/my-dashboard" replace />} />
+              <Route path="/my-dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/user-dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/ask-expert" element={<AskExpert />} />
               <Route path="/ask-expert/:id" element={<QuestionDetail />} />
               <Route path="/messages" element={<MessagesInbox />} />

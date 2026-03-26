@@ -69,6 +69,15 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate, profileComplete, profileLoading]);
 
+  // Redirect non-providers to the correct dashboard
+  useEffect(() => {
+    if (!loading && !roleLoading && user) {
+      if (!isProvider && !isAdmin) {
+        navigate('/my-dashboard', { replace: true });
+      }
+    }
+  }, [user, loading, roleLoading, isProvider, isAdmin, navigate]);
+
   useEffect(() => {
     if (user) {
       fetchProfile();

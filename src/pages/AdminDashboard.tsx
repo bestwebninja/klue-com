@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LogOut, Users, Briefcase, FolderTree, Shield, ScrollText, BookOpen, ShieldCheck } from 'lucide-react';
+import { LogOut, Users, Briefcase, FolderTree, Shield, ScrollText, BookOpen, ShieldCheck, Settings2, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminJobs from '@/components/admin/AdminJobs';
@@ -14,6 +14,8 @@ import AdminRoles from '@/components/admin/AdminRoles';
 import AdminAuditLogs from '@/components/admin/AdminAuditLogs';
 import AdminBlogPosts from '@/components/admin/AdminBlogPosts';
 import AdminVerifications from '@/components/admin/AdminVerifications';
+import AdminSiteSettings from '@/components/admin/AdminSiteSettings';
+import AdminNewsletter from '@/components/admin/AdminNewsletter';
 
 const AdminDashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -123,6 +125,14 @@ const AdminDashboard = () => {
               <ScrollText className="w-4 h-4" />
               <span className="hidden sm:inline">Audit Logs</span>
             </TabsTrigger>
+            <TabsTrigger value="newsletter" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">Newsletter</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Site Settings</span>
+            </TabsTrigger>
           </TabsList>
           </div>
 
@@ -152,6 +162,14 @@ const AdminDashboard = () => {
 
           <TabsContent value="audit">
             <AdminAuditLogs />
+          </TabsContent>
+
+          <TabsContent value="newsletter">
+            <AdminNewsletter />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <AdminSiteSettings />
           </TabsContent>
         </Tabs>
       </main>

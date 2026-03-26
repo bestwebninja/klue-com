@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { z } from 'zod';
-import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2 } from 'lucide-react';
+import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2, Lock } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 
 
@@ -44,9 +44,23 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [newsletterConsent, setNewsletterConsent] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [signupsRestricted, setSignupsRestricted] = useState(false);
   
   
+  // Check signup restriction on mount
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'signups_restricted')
+      .single()
+      .then(({ data }) => {
+        if (data?.value === true) setSignupsRestricted(true);
+      });
+  }, []);
+
   const { signIn, signUp, user } = useAuth();
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
@@ -67,8 +81,8 @@ const Auth = () => {
         toast({ title: 'Welcome back!', description: 'Returning you to where you left off...' });
         navigate(redirectTo);
       } else if (isAdmin) {
-        toast({ title: 'Welcome back, Admin!', description: 'Redirecting to admin panel...' });
-        navigate('/admin');
+        toast({ title: 'Welcome back, Admin!', description: 'Redirecting to your dashboard...' });
+        navigate('/dashboard');
       } else if (isProvider) {
         // Check if provider needs to finish setup (no services selected yet)
         checkProviderSetup();
@@ -151,6 +165,22 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    // If signups are restricted, log the attempt and notify admin
+    if (signupsRestricted) {
+      supabase.functions.invoke('notify-signup-attempt', {
+        body: { email, userType },
+      }).catch(() => {
+        // Fire-and-forget; also insert directly as fallback
+        supabase.from('signup_attempts').insert({ email, user_type: userType }).catch(() => {});
+      });
+      toast({
+        title: 'Signups temporarily paused',
+        description: 'We\'re finalising the platform. We\'ve noted your interest and will be in touch!',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Validate password
       passwordSchema.parse(password);
@@ -171,6 +201,16 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
+
+        // Newsletter consent — subscribe silently
+        if (newsletterConsent && data?.user) {
+          supabase.from('newsletter_subscribers').insert({
+            email: email.trim().toLowerCase(),
+            name: userType === 'provider' ? companyName : fullName,
+            consent_marketing: true,
+            source: 'signup_form',
+          }).catch(() => {});
+        }
 
         if (userType === 'provider' && data?.user) {
           // Assign provider role
@@ -657,6 +697,13 @@ const Auth = () => {
                     <PasswordStrengthIndicator password={password} />
                   </div>
 
+                  {signupsRestricted && (
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-sm text-yellow-800">
+                      <Lock className="w-4 h-4 mt-0.5 shrink-0 text-yellow-600" />
+                      <span>New signups are temporarily paused. Submit anyway to register your interest — we'll notify you when we open.</span>
+                    </div>
+                  )}
+
                   <div className="flex items-start space-x-2">
                     <Checkbox
                       id="terms"
@@ -669,6 +716,18 @@ const Auth = () => {
                       <a href="/terms" className="text-primary hover:underline" target="_blank">Terms of Service</a>{' '}
                       and{' '}
                       <a href="/privacy" className="text-primary hover:underline" target="_blank">Privacy Policy</a>
+                    </label>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="newsletter"
+                      checked={newsletterConsent}
+                      onCheckedChange={(checked) => setNewsletterConsent(checked === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="newsletter" className="text-sm text-muted-foreground leading-tight cursor-pointer">
+                      I authorise <strong>kluje.com</strong> to send me newsletter emails with tips, updates, and offers. I can unsubscribe anytime.
                     </label>
                   </div>
 

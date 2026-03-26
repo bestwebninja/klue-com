@@ -36,6 +36,7 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const CompleteProfile = lazy(() => import("./pages/CompleteProfile"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
+const Newsletter = lazy(() => import("./pages/Newsletter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               <Route path="/sitemap" element={<Sitemap />} />
+              <Route path="/newsletter" element={<Newsletter />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

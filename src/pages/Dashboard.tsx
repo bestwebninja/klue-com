@@ -7,7 +7,12 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat } from 'lucide-react';
+import { lazy, Suspense } from 'react';
 import GCCommandDashboard from '@/components/dashboard/GCCommandDashboard';
+const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
+const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
+const AdminSiteSettingsInline = lazy(() => import('@/components/admin/AdminSiteSettings'));
+const AdminNewsletterInline = lazy(() => import('@/components/admin/AdminNewsletter'));
 import DashboardHome from '@/components/dashboard/DashboardHome';
 import DashboardServices from '@/components/dashboard/DashboardServices';
 import DashboardLocations from '@/components/dashboard/DashboardLocations';
@@ -180,6 +185,7 @@ const Dashboard = () => {
     providerNavItems[0],
     { value: 'gc-command', label: 'Contractors', icon: HardHat },
     ...providerNavItems.slice(1),
+    ...(isAdmin ? [{ value: 'admin-users', label: 'Manage Users', icon: Shield }] : []),
   ];
 
   const renderContent = () => {
@@ -210,6 +216,62 @@ const Dashboard = () => {
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
       case 'gc-command':
         return <GCCommandDashboard />;
+      case 'admin-users':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-1">User Management</h2>
+                <p className="text-muted-foreground text-sm">Manage all users, roles, newsletter subscribers, and site settings from here.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { label: 'Users', key: 'users' },
+                  { label: 'Roles', key: 'roles' },
+                  { label: 'Newsletter', key: 'newsletter' },
+                  { label: 'Site Settings', key: 'settings' },
+                ].map(item => (
+                  <button
+                    key={item.key}
+                    onClick={() => handleTabChange(`admin-${item.key}`)}
+                    className="p-4 rounded-xl border bg-card hover:border-orange-400 hover:bg-orange-50 transition-colors text-left"
+                  >
+                    <p className="font-semibold">{item.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Manage {item.label.toLowerCase()}</p>
+                  </button>
+                ))}
+              </div>
+              <AdminUsersInline />
+            </div>
+          </Suspense>
+        );
+      case 'admin-roles':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Role Management</h2>
+              <AdminRolesInline />
+            </div>
+          </Suspense>
+        );
+      case 'admin-newsletter':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Newsletter Subscribers</h2>
+              <AdminNewsletterInline />
+            </div>
+          </Suspense>
+        );
+      case 'admin-settings':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Site Settings</h2>
+              <AdminSiteSettingsInline />
+            </div>
+          </Suspense>
+        );
       default:
         return <DashboardHome userId={user.id} profile={profile} onNavigate={handleTabChange} />;
     }

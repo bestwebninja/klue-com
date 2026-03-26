@@ -53,8 +53,11 @@ export function DashboardSidebar({
   const profileItems = items.filter(item => 
     ['profile', 'services', 'locations', 'portfolio'].includes(item.value)
   );
-  const advancedItems = items.filter(item => 
+  const advancedItems = items.filter(item =>
     ['reviews', 'verification', 'blog', 'expert', 'subscription'].includes(item.value)
+  );
+  const adminItems = items.filter(item =>
+    ['admin-users', 'admin-roles', 'admin-newsletter', 'admin-settings'].includes(item.value)
   );
 
   const renderMenuItem = (item: NavItem) => {
@@ -162,6 +165,18 @@ export function DashboardSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {isAdmin && adminItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs text-red-400/70 uppercase tracking-wider">
+              Admin
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map(renderMenuItem)}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/50 p-2">
@@ -171,7 +186,7 @@ export function DashboardSidebar({
               <SidebarMenuButton asChild tooltip={isCollapsed ? 'Admin Panel' : undefined}>
                 <Link to="/admin" className="text-red-400 hover:text-red-300 hover:bg-red-400/10">
                   <Shield className="h-4 w-4" />
-                  {!isCollapsed && <span>Admin Panel</span>}
+                  {!isCollapsed && <span>Full Admin Panel</span>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

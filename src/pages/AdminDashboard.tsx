@@ -34,7 +34,7 @@ const AdminDashboard = () => {
         description: 'You do not have admin privileges.',
         variant: 'destructive',
       });
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard');
     }
   }, [isAdmin, adminLoading, user, navigate, toast]);
 

@@ -21,6 +21,7 @@ const JobDetail = lazy(() => import("./pages/JobDetail"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AskExpert = lazy(() => import("./pages/AskExpert"));
 const QuestionDetail = lazy(() => import("./pages/QuestionDetail"));
@@ -35,7 +36,6 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const CompleteProfile = lazy(() => import("./pages/CompleteProfile"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
-const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -65,8 +65,8 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/my-dashboard" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/user-dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/my-dashboard" element={<UserDashboard />} />
+              <Route path="/user-dashboard" element={<Navigate to="/my-dashboard" replace />} />
               <Route path="/ask-expert" element={<AskExpert />} />
               <Route path="/ask-expert/:id" element={<QuestionDetail />} />
               <Route path="/messages" element={<MessagesInbox />} />
@@ -81,7 +81,6 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/complete-profile" element={<CompleteProfile />} />
               <Route path="/sitemap" element={<Sitemap />} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -78,11 +78,11 @@ const COVERAGE_GAPS = [
   },
 ];
 
-const RENEWAL_TIMELINE: { policy: string; daysLeft: number; color: 'amber' | 'blue' | 'green' | 'red' }[] = [
-  { policy: 'Workers Compensation', daysLeft: 38, color: 'amber' },
-  { policy: "Builder's Risk",       daysLeft: 68, color: 'blue' },
-  { policy: 'General Liability',    daysLeft: 220, color: 'green' },
-  { policy: 'Umbrella / Excess',    daysLeft: 220, color: 'green' },
+const RENEWAL_TIMELINE = [
+  { policy: 'Workers Compensation', daysLeft: 38, color: 'amber' as const },
+  { policy: "Builder's Risk",       daysLeft: 68, color: 'blue'  as const },
+  { policy: 'General Liability',    daysLeft: 220, color: 'green' as const },
+  { policy: 'Umbrella / Excess',    daysLeft: 220, color: 'green' as const },
 ];
 
 const CROSS_LINKS = ['Health & Safety', 'Attorneys', 'Projects', 'Verification Orders', 'Finance'];

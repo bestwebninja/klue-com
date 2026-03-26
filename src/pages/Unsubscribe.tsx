@@ -75,7 +75,7 @@ const Unsubscribe = () => {
           )}
           {status === 'success' && (
             <>
-              <CheckCircle className="h-12 w-12 mx-auto text-green-500" />
+              <CheckCircle className="h-12 w-12 mx-auto text-emerald-500" />
               <h1 className="text-xl font-bold">You've been unsubscribed</h1>
               <p className="text-muted-foreground">You will no longer receive app emails from Kluje.</p>
             </>

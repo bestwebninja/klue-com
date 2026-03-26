@@ -62,11 +62,15 @@ const Dashboard = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
-  // Resizable content — px width of sidebar (null = CSS default)
+  // Resizable content — px width of sidebar
   const [sidebarWidth, setSidebarWidth] = useState(200);
   const isResizing = useRef(false);
   const startX = useRef(0);
   const startW = useRef(0);
+  // Scroll arrows
+  const contentRef = useRef<HTMLElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 
   useEffect(() => {
@@ -125,6 +129,11 @@ const Dashboard = () => {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setSearchParams({ tab });
+    // Scroll to top and re-evaluate arrows when switching tabs
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+      setTimeout(updateScrollState, 100);
+    }
   };
 
   // Real-time subscription for message count updates
@@ -209,6 +218,17 @@ const Dashboard = () => {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   }, [sidebarWidth]);
+
+  const updateScrollState = useCallback(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 10);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 10);
+  }, []);
+
+  const scrollBy = useCallback((dir: 'up' | 'down') => {
+    contentRef.current?.scrollBy({ top: dir === 'up' ? -320 : 320, behavior: 'smooth' });
+  }, []);
 
   if (loading || roleLoading || adminLoading) {
     return (
@@ -349,7 +369,7 @@ const Dashboard = () => {
         />
 
         {/* Main Content Area */}
-        <SidebarInset className="flex-1 min-w-0">
+        <SidebarInset className="flex-1 min-w-0 relative">
           <DashboardHeader
             userName={profile?.full_name || undefined}
             userEmail={user.email}
@@ -358,7 +378,12 @@ const Dashboard = () => {
             onSignOut={handleSignOut}
           />
 
-          <main className="p-4 sm:p-6 lg:p-8">
+          {/* Scrollable content with up/down arrow buttons */}
+          <main
+            ref={contentRef}
+            onScroll={updateScrollState}
+            className="h-[calc(100vh-4rem)] overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth"
+          >
             {showSetupWizard && setupChecked ? (
               <ProviderSetupWizard
                 userId={user.id}
@@ -373,10 +398,32 @@ const Dashboard = () => {
             ) : (
               renderContent()
             )}
-            
+
             {/* Mobile bottom padding for nav */}
             <div className="h-20 sm:hidden" />
           </main>
+
+          {/* Scroll arrows — fixed to right edge of content panel */}
+          <div className="hidden sm:flex flex-col gap-1.5 fixed right-4 bottom-8 z-30">
+            <button
+              onClick={() => scrollBy('up')}
+              disabled={!canScrollUp}
+              className="w-9 h-9 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+              title="Scroll up"
+              aria-label="Scroll up"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <button
+              onClick={() => scrollBy('down')}
+              disabled={!canScrollDown}
+              className="w-9 h-9 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+              title="Scroll down"
+              aria-label="Scroll down"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
         </SidebarInset>
 
         {/* Mobile Bottom Navigation */}

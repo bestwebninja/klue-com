@@ -159,7 +159,7 @@ const Auth = () => {
       }
 
       const displayName = userType === 'provider' ? companyName : fullName;
-      const { error, data } = await signUp(email, password, displayName);
+      const { error, data } = await signUp(email, password, displayName, userType);
       
       if (error) {
         if (error.message.includes('already registered')) {
@@ -168,22 +168,19 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
-
-        if (userType === 'provider' && data?.user) {
-          // Assign provider role
-          await supabase.from('user_roles').insert({ user_id: data.user.id, role: 'provider' as any });
-
-          // Send welcome email
-          supabase.functions.invoke('send-provider-welcome-notification', {
-            body: { userId: data.user.id }
-          }).catch(err => console.error('Failed to send provider welcome email:', err));
-        } else if (data?.user) {
-          // Send homeowner welcome email
-          supabase.functions.invoke('send-homeowner-welcome-notification', {
-            body: { userId: data.user.id }
-          }).catch(err => console.error('Failed to send homeowner welcome email:', err));
+        // Send welcome email via transactional email system
+        if (data?.user) {
+          const templateName = userType === 'provider' ? 'provider-welcome' : 'homeowner-welcome';
+          supabase.functions.invoke('send-transactional-email', {
+            body: {
+              templateName,
+              recipientEmail: email,
+              idempotencyKey: `${templateName}-${data.user.id}`,
+              templateData: { name: userType === 'provider' ? companyName : fullName },
+            },
+          }).catch(err => console.error('Failed to send welcome email:', err));
         }
-        
+
         setVerifiedEmail(email);
         setAuthView('verification-pending');
       }

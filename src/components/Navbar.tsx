@@ -23,22 +23,13 @@ export function Navbar() {
   const isNavVisible = useScrollDirection();
 
   const getDashboardLink = () => {
-    if (isAdmin) return "/admin";
-    if (isProvider) return "/dashboard";
+    if (isAdmin || isProvider) return "/dashboard";
     return "/user-dashboard";
   };
 
-  const getDashboardLabel = () => {
-    if (isAdmin) return "Admin Panel";
-    if (isProvider) return "Provider Dashboard";
-    return "My Dashboard";
-  };
+  const getDashboardLabel = () => "My Dashboard";
 
-  const getDashboardIcon = () => {
-    if (isAdmin) return <Shield className="h-5 w-5" />;
-    if (isProvider) return <Briefcase className="h-5 w-5" />;
-    return <Home className="h-5 w-5" />;
-  };
+  const getDashboardIcon = () => <Home className="h-5 w-5" />;
 
   const MenuLink = ({ 
     to, 
@@ -84,18 +75,11 @@ export function Navbar() {
               <Button variant="hero" size="sm" asChild>
                 <Link to="/auth?type=provider">List Your Business</Link>
               </Button>
-            ) : isProvider ? (
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/dashboard">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Provider Dashboard
-                </Link>
-              </Button>
             ) : (
               <Button variant="hero" size="sm" asChild>
-                <Link to="/user-dashboard">
+                <Link to={getDashboardLink()}>
                   <Home className="w-4 h-4 mr-2" />
-                  My Jobs
+                  My Dashboard
                 </Link>
               </Button>
             )}
@@ -122,9 +106,24 @@ export function Navbar() {
                 </SheetHeader>
 
                 <div className="p-4 flex flex-col">
+                  {/* My Dashboard — top of menu when logged in */}
+                  {user && (
+                    <>
+                      <SheetClose asChild>
+                        <Link
+                          to={getDashboardLink()}
+                          className="flex items-center gap-3 mb-3 py-3.5 px-4 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all font-semibold text-sm"
+                        >
+                          <Home className="h-5 w-5" />
+                          My Dashboard
+                        </Link>
+                      </SheetClose>
+                    </>
+                  )}
+
                   {/* Primary CTA */}
                   <SheetClose asChild>
-                    <Button variant="hero" size="lg" className="w-full mb-6 h-12 text-base font-semibold" asChild>
+                    <Button variant="hero" size="lg" className="w-full mb-4 h-12 text-base font-semibold" asChild>
                       <Link to="/post-job">Post a Job Now!</Link>
                     </Button>
                   </SheetClose>
@@ -165,22 +164,18 @@ export function Navbar() {
                     ))}
                   </div>
 
-                  {user && (
+                  {user ? (
                     <>
                       <div className="border-t border-white/10 my-4" />
-                      
-                      <div className="space-y-1">
-                        <MenuLink to={getDashboardLink()} icon={getDashboardIcon()}>
-                          {getDashboardLabel()}
-                        </MenuLink>
 
+                      <div className="space-y-1">
                         <MenuLink to="/settings/notifications" icon={<Settings className="h-5 w-5" />}>
                           Settings
                         </MenuLink>
                       </div>
 
                       <div className="border-t border-white/10 my-4" />
-                      
+
                       <SheetClose asChild>
                         <button
                           onClick={() => signOut()}
@@ -191,19 +186,17 @@ export function Navbar() {
                         </button>
                       </SheetClose>
                     </>
-                  )}
-
-                  {!user && (
+                  ) : (
                     <>
                       <div className="border-t border-white/10 my-4" />
-                      
+
                       <div className="space-y-2">
                         <SheetClose asChild>
                           <Button variant="ghost" size="lg" className="w-full h-12 border border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
                             <Link to="/auth">Log In</Link>
                           </Button>
                         </SheetClose>
-                        
+
                         <SheetClose asChild>
                           <Button variant="hero" size="lg" className="w-full h-12" asChild>
                             <Link to="/auth?type=provider">Free Contractor Sign Up</Link>

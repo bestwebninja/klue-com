@@ -306,7 +306,7 @@ const Dashboard = () => {
           />
 
           <main className="p-4 sm:p-6 lg:p-8">
-            {showSetupWizard && setupChecked ? (
+            {showSetupWizard && setupChecked && !isAdmin ? (
               <ProviderSetupWizard
                 userId={user.id}
                 companyName={profile?.full_name || undefined}

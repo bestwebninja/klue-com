@@ -9,7 +9,7 @@ import { ShieldAlert, Upload, ExternalLink, ClipboardList, CheckSquare, Square, 
 
 const KPIS: KpiItem[] = [
   { label: 'Days w/o Incident',       value: '47',   sub: 'Record: 93 days',           trend: 'up'      },
-  { label: 'OSHA Recordable Rate',     value: '2.1',  sub: 'Industry avg: 3.4',         trend: 'up'      },
+  { label: 'OSHA Recordable Rate',     value: '2.1',  sub: 'Industry avg: 2.3',         trend: 'up'      },
   { label: 'Open Corrective Actions',  value: '3',    sub: 'Due within 7 days',          trend: 'down'    },
   { label: 'Training Compliance',      value: '88%',  sub: 'Target: 100%',              trend: 'neutral' },
 ];

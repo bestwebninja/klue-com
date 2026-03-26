@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useRef, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
 import {
   Phone, Package, Lock, BookOpen, TrendingUp, TrendingDown,
   Mic, Mail, ClipboardList, Send, BarChart3, MapPin, Calendar,
@@ -182,6 +183,24 @@ function DeptLoader() {
 export default function GCCommandDashboard() {
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
+  // Collapsed state per section label; Legals starts expanded
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    Overview: false, Communications: false, Materials: true,
+    Workforce: true, Finance: true, Legals: false,
+  });
+  const legalsRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const toggleSection = (label: string) => {
+    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  // Scroll Legals into view when it becomes uncollapsed
+  useEffect(() => {
+    if (!collapsed['Legals'] && legalsRef.current && sidebarRef.current) {
+      legalsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [collapsed['Legals']]);
 
   const ActiveDept = deptComponentMap[activeSidebar] ?? null;
   const isDept = ActiveDept !== null;
@@ -255,45 +274,88 @@ export default function GCCommandDashboard() {
       {/* ── Main Layout ── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ── Sidebar ── */}
-        <div className="hidden md:block w-[195px] bg-card border-r border-border overflow-y-auto shrink-0 py-3">
-          {sidebarSections.map((section) => (
-            <div key={section.label} className="px-3 mb-1">
-              <div className="text-[10px] font-semibold text-muted-foreground tracking-wider uppercase px-2 py-1.5">
-                {section.label}
-              </div>
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeSidebar === item.name;
-                return (
+        <div ref={sidebarRef} className="hidden md:flex w-[195px] bg-card border-r border-border shrink-0 flex-col overflow-hidden">
+          {/* Scrollable section list */}
+          <div className="flex-1 overflow-y-auto py-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            {sidebarSections.map((section) => {
+              const isLegals = section.label === 'Legals';
+              const isCollapsed = collapsed[section.label];
+              return (
+                <div key={section.label} ref={isLegals ? legalsRef : undefined} className="px-2 mb-0.5">
+                  {/* Section header — clickable to collapse */}
                   <button
-                    key={item.name}
-                    onClick={() => handleSidebarClick(item.name)}
-                    className={`w-full flex items-center justify-between px-2 py-1.5 rounded-md text-[13px] text-left transition-colors ${
-                      isActive
-                        ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
+                    onClick={() => toggleSection(section.label)}
+                    className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-muted/60 transition-colors group"
                   >
-                    <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.name}</span>
-                    </div>
-                    {item.badge && (
-                      <Badge
-                        variant={
-                          item.badgeType === 'red'   ? 'destructive' :
-                          item.badgeType === 'green' ? 'default'     : 'secondary'
-                        }
-                        className="text-[10px] px-1.5 py-0 shrink-0"
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
+                    <span className={`text-[10px] font-semibold tracking-wider uppercase ${isLegals ? 'text-orange-500' : 'text-muted-foreground'}`}>
+                      {section.label}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`} />
                   </button>
-                );
-              })}
+
+                  {/* Section items */}
+                  {!isCollapsed && section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeSidebar === item.name;
+                    return (
+                      <button
+                        key={item.name}
+                        onClick={() => handleSidebarClick(item.name)}
+                        className={`w-full flex items-center justify-between px-2 py-[3px] rounded text-[11.5px] text-left transition-colors ${
+                          isActive
+                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium'
+                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Icon className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <Badge
+                            variant={
+                              item.badgeType === 'red'   ? 'destructive' :
+                              item.badgeType === 'green' ? 'default'     : 'secondary'
+                            }
+                            className="text-[9px] px-1 py-0 h-3.5 shrink-0 ml-1"
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Quick-jump strip at bottom */}
+          <div className="border-t border-border px-3 py-2 shrink-0">
+            <p className="text-[9.5px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Jump to</p>
+            <div className="flex flex-wrap gap-1">
+              {sidebarSections.map(s => (
+                <button
+                  key={s.label}
+                  onClick={() => {
+                    setCollapsed(prev => ({ ...prev, [s.label]: false }));
+                    setTimeout(() => {
+                      if (s.label === 'Legals' && legalsRef.current) {
+                        legalsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 50);
+                  }}
+                  className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${
+                    s.label === 'Legals'
+                      ? 'border-orange-400 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950'
+                      : 'border-border text-muted-foreground hover:bg-muted'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         {/* ── Content Panel ── */}

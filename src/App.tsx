@@ -21,7 +21,6 @@ const JobDetail = lazy(() => import("./pages/JobDetail"));
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AskExpert = lazy(() => import("./pages/AskExpert"));
 const QuestionDetail = lazy(() => import("./pages/QuestionDetail"));

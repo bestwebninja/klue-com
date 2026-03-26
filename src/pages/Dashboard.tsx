@@ -4,6 +4,7 @@ import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat } from 'lucide-react';
@@ -47,6 +48,7 @@ const providerNavItems = [
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { isProvider, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -66,6 +68,15 @@ const Dashboard = () => {
       navigate('/complete-profile');
     }
   }, [user, loading, navigate, profileComplete, profileLoading]);
+
+  // Redirect non-providers to the correct dashboard
+  useEffect(() => {
+    if (!loading && !roleLoading && user) {
+      if (!isProvider && !isAdmin) {
+        navigate('/my-dashboard', { replace: true });
+      }
+    }
+  }, [user, loading, roleLoading, isProvider, isAdmin, navigate]);
 
   useEffect(() => {
     if (user) {

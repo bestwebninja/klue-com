@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -52,7 +52,7 @@ const providerNavItems = [
 
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
-  const { isAdmin } = useAdmin();
+  const { isAdmin, loading: adminLoading } = useAdmin();
   const { isProvider, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +62,11 @@ const Dashboard = () => {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
+  // Resizable content — px width of sidebar (null = CSS default)
+  const [sidebarWidth, setSidebarWidth] = useState(200);
+  const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startW = useRef(0);
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
 
   useEffect(() => {
@@ -183,7 +188,29 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  if (loading || roleLoading) {
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    isResizing.current = true;
+    startX.current = e.clientX;
+    startW.current = sidebarWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: MouseEvent) => {
+      if (!isResizing.current) return;
+      const delta = ev.clientX - startX.current;
+      setSidebarWidth(Math.min(320, Math.max(160, startW.current + delta)));
+    };
+    const onUp = () => {
+      isResizing.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [sidebarWidth]);
+
+  if (loading || roleLoading || adminLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
@@ -291,8 +318,13 @@ const Dashboard = () => {
     }
   };
 
+  const sidebarCssWidth = `${sidebarWidth}px`;
+
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider
+      defaultOpen={true}
+      style={{ '--sidebar-width': sidebarCssWidth, '--sidebar-width-icon': '3rem' } as React.CSSProperties}
+    >
       <SEOHead title="Service Provider Dashboard | Kluje" description="Manage your leads, quotes, profile, portfolio, and subscription. Everything you need to run your service provider business on Kluje." noIndex={true} />
       <div className="min-h-screen flex w-full bg-background">
         {/* Desktop Sidebar - hidden on mobile */}
@@ -309,8 +341,15 @@ const Dashboard = () => {
           />
         </div>
 
+        {/* Drag handle between sidebar and content */}
+        <div
+          className="hidden sm:flex items-center justify-center w-1.5 shrink-0 cursor-col-resize hover:bg-orange-400/40 active:bg-orange-400/60 transition-colors bg-border/30 z-20"
+          onMouseDown={onMouseDown}
+          title="Drag to resize sidebar"
+        />
+
         {/* Main Content Area */}
-        <SidebarInset className="flex-1">
+        <SidebarInset className="flex-1 min-w-0">
           <DashboardHeader
             userName={profile?.full_name || undefined}
             userEmail={user.email}

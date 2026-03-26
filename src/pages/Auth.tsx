@@ -168,7 +168,19 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
-        
+        // Send welcome email via transactional email system
+        if (data?.user) {
+          const templateName = userType === 'provider' ? 'provider-welcome' : 'homeowner-welcome';
+          supabase.functions.invoke('send-transactional-email', {
+            body: {
+              templateName,
+              recipientEmail: email,
+              idempotencyKey: `${templateName}-${data.user.id}`,
+              templateData: { name: userType === 'provider' ? companyName : fullName },
+            },
+          }).catch(err => console.error('Failed to send welcome email:', err));
+        }
+
         setVerifiedEmail(email);
         setAuthView('verification-pending');
       }

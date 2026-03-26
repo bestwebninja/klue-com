@@ -22,10 +22,7 @@ export function Navbar() {
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();
   const isNavVisible = useScrollDirection();
 
-  const getDashboardLink = () => {
-    if (isAdmin || isProvider) return "/dashboard";
-    return "/user-dashboard";
-  };
+  const getDashboardLink = () => "/dashboard";
 
   const getDashboardLabel = () => "My Dashboard";
 

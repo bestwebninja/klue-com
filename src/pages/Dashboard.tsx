@@ -4,6 +4,7 @@ import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat } from 'lucide-react';
@@ -52,6 +53,7 @@ const providerNavItems = [
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { isProvider, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -76,9 +78,21 @@ const Dashboard = () => {
     if (user) {
       fetchProfile();
       fetchUnreadCount();
-      checkSetupNeeded();
     }
   }, [user]);
+
+  // Only check setup wizard once roles are loaded
+  useEffect(() => {
+    if (user && !roleLoading) {
+      if (isProvider) {
+        checkSetupNeeded();
+      } else {
+        // Non-providers (admins, homeowners) never see the setup wizard
+        setSetupChecked(true);
+        setShowSetupWizard(false);
+      }
+    }
+  }, [user, isProvider, roleLoading]);
 
   // Check if provider needs guided setup (no services yet)
   const checkSetupNeeded = async () => {
@@ -89,7 +103,7 @@ const Dashboard = () => {
       .select('id')
       .eq('provider_id', user.id)
       .limit(1);
-    
+
     const needsSetup = !services || services.length === 0;
     setShowSetupWizard(needsSetup || isSetupParam);
     setSetupChecked(true);
@@ -169,7 +183,7 @@ const Dashboard = () => {
     navigate('/');
   };
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
@@ -306,7 +320,7 @@ const Dashboard = () => {
           />
 
           <main className="p-4 sm:p-6 lg:p-8">
-            {showSetupWizard && setupChecked && !isAdmin ? (
+            {showSetupWizard && setupChecked ? (
               <ProviderSetupWizard
                 userId={user.id}
                 companyName={profile?.full_name || undefined}

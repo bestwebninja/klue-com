@@ -157,22 +157,8 @@ const UserDashboard = () => {
     bio: '',
   });
 
-  // Redirect providers to their dashboard
-  useEffect(() => {
-    if (!roleLoading && isProvider) {
-      navigate('/dashboard');
-    }
-  }, [isProvider, roleLoading, navigate]);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-      return;
-    }
-    if (!authLoading && !profileLoading && user && profileComplete === false) {
-      navigate('/complete-profile');
-    }
-  }, [user, authLoading, navigate, profileComplete, profileLoading]);
+  // Auth/profile redirects are handled by the unified Dashboard wrapper
+  // No need for role-based redirects here
 
   useEffect(() => {
     if (user) {

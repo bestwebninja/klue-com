@@ -53,7 +53,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Role-based redirect after login
+  // Redirect after login — unified /dashboard handles role detection
   useEffect(() => {
     if (user && !roleLoading && !profileLoading) {
       if (profileComplete === false) {
@@ -66,9 +66,6 @@ const Auth = () => {
       if (redirectTo) {
         toast({ title: 'Welcome back!', description: 'Returning you to where you left off...' });
         navigate(redirectTo);
-      } else if (isAdmin) {
-        toast({ title: 'Welcome back, Admin!', description: 'Redirecting to admin panel...' });
-        navigate('/admin');
       } else if (isProvider) {
         // Check if provider needs to finish setup (no services selected yet)
         checkProviderSetup();
@@ -109,7 +106,7 @@ const Auth = () => {
       navigate('/post-job');
     } else {
       toast({ title: 'Welcome back!', description: 'Redirecting to your dashboard...' });
-      navigate('/my-dashboard');
+      navigate('/dashboard');
     }
   };
 

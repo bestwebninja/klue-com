@@ -143,19 +143,15 @@ export function Navbar() {
 
                   {/* Services Section */}
                   <div className="border-t border-white/10 my-4" />
-                  <p className="px-4 text-[11px] uppercase tracking-widest text-primary-foreground/40 font-semibold mb-2">Services</p>
-                  <div className="space-y-0.5">
+                  <p className="px-4 text-[11px] uppercase tracking-widest text-primary-foreground/40 font-semibold mb-3">Service Categories</p>
+                  <div className="grid grid-cols-2 gap-2 px-2">
                     {categories.map((cat) => (
                       <SheetClose asChild key={cat.slug}>
                         <Link
                           to={`/services/${cat.slug}`}
-                          className="flex items-center justify-between py-2.5 px-4 text-primary-foreground/80 hover:text-primary hover:bg-white/5 text-sm transition-all duration-200 rounded-lg group"
+                          className="text-sm px-3 py-2 rounded-lg text-primary-foreground/90 hover:text-primary hover:bg-white/10 transition-all duration-200 text-center font-medium"
                         >
-                          <span className="flex items-center gap-2">
-                            <Layers className="h-4 w-4 text-primary-foreground/40 group-hover:text-primary transition-colors" />
-                            {cat.name}
-                          </span>
-                          <ChevronRight className="h-3.5 w-3.5 text-primary-foreground/30 group-hover:text-primary transition-colors" />
+                          {cat.name}
                         </Link>
                       </SheetClose>
                     ))}

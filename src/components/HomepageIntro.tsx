@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CheckCircle, Shield, Star, MapPin } from 'lucide-react';
+import { Cpu, TrendingUp, Network, Zap } from 'lucide-react';
 
 export function HomepageIntro() {
   return (
@@ -7,48 +7,62 @@ export function HomepageIntro() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6 text-center">
-            Find Trusted Service Providers Across the US
+            The AI Platform Powering America's Built Economy
           </h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              Kluje is America's growing marketplace connecting homeowners, landlords and businesses with
-              trusted local service providers. Whether you need a{' '}
-              <Link to="/services/home-diy-renovation" className="text-primary hover:underline">plumber in New York</Link>,
-              an{' '}
-              <Link to="/services/it-services" className="text-primary hover:underline">IT consultant in Chicago</Link>,
-              or a{' '}
-              <Link to="/services/events-catering" className="text-primary hover:underline">wedding caterer in Los Angeles</Link>,
-              our platform makes it simple to find qualified professionals near you.
+              Kluje is America's most advanced AI-powered management platform — built to serve every sector
+              of the built economy under one intelligent roof. From{' '}
+              <Link to="/services/build-ops" className="text-primary hover:underline">licensed contractors and specialist trades</Link>
+              {' '}to{' '}
+              <Link to="/services/capital" className="text-primary hover:underline">construction finance and capital</Link>,{' '}
+              <Link to="/services/legal-shield" className="text-primary hover:underline">legal protection</Link>,{' '}
+              <Link to="/services/property-deals" className="text-primary hover:underline">real estate investment</Link>,
+              and{' '}
+              <Link to="/services/ai-core" className="text-primary hover:underline">AI-driven business automation</Link>
+              {' '}— Kluje connects every professional, every deal, and every dollar across all 50 states.
             </p>
             <p>
-              Post your job for free and receive up to three tailored quotes from vetted contractors and
-              service providers across all 50 states. Every professional on
-              Kluje can be rated and reviewed, so you can compare credentials, pricing and past work before
-              making a decision.
+              Our intelligent sales funnel routes verified opportunities directly to the right professionals
+              — turning demand into revenue in minutes. Post a project free, receive up to three tailored
+              quotes, and manage the full lifecycle from{' '}
+              <Link to="/services/design-and-build" className="text-primary hover:underline">design and build</Link>
+              {' '}through to{' '}
+              <Link to="/services/materials" className="text-primary hover:underline">materials sourcing</Link>
+              {' '}and{' '}
+              <Link to="/services/connections" className="text-primary hover:underline">business growth</Link>
+              {' '}— inside one AI-driven ecosystem.
+            </p>
+            <p>
+              For investors, Kluje represents a rare convergence: proprietary AI infrastructure that
+              compounds with every transaction, deep vertical penetration across 11 high-value sectors,
+              and the network effects of a two-sided marketplace operating at national scale. Every
+              professional added, every deal closed, every job posted — makes the platform smarter,
+              stickier, and harder to displace.
             </p>
           </div>
 
-          {/* Trust signals */}
+          {/* Platform pillars */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
             <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
-              <CheckCircle className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-foreground">Free to Post</span>
-              <span className="text-xs text-muted-foreground">No fees for homeowners</span>
+              <Cpu className="h-6 w-6 text-primary" />
+              <span className="text-sm font-medium text-foreground">AI-Powered Matching</span>
+              <span className="text-xs text-muted-foreground">Right pro, right job, instantly</span>
             </div>
             <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
-              <Shield className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-foreground">Verified Providers</span>
-              <span className="text-xs text-muted-foreground">ID &amp; insurance checked</span>
+              <Network className="h-6 w-6 text-primary" />
+              <span className="text-sm font-medium text-foreground">11 Industry Verticals</span>
+              <span className="text-xs text-muted-foreground">One platform, every sector</span>
             </div>
             <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
-              <Star className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-foreground">Rated &amp; Reviewed</span>
-              <span className="text-xs text-muted-foreground">Genuine customer feedback</span>
+              <Zap className="h-6 w-6 text-primary" />
+              <span className="text-sm font-medium text-foreground">Intelligent Sales Funnel</span>
+              <span className="text-xs text-muted-foreground">Demand converted to revenue fast</span>
             </div>
             <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
-              <MapPin className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-foreground">Nationwide Coverage</span>
-              <span className="text-xs text-muted-foreground">Local pros, coast to coast</span>
+              <TrendingUp className="h-6 w-6 text-primary" />
+              <span className="text-sm font-medium text-foreground">Built to Scale</span>
+              <span className="text-xs text-muted-foreground">Network effects, national reach</span>
             </div>
           </div>
         </div>

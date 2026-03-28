@@ -15,6 +15,7 @@ import {
   HelpCircle, MapPin, Clock, MessageSquare, ArrowRight,
 } from 'lucide-react';
 import NotFound from './NotFound';
+import BuildOpsTrades from '@/components/BuildOpsTrades';
 
 /* ------------------------------------------------------------------ */
 /* Hero image imports – we import dynamically via the resolved path   */
@@ -31,6 +32,7 @@ import heroBusiness from '@/assets/hero-business.jpg';
 import heroIT from '@/assets/hero-it-services.jpg';
 import heroLegal from '@/assets/hero-legal.jpg';
 import heroLessons from '@/assets/hero-lessons.jpg';
+import heroContractor from '@/assets/hero-contractor.jpg';
 import heroAskExpert from '@/assets/hero-ask-expert.jpg';
 import ctaBg from '@/assets/cta-bg.jpg';
 
@@ -45,6 +47,18 @@ const heroMap: Record<string, string> = {
   'it-services': heroIT,
   'legal-services': heroLegal,
   'lessons': heroLessons,
+  // New category slugs
+  'design-and-build': heroCommercial,
+  'smart-security': heroIT,
+  'build-ops': heroContractor,
+  'capital': heroBusiness,
+  'ai-core': heroIT,
+  'legal-shield': heroLegal,
+  'connections': heroBusiness,
+  'property-deals': heroHome,
+  'sales-agents': heroHome,
+  'living-solutions': heroHome,
+  'materials': heroCommercial,
 };
 
 export default function CategoryLanding() {
@@ -184,6 +198,14 @@ export default function CategoryLanding() {
             <p key={i} className="text-muted-foreground leading-relaxed mb-4">{p}</p>
           ))}
         </section>
+
+        {/* Build Ops trades directory */}
+        {slug === 'build-ops' && (
+          <>
+            <Separator />
+            <BuildOpsTrades />
+          </>
+        )}
 
         <Separator />
 

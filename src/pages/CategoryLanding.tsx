@@ -34,30 +34,15 @@ import MaterialsDirectory from '@/components/MaterialsDirectory';
 /* ------------------------------------------------------------------ */
 import heroHome from '@/assets/hero-home-services.jpg';
 import heroCommercial from '@/assets/hero-commercial.jpg';
-import heroEvents from '@/assets/hero-events.jpg';
-import heroHealth from '@/assets/hero-health-fitness.jpg';
-import heroAgriculture from '@/assets/hero-agriculture.jpg';
-import heroPets from '@/assets/hero-pets.jpg';
 import heroBusiness from '@/assets/hero-business.jpg';
 import heroIT from '@/assets/hero-it-services.jpg';
 import heroLegal from '@/assets/hero-legal.jpg';
-import heroLessons from '@/assets/hero-lessons.jpg';
 import heroContractor from '@/assets/hero-contractor.jpg';
 import heroAskExpert from '@/assets/hero-ask-expert.jpg';
 import ctaBg from '@/assets/cta-bg.jpg';
 
 const heroMap: Record<string, string> = {
-  'home-diy-renovation': heroHome,
-  'commercial-services': heroCommercial,
-  'events-catering': heroEvents,
-  'health-fitness': heroHealth,
-  'agriculture': heroAgriculture,
-  'pets-services': heroPets,
-  'business-services': heroBusiness,
-  'it-services': heroIT,
-  'legal-services': heroLegal,
-  'lessons': heroLessons,
-  // New category slugs
+  // Current service categories
   'design-and-build': heroCommercial,
   'smart-security': heroIT,
   'build-ops': heroContractor,

@@ -4,80 +4,49 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
-// Import all category hero images
+// Import category hero images
 import heroProviders from '@/assets/hero-providers.jpg';
 import heroHomeServices from '@/assets/hero-home-services.jpg';
 import heroCommercial from '@/assets/hero-commercial.jpg';
-import heroEvents from '@/assets/hero-events.jpg';
-import heroHealthFitness from '@/assets/hero-health-fitness.jpg';
-import heroAgriculture from '@/assets/hero-agriculture.jpg';
-import heroPets from '@/assets/hero-pets.jpg';
 import heroBusiness from '@/assets/hero-business.jpg';
 import heroItServices from '@/assets/hero-it-services.jpg';
 import heroLegal from '@/assets/hero-legal.jpg';
-import heroLessons from '@/assets/hero-lessons.jpg';
+import heroContractor from '@/assets/hero-contractor.jpg';
 
-// Map category names to hero images
+// Map provider category names to the most relevant hero image
 const getCategoryHeroImage = (categoryName?: string | null): string => {
   if (!categoryName) return heroProviders;
-  
-  const lowerCategory = categoryName.toLowerCase();
-  
-  if (lowerCategory.includes('home') || lowerCategory.includes('diy') || lowerCategory.includes('renovation') || 
-      lowerCategory.includes('handyman') || lowerCategory.includes('electrician') || lowerCategory.includes('plumber') ||
-      lowerCategory.includes('carpenter') || lowerCategory.includes('painter') || lowerCategory.includes('roofing') ||
-      lowerCategory.includes('flooring') || lowerCategory.includes('heating') || lowerCategory.includes('builder') ||
-      lowerCategory.includes('garden') || lowerCategory.includes('landscaping') || lowerCategory.includes('tiling')) {
-    return heroHomeServices;
-  }
-  
-  if (lowerCategory.includes('commercial') || lowerCategory.includes('shopfitting') || lowerCategory.includes('maintenance')) {
+
+  const c = categoryName.toLowerCase();
+
+  if (c.includes('design') || c.includes('architect') || c.includes('interior') || c.includes('commercial') || c.includes('build')) {
     return heroCommercial;
   }
-  
-  if (lowerCategory.includes('event') || lowerCategory.includes('catering') || lowerCategory.includes('wedding') ||
-      lowerCategory.includes('dj') || lowerCategory.includes('photography') || lowerCategory.includes('florist') ||
-      lowerCategory.includes('bartend') || lowerCategory.includes('chef')) {
-    return heroEvents;
-  }
-  
-  if (lowerCategory.includes('health') || lowerCategory.includes('fitness') || lowerCategory.includes('personal trainer') ||
-      lowerCategory.includes('massage') || lowerCategory.includes('physio') || lowerCategory.includes('yoga') ||
-      lowerCategory.includes('beauty') || lowerCategory.includes('salon') || lowerCategory.includes('wellness')) {
-    return heroHealthFitness;
-  }
-  
-  if (lowerCategory.includes('agriculture') || lowerCategory.includes('moving') || lowerCategory.includes('transport') ||
-      lowerCategory.includes('courier') || lowerCategory.includes('car') || lowerCategory.includes('van')) {
-    return heroAgriculture;
-  }
-  
-  if (lowerCategory.includes('pet') || lowerCategory.includes('dog') || lowerCategory.includes('cat') ||
-      lowerCategory.includes('animal') || lowerCategory.includes('grooming')) {
-    return heroPets;
-  }
-  
-  if (lowerCategory.includes('business') || lowerCategory.includes('accounting') || lowerCategory.includes('consulting') ||
-      lowerCategory.includes('tax') || lowerCategory.includes('payroll') || lowerCategory.includes('resume')) {
-    return heroBusiness;
-  }
-  
-  if (lowerCategory.includes('it') || lowerCategory.includes('web') || lowerCategory.includes('software') ||
-      lowerCategory.includes('computer') || lowerCategory.includes('seo') || lowerCategory.includes('marketing') ||
-      lowerCategory.includes('graphic') || lowerCategory.includes('design') || lowerCategory.includes('development')) {
+  if (c.includes('security') || c.includes('cctv') || c.includes('surveillance') || c.includes('access control') ||
+      c.includes('ai') || c.includes('automation') || c.includes('software') || c.includes('it ') || c.includes('tech') ||
+      c.includes('web') || c.includes('computer') || c.includes('data') || c.includes('digital')) {
     return heroItServices;
   }
-  
-  if (lowerCategory.includes('legal') || lowerCategory.includes('attorney') || lowerCategory.includes('lawyer') ||
-      lowerCategory.includes('law') || lowerCategory.includes('notary') || lowerCategory.includes('mediation')) {
+  if (c.includes('contractor') || c.includes('construction') || c.includes('trade') || c.includes('electrician') ||
+      c.includes('plumber') || c.includes('hvac') || c.includes('roofing') || c.includes('framing') ||
+      c.includes('concrete') || c.includes('flooring') || c.includes('painter') || c.includes('carpenter')) {
+    return heroContractor;
+  }
+  if (c.includes('legal') || c.includes('attorney') || c.includes('lawyer') || c.includes('law') ||
+      c.includes('compliance') || c.includes('notary') || c.includes('mediation')) {
     return heroLegal;
   }
-  
-  if (lowerCategory.includes('lesson') || lowerCategory.includes('tutor') || lowerCategory.includes('teaching') ||
-      lowerCategory.includes('language') || lowerCategory.includes('academic') || lowerCategory.includes('sporting')) {
-    return heroLessons;
+  if (c.includes('capital') || c.includes('finance') || c.includes('accounting') || c.includes('cpa') ||
+      c.includes('tax') || c.includes('loan') || c.includes('investment') || c.includes('consulting') ||
+      c.includes('business') || c.includes('payroll') || c.includes('bookkeep')) {
+    return heroBusiness;
   }
-  
+  if (c.includes('home') || c.includes('renovation') || c.includes('repair') || c.includes('cleaning') ||
+      c.includes('landscaping') || c.includes('handyman') || c.includes('garden') || c.includes('living') ||
+      c.includes('property') || c.includes('real estate') || c.includes('agent') || c.includes('sales')) {
+    return heroHomeServices;
+  }
+
   return heroProviders;
 };
 

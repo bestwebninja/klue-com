@@ -7,18 +7,23 @@ import { Button } from "@/components/ui/button";
 import heroProviders from "@/assets/hero-providers.jpg?format=webp&quality=80";
 
 // Lazy-load remaining slide images as webp
+// TODO: replace each placeholder with its dedicated category image once uploaded:
+//   hero-design-build.jpg, hero-smart-security.jpg, hero-build-ops.jpg,
+//   hero-capital.jpg, hero-ai-core.jpg, hero-legal-shield.jpg,
+//   hero-connections.jpg, hero-property-deals.jpg, hero-sales-agents.jpg,
+//   hero-living-solutions.jpg, hero-materials.jpg
 const lazyImages = [
-  () => import("@/assets/hero-commercial.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-it-services.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-contractor.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-pricing.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-business.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-legal.jpg?format=webp&quality=80"),
-  () => import("@/assets/support-bg.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-post-job.jpg?format=webp&quality=80"),
-  () => import("@/assets/cta-bg.jpg?format=webp&quality=80"),
-  () => import("@/assets/hero-home-services.jpg?format=webp&quality=80"),
-  () => import("@/assets/footer-bg.jpg?format=webp&quality=80"),
+  () => import("@/assets/hero-commercial.jpg?format=webp&quality=80"),   // → hero-design-build.jpg
+  () => import("@/assets/hero-it-services.jpg?format=webp&quality=80"),  // → hero-smart-security.jpg
+  () => import("@/assets/hero-contractor.jpg?format=webp&quality=80"),   // → hero-build-ops.jpg
+  () => import("@/assets/hero-pricing.jpg?format=webp&quality=80"),      // → hero-capital.jpg
+  () => import("@/assets/hero-business.jpg?format=webp&quality=80"),     // → hero-ai-core.jpg
+  () => import("@/assets/hero-legal.jpg?format=webp&quality=80"),        // → hero-legal-shield.jpg
+  () => import("@/assets/support-bg.jpg?format=webp&quality=80"),        // → hero-connections.jpg
+  () => import("@/assets/hero-post-job.jpg?format=webp&quality=80"),     // → hero-property-deals.jpg
+  () => import("@/assets/cta-bg.jpg?format=webp&quality=80"),            // → hero-sales-agents.jpg
+  () => import("@/assets/hero-home-services.jpg?format=webp&quality=80"), // → hero-living-solutions.jpg
+  () => import("@/assets/footer-bg.jpg?format=webp&quality=80"),         // → hero-materials.jpg
 ];
 
 const heroSlides = [

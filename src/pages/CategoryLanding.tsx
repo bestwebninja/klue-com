@@ -16,6 +16,16 @@ import {
 } from 'lucide-react';
 import NotFound from './NotFound';
 import BuildOpsTrades from '@/components/BuildOpsTrades';
+import DesignBuildDirectory from '@/components/DesignBuildDirectory';
+import SmartSecurityDirectory from '@/components/SmartSecurityDirectory';
+import CapitalDirectory from '@/components/CapitalDirectory';
+import AICoreDirectory from '@/components/AICoreDirectory';
+import LegalShieldDirectory from '@/components/LegalShieldDirectory';
+import ConnectionsDirectory from '@/components/ConnectionsDirectory';
+import PropertyDealsDirectory from '@/components/PropertyDealsDirectory';
+import SalesAgentsDirectory from '@/components/SalesAgentsDirectory';
+import LivingSolutionsDirectory from '@/components/LivingSolutionsDirectory';
+import MaterialsDirectory from '@/components/MaterialsDirectory';
 
 /* ------------------------------------------------------------------ */
 /* Hero image imports – we import dynamically via the resolved path   */
@@ -199,11 +209,71 @@ export default function CategoryLanding() {
           ))}
         </section>
 
-        {/* Build Ops trades directory */}
+        {/* Category-specific interactive directories */}
         {slug === 'build-ops' && (
           <>
             <Separator />
             <BuildOpsTrades />
+          </>
+        )}
+        {slug === 'design-and-build' && (
+          <>
+            <Separator />
+            <DesignBuildDirectory />
+          </>
+        )}
+        {slug === 'smart-security' && (
+          <>
+            <Separator />
+            <SmartSecurityDirectory />
+          </>
+        )}
+        {slug === 'capital' && (
+          <>
+            <Separator />
+            <CapitalDirectory />
+          </>
+        )}
+        {slug === 'ai-core' && (
+          <>
+            <Separator />
+            <AICoreDirectory />
+          </>
+        )}
+        {slug === 'legal-shield' && (
+          <>
+            <Separator />
+            <LegalShieldDirectory />
+          </>
+        )}
+        {slug === 'connections' && (
+          <>
+            <Separator />
+            <ConnectionsDirectory />
+          </>
+        )}
+        {slug === 'property-deals' && (
+          <>
+            <Separator />
+            <PropertyDealsDirectory />
+          </>
+        )}
+        {slug === 'sales-agents' && (
+          <>
+            <Separator />
+            <SalesAgentsDirectory />
+          </>
+        )}
+        {slug === 'living-solutions' && (
+          <>
+            <Separator />
+            <LivingSolutionsDirectory />
+          </>
+        )}
+        {slug === 'materials' && (
+          <>
+            <Separator />
+            <MaterialsDirectory />
           </>
         )}
 

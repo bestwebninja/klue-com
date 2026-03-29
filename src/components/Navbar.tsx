@@ -106,7 +106,7 @@ export function Navbar() {
               className="w-80 sm:w-96 bg-black/80 backdrop-blur-xl border-l border-white/10 p-0 overflow-y-auto scrollbar-thin"
             >
               <SheetHeader className="p-6 pb-2 border-b border-white/10">
-                <SheetTitle className="text-primary-foreground text-lg font-semibold tracking-wide">
+                <SheetTitle className="text-white text-lg font-semibold tracking-wide">
                   Menu
                 </SheetTitle>
               </SheetHeader>

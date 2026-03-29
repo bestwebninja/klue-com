@@ -3,16 +3,78 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  font-family: "Open Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
-  background: #020617;
-  color: #000000;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #2a2a33;
+}
+
+/* Zillow-inspired font sizing and font colors only */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+button,
+input,
+select,
+textarea,
+label,
+a,
+li,
+small {
+  font-family: inherit;
+  color: inherit;
+}
+
+h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+a {
+  color: #006aff;
+}
+
+small {
+  font-size: 0.875rem;
+  color: #596b82;
 }
 
 * {
   box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
 }

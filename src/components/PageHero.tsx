@@ -42,7 +42,7 @@ export function PageHero({
       }}
     >
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-[hsl(220,13%,18%)]/80" />
+      <div className="absolute inset-0 bg-black/50" />
       
       {/* Content */}
       <div className={cn(

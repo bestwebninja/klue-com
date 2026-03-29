@@ -422,20 +422,20 @@ export default function CategoryLanding() {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <MessageSquare className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">Ask Anything</h3>
-                  <p className="text-xs text-primary-foreground/70">Post your {category.name.toLowerCase()} question</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">Ask Anything</h3>
+                  <p className="text-xs text-white/70">Post your {category.name.toLowerCase()} question</p>
                 </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">Expert Answers</h3>
-                  <p className="text-xs text-primary-foreground/70">Qualified professionals respond</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">Expert Answers</h3>
+                  <p className="text-xs text-white/70">Qualified professionals respond</p>
                 </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <Star className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">100% Free</h3>
-                  <p className="text-xs text-primary-foreground/70">No cost to ask or read answers</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">100% Free</h3>
+                  <p className="text-xs text-white/70">No cost to ask or read answers</p>
                 </div>
               </div>
 

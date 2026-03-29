@@ -490,7 +490,7 @@ const AdminUsers = () => {
                         </Badge>
                       )}
                       {user.is_featured && !user.is_suspended && (
-                        <Badge className="bg-amber-500 hover:bg-amber-600 text-white gap-1 text-xs">
+                        <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1 text-xs">
                           <Star className="w-3 h-3 fill-current" />
                         </Badge>
                       )}

@@ -11,7 +11,7 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2,
+  Loader2, BrainCircuit,
 } from 'lucide-react';
 
 // ─── Lazy-load each department to keep initial bundle small ───
@@ -36,6 +36,7 @@ const VerificationDept   = lazy(() => import('./legals/VerificationOrdersDept'))
 const sidebarSections = [
   {
     label: 'Overview',
+    aiStatus: 'monitoring' as const,
     items: [
       { icon: BarChart3,    name: 'Dashboard',     badge: null },
       { icon: MapPin,       name: 'Site Map',       badge: 'Live', badgeType: 'green' },
@@ -44,6 +45,7 @@ const sidebarSections = [
   },
   {
     label: 'Communications',
+    aiStatus: 'monitoring' as const,
     items: [
       { icon: Phone,        name: 'Inbound Calls',  badge: '3',  badgeType: 'red' },
       { icon: Mail,         name: 'Email Inbox',    badge: '7',  badgeType: 'default' },
@@ -53,6 +55,7 @@ const sidebarSections = [
   },
   {
     label: 'Materials',
+    aiStatus: 'idle' as const,
     items: [
       { icon: Package,      name: 'Orders',         badge: null },
       { icon: Factory,      name: 'Suppliers',      badge: null },
@@ -62,6 +65,7 @@ const sidebarSections = [
   },
   {
     label: 'Workforce',
+    aiStatus: 'idle' as const,
     items: [
       { icon: Users,        name: 'Subcontractors', badge: null },
       { icon: Lock,         name: 'Biometric Access', badge: 'New', badgeType: 'green' },
@@ -71,6 +75,7 @@ const sidebarSections = [
   },
   {
     label: 'Finance',
+    aiStatus: 'idle' as const,
     items: [
       { icon: BookOpen,     name: 'Accounting',     badge: null },
       { icon: Receipt,      name: 'Invoices',       badge: '2', badgeType: 'red' },
@@ -80,6 +85,7 @@ const sidebarSections = [
   },
   {
     label: 'Legals',
+    aiStatus: 'idle' as const,
     items: [
       { icon: Scale,        name: 'Attorneys',          badge: null },
       { icon: Handshake,    name: 'Arbitration',        badge: null },
@@ -125,36 +131,40 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
 const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
 
 const kpis = [
-  { label: 'On-site today',     value: '14',    sub: '↑ 2 from yesterday',    trend: 'up' },
-  { label: 'Open orders',       value: '6',     sub: '3 awaiting delivery',   trend: 'neutral' },
-  { label: 'Pending invoices',  value: '$48.2k',sub: '↓ 2 overdue',           trend: 'down' },
-  { label: 'AI actions today',  value: '31',    sub: 'Calls, orders, quotes', trend: 'neutral' },
+  { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as const },
+  { label: 'Open orders',       value: '—', sub: 'No data yet', trend: 'neutral' as const },
+  { label: 'Pending invoices',  value: '—', sub: 'No data yet', trend: 'neutral' as const },
+  { label: 'AI actions today',  value: '—', sub: 'No data yet', trend: 'neutral' as const },
 ];
 
-const calls = [
-  { initials: 'HD', name: 'Home Depot Pro — order confirm',  meta: 'AI handled · 9:14 AM · 2 min',    status: 'Resolved',     color: 'green' },
-  { initials: 'MP', name: 'Mike Plumbing — reschedule req.', meta: 'AI escalated · 10:42 AM · 4 min', status: 'Review needed', color: 'amber' },
-  { initials: 'UN', name: 'Unknown — new quote inquiry',     meta: 'AI qualified · 11:05 AM · 6 min', status: 'Quote started', color: 'blue'  },
-];
+const calls: {
+  initials: string;
+  name: string;
+  meta: string;
+  status: string;
+  color: string;
+}[] = [];
 
-const materials = [
-  { name: 'Portland cement · 500 bags', sub: 'Home Depot Pro · Est. Thu', status: 'In transit', color: 'blue'  },
-  { name: 'Rebar #4 · 200 sticks',      sub: 'Fastenal · Est. Fri',       status: 'Delayed',    color: 'amber' },
-  { name: '2x6x16 lumber · 80 pcs',     sub: '84 Lumber · Ordered today', status: 'Confirmed',  color: 'green' },
-];
+const materials: {
+  name: string;
+  sub: string;
+  status: string;
+  color: string;
+}[] = [];
 
-const biometrics = [
-  { name: 'Carlos Rivera — Electrical sub', sub: 'Zone B · Level 2 · since 7:42 AM',     status: 'Cleared', ok: true  },
-  { name: 'Dana Frye — Framing crew',       sub: 'Zone A · Ground · since 8:10 AM',       status: 'Cleared', ok: true  },
-  { name: 'Ray Gomez — Masonry sub',        sub: 'Zone C · Restricted · flagged 11:30',   status: 'Review',  ok: false },
-];
+const biometrics: {
+  name: string;
+  sub: string;
+  status: string;
+  ok: boolean;
+}[] = [];
 
 const accounting = [
-  { label: 'Revenue this month',   value: '$182,400' },
-  { label: 'Materials spent',      value: '$64,100'  },
-  { label: 'Labor / sub costs',    value: '$51,200'  },
-  { label: 'Net margin',           value: '$67,100 (36.8%)', positive: true  },
-  { label: 'Outstanding A/R',      value: '$48,200',          negative: true  },
+  { label: 'Revenue this month',   value: '$0' },
+  { label: 'Materials spent',      value: '$0' },
+  { label: 'Labor / sub costs',    value: '$0' },
+  { label: 'Net margin',           value: '$0', positive: true  },
+  { label: 'Outstanding A/R',      value: '$0', negative: true  },
 ];
 
 function StatusPill({ status, color }: { status: string; color: string }) {
@@ -175,6 +185,32 @@ function DeptLoader() {
     <div className="flex items-center justify-center py-20 gap-2 text-muted-foreground">
       <Loader2 className="w-4 h-4 animate-spin" />
       <span className="text-sm">Loading department…</span>
+    </div>
+  );
+}
+
+function AiStatusDot({ status }: { status: 'monitoring' | 'idle' }) {
+  if (status === 'monitoring') {
+    return (
+      <span className="flex items-center gap-1 ml-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+        <span className="text-[9px] text-emerald-500 font-medium">AI Active</span>
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-1 ml-1">
+      <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
+      <span className="text-[9px] text-gray-400 font-medium">AI Standby</span>
+    </span>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="text-center py-8 text-muted-foreground text-sm">
+      <BrainCircuit className="h-8 w-8 mx-auto mb-2 opacity-30" />
+      <p>{message}</p>
     </div>
   );
 }
@@ -208,6 +244,8 @@ export default function GCCommandDashboard() {
   const handleSidebarClick = (name: string) => {
     setActiveSidebar(name);
   };
+
+  const allKpisEmpty = kpis.every(k => k.value === '—');
 
   return (
     <div className="flex flex-col h-full -m-4 sm:-m-6 lg:-m-8">
@@ -287,8 +325,9 @@ export default function GCCommandDashboard() {
                     onClick={() => toggleSection(section.label)}
                     className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-muted/60 transition-colors group"
                   >
-                    <span className={`text-[10px] font-semibold tracking-wider uppercase ${isLegals ? 'text-orange-500' : 'text-muted-foreground'}`}>
+                    <span className={`flex items-center text-[10px] font-semibold tracking-wider uppercase ${isLegals ? 'text-orange-500' : 'text-muted-foreground'}`}>
                       {section.label}
+                      <AiStatusDot status={section.aiStatus} />
                     </span>
                     <ChevronDown className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`} />
                   </button>
@@ -390,7 +429,12 @@ export default function GCCommandDashboard() {
                 {kpis.map((kpi) => (
                   <Card key={kpi.label} className="shadow-none">
                     <CardContent className="p-3.5">
-                      <div className="text-[11px] text-muted-foreground mb-1">{kpi.label}</div>
+                      <div className="text-[11px] text-muted-foreground mb-0.5">{kpi.label}</div>
+                      {/* AI Watched badge */}
+                      <div className="flex items-center gap-1 mb-1">
+                        <BrainCircuit className="h-3 w-3 text-muted-foreground/50" />
+                        <span className="text-[9px] text-muted-foreground/50 font-medium">AI Watched</span>
+                      </div>
                       <div className="text-2xl font-semibold text-foreground">{kpi.value}</div>
                       <div className={`text-[11px] mt-1 flex items-center gap-1 ${
                         kpi.trend === 'up'   ? 'text-emerald-600' :
@@ -405,6 +449,13 @@ export default function GCCommandDashboard() {
                 ))}
               </div>
 
+              {/* Today's Snapshot empty state */}
+              {activeTab === 0 && allKpisEmpty && (
+                <div className="mb-4">
+                  <EmptyState message="No activity data yet. KPI intelligence activates as your team uses the platform." />
+                </div>
+              )}
+
               {/* Row 1 */}
               <div className="grid md:grid-cols-2 gap-3 mb-3">
                 <Card className="shadow-none">
@@ -417,18 +468,22 @@ export default function GCCommandDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
-                    {calls.map((call) => (
-                      <div key={call.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
-                        <div className="w-[26px] h-[26px] rounded bg-muted text-[10px] font-semibold flex items-center justify-center text-muted-foreground shrink-0">
-                          {call.initials}
+                    {calls.length === 0 ? (
+                      <EmptyState message="No calls yet. The AI agent will log handled calls here." />
+                    ) : (
+                      calls.map((call) => (
+                        <div key={call.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                          <div className="w-[26px] h-[26px] rounded bg-muted text-[10px] font-semibold flex items-center justify-center text-muted-foreground shrink-0">
+                            {call.initials}
+                          </div>
+                          <div className="flex-1 ml-2">
+                            <div className="text-xs font-medium text-foreground">{call.name}</div>
+                            <div className="text-[11px] text-muted-foreground">{call.meta}</div>
+                          </div>
+                          <StatusPill status={call.status} color={call.color} />
                         </div>
-                        <div className="flex-1 ml-2">
-                          <div className="text-xs font-medium text-foreground">{call.name}</div>
-                          <div className="text-[11px] text-muted-foreground">{call.meta}</div>
-                        </div>
-                        <StatusPill status={call.status} color={call.color} />
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </CardContent>
                 </Card>
 
@@ -442,15 +497,19 @@ export default function GCCommandDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
-                    {materials.map((mat) => (
-                      <div key={mat.name} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
-                        <div>
-                          <div className="text-xs font-medium text-foreground">{mat.name}</div>
-                          <div className="text-[11px] text-muted-foreground">{mat.sub}</div>
+                    {materials.length === 0 ? (
+                      <EmptyState message="No material orders yet. Orders placed via AI will appear here." />
+                    ) : (
+                      materials.map((mat) => (
+                        <div key={mat.name} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
+                          <div>
+                            <div className="text-xs font-medium text-foreground">{mat.name}</div>
+                            <div className="text-[11px] text-muted-foreground">{mat.sub}</div>
+                          </div>
+                          <StatusPill status={mat.status} color={mat.color} />
                         </div>
-                        <StatusPill status={mat.status} color={mat.color} />
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -467,18 +526,22 @@ export default function GCCommandDashboard() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
-                    {biometrics.map((bio) => (
-                      <div key={bio.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${bio.ok ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                        <div className="flex-1 ml-2">
-                          <div className="text-xs font-medium text-foreground">{bio.name}</div>
-                          <div className="text-[11px] text-muted-foreground">{bio.sub}</div>
+                    {biometrics.length === 0 ? (
+                      <EmptyState message="No access events recorded yet. Site biometric data will appear here." />
+                    ) : (
+                      biometrics.map((bio) => (
+                        <div key={bio.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${bio.ok ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                          <div className="flex-1 ml-2">
+                            <div className="text-xs font-medium text-foreground">{bio.name}</div>
+                            <div className="text-[11px] text-muted-foreground">{bio.sub}</div>
+                          </div>
+                          <span className={`text-[11px] ${bio.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {bio.ok ? '✓' : '⚠'} {bio.status}
+                          </span>
                         </div>
-                        <span className={`text-[11px] ${bio.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
-                          {bio.ok ? '✓' : '⚠'} {bio.status}
-                        </span>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </CardContent>
                 </Card>
 

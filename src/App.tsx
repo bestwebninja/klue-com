@@ -22,7 +22,6 @@ const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AskExpert = lazy(() => import("./pages/AskExpert"));
 const QuestionDetail = lazy(() => import("./pages/QuestionDetail"));
 const MessagesInbox = lazy(() => import("./pages/MessagesInbox"));
@@ -39,6 +38,7 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const Newsletter = lazy(() => import("./pages/Newsletter"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Advertise = lazy(() => import("./pages/Advertise"));
+const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -67,7 +67,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin" element={<AdvertiserDashboard />} />
               <Route path="/my-dashboard" element={<UserDashboard />} />
               <Route path="/user-dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/ask-expert" element={<AskExpert />} />
@@ -86,7 +86,9 @@ const App = () => (
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/admin-setup" element={<AdminSetup />} />
+              <Route path="/admin" element={<Advertise />} />
               <Route path="/advertise" element={<Advertise />} />
+              <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

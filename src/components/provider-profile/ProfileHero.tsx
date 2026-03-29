@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, MapPin, Link as LinkIcon, Lock } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Link as LinkIcon, Lock, Medal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -141,6 +141,13 @@ export const ProfileHero = ({
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
               {profile.full_name || 'Service Provider'}
             </h1>
+
+            {(profile as any)?.is_veteran && (
+              <div className="flex items-center gap-1.5 bg-blue-950 text-yellow-400 border border-yellow-400/40 rounded-full px-3 py-1 text-xs font-semibold mb-3 w-fit mx-auto md:mx-0">
+                <Medal className="h-3.5 w-3.5" />
+                Veteran-Owned Business
+              </div>
+            )}
 
             <div className="space-y-2">
               {/* Show contact details for authenticated users */}

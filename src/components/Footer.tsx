@@ -4,7 +4,7 @@ import footerBg from "@/assets/footer-bg.jpg?format=webp&quality=80";
 
 export function Footer() {
   return (
-    <footer 
+    <footer
       aria-label="Site footer"
       className="relative py-8 md:py-12 bg-cover bg-center"
       style={{ backgroundImage: `url(${footerBg})` }}
@@ -15,7 +15,7 @@ export function Footer() {
           <Link to="/" className="flex items-center">
             <img src={logo} alt="Kluje" className="h-8 md:h-10 w-auto" loading="lazy" decoding="async" />
           </Link>
-          
+
           <nav aria-label="Footer navigation" className="grid w-full max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-x-3 gap-y-2 text-sm text-primary-foreground/70">
             <a href="#" className="text-center hover:text-primary-foreground transition-colors py-1">
               About Us
@@ -44,6 +44,9 @@ export function Footer() {
             <Link to="/services/it-services" className="text-center hover:text-primary-foreground transition-colors py-1">
               IT Services
             </Link>
+            <Link to="/platform-manifesto" className="text-center hover:text-primary-foreground transition-colors py-1">
+              Platform Manifesto
+            </Link>
             <Link to="/advertise" className="text-center hover:text-primary-foreground transition-colors py-1">
               Advertising Partnerships
             </Link>
@@ -53,14 +56,14 @@ export function Footer() {
             <Link to="/terms" className="text-center hover:text-primary-foreground transition-colors py-1">
               Terms of Service
             </Link>
-            <a href="https://ads.kluje.com/login" className="text-center hover:text-primary-foreground transition-colors py-1">
-              Advert-Login
-            </a>
             <Link to="/sitemap" className="text-center hover:text-primary-foreground transition-colors py-1">
               Sitemap
             </Link>
+            <Link to="/admin" className="text-center hover:text-primary-foreground transition-colors py-1">
+              Advert-Login
+            </Link>
           </nav>
-          
+
           <p className="text-xs md:text-sm text-primary-foreground/70 text-center">
             © {new Date().getFullYear()} Kluje. All rights reserved.
           </p>

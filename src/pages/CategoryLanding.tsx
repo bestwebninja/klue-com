@@ -321,15 +321,15 @@ export default function CategoryLanding() {
           className="relative py-16 md:py-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${ctaBg})` }}
         >
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative container mx-auto px-4 text-center max-w-2xl">
             <h2
-              className="text-2xl md:text-3xl font-bold text-primary-foreground mb-2 uppercase tracking-wide"
+              className="text-2xl md:text-3xl font-bold text-white mb-2 uppercase tracking-wide"
               style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
             >
               Ready to get started?
             </h2>
-            <p className="text-primary-foreground/80 mb-8">
+            <p className="text-white/80 mb-8">
               Get up to 3 quotes from verified {category.name.toLowerCase()} professionals
             </p>
             <div className="flex flex-wrap gap-3 justify-center">

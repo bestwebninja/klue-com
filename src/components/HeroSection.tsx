@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Eagerly load only the first slide image for FCP
-import heroProviders from "@/assets/hero-providers.jpg?format=webp&quality=80";
+import heroProviders from "@/assets/hero-ai-city.jpg?format=webp&quality=80";
 
 // Lazy-load remaining slide images as webp
 // TODO: replace each placeholder with its dedicated category image once uploaded:

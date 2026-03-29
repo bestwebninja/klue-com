@@ -171,7 +171,7 @@ const Auth = () => {
         body: { email, userType },
       }).catch(() => {
         // Fire-and-forget; also insert directly as fallback
-        supabase.from('signup_attempts').insert({ email, user_type: userType }).catch(() => {});
+        (supabase.from('signup_attempts' as any).insert({ email, user_type: userType } as any) as any).catch(() => {});
       });
       toast({
         title: 'Signups temporarily paused',

@@ -77,10 +77,10 @@ export default function AdminSiteSettings() {
 
   const saveNotifyEmail = async () => {
     setSaving('email');
-    const { error } = await supabase
-      .from('site_settings')
-      .update({ value: `"${notifyEmail}"` as unknown as never, updated_at: new Date().toISOString() })
-      .eq('key', 'signup_notification_email');
+    const { error } = await (supabase
+      .from('site_settings' as any)
+      .update({ value: `"${notifyEmail}"` as unknown as never, updated_at: new Date().toISOString() } as any)
+      .eq('key', 'signup_notification_email') as any);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {

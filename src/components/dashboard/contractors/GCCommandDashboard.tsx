@@ -131,10 +131,10 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
 const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
 
 const kpis = [
-  { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as const },
-  { label: 'Open orders',       value: '—', sub: 'No data yet', trend: 'neutral' as const },
-  { label: 'Pending invoices',  value: '—', sub: 'No data yet', trend: 'neutral' as const },
-  { label: 'AI actions today',  value: '—', sub: 'No data yet', trend: 'neutral' as const },
+ { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+ { label: 'Open orders',       value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+ { label: 'Pending invoices',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+ { label: 'AI actions today',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
 ];
 
 const calls: {

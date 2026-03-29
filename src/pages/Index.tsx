@@ -53,6 +53,7 @@ function PlatformManifestoCTA() {
           ))}
         </div>
       </div>
+      </div>
     </section>
   );
 }

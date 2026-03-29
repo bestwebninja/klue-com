@@ -237,7 +237,7 @@ export function HeroSection() {
       </button>
       <button
         onClick={nextSlide}
-        className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+        className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 text-white/70 hover:text-white transition-colors"
         aria-label="Next slide"
         type="button"
       >

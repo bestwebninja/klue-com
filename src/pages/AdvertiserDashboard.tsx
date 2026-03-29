@@ -29,7 +29,6 @@ const adFormats = [
     desc: 'Pin your brand to the top of any of Kluje\'s 11 service category pages. First-look visibility when buyers are actively searching.',
     price: 'From $299/mo',
     badge: 'High Intent',
-    color: 'border-blue-200 bg-blue-50/50 dark:bg-blue-950/20',
   },
   {
     icon: MapPin,
@@ -37,7 +36,6 @@ const adFormats = [
     desc: 'Serve ads hyper-locally by zip code, city, or state. Reach contractors, buyers, and professionals in your exact market.',
     price: 'From $149/mo',
     badge: 'Geo-Targeted',
-    color: 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20',
   },
   {
     icon: Users,
@@ -45,7 +43,6 @@ const adFormats = [
     desc: 'Appear in the sidebar of contractor and provider profiles. Capture attention when professionals are already in buying mode.',
     price: 'From $99/mo',
     badge: 'Professional Reach',
-    color: 'border-purple-200 bg-purple-50/50 dark:bg-purple-950/20',
   },
   {
     icon: BrainCircuit,
@@ -53,7 +50,6 @@ const adFormats = [
     desc: 'Your brand is read out by Kluje AI Voice when relevant calls are handled — reaching professionals at the exact moment of decision.',
     price: 'From $499/mo',
     badge: 'AI-Native',
-    color: 'border-amber-200 bg-amber-50/50 dark:bg-amber-950/20',
   },
   {
     icon: Star,
@@ -61,7 +57,6 @@ const adFormats = [
     desc: 'Elevate your business profile or service listing to the top of search results across the entire Kluje network.',
     price: 'From $59/mo',
     badge: 'Visibility',
-    color: 'border-rose-200 bg-rose-50/50 dark:bg-rose-950/20',
   },
   {
     icon: Mic,
@@ -69,7 +64,6 @@ const adFormats = [
     desc: 'Reach Kluje\'s subscriber base of real estate professionals, contractors, and investors with a dedicated placement in the weekly newsletter.',
     price: 'From $249/issue',
     badge: 'Direct Reach',
-    color: 'border-indigo-200 bg-indigo-50/50 dark:bg-indigo-950/20',
   },
 ];
 
@@ -172,20 +166,21 @@ function AdvertiserDashboardContent() {
           {adFormats.map((fmt) => {
             const Icon = fmt.icon;
             return (
-              <div key={fmt.title} className={`rounded-xl border p-5 space-y-3 ${fmt.color}`}>
+              <div key={fmt.title} className="rounded-xl border border-orange-400 bg-white p-5 space-y-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-background flex items-center justify-center border border-border/40">
-                    <Icon className="h-4 w-4 text-foreground" />
+                  <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center border border-orange-300">
+                    <Icon className="h-4 w-4 text-black" />
                   </div>
-                  <Badge variant="secondary" className="text-[10px]">{fmt.badge}</Badge>
+                  <Badge variant="secondary" className="text-[10px] border border-orange-300 bg-orange-50 text-black">{fmt.badge}</Badge>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">{fmt.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{fmt.desc}</p>
+                  <h3 className="text-sm font-semibold text-black">{fmt.title}</h3>
+                  <p className="text-xs text-black/70 mt-1 leading-relaxed">{fmt.desc}</p>
                 </div>
+                <div className="h-px bg-orange-300" />
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-sm font-bold text-foreground">{fmt.price}</span>
-                  <Button size="sm" variant="outline" className="text-xs h-7">
+                  <span className="text-sm font-bold text-black">{fmt.price}</span>
+                  <Button size="sm" variant="outline" className="text-xs h-7 border-orange-400 text-black hover:bg-orange-50 hover:text-black">
                     Launch
                   </Button>
                 </div>

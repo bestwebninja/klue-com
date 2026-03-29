@@ -165,7 +165,7 @@ const HowItWorksPage = () => {
           className="relative rounded-2xl overflow-hidden bg-cover bg-center"
           style={{ backgroundImage: `url(${supportBg})` }}
         >
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Still have questions?</h2>
             <p className="text-white/80 mb-4">

@@ -51,12 +51,12 @@ const Auth = () => {
   
   // Check signup restriction on mount
   useEffect(() => {
-    supabase
-      .from('site_settings')
+    (supabase
+      .from('site_settings' as any)
       .select('value')
       .eq('key', 'signups_restricted')
-      .single()
-      .then(({ data }) => {
+      .single() as any)
+      .then(({ data }: any) => {
         if (data?.value === true) setSignupsRestricted(true);
       });
   }, []);
@@ -171,7 +171,7 @@ const Auth = () => {
         body: { email, userType },
       }).catch(() => {
         // Fire-and-forget; also insert directly as fallback
-        supabase.from('signup_attempts').insert({ email, user_type: userType }).catch(() => {});
+        (supabase.from('signup_attempts' as any).insert({ email, user_type: userType } as any) as any).catch(() => {});
       });
       toast({
         title: 'Signups temporarily paused',
@@ -204,12 +204,12 @@ const Auth = () => {
 
         // Newsletter consent — subscribe silently
         if (newsletterConsent && data?.user) {
-          supabase.from('newsletter_subscribers').insert({
+          (supabase.from('newsletter_subscribers' as any).insert({
             email: email.trim().toLowerCase(),
             name: userType === 'provider' ? companyName : fullName,
             consent_marketing: true,
             source: 'signup_form',
-          }).catch(() => {});
+          } as any) as any).catch(() => {});
         }
 
         if (userType === 'provider' && data?.user) {

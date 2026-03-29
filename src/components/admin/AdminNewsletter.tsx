@@ -27,12 +27,12 @@ export default function AdminNewsletter() {
 
   const fetch = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('newsletter_subscribers')
+    const { data, error } = await (supabase
+      .from('newsletter_subscribers' as any)
       .select('*')
-      .order('subscribed_at', { ascending: false });
+      .order('subscribed_at', { ascending: false }) as any);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: (error as any).message, variant: 'destructive' });
     } else {
       setSubscribers((data ?? []) as Subscriber[]);
       setFiltered((data ?? []) as Subscriber[]);
@@ -55,10 +55,10 @@ export default function AdminNewsletter() {
   }, [search, subscribers]);
 
   const toggleActive = async (sub: Subscriber) => {
-    const { error } = await supabase
-      .from('newsletter_subscribers')
-      .update({ is_active: !sub.is_active, unsubscribed_at: sub.is_active ? new Date().toISOString() : null })
-      .eq('id', sub.id);
+    const { error } = await (supabase
+      .from('newsletter_subscribers' as any)
+      .update({ is_active: !sub.is_active, unsubscribed_at: sub.is_active ? new Date().toISOString() : null } as any)
+      .eq('id', sub.id) as any);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {

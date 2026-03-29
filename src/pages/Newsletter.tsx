@@ -43,12 +43,12 @@ const Newsletter = () => {
     }
 
     setIsLoading(true);
-    const { error } = await supabase.from('newsletter_subscribers').insert({
+    const { error } = await (supabase.from('newsletter_subscribers' as any).insert({
       email: email.trim().toLowerCase(),
       name: name.trim() || null,
       consent_marketing: true,
       source: 'newsletter_page',
-    });
+    } as any) as any);
     setIsLoading(false);
 
     if (error) {

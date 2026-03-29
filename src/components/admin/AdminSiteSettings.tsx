@@ -35,10 +35,10 @@ export default function AdminSiteSettings() {
 
   const fetchSettings = async () => {
     setLoading(true);
-    const { data } = await supabase.from('site_settings').select('*');
+    const { data } = await (supabase.from('site_settings' as any).select('*') as any);
     if (data) {
       const map: Record<string, SiteSetting> = {};
-      for (const row of data) map[row.key] = row as SiteSetting;
+      for (const row of data as any[]) map[row.key] = row as SiteSetting;
       setSettings(map);
       const ne = map['signup_notification_email'];
       if (ne) setNotifyEmail(String(ne.value).replace(/"/g, ''));
@@ -47,11 +47,11 @@ export default function AdminSiteSettings() {
   };
 
   const fetchAttempts = async () => {
-    const { data } = await supabase
-      .from('signup_attempts')
+    const { data } = await (supabase
+      .from('signup_attempts' as any)
       .select('*')
       .order('attempted_at', { ascending: false })
-      .limit(50);
+      .limit(50) as any);
     if (data) setAttempts(data as SignupAttempt[]);
   };
 
@@ -62,10 +62,10 @@ export default function AdminSiteSettings() {
 
   const toggleSetting = async (key: string, current: boolean) => {
     setSaving(key);
-    const { error } = await supabase
-      .from('site_settings')
-      .update({ value: (!current) as unknown as never, updated_at: new Date().toISOString() })
-      .eq('key', key);
+    const { error } = await (supabase
+      .from('site_settings' as any)
+      .update({ value: (!current) as unknown as never, updated_at: new Date().toISOString() } as any)
+      .eq('key', key) as any);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
@@ -77,10 +77,10 @@ export default function AdminSiteSettings() {
 
   const saveNotifyEmail = async () => {
     setSaving('email');
-    const { error } = await supabase
-      .from('site_settings')
-      .update({ value: `"${notifyEmail}"` as unknown as never, updated_at: new Date().toISOString() })
-      .eq('key', 'signup_notification_email');
+    const { error } = await (supabase
+      .from('site_settings' as any)
+      .update({ value: `"${notifyEmail}"` as unknown as never, updated_at: new Date().toISOString() } as any)
+      .eq('key', 'signup_notification_email') as any);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {

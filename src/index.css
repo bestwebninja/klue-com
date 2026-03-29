@@ -11,60 +11,61 @@
 
 @layer base {
   :root {
-    --background: 210 40% 96.0784%;
-    --foreground: 220 13% 18%;
+    /* Navy + Gold theme – inspired by "Built for Those Who Served" */
+    --background: 222 47% 11%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 18%;
+    --card: 222 47% 15%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 18%;
+    --popover: 222 47% 13%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 38 92% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 48 96% 53%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 13% 18%;
+    --secondary: 222 47% 20%;
+    --secondary-foreground: 214 95% 83%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 13% 10%;
+    --muted: 222 47% 18%;
+    --muted-foreground: 214 95% 83%;
 
-    --accent: 38 92% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 48 96% 53%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 38 92% 55%;
+    --border: 222 47% 22%;
+    --input: 222 47% 22%;
+    --ring: 48 96% 53%;
 
     --radius: 0.5rem;
 
     /* Custom tokens */
-    --hero-overlay: 220 13% 18%;
-    --section-alt: 220 14% 97%;
-    --orange-glow: 38 92% 55%;
-    --circle-border: 38 92% 55%;
+    --hero-overlay: 222 47% 11%;
+    --section-alt: 222 47% 13%;
+    --orange-glow: 48 96% 53%;
+    --circle-border: 48 96% 53%;
 
     /* Page header tokens */
-    --page-header-bg: 220 13% 18%;
+    --page-header-bg: 222 47% 8%;
     --page-header-foreground: 0 0% 100%;
 
     /* Stats bar */
-    --stats-bar-bg: 220 14% 96%;
-    --stats-bar-border: 220 13% 91%;
+    --stats-bar-bg: 222 47% 15%;
+    --stats-bar-border: 222 47% 22%;
 
     /* Fonts */
     --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-    /* Typography scale – matched to Manifesto CTA sizes */
-    --font-size-caption: 0.75rem; /* 12px */
-    --font-size-body: 1rem; /* 16px */
-    --font-size-label: 0.9375rem; /* 15px */
-    --font-size-subheading: clamp(1.25rem, 2vw, 1.5rem); /* 20-24px */
-    --font-size-heading: clamp(1.875rem, 3vw, 2.25rem); /* 30-36px, matches text-3xl→text-4xl */
-    --font-size-hero: clamp(1.875rem, 4vw, 3rem); /* 30-48px, matches text-3xl→text-5xl */
+    /* Typography scale */
+    --font-size-caption: 0.75rem;
+    --font-size-body: 1rem;
+    --font-size-label: 0.9375rem;
+    --font-size-subheading: clamp(1.25rem, 2vw, 1.5rem);
+    --font-size-heading: clamp(1.875rem, 3vw, 2.25rem);
+    --font-size-hero: clamp(1.875rem, 4vw, 3rem);
 
     /* Map category tokens (HSL only) */
     --cat-home: 24 74% 55%;

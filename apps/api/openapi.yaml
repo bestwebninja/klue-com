@@ -47,15 +47,50 @@ paths:
   /billing/checkout-session:
     post:
       summary: Create Stripe Checkout session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenantId, customerId, planTier]
+              properties:
+                tenantId: { type: string }
+                customerId: { type: string }
+                planTier:
+                  type: string
+                  enum: [starter, growth]
+                advertiserId: { type: string }
+                successUrl: { type: string, format: uri }
+                cancelUrl: { type: string, format: uri }
       responses:
         '201':
           description: Checkout session created
+  /billing/subscriptions/{tenantId}:
+    get:
+      summary: Fetch current subscription and billing status for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subscription found
+        '404':
+          description: Tenant has no active Stripe subscription
   /billing/webhooks/stripe:
     post:
       summary: Stripe webhook endpoint
+      description: |
+        Validates Stripe signature and updates internal subscription status tracker.
+        Uses event-id idempotency to skip duplicate deliveries.
       responses:
         '200':
           description: Event processed
+        '400':
+          description: Signature verification failed
 components:
   securitySchemes:
     bearerAuth:

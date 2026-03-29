@@ -62,3 +62,7 @@ This brings up PostgreSQL, API, Web, and n8n with workflows mounted from `n8n/wo
 - API contracts and route conventions are documented in `apps/api/openapi.yaml`.
 - Database bootstrap schema is in `infra/db/schema.sql`.
 - Additional architecture and rollout docs are under `docs/`.
+- Stripe billing in `apps/api` now expects checkout price/product env placeholders:
+  `STRIPE_PRICE_ID_STARTER`, `STRIPE_PRICE_ID_GROWTH`, `STRIPE_PRODUCT_ID_STARTER`,
+  `STRIPE_PRODUCT_ID_GROWTH`, `STRIPE_CHECKOUT_SUCCESS_URL`, and
+  `STRIPE_CHECKOUT_CANCEL_URL`.

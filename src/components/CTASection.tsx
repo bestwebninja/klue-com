@@ -24,7 +24,7 @@ export function CTASection() {
         <Button variant="hero" size="lg" type="button" onClick={() => navigate("/post-job")}>
           Post a Job Now
         </Button>
-        <p className="text-primary-foreground/70 text-sm mt-4">
+        <p className="text-primary-foreground/70 mt-4">
           Are you a tradesperson?{" "}
           <Link to="/pricing" className="text-primary-foreground underline hover:text-primary-foreground/90">
             View subscription plans for service providers

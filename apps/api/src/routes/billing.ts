@@ -72,7 +72,7 @@ const createCustomerSchema = z.object({
 const checkoutSchema = z.object({
   tenantId: z.string().min(1),
   customerId: z.string().min(1),
-  planTier: z.enum(["starter", "growth"]),
+  planTier: z.enum(["starter", "growth", "enterprise"]),
   advertiserId: z.string().min(1).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional()
@@ -90,8 +90,12 @@ router.post("/checkout-session", async (req, res) => {
   const parsed = checkoutSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const priceId =
-    parsed.data.planTier === "starter" ? env.stripePriceIdStarter : env.stripePriceIdGrowth;
+  const priceIdByTier = {
+    starter: env.stripePriceIdStarter,
+    growth: env.stripePriceIdGrowth,
+    enterprise: env.stripePriceIdEnterprise
+  };
+  const priceId = priceIdByTier[parsed.data.planTier];
   if (!priceId) {
     return res.status(500).json({
       error: `Missing Stripe price ID for ${parsed.data.planTier} tier. Check API env configuration.`

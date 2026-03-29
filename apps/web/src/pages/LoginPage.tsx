@@ -13,6 +13,12 @@ export function LoginPage() {
         <p className="text-sm uppercase tracking-wide text-brand-500">Kluje Ad Platform</p>
         <h1 className="mt-2 text-2xl font-bold text-white">Log in</h1>
         <p className="mt-2 text-sm text-slate-300">Sign in to manage your campaigns and billing.</p>
+        <p className="mt-1 text-sm text-slate-400">
+          New advertiser?{" "}
+          <button type="button" className="text-brand-400 hover:text-brand-300" onClick={() => navigate("/signup")}>
+            Create an account
+          </button>
+        </p>
 
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>
           <label className="block text-sm text-slate-200">

@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 
-export type InternalPlanTier = "starter" | "growth";
+export type InternalPlanTier = "starter" | "growth" | "enterprise";
 
 export interface SubscriptionRecord {
   stripeSubscriptionId: string;

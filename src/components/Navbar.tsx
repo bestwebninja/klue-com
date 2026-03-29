@@ -42,10 +42,10 @@ export function Navbar() {
     <SheetClose asChild>
       <Link
         to={to}
-        className="flex items-center gap-3 py-3.5 px-4 text-primary-foreground/90 hover:text-primary hover:bg-white/5 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg group"
+        className="flex items-center gap-3 py-3.5 px-4 text-white/90 hover:text-primary hover:bg-white/5 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg group"
         onClick={onClick}
       >
-        {icon && <span className="text-primary-foreground/60 group-hover:text-primary transition-colors">{icon}</span>}
+        {icon && <span className="text-white/60 group-hover:text-primary transition-colors">{icon}</span>}
         <span>{children}</span>
       </Link>
     </SheetClose>

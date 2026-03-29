@@ -12,10 +12,9 @@ export default {
   			'2xl': '1400px'
   		}
   	},
-  	extend: {
+  		extend: {
   		fontFamily: {
   			sans: [
-  				'Open Sans',
   				'ui-sans-serif',
   				'system-ui',
   				'sans-serif',

@@ -1,9 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Font loaded via <link> in index.html for non-blocking delivery */
+/* Typography defaults use a system sans-serif stack for fast rendering */
 
 @layer base {
   :root {
@@ -52,7 +51,15 @@
     --stats-bar-border: 220 13% 91%;
 
     /* Fonts */
-    --font-sans: 'Open Sans', sans-serif;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* Typography scale */
+    --font-size-caption: 0.75rem; /* 12px */
+    --font-size-body: 1rem; /* 16px */
+    --font-size-label: 0.9375rem; /* 15px */
+    --font-size-subheading: clamp(1.125rem, 1.8vw, 1.5rem); /* 18-24px */
+    --font-size-heading: clamp(1.25rem, 2.2vw, 1.75rem); /* 20-28px */
+    --font-size-hero: clamp(1.5rem, 2.6vw, 2rem); /* 24-32px */
 
     /* Map category tokens (HSL only) */
     --cat-home: 24 74% 55%;
@@ -111,6 +118,53 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
+    font-size: var(--font-size-body);
+    line-height: 1.5;
+  }
+
+  p, li {
+    font-size: clamp(0.875rem, 1.2vw, 1rem);
+    line-height: 1.6;
+  }
+
+  small, .text-caption {
+    font-size: var(--font-size-caption);
+    line-height: 1.4;
+  }
+
+  button, label, input, select, textarea, nav a {
+    font-size: var(--font-size-label);
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: var(--font-size-hero);
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: var(--font-size-heading);
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  h3, h4 {
+    font-size: var(--font-size-subheading);
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  .text-hero, .text-price {
+    font-size: var(--font-size-hero);
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  .text-section-title {
+    font-size: var(--font-size-subheading);
+    line-height: 1.35;
+    font-weight: 600;
   }
 
   /* Improve touch targets on mobile */
@@ -119,10 +173,8 @@
       min-height: 44px;
     }
 
-    /* Better readable text on mobile */
-    p, span, li {
-      font-size: 1rem;
-      line-height: 1.6;
+    html {
+      font-size: 15px;
     }
   }
 

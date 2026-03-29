@@ -16,44 +16,47 @@ export function Footer() {
             <img src={logo} alt="Kluje" className="h-8 md:h-10 w-auto" loading="lazy" decoding="async" />
           </Link>
           
-          <nav aria-label="Footer navigation" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 md:gap-6 text-sm text-primary-foreground/70">
-            <a href="#" className="hover:text-primary-foreground transition-colors py-1">
+          <nav aria-label="Footer navigation" className="grid w-full max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-x-3 gap-y-2 text-sm text-primary-foreground/70">
+            <a href="#" className="text-center hover:text-primary-foreground transition-colors py-1">
               About Us
             </a>
-            <Link to="/blog" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/blog" className="text-center hover:text-primary-foreground transition-colors py-1">
               Blog
             </Link>
-            <Link to="/how-it-works" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/how-it-works" className="text-center hover:text-primary-foreground transition-colors py-1">
               How it Works
             </Link>
-            <Link to="/browse" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/browse" className="text-center hover:text-primary-foreground transition-colors py-1">
               Service Providers
             </Link>
-            <Link to="/pricing" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/pricing" className="text-center hover:text-primary-foreground transition-colors py-1">
               Pricing
             </Link>
-            <Link to="/contact" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/contact" className="text-center hover:text-primary-foreground transition-colors py-1">
               Contact
             </Link>
-            <Link to="/services/home-diy-renovation" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/services/home-diy-renovation" className="text-center hover:text-primary-foreground transition-colors py-1">
               Home Services
             </Link>
-            <Link to="/services/commercial-services" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/services/commercial-services" className="text-center hover:text-primary-foreground transition-colors py-1">
               Commercial
             </Link>
-            <Link to="/services/it-services" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/services/it-services" className="text-center hover:text-primary-foreground transition-colors py-1">
               IT Services
             </Link>
-            <Link to="/privacy" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/advertise" className="text-center hover:text-primary-foreground transition-colors py-1">
+              Advertising Partnerships
+            </Link>
+            <Link to="/privacy" className="text-center hover:text-primary-foreground transition-colors py-1">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/terms" className="text-center hover:text-primary-foreground transition-colors py-1">
               Terms of Service
             </Link>
-            <Link to="/admin" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/admin" className="text-center hover:text-primary-foreground transition-colors py-1">
               Admin
             </Link>
-            <Link to="/sitemap" className="hover:text-primary-foreground transition-colors py-1">
+            <Link to="/sitemap" className="text-center hover:text-primary-foreground transition-colors py-1">
               Sitemap
             </Link>
           </nav>

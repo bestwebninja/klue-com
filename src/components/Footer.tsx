@@ -53,9 +53,9 @@ export function Footer() {
             <Link to="/terms" className="text-center hover:text-primary-foreground transition-colors py-1">
               Terms of Service
             </Link>
-            <Link to="/admin" className="text-center hover:text-primary-foreground transition-colors py-1">
-              Admin
-            </Link>
+            <a href="https://kluje.com/admin" className="text-center hover:text-primary-foreground transition-colors py-1">
+              Advert-Login
+            </a>
             <Link to="/sitemap" className="text-center hover:text-primary-foreground transition-colors py-1">
               Sitemap
             </Link>

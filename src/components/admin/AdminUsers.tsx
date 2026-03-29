@@ -613,7 +613,7 @@ const AdminUsers = () => {
                                 onCheckedChange={(checked) =>
                                   setEditingUser({ ...editingUser, is_featured: checked })
                                 }
-                                className="data-[state=checked]:bg-amber-500"
+                                className="data-[state=checked]:bg-primary"
                               />
                             </div>
                             <div className="flex items-center justify-between py-2">

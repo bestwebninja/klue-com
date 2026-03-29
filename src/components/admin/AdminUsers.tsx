@@ -522,7 +522,7 @@ const AdminUsers = () => {
                         <Ban className="w-4 h-4" /> Suspended
                       </span>
                     ) : user.subscription_status === 'active' ? (
-                      <span className="flex items-center gap-1 text-amber-600">
+                      <span className="flex items-center gap-1 text-primary">
                         <Crown className="w-4 h-4" /> Pro
                       </span>
                     ) : (

@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { AdvertiserLandingPage } from "./pages/AdvertiserLandingPage";
 import { AdvertiserDashboardPage } from "./pages/AdvertiserDashboardPage";
 import { BillingPage } from "./pages/BillingPage";
 import { CampaignSubmissionPage } from "./pages/CampaignSubmissionPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PlacementsPage } from "./pages/PlacementsPage";
+import { SignupPage } from "./pages/SignupPage";
+import { getSession, isAdminSession } from "./lib/auth";
 
 function usePathname() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -25,12 +28,25 @@ export function navigate(to: string) {
 
 export function App() {
   const pathname = usePathname();
+  const session = getSession();
+  const requiresAuth = pathname !== "/" && pathname !== "/login" && pathname !== "/signup";
+
+  if (requiresAuth && !session) {
+    return <LoginPage />;
+  }
+
+  if (pathname === "/admin" && !isAdminSession(session)) {
+    return <AdvertiserDashboardPage />;
+  }
 
   const page = useMemo(() => {
     switch (pathname) {
-      case "/login":
       case "/":
+        return <AdvertiserLandingPage />;
+      case "/login":
         return <LoginPage />;
+      case "/signup":
+        return <SignupPage />;
       case "/dashboard":
         return <AdvertiserDashboardPage />;
       case "/campaigns/new":

@@ -1,0 +1,238 @@
+{
+  "name": "Advertiser Onboarding",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - onboarding.requested",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -920,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "advertiser-onboarding",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate envelope + payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        260
+      ],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "const requiredEnvelope = ['event_id', 'event_type', 'event_version', 'tenant_id', 'correlation_id', 'occurred_at', 'payload'];\nfor (const item of items) {\n  for (const field of requiredEnvelope) {\n    if (item.json[field] === undefined || item.json[field] === null || item.json[field] === '') {\n      throw new Error(`schema_validation_error: missing ${field}`);\n    }\n  }\n  if (item.json.event_type !== 'advertiser.onboarding.requested') {\n    throw new Error(`unsupported_event_type: ${item.json.event_type}`);\n  }\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Check idempotency key",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -480,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/ops/idempotency/check",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-correlation-id",
+              "value": "={{ $json.correlation_id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"key\": $json.event_id,\n  \"scope\": \"workflow.advertiser_onboarding\"\n}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Already processed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.alreadyProcessed || false }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "No-op duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        -20,
+        140
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"duplicate\",\"event_id\":$json.event_id,\"correlation_id\":$json.correlation_id}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Create advertiser profile",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -20,
+        360
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/advertisers/onboard",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-correlation-id",
+              "value": "={{ $('Webhook - onboarding.requested').item.json.correlation_id }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event\": $('Webhook - onboarding.requested').item.json}"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Send welcome notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        360
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/transactional",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"advertiser.welcome\",\n  \"tenant_id\": $('Webhook - onboarding.requested').item.json.tenant_id,\n  \"correlation_id\": $('Webhook - onboarding.requested').item.json.correlation_id,\n  \"payload\": $json\n}"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Respond success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        460,
+        360
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"ok\",\"workflow\":\"advertiser_onboarding\",\"correlation_id\": $('Webhook - onboarding.requested').item.json.correlation_id}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - onboarding.requested": {
+      "main": [
+        [
+          {
+            "node": "Validate envelope + payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate envelope + payload": {
+      "main": [
+        [
+          {
+            "node": "Check idempotency key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check idempotency key": {
+      "main": [
+        [
+          {
+            "node": "Already processed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already processed?": {
+      "main": [
+        [
+          {
+            "node": "No-op duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create advertiser profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create advertiser profile": {
+      "main": [
+        [
+          {
+            "node": "Send welcome notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send welcome notification": {
+      "main": [
+        [
+          {
+            "node": "Respond success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Dead-letter Handler"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "version": "1.0.0",
+    "owner": "Automation Engineering",
+    "runbook": "https://internal.runbooks/advertiser-onboarding"
+  }
+}

@@ -1,5 +1,6 @@
 import { FormEvent } from "react";
 import { AppShell } from "../components/AppShell";
+import { navigate } from "../App";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard" },
@@ -10,9 +11,19 @@ const navItems = [
 ];
 
 export function CampaignSubmissionPage() {
-  const onSubmit = (event: FormEvent) => {
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    window.alert("Campaign submitted for review.");
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      vertical: String(form.get("vertical") ?? ""),
+      dailyBudget: Number(form.get("dailyBudget") ?? 100),
+      targetGeos: String(form.get("targetGeos") ?? "")
+        .split(",")
+        .map((geo) => geo.trim())
+        .filter(Boolean)
+    };
+    window.sessionStorage.setItem("latestCampaignBrief", JSON.stringify(payload));
+    navigate("/placements");
   };
 
   return (
@@ -21,12 +32,16 @@ export function CampaignSubmissionPage() {
         <form className="grid gap-4 md:grid-cols-2" onSubmit={onSubmit}>
           <label className="text-sm text-slate-200">
             Campaign name
-            <input className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" required />
+            <input
+              name="campaignName"
+              className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+              required
+            />
           </label>
 
           <label className="text-sm text-slate-200">
             Vertical
-            <select className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" required>
+            <select name="vertical" className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" required>
               <option value="">Select vertical</option>
               <option>Insurance</option>
               <option>Finance</option>
@@ -36,12 +51,23 @@ export function CampaignSubmissionPage() {
 
           <label className="text-sm text-slate-200">
             Daily budget (USD)
-            <input type="number" min={100} className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" required />
+            <input
+              name="dailyBudget"
+              type="number"
+              min={100}
+              className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+              required
+            />
           </label>
 
           <label className="text-sm text-slate-200">
             Target geos
-            <input className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" placeholder="CA, TX, FL" required />
+            <input
+              name="targetGeos"
+              className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white"
+              placeholder="CA, TX, FL"
+              required
+            />
           </label>
 
           <label className="text-sm text-slate-200 md:col-span-2">

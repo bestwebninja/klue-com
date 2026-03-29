@@ -8,8 +8,61 @@ import {
   toSubscriptionRecord
 } from "../services/subscription-store";
 import { stripeClient } from "../services/stripe";
+import { requireAuth } from "../middleware/auth";
 
 const router = Router();
+
+router.post("/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
+  const signature = req.header("stripe-signature");
+  if (!signature) return res.status(400).send("Missing stripe-signature header");
+
+  const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body ?? "", "utf8");
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripeClient.webhooks.constructEvent(payload, signature, env.stripeWebhookSecret);
+  } catch (error) {
+    return res.status(400).json({ error: (error as Error).message });
+  }
+
+  if (billingStore.hasProcessedEvent(event.id)) {
+    return res.status(200).json({ received: true, duplicate: true, eventId: event.id });
+  }
+
+  billingStore.markEventProcessed(event.id);
+
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
+      billingStore.markCheckoutComplete(session.id, session.subscription as string | null);
+      break;
+    }
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription;
+      billingStore.upsertSubscription(toSubscriptionRecord(subscription));
+      break;
+    }
+    case "invoice.payment_failed": {
+      const invoice = event.data.object as Stripe.Invoice;
+      billingStore.markPaymentStatus(invoice.subscription as string | null, "payment_failed");
+      break;
+    }
+    case "invoice.paid": {
+      const invoice = event.data.object as Stripe.Invoice;
+      billingStore.markPaymentStatus(invoice.subscription as string | null, "paid");
+      break;
+    }
+    default:
+      break;
+  }
+
+  return res.status(200).json({ received: true, type: event.type, eventId: event.id });
+});
+
+router.use(requireAuth);
 
 const createCustomerSchema = z.object({
   email: z.string().email(),
@@ -19,7 +72,7 @@ const createCustomerSchema = z.object({
 const checkoutSchema = z.object({
   tenantId: z.string().min(1),
   customerId: z.string().min(1),
-  planTier: z.enum(["starter", "growth"]),
+  planTier: z.enum(["starter", "growth", "enterprise"]),
   advertiserId: z.string().min(1).optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional()
@@ -37,8 +90,12 @@ router.post("/checkout-session", async (req, res) => {
   const parsed = checkoutSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const priceId =
-    parsed.data.planTier === "starter" ? env.stripePriceIdStarter : env.stripePriceIdGrowth;
+  const priceIdByTier = {
+    starter: env.stripePriceIdStarter,
+    growth: env.stripePriceIdGrowth,
+    enterprise: env.stripePriceIdEnterprise
+  };
+  const priceId = priceIdByTier[parsed.data.planTier];
   if (!priceId) {
     return res.status(500).json({
       error: `Missing Stripe price ID for ${parsed.data.planTier} tier. Check API env configuration.`
@@ -93,56 +150,6 @@ router.get("/subscriptions/:tenantId", (req, res) => {
     ...subscription,
     billingStatus: resolveBillingStatus(subscription.status)
   });
-});
-
-router.post("/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
-  const signature = req.header("stripe-signature");
-  if (!signature) return res.status(400).send("Missing stripe-signature header");
-
-  const payload = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body ?? "", "utf8");
-
-  let event: Stripe.Event;
-
-  try {
-    event = stripeClient.webhooks.constructEvent(payload, signature, env.stripeWebhookSecret);
-  } catch (error) {
-    return res.status(400).json({ error: (error as Error).message });
-  }
-
-  if (billingStore.hasProcessedEvent(event.id)) {
-    return res.status(200).json({ received: true, duplicate: true, eventId: event.id });
-  }
-
-  billingStore.markEventProcessed(event.id);
-
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
-      billingStore.markCheckoutComplete(session.id, session.subscription as string | null);
-      break;
-    }
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-    case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription;
-      billingStore.upsertSubscription(toSubscriptionRecord(subscription));
-      break;
-    }
-    case "invoice.payment_failed": {
-      const invoice = event.data.object as Stripe.Invoice;
-      billingStore.markPaymentStatus(invoice.subscription as string | null, "payment_failed");
-      break;
-    }
-    case "invoice.paid": {
-      const invoice = event.data.object as Stripe.Invoice;
-      billingStore.markPaymentStatus(invoice.subscription as string | null, "paid");
-      break;
-    }
-    default:
-      break;
-  }
-
-  return res.status(200).json({ received: true, type: event.type, eventId: event.id });
 });
 
 export default router;

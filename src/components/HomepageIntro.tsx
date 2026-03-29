@@ -38,7 +38,7 @@ function FeatureBlock({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex gap-4 p-5 rounded-xl bg-muted/40 border border-border/50">
+    <div className="flex gap-4 p-5 rounded-xl bg-muted/20 border border-border/30">
       <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
         <Icon className="h-5 w-5 text-white" />
       </div>

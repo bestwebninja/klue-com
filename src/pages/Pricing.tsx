@@ -268,7 +268,7 @@ const faqs = [
   },
   {
     q: 'How does the zip-code risk intelligence work?',
-    a: 'When you select a zip code anywhere on the platform — for a project, property purchase, or materials delivery — Kluje's AI automatically pulls crime statistics, weather risk scores, flood zone data, historical damage claims, and neighbourhood value trends to build a risk composite for that location. This feeds into underwriting, insurance recommendations, and project costing.',
+    a: "When you select a zip code anywhere on the platform — for a project, property purchase, or materials delivery — Kluje's AI automatically pulls crime statistics, weather risk scores, flood zone data, historical damage claims, and neighbourhood value trends to build a risk composite for that location. This feeds into underwriting, insurance recommendations, and project costing.",
   },
   {
     q: 'Is there a free account?',

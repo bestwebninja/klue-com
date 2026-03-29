@@ -38,6 +38,7 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const Newsletter = lazy(() => import("./pages/Newsletter"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Advertise = lazy(() => import("./pages/Advertise"));
+const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -85,7 +86,8 @@ const App = () => (
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/admin-setup" element={<AdminSetup />} />
-              <Route path="/admin" element={<Advertise />} />
+              <Route path="/admin" element={<AdvertiserDashboard />} />
+              <Route path="/advertiser-dashboard" element={<AdvertiserDashboard />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

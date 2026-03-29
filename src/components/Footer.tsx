@@ -59,7 +59,10 @@ export function Footer() {
             <Link to="/sitemap" className="text-center hover:text-primary-foreground transition-colors py-1">
               Sitemap
             </Link>
-            <Link to="/admin" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link
+              to="/advertiser-dashboard"
+              className="text-center py-1 px-2 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all"
+            >
               Advert-Login
             </Link>
           </nav>

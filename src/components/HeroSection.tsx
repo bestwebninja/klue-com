@@ -229,7 +229,7 @@ export function HeroSection() {
       {/* Navigation Arrows - Hidden on mobile, visible on tablet+ */}
       <button
         onClick={prevSlide}
-        className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+        className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 text-white/70 hover:text-white transition-colors"
         aria-label="Previous slide"
         type="button"
       >

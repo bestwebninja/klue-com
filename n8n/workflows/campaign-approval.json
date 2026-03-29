@@ -1,0 +1,12 @@
+{
+  "name": "Campaign Approval",
+  "nodes": [
+    { "name": "Pending Approval", "type": "n8n-nodes-base.webhook", "parameters": { "path": "campaign-pending" } },
+    { "name": "Run Policy Checks", "type": "n8n-nodes-base.function", "parameters": { "functionCode": "return items;" } },
+    { "name": "Notify Advertiser", "type": "n8n-nodes-base.emailSend", "parameters": {} }
+  ],
+  "connections": {
+    "Pending Approval": { "main": [[{ "node": "Run Policy Checks", "type": "main", "index": 0 }]] },
+    "Run Policy Checks": { "main": [[{ "node": "Notify Advertiser", "type": "main", "index": 0 }]] }
+  }
+}

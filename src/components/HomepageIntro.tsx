@@ -93,7 +93,7 @@ export function HomepageIntro() {
                 { icon: Users,     label: 'First-Time Buyers',       desc: 'AI quote protection, zip-code risk profiles, guided journeys' },
                 { icon: Network,   label: 'Business Consultants',    desc: 'Strategy, operations, HR — all AI-assisted and measured' },
               ].map(({ icon: Icon, label, desc }) => (
-                <div key={label} className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-muted/40 border border-border/50 text-base">
+                <div key={label} className="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-card border border-border/50 text-base">
                   <Icon className="h-5 w-5 text-primary" />
                   <span className="text-xs font-semibold text-foreground">{label}</span>
                   <span className="text-xs text-muted-foreground leading-snug">{desc}</span>

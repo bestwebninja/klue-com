@@ -128,7 +128,7 @@ export function HomepageIntro() {
               platform. Quotes that deviate significantly above market trigger an AI alert —{' '}
               <em>before</em> the buyer signs — protecting them from over-quoting and predatory pricing.
             </FeatureBlock>
-            <FeatureBlock icon={Landmark} color="bg-amber-600" title="Preferred Accredited Financial Partners">
+            <FeatureBlock icon={Landmark} color="bg-primary" title="Preferred Accredited Financial Partners">
               Kluje curates a network of accredited, licensed financial institutions — lenders, insurers,
               and capital providers — that compete to offer the most competitive rates to verified
               professionals and buyers on the platform. Over time, Kluje's AI identifies which partners

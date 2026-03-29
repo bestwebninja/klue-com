@@ -20,15 +20,15 @@ export function SectionHeader({
   className = "",
 }: SectionHeaderProps) {
   const isCenter = align === "center";
-  const titleColor = tone === "inverse" ? "text-primary-foreground" : "text-foreground";
-  const subtitleColor = tone === "inverse" ? "text-primary-foreground/80" : "text-muted-foreground";
+  const titleColor = tone === "inverse" ? "text-white" : "text-foreground";
+  const subtitleColor = tone === "inverse" ? "text-white/80" : "text-muted-foreground";
 
   return (
     <div className={`${isCenter ? "text-center" : "text-left"} ${className}`.trim()}>
       {eyebrow && (
         <div
           className={`text-sm md:text-base font-semibold tracking-[0.18em] uppercase ${
-            tone === "inverse" ? "text-primary-foreground/80" : "text-primary"
+            tone === "inverse" ? "text-white/80" : "text-primary"
           }`}
         >
           {eyebrow}

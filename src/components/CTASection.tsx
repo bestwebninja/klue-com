@@ -12,7 +12,7 @@ export function CTASection() {
       className="relative py-16 md:py-20 bg-cover bg-center"
       style={{ backgroundImage: `url(${ctaBg})` }}
     >
-      <div className="absolute inset-0 bg-foreground/80" />
+      <div className="absolute inset-0 bg-black/50" />
       <div className="relative container mx-auto px-6 md:px-4 text-center">
         <SectionHeader
           tone="inverse"
@@ -24,9 +24,9 @@ export function CTASection() {
         <Button variant="hero" size="lg" type="button" onClick={() => navigate("/post-job")}>
           Post a Job Now
         </Button>
-        <p className="text-primary-foreground/70 mt-4">
+        <p className="text-white/70 mt-4">
           Are you a tradesperson?{" "}
-          <Link to="/pricing" className="text-primary-foreground underline hover:text-primary-foreground/90">
+          <Link to="/pricing" className="text-white underline hover:text-white/90">
             View subscription plans for service providers
           </Link>
         </p>

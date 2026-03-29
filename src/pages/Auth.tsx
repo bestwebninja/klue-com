@@ -204,12 +204,12 @@ const Auth = () => {
 
         // Newsletter consent — subscribe silently
         if (newsletterConsent && data?.user) {
-          supabase.from('newsletter_subscribers').insert({
+          (supabase.from('newsletter_subscribers' as any).insert({
             email: email.trim().toLowerCase(),
             name: userType === 'provider' ? companyName : fullName,
             consent_marketing: true,
             source: 'signup_form',
-          }).catch(() => {});
+          } as any) as any).catch(() => {});
         }
 
         if (userType === 'provider' && data?.user) {

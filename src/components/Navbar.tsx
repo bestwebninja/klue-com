@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Settings, Briefcase, Home, Shield, LogOut, MapPin, Users, HelpCircle, Info, ChevronRight, Layers } from "lucide-react";
+import { Menu, Settings, Home, LogOut, MapPin, Users, HelpCircle, Info } from "lucide-react";
 import categories from "@/data/categoryLandingData";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { Button } from "@/components/ui/button";
@@ -65,24 +65,24 @@ export function Navbar() {
             <img src={logo} alt="Kluje" className="h-8 md:h-10 w-auto" width={120} height={40} decoding="async" />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-4">
-            {/* Show different CTA based on role */}
-            {!user ? (
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/auth?type=provider">List Your Business</Link>
-              </Button>
-            ) : (
-              <Button variant="hero" size="sm" asChild>
-                <Link to={getDashboardLink()}>
-                  <Home className="w-4 h-4 mr-2" />
-                  My Dashboard
-                </Link>
-              </Button>
-            )}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
+              {/* Show different CTA based on role */}
+              {!user ? (
+                <Button variant="hero" size="sm" asChild>
+                  <Link to="/auth?type=provider">List Your Business</Link>
+                </Button>
+              ) : (
+                <Button variant="hero" size="sm" asChild>
+                  <Link to={getDashboardLink()}>
+                    <Home className="w-4 h-4 mr-2" />
+                    My Dashboard
+                  </Link>
+                </Button>
+              )}
 
-            {/* Slide-out Menu */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              {/* Slide-out Menu Trigger */}
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
@@ -92,124 +92,121 @@ export function Navbar() {
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent 
-                side="right" 
-                className="w-80 sm:w-96 bg-black/80 backdrop-blur-xl border-l border-white/10 p-0 overflow-y-auto scrollbar-thin"
-              >
-                <SheetHeader className="p-6 pb-2 border-b border-white/10">
-                  <SheetTitle className="text-primary-foreground text-lg font-semibold tracking-wide">
-                    Menu
-                  </SheetTitle>
-                </SheetHeader>
+            </div>
 
-                <div className="p-4 flex flex-col">
-                  {/* My Dashboard — top of menu when logged in */}
-                  {user && (
-                    <>
-                      <SheetClose asChild>
-                        <Link
-                          to={getDashboardLink()}
-                          className="flex items-center gap-3 mb-3 py-3.5 px-4 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all font-semibold text-sm"
-                        >
-                          <Home className="h-5 w-5" />
-                          My Dashboard
-                        </Link>
-                      </SheetClose>
-                    </>
-                  )}
-
-                  {/* Primary CTA */}
-                  <SheetClose asChild>
-                    <Button variant="hero" size="lg" className="w-full mb-4 h-12 text-base font-semibold" asChild>
-                      <Link to="/post-job">Post a Job Now!</Link>
-                    </Button>
-                  </SheetClose>
-
-                  {/* Navigation Links */}
-                  <div className="space-y-1">
-                    <MenuLink to="/jobs" icon={<MapPin className="h-5 w-5" />}>
-                      Browse Jobs
-                    </MenuLink>
-                    <MenuLink to="/browse" icon={<Users className="h-5 w-5" />}>
-                      Find Providers
-                    </MenuLink>
-                    <MenuLink to="/ask-expert" icon={<HelpCircle className="h-5 w-5" />}>
-                      Ask An Expert
-                    </MenuLink>
-                    <MenuLink to="/how-it-works" icon={<Info className="h-5 w-5" />}>
-                      How It Works
-                    </MenuLink>
-                  </div>
-
-                  {/* Services Section */}
-                  <div className="border-t border-white/10 my-4" />
-                  <p className="px-4 text-[11px] uppercase tracking-widest text-primary-foreground/40 font-semibold mb-3">Service Categories</p>
-                  <div className="grid grid-cols-2 gap-2 px-2">
-                    {categories.map((cat) => (
-                      <SheetClose asChild key={cat.slug}>
-                        <Link
-                          to={`/services/${cat.slug}`}
-                          className="text-sm px-3 py-2 rounded-lg text-primary-foreground/90 hover:text-primary hover:bg-white/10 transition-all duration-200 text-center font-medium"
-                        >
-                          {cat.name}
-                        </Link>
-                      </SheetClose>
-                    ))}
-                  </div>
-
-                  {user ? (
-                    <>
-                      <div className="border-t border-white/10 my-4" />
-
-                      <div className="space-y-1">
-                        <MenuLink to="/settings/notifications" icon={<Settings className="h-5 w-5" />}>
-                          Settings
-                        </MenuLink>
-                      </div>
-
-                      <div className="border-t border-white/10 my-4" />
-
-                      <SheetClose asChild>
-                        <button
-                          onClick={() => signOut()}
-                          className="flex items-center gap-3 py-3.5 px-4 text-destructive hover:bg-destructive/10 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg w-full text-left"
-                        >
-                          <LogOut className="h-5 w-5" />
-                          <span>Log Out</span>
-                        </button>
-                      </SheetClose>
-                    </>
-                  ) : (
-                    <>
-                      <div className="border-t border-white/10 my-4" />
-
-                      <div className="space-y-2">
-                        <SheetClose asChild>
-                          <Button variant="ghost" size="lg" className="w-full h-12 border border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                            <Link to="/auth">Log In</Link>
-                          </Button>
-                        </SheetClose>
-
-                        <SheetClose asChild>
-                          <Button variant="hero" size="lg" className="w-full h-12" asChild>
-                            <Link to="/auth?type=provider">Free Contractor Sign Up</Link>
-                          </Button>
-                        </SheetClose>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          {/* Mobile/Tablet Menu Button */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            {/* Mobile/Tablet Menu Button */}
             <SheetTrigger asChild>
               <button className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg text-primary-foreground hover:bg-white/10 active:bg-white/20 transition-colors" aria-label="Open menu">
                 <Menu className="w-6 h-6" />
               </button>
             </SheetTrigger>
+
+            <SheetContent
+              side="right"
+              className="w-80 sm:w-96 bg-black/80 backdrop-blur-xl border-l border-white/10 p-0 overflow-y-auto scrollbar-thin"
+            >
+              <SheetHeader className="p-6 pb-2 border-b border-white/10">
+                <SheetTitle className="text-primary-foreground text-lg font-semibold tracking-wide">
+                  Menu
+                </SheetTitle>
+              </SheetHeader>
+
+              <div className="p-4 flex flex-col">
+                {/* My Dashboard — top of menu when logged in */}
+                {user && (
+                  <SheetClose asChild>
+                    <Link
+                      to={getDashboardLink()}
+                      className="flex items-center gap-3 mb-3 py-3.5 px-4 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all font-semibold text-sm"
+                    >
+                      <Home className="h-5 w-5" />
+                      My Dashboard
+                    </Link>
+                  </SheetClose>
+                )}
+
+                {/* Primary CTA */}
+                <SheetClose asChild>
+                  <Button variant="hero" size="lg" className="w-full mb-4 h-12 text-base font-semibold" asChild>
+                    <Link to="/post-job">Post a Job Now!</Link>
+                  </Button>
+                </SheetClose>
+
+                {/* Navigation Links */}
+                <div className="space-y-1">
+                  <MenuLink to="/jobs" icon={<MapPin className="h-5 w-5" />}>
+                    Browse Jobs
+                  </MenuLink>
+                  <MenuLink to="/browse" icon={<Users className="h-5 w-5" />}>
+                    Find Providers
+                  </MenuLink>
+                  <MenuLink to="/ask-expert" icon={<HelpCircle className="h-5 w-5" />}>
+                    Ask An Expert
+                  </MenuLink>
+                  <MenuLink to="/how-it-works" icon={<Info className="h-5 w-5" />}>
+                    How It Works
+                  </MenuLink>
+                </div>
+
+                {/* Services Section */}
+                <div className="border-t border-white/10 my-4" />
+                <p className="px-4 text-[11px] uppercase tracking-widest text-primary-foreground/40 font-semibold mb-3">Service Categories</p>
+                <div className="grid grid-cols-2 gap-2 px-2">
+                  {categories.map((cat) => (
+                    <SheetClose asChild key={cat.slug}>
+                      <Link
+                        to={`/services/${cat.slug}`}
+                        className="text-sm px-3 py-2 rounded-lg text-primary-foreground/90 hover:text-primary hover:bg-white/10 transition-all duration-200 text-center font-medium"
+                      >
+                        {cat.name}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                </div>
+
+                {user ? (
+                  <>
+                    <div className="border-t border-white/10 my-4" />
+
+                    <div className="space-y-1">
+                      <MenuLink to="/settings/notifications" icon={<Settings className="h-5 w-5" />}>
+                        Settings
+                      </MenuLink>
+                    </div>
+
+                    <div className="border-t border-white/10 my-4" />
+
+                    <SheetClose asChild>
+                      <button
+                        onClick={() => signOut()}
+                        className="flex items-center gap-3 py-3.5 px-4 text-destructive hover:bg-destructive/10 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg w-full text-left"
+                      >
+                        <LogOut className="h-5 w-5" />
+                        <span>Log Out</span>
+                      </button>
+                    </SheetClose>
+                  </>
+                ) : (
+                  <>
+                    <div className="border-t border-white/10 my-4" />
+
+                    <div className="space-y-2">
+                      <SheetClose asChild>
+                        <Button variant="ghost" size="lg" className="w-full h-12 border border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
+                          <Link to="/auth">Log In</Link>
+                        </Button>
+                      </SheetClose>
+
+                      <SheetClose asChild>
+                        <Button variant="hero" size="lg" className="w-full h-12" asChild>
+                          <Link to="/auth?type=provider">Free Contractor Sign Up</Link>
+                        </Button>
+                      </SheetClose>
+                    </div>
+                  </>
+                )}
+              </div>
+            </SheetContent>
           </Sheet>
         </div>
       </div>

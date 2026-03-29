@@ -146,7 +146,7 @@ export function HomepageIntro() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground">Kluje AI Voice — Your Entire Business, Spoken Into Existence</h3>
-                <p className="text-xs text-muted-foreground">The AI Core component that runs every department, for every provider, at every tier</p>
+                <p className="text-muted-foreground">The AI Core component that runs every department, for every provider, at every tier</p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">

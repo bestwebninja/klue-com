@@ -24,7 +24,7 @@ export default function PlatformManifesto() {
       <Navbar />
 
       <PageHero
-        backgroundImage={heroPricing}
+        backgroundImage={heroManifesto}
         title="The Kluje Platform Manifesto"
         description="A living document covering our neural AI architecture, proprietary systems, and why Kluje is unbeatable."
       >

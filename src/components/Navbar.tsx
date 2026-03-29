@@ -54,7 +54,7 @@ export function Navbar() {
   return (
     <nav 
       aria-label="Main navigation"
-      className={`fixed top-0 left-0 right-0 z-50 bg-foreground/50 backdrop-blur-md transition-transform duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md transition-transform duration-300 ${
         isNavVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >

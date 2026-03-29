@@ -150,13 +150,13 @@ export function Navbar() {
 
                 {/* Services Section */}
                 <div className="border-t border-white/10 my-4" />
-                <p className="px-4 text-[11px] uppercase tracking-widest text-primary-foreground/40 font-semibold mb-3">Service Categories</p>
+                <p className="px-4 text-[11px] uppercase tracking-widest text-white/40 font-semibold mb-3">Service Categories</p>
                 <div className="grid grid-cols-2 gap-2 px-2">
                   {categories.map((cat) => (
                     <SheetClose asChild key={cat.slug}>
                       <Link
                         to={`/services/${cat.slug}`}
-                        className="text-sm px-3 py-2 rounded-lg text-primary-foreground/90 hover:text-primary hover:bg-white/10 transition-all duration-200 text-center font-medium"
+                        className="text-sm px-3 py-2 rounded-lg text-white/90 hover:text-primary hover:bg-white/10 transition-all duration-200 text-center font-medium"
                       >
                         {cat.name}
                       </Link>

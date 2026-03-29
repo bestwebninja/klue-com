@@ -58,7 +58,7 @@
     --font-size-body: 1rem; /* 16px */
     --font-size-label: 0.9375rem; /* 15px */
     --font-size-subheading: clamp(1.25rem, 2vw, 1.5rem); /* 20-24px */
-    --font-size-heading: clamp(1.5rem, 2.5vw, 2.25rem); /* 24-36px, matches text-2xl→text-4xl */
+    --font-size-heading: clamp(1.875rem, 3vw, 2.25rem); /* 30-36px, matches text-3xl→text-4xl */
     --font-size-hero: clamp(1.875rem, 3vw, 2.25rem); /* 30-36px, matches text-3xl→text-4xl */
 
     /* Map category tokens (HSL only) */

@@ -28,10 +28,11 @@ const lazyImages = [
 
 const heroSlides = [
   {
-    title: "Find a",
-    highlight: "Service Provider",
-    description: "Up to 3 verified professionals will contact you with a quote — free to post, no obligation",
-    shortDescription: "Get up to 3 quotes from local pros",
+    title: "",
+    highlight: "",
+    description: "",
+    shortDescription: "",
+    showCopy: false,
   },
   {
     title: "Design &",
@@ -160,6 +161,8 @@ export function HeroSection() {
   };
 
   const getSlideImage = (index: number) => slideImages[index] ?? slideImages[0];
+  const currentSlideData = heroSlides[currentSlide];
+  const shouldShowCopy = currentSlideData.showCopy !== false;
 
   return (
     <section
@@ -246,12 +249,14 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 md:px-4">
-        <h1 
-          className="max-w-[20ch] md:max-w-none text-balance text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4 md:mb-6 animate-fade-in-up leading-tight"
-          style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.4)' }}
-        >
-          {heroSlides[currentSlide].title} {heroSlides[currentSlide].highlight}
-        </h1>
+        {shouldShowCopy && (
+          <h1
+            className="max-w-[20ch] md:max-w-none text-balance text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4 md:mb-6 animate-fade-in-up leading-tight"
+            style={{ textShadow: "0 2px 8px rgba(0, 0, 0, 0.4)" }}
+          >
+            {currentSlideData.title} {currentSlideData.highlight}
+          </h1>
+        )}
 
         <Button
           size="lg"
@@ -264,13 +269,15 @@ export function HeroSection() {
           Post a Job Now
         </Button>
 
-        <p
-          className="text-base md:text-lg lg:text-xl text-white/90 animate-fade-in-up max-w-md md:max-w-none px-4"
-          style={{ animationDelay: "0.4s" }}
-        >
-          <span className="md:hidden">{heroSlides[currentSlide].shortDescription}</span>
-          <span className="hidden md:inline">{heroSlides[currentSlide].description}</span>
-        </p>
+        {shouldShowCopy && (
+          <p
+            className="text-base md:text-lg lg:text-xl text-white/90 animate-fade-in-up max-w-md md:max-w-none px-4"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <span className="md:hidden">{currentSlideData.shortDescription}</span>
+            <span className="hidden md:inline">{currentSlideData.description}</span>
+          </p>
+        )}
 
         {/* Slide Indicators */}
         <div className="flex gap-1.5 md:gap-2 mt-6 md:mt-8" role="tablist" aria-label="Slide indicators">
@@ -284,7 +291,7 @@ export function HeroSection() {
                   ? "bg-primary w-6 md:w-8"
                   : "bg-white/50 hover:bg-white/70 w-2 md:w-3"
               }`}
-              aria-label={`Slide ${index + 1}: ${slide.title} ${slide.highlight}`}
+              aria-label={`Slide ${index + 1}: ${(slide.title + " " + slide.highlight).trim() || "Hero slide"}`}
               aria-selected={index === currentSlide}
               type="button"
             />

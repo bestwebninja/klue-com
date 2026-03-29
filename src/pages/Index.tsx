@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Medal, Shield, Star, BrainCircuit } from "lucide-react";
+import heroManifestoHome from "@/assets/hero-manifesto-home.jpg";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { HomepageIntro } from "@/components/HomepageIntro";

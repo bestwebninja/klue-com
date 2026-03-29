@@ -39,13 +39,13 @@ function PlatformManifestoCTA() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to="/platform-manifesto"
-            className="inline-flex items-center justify-center rounded-md bg-white text-slate-900 font-semibold px-6 py-2.5 text-sm hover:bg-white/90 transition-colors"
+            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground font-semibold px-6 py-2.5 text-sm hover:bg-primary/90 transition-colors"
           >
             Read the Manifesto
           </Link>
           <Link
             to="/pricing"
-            className="inline-flex items-center justify-center rounded-md border border-white/60 text-white font-semibold px-6 py-2.5 text-sm hover:bg-white/10 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-border text-white font-semibold px-6 py-2.5 text-sm hover:bg-accent/20 transition-colors"
           >
             View Pricing
           </Link>

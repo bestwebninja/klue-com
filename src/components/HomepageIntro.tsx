@@ -18,7 +18,7 @@ function PillarCard({
   desc: string;
 }) {
   return (
-    <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/50">
+    <div className="flex flex-col items-center text-center gap-2 p-4 rounded-lg bg-muted/20">
       <Icon className="h-6 w-6 text-primary" />
       <span className="text-sm font-medium text-foreground">{title}</span>
       <span className="text-xs text-muted-foreground">{desc}</span>

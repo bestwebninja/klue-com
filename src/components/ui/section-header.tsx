@@ -27,7 +27,7 @@ export function SectionHeader({
     <div className={`${isCenter ? "text-center" : "text-left"} ${className}`.trim()}>
       {eyebrow && (
         <div
-          className={`text-xs md:text-sm font-semibold tracking-[0.18em] uppercase ${
+          className={`text-sm md:text-base font-semibold tracking-[0.18em] uppercase ${
             tone === "inverse" ? "text-primary-foreground/80" : "text-primary"
           }`}
         >

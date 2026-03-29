@@ -1,0 +1,13 @@
+{
+  "name": "kluje-monetization-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/api"
+  ],
+  "scripts": {
+    "build": "npm run build -w apps/api",
+    "dev": "npm run dev -w apps/api",
+    "start": "npm run start -w apps/api"
+  }
+}

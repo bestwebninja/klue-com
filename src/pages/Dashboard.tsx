@@ -7,7 +7,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat } from 'lucide-react';
+import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2 } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import GCCommandDashboard from '@/components/dashboard/GCCommandDashboard';
 const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
@@ -246,7 +246,12 @@ const Dashboard = () => {
     providerNavItems[0],
     { value: 'gc-command', label: 'Contractors', icon: HardHat },
     ...providerNavItems.slice(1),
-    ...(isAdmin ? [{ value: 'admin-users', label: 'Manage Users', icon: Shield }] : []),
+    ...(isAdmin ? [
+      { value: 'admin-users',      label: 'Users',         icon: Users     },
+      { value: 'admin-roles',      label: 'Roles',         icon: Shield    },
+      { value: 'admin-newsletter', label: 'Newsletter',    icon: Mail      },
+      { value: 'admin-settings',   label: 'Site Settings', icon: Settings2 },
+    ] : []),
   ];
 
   const renderContent = () => {
@@ -280,28 +285,8 @@ const Dashboard = () => {
       case 'admin-users':
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold mb-1">User Management</h2>
-                <p className="text-muted-foreground text-sm">Manage all users, roles, newsletter subscribers, and site settings from here.</p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { label: 'Users', key: 'users' },
-                  { label: 'Roles', key: 'roles' },
-                  { label: 'Newsletter', key: 'newsletter' },
-                  { label: 'Site Settings', key: 'settings' },
-                ].map(item => (
-                  <button
-                    key={item.key}
-                    onClick={() => handleTabChange(`admin-${item.key}`)}
-                    className="p-4 rounded-xl border bg-card hover:border-orange-400 hover:bg-orange-50 transition-colors text-left"
-                  >
-                    <p className="font-semibold">{item.label}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Manage {item.label.toLowerCase()}</p>
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">User Management</h2>
               <AdminUsersInline />
             </div>
           </Suspense>

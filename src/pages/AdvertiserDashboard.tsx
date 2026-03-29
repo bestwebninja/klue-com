@@ -98,9 +98,7 @@ function AdvertiserLoginGate({ onLogin }: { onLogin: () => void }) {
           </Button>
           <p className="text-xs text-center text-muted-foreground">
             Don't have an advertiser account?{' '}
-            <a href="mailto:marcus@kluje.com" className="text-primary hover:underline">
-              Contact us to get started
-            </a>
+            Contact us to get started
           </p>
         </CardContent>
       </Card>
@@ -214,11 +212,8 @@ function AdvertiserDashboardContent() {
           ))}
         </div>
         <p className="text-xs text-muted-foreground border-t border-border pt-4">
-          To enquire about enterprise advertising packages, direct category sponsorships, or
-          AI Voice integration, contact{' '}
-          <a href="mailto:marcus@kluje.com" className="text-primary hover:underline">
-            marcus@kluje.com
-          </a>
+          We have enterprise advertising packages, direct category sponsorships, and AI Voice
+          integration.
         </p>
       </div>
 

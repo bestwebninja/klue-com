@@ -62,10 +62,10 @@ export default function AdminSiteSettings() {
 
   const toggleSetting = async (key: string, current: boolean) => {
     setSaving(key);
-    const { error } = await supabase
-      .from('site_settings')
-      .update({ value: (!current) as unknown as never, updated_at: new Date().toISOString() })
-      .eq('key', key);
+    const { error } = await (supabase
+      .from('site_settings' as any)
+      .update({ value: (!current) as unknown as never, updated_at: new Date().toISOString() } as any)
+      .eq('key', key) as any);
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {

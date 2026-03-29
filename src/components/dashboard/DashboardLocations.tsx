@@ -181,7 +181,7 @@ const DashboardLocations = ({ userId }: DashboardLocationsProps) => {
               >
                 <div className="flex items-center gap-3">
                   {location.is_primary && (
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <Star className="w-4 h-4 text-primary fill-primary" />
                   )}
                   <div>
                     <h4 className="font-medium text-foreground">{location.address}</h4>

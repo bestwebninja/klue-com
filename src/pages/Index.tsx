@@ -178,9 +178,6 @@ const Index = () => {
         <HeroSection />
         <HomepageIntro />
         <HowItWorks />
-        <div className="container mx-auto px-4">
-          <Separator className="my-8" />
-        </div>
         <Suspense fallback={null}>
           <SocialJobPosts />
           <CTASection />

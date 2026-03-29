@@ -189,7 +189,7 @@ export function HomepageIntro() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <h3 className="text-lg font-semibold text-foreground mb-1">Biometric Site Intelligence — Coming Soon</h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4">
                 Kluje's proprietary site access and monitoring system brings AI governance to the physical
                 job site — closing the last gap between platform intelligence and on-the-ground execution.
               </p>

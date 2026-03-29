@@ -79,7 +79,7 @@ export function HomepageIntro() {
           {/* ── 2. Who Kluje Serves ── */}
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1 text-center">Who Kluje Serves</h3>
-            <p className="text-xs text-muted-foreground text-center mb-6">
+            <p className="text-sm text-muted-foreground text-center mb-6">
               Every professional in the built economy — one unified platform
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">

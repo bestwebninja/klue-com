@@ -229,7 +229,7 @@ export function HeroSection() {
       {/* Navigation Arrows - Hidden on mobile, visible on tablet+ */}
       <button
         onClick={prevSlide}
-        className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+        className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 text-white/70 hover:text-white transition-colors"
         aria-label="Previous slide"
         type="button"
       >
@@ -237,7 +237,7 @@ export function HeroSection() {
       </button>
       <button
         onClick={nextSlide}
-        className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+        className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 text-white/70 hover:text-white transition-colors"
         aria-label="Next slide"
         type="button"
       >
@@ -265,7 +265,7 @@ export function HeroSection() {
         </Button>
 
         <p
-          className="text-base md:text-lg lg:text-xl text-primary-foreground/90 animate-fade-in-up max-w-md md:max-w-none px-4"
+          className="text-base md:text-lg lg:text-xl text-white/90 animate-fade-in-up max-w-md md:max-w-none px-4"
           style={{ animationDelay: "0.4s" }}
         >
           <span className="md:hidden">{heroSlides[currentSlide].shortDescription}</span>
@@ -282,7 +282,7 @@ export function HeroSection() {
               className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${
                 index === currentSlide
                   ? "bg-primary w-6 md:w-8"
-                  : "bg-primary-foreground/50 hover:bg-primary-foreground/70 w-2 md:w-3"
+                  : "bg-white/50 hover:bg-white/70 w-2 md:w-3"
               }`}
               aria-label={`Slide ${index + 1}: ${slide.title} ${slide.highlight}`}
               aria-selected={index === currentSlide}

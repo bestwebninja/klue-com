@@ -44,7 +44,7 @@ function FeatureBlock({
       </div>
       <div>
         <h4 className="text-base font-semibold text-foreground mb-1">{title}</h4>
-        <p className="text-sm text-muted-foreground leading-relaxed">{children}</p>
+        <p className="text-muted-foreground leading-relaxed">{children}</p>
       </div>
     </div>
   );

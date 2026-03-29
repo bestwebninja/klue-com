@@ -157,7 +157,7 @@ export function HomepageIntro() {
               invoice reminders, flag any contracts with open liability clauses, and brief the project
               manager on weather risk for next week's pour — all by voice, in seconds.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               As providers scale through Kluje's tiered membership model, AI Voice evolves with them —
               from answering basic scheduling queries at the entry tier, to autonomously managing entire
               departments at the upper tiers: scheduling, procurement, compliance, client communications,

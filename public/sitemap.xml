@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kluje.co.uk/</loc>
+    <loc>https://kluje.com/</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/browse</loc>
+    <loc>https://kluje.com/browse</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/browse-providers</loc>
+    <loc>https://kluje.com/browse-providers</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/jobs</loc>
+    <loc>https://kluje.com/jobs</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/post-job</loc>
+    <loc>https://kluje.com/post-job</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/ask-expert</loc>
+    <loc>https://kluje.com/ask-expert</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/how-it-works</loc>
+    <loc>https://kluje.com/how-it-works</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/pricing</loc>
+    <loc>https://kluje.com/pricing</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/blog</loc>
+    <loc>https://kluje.com/blog</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/contact</loc>
+    <loc>https://kluje.com/contact</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/terms</loc>
+    <loc>https://kluje.com/terms</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/privacy</loc>
+    <loc>https://kluje.com/privacy</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://kluje.co.uk/auth</loc>
+    <loc>https://kluje.com/auth</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

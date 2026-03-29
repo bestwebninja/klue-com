@@ -24,7 +24,7 @@ export function PageHeader({
       >
         {/* Dark overlay when using background image */}
         {backgroundImage && (
-          <div className="absolute inset-0 bg-[hsl(220,13%,18%)]/85" />
+          <div className="absolute inset-0 bg-black/50" />
         )}
         {/* Solid background when no image */}
         {!backgroundImage && (

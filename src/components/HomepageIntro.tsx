@@ -106,7 +106,7 @@ export function HomepageIntro() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <h3 className="text-lg font-semibold text-foreground mb-1">AI Risk Intelligence — Know Before You Build or Buy</h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4">
                 Kluje's neural risk engine layers hyper-local data into every quote, deal, and decision —
                 so no professional or buyer ever operates blind.
               </p>

@@ -94,7 +94,7 @@ const colorMap: Record<string, { badge: string; heading: string; dot: string; bo
   blue:    { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',         heading: 'text-blue-500',   dot: 'bg-blue-500',   border: 'border-blue-200 dark:border-blue-800',   btn: 'border-blue-400 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950' },
   purple:  { badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300', heading: 'text-purple-500', dot: 'bg-purple-500', border: 'border-purple-200 dark:border-purple-800', btn: 'border-purple-400 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950' },
   emerald: { badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300', heading: 'text-emerald-500', dot: 'bg-emerald-500', border: 'border-emerald-200 dark:border-emerald-800', btn: 'border-emerald-400 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950' },
-  amber:   { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',     heading: 'text-amber-500',  dot: 'bg-amber-500',  border: 'border-amber-200 dark:border-amber-800',   btn: 'border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950' },
+  amber:   { badge: 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary',     heading: 'text-primary',  dot: 'bg-primary',  border: 'border-primary/30 dark:border-primary/40',   btn: 'border-primary text-primary hover:bg-primary/10 dark:hover:bg-primary/20' },
 };
 
 /* ── Sub-component: one section accordion ────────────────────── */

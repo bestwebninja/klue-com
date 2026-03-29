@@ -116,7 +116,7 @@ export function DashboardSidebar({
             </p>
             <div className="flex items-center gap-2">
               {isSubscribed && (
-                <span className="flex items-center gap-1 text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   <Crown className="w-3 h-3" />
                   Pro
                 </span>

@@ -85,7 +85,7 @@ const colorMap: Record<string, { badge: string; heading: string; dot: string; bo
   blue:    { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',           heading: 'text-blue-500',    dot: 'bg-blue-500',    border: 'border-blue-200 dark:border-blue-800',       btn: 'border-blue-400 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950' },
   purple:  { badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',   heading: 'text-purple-500',  dot: 'bg-purple-500',  border: 'border-purple-200 dark:border-purple-800',   btn: 'border-purple-400 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950' },
   red:     { badge: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',               heading: 'text-red-500',     dot: 'bg-red-500',     border: 'border-red-200 dark:border-red-800',         btn: 'border-red-400 text-red-600 hover:bg-red-50 dark:hover:bg-red-950' },
-  amber:   { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',       heading: 'text-amber-500',   dot: 'bg-amber-500',   border: 'border-amber-200 dark:border-amber-800',     btn: 'border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950' },
+  amber:   { badge: 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary',       heading: 'text-primary',   dot: 'bg-primary',   border: 'border-primary/30 dark:border-primary/40',     btn: 'border-primary text-primary hover:bg-primary/10 dark:hover:bg-primary/20' },
 };
 
 function ServiceGroup({ section, defaultOpen }: { section: ServiceSection; defaultOpen: boolean }) {

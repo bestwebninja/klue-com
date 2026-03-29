@@ -334,7 +334,7 @@ const DashboardQuotes = ({ userId }: DashboardQuotesProps) => {
                         {quote.status === 'accepted' && (
                           <Button 
                             size="sm" 
-                            className="text-xs gap-1 bg-amber-500 hover:bg-amber-600 text-white"
+                            className="text-xs gap-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                             onClick={() => handleRequestRating(quote.id)}
                             disabled={requestingRating === quote.id}
                           >

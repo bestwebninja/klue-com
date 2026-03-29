@@ -490,7 +490,7 @@ const AdminUsers = () => {
                         </Badge>
                       )}
                       {user.is_featured && !user.is_suspended && (
-                        <Badge className="bg-amber-500 hover:bg-amber-600 text-white gap-1 text-xs">
+                        <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1 text-xs">
                           <Star className="w-3 h-3 fill-current" />
                         </Badge>
                       )}
@@ -522,7 +522,7 @@ const AdminUsers = () => {
                         <Ban className="w-4 h-4" /> Suspended
                       </span>
                     ) : user.subscription_status === 'active' ? (
-                      <span className="flex items-center gap-1 text-amber-600">
+                      <span className="flex items-center gap-1 text-primary">
                         <Crown className="w-4 h-4" /> Pro
                       </span>
                     ) : (
@@ -533,7 +533,7 @@ const AdminUsers = () => {
                     <Switch
                       checked={user.is_featured ?? false}
                       onCheckedChange={() => handleToggleFeatured(user.id, user.is_featured ?? false)}
-                      className="data-[state=checked]:bg-amber-500"
+                      className="data-[state=checked]:bg-primary"
                     />
                   </TableCell>
                   <TableCell className="text-center">
@@ -604,7 +604,7 @@ const AdminUsers = () => {
                             </div>
                             <div className="flex items-center justify-between py-2">
                               <div className="flex items-center gap-2">
-                                <Star className="w-4 h-4 text-amber-500" />
+                                <Star className="w-4 h-4 text-primary" />
                                 <Label htmlFor="featured-toggle">Featured Provider</Label>
                               </div>
                               <Switch
@@ -613,7 +613,7 @@ const AdminUsers = () => {
                                 onCheckedChange={(checked) =>
                                   setEditingUser({ ...editingUser, is_featured: checked })
                                 }
-                                className="data-[state=checked]:bg-amber-500"
+                                className="data-[state=checked]:bg-primary"
                               />
                             </div>
                             <div className="flex items-center justify-between py-2">

@@ -227,7 +227,7 @@ export function ServiceProvidersSection() {
 
                     {/* Bio */}
                     {provider.bio && (
-                      <p className="text-sm text-muted-foreground mt-4 line-clamp-2">{provider.bio}</p>
+                      <p className="text-muted-foreground mt-4 line-clamp-2">{provider.bio}</p>
                     )}
 
                     {/* Services */}

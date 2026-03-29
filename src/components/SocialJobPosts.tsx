@@ -192,7 +192,7 @@ export function SocialJobPosts() {
                 <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                   {job.title}
                 </h3>
-                <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
+                <p className="text-muted-foreground line-clamp-3 mb-4">
                   {job.description}
                 </p>
 

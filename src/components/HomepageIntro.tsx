@@ -240,7 +240,7 @@ export function HomepageIntro() {
               months before valuations move. It warns a developer that a subcontractor's risk profile
               is deteriorating before a project breaks ground.
             </p>
-            <p className="text-muted-foreground leading-relaxed text-sm">
+            <p className="text-muted-foreground leading-relaxed">
               For investors, this represents a compounding, defensible moat unlike anything currently
               operating in the real estate and built economy sector: proprietary neural infrastructure
               that becomes exponentially more valuable with every user, deep vertical integration across

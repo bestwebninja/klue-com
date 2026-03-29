@@ -56,7 +56,7 @@ export function HowItWorks() {
           ))}
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-8 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mt-8 max-w-2xl mx-auto">
           Need more detail? Read our{" "}
           <Link to="/how-it-works" className="text-primary font-medium hover:underline">
             step-by-step guide to hiring a service provider

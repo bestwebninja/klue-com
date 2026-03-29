@@ -103,7 +103,7 @@ function VeteransSection() {
               {feature.icon}
             </div>
             <h3 className="text-lg font-semibold text-yellow-400">{feature.title}</h3>
-            <p className="text-blue-200 text-sm leading-relaxed">{feature.description}</p>
+            <p className="text-blue-200 leading-relaxed">{feature.description}</p>
           </div>
         ))}
       </div>

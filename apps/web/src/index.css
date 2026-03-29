@@ -3,13 +3,6 @@
 @tailwind utilities;
 
 :root {
-  /* Zillow-inspired base tokens */
-  color-scheme: light;
-  --zillow-blue: #006aff;
-  --zillow-text: #2a2a33;
-  --zillow-bg: #ffffff;
-  --zillow-muted: #596b82;
-
   font-family: "Open Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -20,11 +13,10 @@ body {
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
-  background: var(--zillow-bg);
-  color: var(--zillow-text);
+  color: #2a2a33;
 }
 
-/* Ensure typography is uniform across the site */
+/* Zillow-inspired font sizing and font colors only */
 h1,
 h2,
 h3,
@@ -39,7 +31,8 @@ select,
 textarea,
 label,
 a,
-li {
+li,
+small {
   font-family: inherit;
   color: inherit;
 }
@@ -60,12 +53,12 @@ h3 {
 }
 
 a {
-  color: var(--zillow-blue);
+  color: #006aff;
 }
 
 small {
   font-size: 0.875rem;
-  color: var(--zillow-muted);
+  color: #596b82;
 }
 
 * {

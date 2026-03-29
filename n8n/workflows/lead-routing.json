@@ -1,12 +1,272 @@
 {
   "name": "Lead Routing",
   "nodes": [
-    { "name": "Lead Created", "type": "n8n-nodes-base.webhook", "parameters": { "path": "lead-created" } },
-    { "name": "Call Routing API", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://api:4000/api/v1/leads/{{$json.id}}/route", "method": "POST" } },
-    { "name": "Log Route Event", "type": "n8n-nodes-base.function", "parameters": { "functionCode": "return items;" } }
+    {
+      "id": "1",
+      "name": "Webhook - lead.dispatch.requested",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1080,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-routing",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate dispatch envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -860,
+        260
+      ],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "for (const item of items) {\n  if (item.json.event_type !== 'lead.dispatch.requested') throw new Error('unsupported_event_type');\n  if (!item.json.correlation_id || !item.json.tenant_id || !item.json.payload?.lead_id) {\n    throw new Error('schema_validation_error');\n  }\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Fetch targets + preferences",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        260
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{`http://api:4000/api/v1/leads/${$json.payload.lead_id}/dispatch-targets`}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-correlation-id",
+              "value": "={{ $json.correlation_id }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Split targets",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -420,
+        260
+      ],
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      }
+    },
+    {
+      "id": "5",
+      "name": "Deliver to target adapter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -200,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.endpoint }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"lead\":$json.lead,\"correlation_id\":$json.correlation_id}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "enabled": true,
+            "maxTries": 3,
+            "waitBetweenTries": 30000
+          }
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Record delivery outcome",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        20,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/dispatch/outcomes",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"result\":$json,\"status\":$json.success ? 'delivered' : 'failed'}"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Has more targets?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $node['Split targets'].context['noItemsLeft'] === false }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Emit dispatch completion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        360
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/events",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event_type\":\"lead.dispatch.completed\",\"payload\":$json}"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        700,
+        360
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"accepted\",\"workflow\":\"lead_routing\"}"
+      }
+    }
   ],
   "connections": {
-    "Lead Created": { "main": [[{ "node": "Call Routing API", "type": "main", "index": 0 }]] },
-    "Call Routing API": { "main": [[{ "node": "Log Route Event", "type": "main", "index": 0 }]] }
+    "Webhook - lead.dispatch.requested": {
+      "main": [
+        [
+          {
+            "node": "Validate dispatch envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate dispatch envelope": {
+      "main": [
+        [
+          {
+            "node": "Fetch targets + preferences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch targets + preferences": {
+      "main": [
+        [
+          {
+            "node": "Split targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split targets": {
+      "main": [
+        [
+          {
+            "node": "Deliver to target adapter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deliver to target adapter": {
+      "main": [
+        [
+          {
+            "node": "Record delivery outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record delivery outcome": {
+      "main": [
+        [
+          {
+            "node": "Has more targets?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has more targets?": {
+      "main": [
+        [
+          {
+            "node": "Split targets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Emit dispatch completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emit dispatch completion": {
+      "main": [
+        [
+          {
+            "node": "Respond accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Dead-letter Handler"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "version": "1.0.0",
+    "owner": "Automation Engineering",
+    "runbook": "https://internal.runbooks/lead-routing"
   }
 }

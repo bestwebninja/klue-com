@@ -1,0 +1,174 @@
+{
+  "name": "Campaign Approval Notification",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - campaign.approval.pending",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -900,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaign-approval-notification",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Resolve recipients + preferences",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -680,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/recipients",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event\":$json,\"policy\":\"opt_out_enforced\"}"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Render pinned template",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        260
+      ],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "const templateVersion = 'campaign_approval_v3';\nreturn items.map((item) => ({\n  json: {\n    ...item.json,\n    template_version: templateVersion\n  }\n}));"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Send via provider adapter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/send",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"payload\":$json}",
+        "options": {
+          "retry": {
+            "enabled": true,
+            "maxTries": 3,
+            "waitBetweenTries": 30000
+          }
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Record provider response metadata",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -20,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/delivery-events",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"delivery\":$json,\"source\":\"n8n.campaign_approval_notification\"}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        200,
+        260
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"accepted\",\"workflow\":\"campaign_approval_notification\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - campaign.approval.pending": {
+      "main": [
+        [
+          {
+            "node": "Resolve recipients + preferences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve recipients + preferences": {
+      "main": [
+        [
+          {
+            "node": "Render pinned template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render pinned template": {
+      "main": [
+        [
+          {
+            "node": "Send via provider adapter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via provider adapter": {
+      "main": [
+        [
+          {
+            "node": "Record provider response metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record provider response metadata": {
+      "main": [
+        [
+          {
+            "node": "Respond accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Dead-letter Handler"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "version": "1.0.0",
+    "owner": "Automation Engineering",
+    "runbook": "https://internal.runbooks/campaign-approval-notification"
+  }
+}

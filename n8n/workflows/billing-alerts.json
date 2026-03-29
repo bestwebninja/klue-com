@@ -1,12 +1,293 @@
 {
   "name": "Billing Alerts",
   "nodes": [
-    { "name": "Stripe Failed Payment", "type": "n8n-nodes-base.webhook", "parameters": { "path": "billing-failed" } },
-    { "name": "Create Ops Ticket", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "https://ops.local/tickets", "method": "POST" } },
-    { "name": "Send Dunning Email", "type": "n8n-nodes-base.emailSend", "parameters": {} }
+    {
+      "id": "1",
+      "name": "Webhook - stripe.event.forwarded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -920,
+        260
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "billing-alerts",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate billing event envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        260
+      ],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "for (const item of items) {\n  if (!item.json.payload?.stripe_event_id) throw new Error('schema_validation_error: missing stripe_event_id');\n  if (item.json.payload?.signature_valid !== true) throw new Error('signature_invalid');\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Deduplicate Stripe event ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -480,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/billing/dedupe",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"stripe_event_id\":$json.payload.stripe_event_id}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Already processed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        260
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.duplicate || false }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "No-op duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        -20,
+        120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"duplicate\",\"workflow\":\"billing_alerts\"}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Sync billing mirrors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -20,
+        360
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/billing/sync",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event\":$json}",
+        "options": {
+          "retry": {
+            "enabled": true,
+            "maxTries": 3,
+            "waitBetweenTries": 30000
+          }
+        }
+      }
+    },
+    {
+      "id": "7",
+      "name": "Payment failed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        200,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.payload?.stripe_event_type || '' }}",
+              "operation": "equal",
+              "value2": "invoice.payment_failed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Trigger dunning sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        280
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/billing/dunning/start",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event\":$json}"
+      }
+    },
+    {
+      "id": "9",
+      "name": "Notify account management",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        280
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/internal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"channel\":\"finance\",\"event\":$json}"
+      }
+    },
+    {
+      "id": "10",
+      "name": "Respond processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        860,
+        360
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"processed\",\"workflow\":\"billing_alerts\"}"
+      }
+    }
   ],
   "connections": {
-    "Stripe Failed Payment": { "main": [[{ "node": "Create Ops Ticket", "type": "main", "index": 0 }]] },
-    "Create Ops Ticket": { "main": [[{ "node": "Send Dunning Email", "type": "main", "index": 0 }]] }
+    "Webhook - stripe.event.forwarded": {
+      "main": [
+        [
+          {
+            "node": "Validate billing event envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate billing event envelope": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Stripe event ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Stripe event ID": {
+      "main": [
+        [
+          {
+            "node": "Already processed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already processed?": {
+      "main": [
+        [
+          {
+            "node": "No-op duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sync billing mirrors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync billing mirrors": {
+      "main": [
+        [
+          {
+            "node": "Payment failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment failed?": {
+      "main": [
+        [
+          {
+            "node": "Trigger dunning sequence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger dunning sequence": {
+      "main": [
+        [
+          {
+            "node": "Notify account management",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify account management": {
+      "main": [
+        [
+          {
+            "node": "Respond processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Dead-letter Handler"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "version": "1.0.0",
+    "owner": "Automation Engineering",
+    "runbook": "https://internal.runbooks/billing-alerts"
   }
 }

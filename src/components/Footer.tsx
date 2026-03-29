@@ -38,25 +38,25 @@ export function Footer() {
             <Link to="/services/home-diy-renovation" className="text-center hover:text-white transition-colors py-1">
               Home Services
             </Link>
-            <Link to="/services/commercial-services" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/services/commercial-services" className="text-center hover:text-white transition-colors py-1">
               Commercial
             </Link>
-            <Link to="/services/it-services" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/services/it-services" className="text-center hover:text-white transition-colors py-1">
               IT Services
             </Link>
-            <Link to="/platform-manifesto" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/platform-manifesto" className="text-center hover:text-white transition-colors py-1">
               Platform Manifesto
             </Link>
-            <Link to="/advertise" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/advertise" className="text-center hover:text-white transition-colors py-1">
               Advertising Partnerships
             </Link>
-            <Link to="/privacy" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/privacy" className="text-center hover:text-white transition-colors py-1">
               Privacy Policy
             </Link>
-            <Link to="/terms" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/terms" className="text-center hover:text-white transition-colors py-1">
               Terms of Service
             </Link>
-            <Link to="/sitemap" className="text-center hover:text-primary-foreground transition-colors py-1">
+            <Link to="/sitemap" className="text-center hover:text-white transition-colors py-1">
               Sitemap
             </Link>
             <Link
@@ -67,7 +67,7 @@ export function Footer() {
             </Link>
           </nav>
 
-          <p className="text-xs md:text-sm text-primary-foreground/70 text-center">
+          <p className="text-xs md:text-sm text-white/70 text-center">
             © {new Date().getFullYear()} Kluje. All rights reserved.
           </p>
         </div>

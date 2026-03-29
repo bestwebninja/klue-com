@@ -57,11 +57,19 @@ export const getSession = (): AuthSession | null => {
       return null;
     }
 
-    return parsed;
+    return {
+      ...parsed,
+      role: payload.role,
+      email: payload.email
+    };
   } catch {
     clearSession();
     return null;
   }
 };
 
-export const isAdminSession = (session: AuthSession | null) => session?.role === "admin";
+export const isAdminSession = (session: AuthSession | null) => {
+  if (!session) return false;
+  const payload = decodeTokenPayload(session.token);
+  return payload?.type === "access" && payload.role === "admin";
+};

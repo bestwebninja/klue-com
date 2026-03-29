@@ -171,7 +171,7 @@ const HowItWorksPage = () => {
             <p className="text-white/80 mb-4">
               Get in touch with our team and we'll be happy to help.
             </p>
-            <Button asChild variant="outline" className="border-white/30 bg-white text-foreground hover:bg-white/90">
+            <Button asChild variant="hero" size="lg">
               <Link to="/contact">Contact Us</Link>
             </Button>
           </div>

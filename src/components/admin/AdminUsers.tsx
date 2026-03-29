@@ -533,7 +533,7 @@ const AdminUsers = () => {
                     <Switch
                       checked={user.is_featured ?? false}
                       onCheckedChange={() => handleToggleFeatured(user.id, user.is_featured ?? false)}
-                      className="data-[state=checked]:bg-amber-500"
+                      className="data-[state=checked]:bg-primary"
                     />
                   </TableCell>
                   <TableCell className="text-center">

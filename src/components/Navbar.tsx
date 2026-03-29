@@ -42,10 +42,10 @@ export function Navbar() {
     <SheetClose asChild>
       <Link
         to={to}
-        className="flex items-center gap-3 py-3.5 px-4 text-primary-foreground/90 hover:text-primary hover:bg-white/5 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg group"
+        className="flex items-center gap-3 py-3.5 px-4 text-white/90 hover:text-primary hover:bg-white/5 text-sm font-medium tracking-wide transition-all duration-200 rounded-lg group"
         onClick={onClick}
       >
-        {icon && <span className="text-primary-foreground/60 group-hover:text-primary transition-colors">{icon}</span>}
+        {icon && <span className="text-white/60 group-hover:text-primary transition-colors">{icon}</span>}
         <span>{children}</span>
       </Link>
     </SheetClose>
@@ -87,7 +87,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-primary-foreground hover:bg-primary-foreground/10"
+                  className="text-white hover:bg-white/10"
                 >
                   <Menu className="w-5 h-5" />
                 </Button>
@@ -106,7 +106,7 @@ export function Navbar() {
               className="w-80 sm:w-96 bg-black/80 backdrop-blur-xl border-l border-white/10 p-0 overflow-y-auto scrollbar-thin"
             >
               <SheetHeader className="p-6 pb-2 border-b border-white/10">
-                <SheetTitle className="text-primary-foreground text-lg font-semibold tracking-wide">
+                <SheetTitle className="text-white text-lg font-semibold tracking-wide">
                   Menu
                 </SheetTitle>
               </SheetHeader>

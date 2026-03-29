@@ -35,10 +35,10 @@ export default function AdminSiteSettings() {
 
   const fetchSettings = async () => {
     setLoading(true);
-    const { data } = await supabase.from('site_settings').select('*');
+    const { data } = await (supabase.from('site_settings' as any).select('*') as any);
     if (data) {
       const map: Record<string, SiteSetting> = {};
-      for (const row of data) map[row.key] = row as SiteSetting;
+      for (const row of data as any[]) map[row.key] = row as SiteSetting;
       setSettings(map);
       const ne = map['signup_notification_email'];
       if (ne) setNotifyEmail(String(ne.value).replace(/"/g, ''));

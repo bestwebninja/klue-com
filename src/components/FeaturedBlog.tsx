@@ -105,7 +105,7 @@ export const FeaturedBlog = () => {
                   </Link>
                 </h3>
                 {post.excerpt && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                  <p className="text-muted-foreground line-clamp-2 mb-3">
                     {post.excerpt}
                   </p>
                 )}

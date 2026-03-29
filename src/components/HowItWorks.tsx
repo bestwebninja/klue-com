@@ -49,14 +49,14 @@ export function HowItWorks() {
               <h3 className="text-sm md:text-lg font-semibold text-foreground mb-1 md:mb-2 leading-tight">
                 {step.title}
               </h3>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 {step.description}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-8 max-w-2xl mx-auto">
+        <p className="text-center text-muted-foreground mt-8 max-w-2xl mx-auto">
           Need more detail? Read our{" "}
           <Link to="/how-it-works" className="text-primary font-medium hover:underline">
             step-by-step guide to hiring a service provider

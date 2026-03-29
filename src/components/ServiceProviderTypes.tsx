@@ -274,7 +274,7 @@ export function ServiceProviderTypes() {
                   ) : null;
                 })()}
 
-                <p className="mt-6 text-center text-xs sm:text-sm text-muted-foreground">
+                <p className="mt-6 text-center text-muted-foreground">
                   With Kluje, simply post your job for <span className="text-primary font-semibold">FREE</span> on our quick form
                   and we will match your request to relevant contractors.{" "}
                   <Link to="/browse-providers" className="text-primary font-medium hover:underline">

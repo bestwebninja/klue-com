@@ -44,7 +44,7 @@ function FeatureBlock({
       </div>
       <div>
         <h4 className="text-base font-semibold text-foreground mb-1">{title}</h4>
-        <p className="text-sm text-muted-foreground leading-relaxed">{children}</p>
+        <p className="text-muted-foreground leading-relaxed">{children}</p>
       </div>
     </div>
   );
@@ -79,7 +79,7 @@ export function HomepageIntro() {
           {/* ── 2. Who Kluje Serves ── */}
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1 text-center">Who Kluje Serves</h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">
+            <p className="text-muted-foreground text-center mb-6">
               Every professional in the built economy — one unified platform
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -106,7 +106,7 @@ export function HomepageIntro() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <h3 className="text-lg font-semibold text-foreground mb-1">AI Risk Intelligence — Know Before You Build or Buy</h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4">
                 Kluje's neural risk engine layers hyper-local data into every quote, deal, and decision —
                 so no professional or buyer ever operates blind.
               </p>
@@ -146,10 +146,10 @@ export function HomepageIntro() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground">Kluje AI Voice — Your Entire Business, Spoken Into Existence</h3>
-                <p className="text-xs text-muted-foreground">The AI Core component that runs every department, for every provider, at every tier</p>
+                <p className="text-muted-foreground">The AI Core component that runs every department, for every provider, at every tier</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               Kluje AI Voice is not a chatbot. It is a fully integrated voice-activated intelligence layer
               that operates as the operational brain of every business on the platform. A sole-trader
               roofer can ask "What jobs are available within 30 miles this week?" A mid-size
@@ -157,7 +157,7 @@ export function HomepageIntro() {
               invoice reminders, flag any contracts with open liability clauses, and brief the project
               manager on weather risk for next week's pour — all by voice, in seconds.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               As providers scale through Kluje's tiered membership model, AI Voice evolves with them —
               from answering basic scheduling queries at the entry tier, to autonomously managing entire
               departments at the upper tiers: scheduling, procurement, compliance, client communications,
@@ -189,7 +189,7 @@ export function HomepageIntro() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <h3 className="text-lg font-semibold text-foreground mb-1">Biometric Site Intelligence — Coming Soon</h3>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4">
                 Kluje's proprietary site access and monitoring system brings AI governance to the physical
                 job site — closing the last gap between platform intelligence and on-the-ground execution.
               </p>
@@ -227,7 +227,7 @@ export function HomepageIntro() {
           {/* ── 6. Predictive Dashboard & Investor Moat ── */}
           <div className="max-w-4xl mx-auto space-y-4">
             <h3 className="text-lg font-semibold text-foreground text-center">The Dashboard That Gets Smarter Every Day</h3>
-            <p className="text-muted-foreground leading-relaxed text-sm">
+            <p className="text-muted-foreground leading-relaxed">
               Every quote posted, every deal closed, every site accessed, every invoice paid, and every
               KPI logged on Kluje feeds back into a central neural intelligence layer that learns
               continuously. In year one, the dashboard is powerful. After a full year of national KPI
@@ -240,7 +240,7 @@ export function HomepageIntro() {
               months before valuations move. It warns a developer that a subcontractor's risk profile
               is deteriorating before a project breaks ground.
             </p>
-            <p className="text-muted-foreground leading-relaxed text-sm">
+            <p className="text-muted-foreground leading-relaxed">
               For investors, this represents a compounding, defensible moat unlike anything currently
               operating in the real estate and built economy sector: proprietary neural infrastructure
               that becomes exponentially more valuable with every user, deep vertical integration across

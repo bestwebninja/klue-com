@@ -28,21 +28,21 @@ export function AskExpertSection() {
             <div className="bg-card border border-border rounded-xl p-6 text-center">
               <MessageSquare className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold text-foreground mb-2">Ask Anything</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 Post your question about any home improvement topic
               </p>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 text-center">
               <Users className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold text-foreground mb-2">Expert Answers</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 Get responses from qualified service providers
               </p>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 text-center">
               <HelpCircle className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold text-foreground mb-2">100% Free</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 No cost to ask questions or read answers
               </p>
             </div>

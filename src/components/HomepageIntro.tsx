@@ -227,7 +227,7 @@ export function HomepageIntro() {
           {/* ── 6. Predictive Dashboard & Investor Moat ── */}
           <div className="max-w-4xl mx-auto space-y-4">
             <h3 className="text-lg font-semibold text-foreground text-center">The Dashboard That Gets Smarter Every Day</h3>
-            <p className="text-muted-foreground leading-relaxed text-sm">
+            <p className="text-muted-foreground leading-relaxed">
               Every quote posted, every deal closed, every site accessed, every invoice paid, and every
               KPI logged on Kluje feeds back into a central neural intelligence layer that learns
               continuously. In year one, the dashboard is powerful. After a full year of national KPI

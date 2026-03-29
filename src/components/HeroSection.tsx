@@ -265,7 +265,7 @@ export function HeroSection() {
         </Button>
 
         <p
-          className="text-base md:text-lg lg:text-xl text-primary-foreground/90 animate-fade-in-up max-w-md md:max-w-none px-4"
+          className="text-base md:text-lg lg:text-xl text-white/90 animate-fade-in-up max-w-md md:max-w-none px-4"
           style={{ animationDelay: "0.4s" }}
         >
           <span className="md:hidden">{heroSlides[currentSlide].shortDescription}</span>

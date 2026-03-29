@@ -1,0 +1,12 @@
+{
+  "name": "Billing Alerts",
+  "nodes": [
+    { "name": "Stripe Failed Payment", "type": "n8n-nodes-base.webhook", "parameters": { "path": "billing-failed" } },
+    { "name": "Create Ops Ticket", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "https://ops.local/tickets", "method": "POST" } },
+    { "name": "Send Dunning Email", "type": "n8n-nodes-base.emailSend", "parameters": {} }
+  ],
+  "connections": {
+    "Stripe Failed Payment": { "main": [[{ "node": "Create Ops Ticket", "type": "main", "index": 0 }]] },
+    "Create Ops Ticket": { "main": [[{ "node": "Send Dunning Email", "type": "main", "index": 0 }]] }
+  }
+}

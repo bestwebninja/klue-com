@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: Kluje Enterprise API
+  version: 0.1.0
+servers:
+  - url: http://localhost:4000/api/v1
+paths:
+  /health:
+    get:
+      summary: Liveness endpoint
+      responses:
+        '200':
+          description: API healthy
+  /auth/register:
+    post:
+      summary: Register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        '201':
+          description: User registered
+  /campaigns:
+    get:
+      summary: List campaigns
+      responses:
+        '200':
+          description: Campaign list
+    post:
+      summary: Create campaign
+      responses:
+        '201':
+          description: Campaign created
+  /leads:
+    post:
+      summary: Ingest lead
+      responses:
+        '201':
+          description: Lead accepted
+  /billing/checkout-session:
+    post:
+      summary: Create Stripe Checkout session
+      responses:
+        '201':
+          description: Checkout session created
+  /billing/webhooks/stripe:
+    post:
+      summary: Stripe webhook endpoint
+      responses:
+        '200':
+          description: Event processed
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

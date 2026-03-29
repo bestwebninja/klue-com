@@ -1,0 +1,12 @@
+{
+  "name": "Advertiser Onboarding",
+  "nodes": [
+    { "name": "Trigger", "type": "n8n-nodes-base.webhook", "parameters": { "path": "onboarding" } },
+    { "name": "Validate Profile", "type": "n8n-nodes-base.function", "parameters": { "functionCode": "return items;" } },
+    { "name": "Send Welcome Email", "type": "n8n-nodes-base.emailSend", "parameters": {} }
+  ],
+  "connections": {
+    "Trigger": { "main": [[{ "node": "Validate Profile", "type": "main", "index": 0 }]] },
+    "Validate Profile": { "main": [[{ "node": "Send Welcome Email", "type": "main", "index": 0 }]] }
+  }
+}

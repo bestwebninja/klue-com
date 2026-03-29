@@ -1,0 +1,12 @@
+{
+  "name": "Lead Routing",
+  "nodes": [
+    { "name": "Lead Created", "type": "n8n-nodes-base.webhook", "parameters": { "path": "lead-created" } },
+    { "name": "Call Routing API", "type": "n8n-nodes-base.httpRequest", "parameters": { "url": "http://api:4000/api/v1/leads/{{$json.id}}/route", "method": "POST" } },
+    { "name": "Log Route Event", "type": "n8n-nodes-base.function", "parameters": { "functionCode": "return items;" } }
+  ],
+  "connections": {
+    "Lead Created": { "main": [[{ "node": "Call Routing API", "type": "main", "index": 0 }]] },
+    "Call Routing API": { "main": [[{ "node": "Log Route Event", "type": "main", "index": 0 }]] }
+  }
+}

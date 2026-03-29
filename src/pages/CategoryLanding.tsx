@@ -321,15 +321,15 @@ export default function CategoryLanding() {
           className="relative py-16 md:py-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${ctaBg})` }}
         >
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative container mx-auto px-4 text-center max-w-2xl">
             <h2
-              className="text-2xl md:text-3xl font-bold text-primary-foreground mb-2 uppercase tracking-wide"
+              className="text-2xl md:text-3xl font-bold text-white mb-2 uppercase tracking-wide"
               style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
             >
               Ready to get started?
             </h2>
-            <p className="text-primary-foreground/80 mb-8">
+            <p className="text-white/80 mb-8">
               Get up to 3 quotes from verified {category.name.toLowerCase()} professionals
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
@@ -404,38 +404,38 @@ export default function CategoryLanding() {
           className="relative py-16 md:py-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroAskExpert})` }}
         >
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/20 rounded-full mb-5">
                 <HelpCircle className="w-7 h-7 text-primary" />
               </div>
               <h2
-                className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3"
+                className="text-2xl md:text-3xl font-bold text-white mb-3"
                 style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
               >
                 Got a {category.name} Question?
               </h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+              <p className="text-white/80 mb-8 max-w-xl mx-auto">
                 Get free advice from experienced {category.name.toLowerCase()} professionals.
                 Post your question and our community of verified experts will help.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <MessageSquare className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">Ask Anything</h3>
-                  <p className="text-xs text-primary-foreground/70">Post your {category.name.toLowerCase()} question</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">Ask Anything</h3>
+                  <p className="text-xs text-white/70">Post your {category.name.toLowerCase()} question</p>
                 </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">Expert Answers</h3>
-                  <p className="text-xs text-primary-foreground/70">Qualified professionals respond</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">Expert Answers</h3>
+                  <p className="text-xs text-white/70">Qualified professionals respond</p>
                 </div>
-                <div className="bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-5 text-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 text-center">
                   <Star className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground text-sm mb-1">100% Free</h3>
-                  <p className="text-xs text-primary-foreground/70">No cost to ask or read answers</p>
+                  <h3 className="font-semibold text-white text-sm mb-1">100% Free</h3>
+                  <p className="text-xs text-white/70">No cost to ask or read answers</p>
                 </div>
               </div>
 

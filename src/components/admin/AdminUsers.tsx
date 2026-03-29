@@ -604,7 +604,7 @@ const AdminUsers = () => {
                             </div>
                             <div className="flex items-center justify-between py-2">
                               <div className="flex items-center gap-2">
-                                <Star className="w-4 h-4 text-amber-500" />
+                                <Star className="w-4 h-4 text-primary" />
                                 <Label htmlFor="featured-toggle">Featured Provider</Label>
                               </div>
                               <Switch

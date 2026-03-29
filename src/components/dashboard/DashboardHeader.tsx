@@ -47,7 +47,7 @@ export function DashboardHeader({
               </Link>
             )}
             {isSubscribed && (
-              <span className="hidden sm:flex items-center gap-1 text-xs sm:text-sm text-amber-400 bg-amber-400/10 px-2 sm:px-3 py-1 rounded-full">
+              <span className="hidden sm:flex items-center gap-1 text-xs sm:text-sm text-primary bg-primary/10 px-2 sm:px-3 py-1 rounded-full">
                 <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Pro</span>
               </span>

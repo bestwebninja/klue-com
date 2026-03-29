@@ -9,7 +9,7 @@ export function Footer() {
       className="relative py-8 md:py-12 bg-cover bg-center"
       style={{ backgroundImage: `url(${footerBg})` }}
     >
-      <div className="absolute inset-0 bg-foreground/90" />
+      <div className="absolute inset-0 bg-black/80" />
       <div className="relative container mx-auto px-4">
         <div className="flex flex-col items-center gap-6 md:gap-8">
           <Link to="/" className="flex items-center">

@@ -404,19 +404,19 @@ export default function CategoryLanding() {
           className="relative py-16 md:py-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroAskExpert})` }}
         >
-          <div className="absolute inset-0 bg-foreground/80" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/20 rounded-full mb-5">
                 <HelpCircle className="w-7 h-7 text-primary" />
               </div>
               <h2
-                className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3"
+                className="text-2xl md:text-3xl font-bold text-white mb-3"
                 style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
               >
                 Got a {category.name} Question?
               </h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+              <p className="text-white/80 mb-8 max-w-xl mx-auto">
                 Get free advice from experienced {category.name.toLowerCase()} professionals.
                 Post your question and our community of verified experts will help.
               </p>

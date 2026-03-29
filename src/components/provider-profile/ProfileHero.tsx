@@ -106,7 +106,7 @@ export const ProfileHero = ({
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroBackground})` }}
       >
-        <div className="absolute inset-0 bg-foreground/70" />
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
       {/* Content */}

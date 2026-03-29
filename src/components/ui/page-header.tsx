@@ -59,7 +59,7 @@ export function PageHeaderCompact({
       style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center top' } : undefined}
     >
       {backgroundImage && (
-        <div className="absolute inset-0 bg-[hsl(220,13%,18%)]/85" />
+        <div className="absolute inset-0 bg-black/50" />
       )}
       {!backgroundImage && (
         <div className="absolute inset-0 bg-[hsl(var(--page-header-bg))]" />

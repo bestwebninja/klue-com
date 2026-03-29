@@ -13,9 +13,15 @@ router.use(authRateLimit);
 
 const authSchema = z.object({ email: z.string().email(), password: z.string().min(8) });
 const refreshSchema = z.object({ refreshToken: z.string().min(1) });
+const DEFAULT_ADMIN_EMAIL = "admin@kluje.com";
 
 const issueTokens = (email: string) => {
-  const identity = { sub: crypto.randomUUID(), email, role: "user" };
+  const normalizedEmail = email.trim().toLowerCase();
+  const identity = {
+    sub: crypto.randomUUID(),
+    email: normalizedEmail,
+    role: normalizedEmail === DEFAULT_ADMIN_EMAIL ? "admin" : "user"
+  };
   const token = issueAccessToken(identity);
   const refreshToken = issueRefreshToken(identity);
   return { token, refreshToken };
@@ -26,7 +32,7 @@ router.post("/register", (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const { token, refreshToken } = issueTokens(parsed.data.email);
-  return res.status(201).json({ token, refreshToken, user: { email: parsed.data.email } });
+  return res.status(201).json({ token, refreshToken, user: { email: parsed.data.email.toLowerCase() } });
 });
 
 router.post("/login", (req, res) => {
@@ -34,7 +40,15 @@ router.post("/login", (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const { token, refreshToken } = issueTokens(parsed.data.email);
-  return res.json({ token, refreshToken, expiresIn: env.accessTokenTtl });
+  return res.json({
+    token,
+    refreshToken,
+    expiresIn: env.accessTokenTtl,
+    user: {
+      email: parsed.data.email.trim().toLowerCase(),
+      role: parsed.data.email.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL ? "admin" : "user"
+    }
+  });
 });
 
 router.post("/refresh", (req, res) => {

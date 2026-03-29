@@ -1,5 +1,29 @@
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:4000/api/v1";
 
+export type LoginResponse = {
+  token: string;
+  refreshToken: string;
+  expiresIn: string;
+  user: {
+    email: string;
+    role: "admin" | "user";
+  };
+};
+
+export async function login(input: { email: string; password: string }): Promise<LoginResponse> {
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input)
+  });
+
+  if (!response.ok) {
+    throw new Error("Invalid email or password");
+  }
+
+  return response.json() as Promise<LoginResponse>;
+}
+
 export type BillingSubscription = {
   tenantId: string;
   planTier: string;

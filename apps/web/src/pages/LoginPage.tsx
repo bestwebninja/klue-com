@@ -1,10 +1,38 @@
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { navigate } from "../App";
+import { login } from "../lib/api";
+import { saveSession } from "../lib/auth";
 
 export function LoginPage() {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate("/dashboard");
+    const formElement = event.currentTarget;
+
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      const form = new FormData(formElement);
+      const email = String(form.get("email") ?? "").trim();
+      const password = String(form.get("password") ?? "");
+
+      try {
+        const payload = await login({ email, password });
+        saveSession({
+          token: payload.token,
+          refreshToken: payload.refreshToken,
+          role: payload.user.role,
+          email: payload.user.email
+        });
+        navigate(payload.user.role === "admin" ? "/admin" : "/dashboard");
+      } catch {
+        setError("Unable to log in. Please check your credentials and try again.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   };
 
   return (
@@ -24,6 +52,7 @@ export function LoginPage() {
           <label className="block text-sm text-slate-200">
             Email
             <input
+              name="email"
               type="email"
               required
               className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none ring-brand-500 focus:ring"
@@ -34,6 +63,7 @@ export function LoginPage() {
           <label className="block text-sm text-slate-200">
             Password
             <input
+              name="password"
               type="password"
               required
               className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white outline-none ring-brand-500 focus:ring"
@@ -41,11 +71,14 @@ export function LoginPage() {
             />
           </label>
 
+          {error ? <p className="text-sm text-red-300">{error}</p> : null}
+
           <button
             type="submit"
+            disabled={loading}
             className="w-full rounded-md bg-brand-600 px-4 py-2 font-medium text-white transition hover:bg-brand-500"
           >
-            Continue to dashboard
+            {loading ? "Signing in…" : "Continue"}
           </button>
         </form>
       </section>

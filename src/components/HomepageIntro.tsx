@@ -149,7 +149,7 @@ export function HomepageIntro() {
                 <p className="text-muted-foreground">The AI Core component that runs every department, for every provider, at every tier</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               Kluje AI Voice is not a chatbot. It is a fully integrated voice-activated intelligence layer
               that operates as the operational brain of every business on the platform. A sole-trader
               roofer can ask "What jobs are available within 30 miles this week?" A mid-size

@@ -9,7 +9,13 @@ const app = express();
 
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/v1/billing/webhooks/stripe") {
+    return next();
+  }
+
+  return express.json()(req, res, next);
+});
 app.use(tenantMiddleware);
 app.use("/api/v1", routes);
 

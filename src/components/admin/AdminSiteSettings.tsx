@@ -47,11 +47,11 @@ export default function AdminSiteSettings() {
   };
 
   const fetchAttempts = async () => {
-    const { data } = await supabase
-      .from('signup_attempts')
+    const { data } = await (supabase
+      .from('signup_attempts' as any)
       .select('*')
       .order('attempted_at', { ascending: false })
-      .limit(50);
+      .limit(50) as any);
     if (data) setAttempts(data as SignupAttempt[]);
   };
 

@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { navigate } from "../App";
-import { login } from "../lib/api";
+import { fetchAuthenticatedUser, login } from "../lib/api";
 import { saveSession } from "../lib/auth";
 
 export function LoginPage() {
@@ -20,13 +20,14 @@ export function LoginPage() {
 
       try {
         const payload = await login({ email, password });
+        const user = await fetchAuthenticatedUser(payload.token);
         saveSession({
           token: payload.token,
           refreshToken: payload.refreshToken,
-          role: payload.user.role,
-          email: payload.user.email
+          role: user.role,
+          email: user.email
         });
-        navigate(payload.user.role === "admin" ? "/admin" : "/dashboard");
+        navigate(user.role === "admin" ? "/admin" : "/dashboard");
       } catch {
         setError("Unable to log in. Please check your credentials and try again.");
       } finally {

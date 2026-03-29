@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
 import {
+  AuthRequest,
   issueAccessToken,
   issueRefreshToken,
-  verifyRefreshToken
+  verifyRefreshToken,
+  requireAuth
 } from "../middleware/auth";
 import { env } from "../config/env";
 import { authRateLimit } from "../middleware/rate-limit";
@@ -70,5 +72,15 @@ router.post("/refresh", (req, res) => {
 });
 
 router.post("/logout", (_req, res) => res.status(204).send());
+
+router.get("/me", requireAuth, (req: AuthRequest, res) => {
+  return res.json({
+    user: {
+      sub: req.user?.sub,
+      email: req.user?.email,
+      role: req.user?.role
+    }
+  });
+});
 
 export default router;

@@ -10,6 +10,12 @@ export type LoginResponse = {
   };
 };
 
+export type AuthenticatedUser = {
+  sub: string;
+  email: string;
+  role: "admin" | "user";
+};
+
 export async function login(input: { email: string; password: string }): Promise<LoginResponse> {
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
@@ -22,6 +28,21 @@ export async function login(input: { email: string; password: string }): Promise
   }
 
   return response.json() as Promise<LoginResponse>;
+}
+
+export async function fetchAuthenticatedUser(token: string): Promise<AuthenticatedUser> {
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to verify authenticated user");
+  }
+
+  const payload = (await response.json()) as { user: AuthenticatedUser };
+  return payload.user;
 }
 
 export type BillingSubscription = {

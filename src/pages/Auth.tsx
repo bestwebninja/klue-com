@@ -51,12 +51,12 @@ const Auth = () => {
   
   // Check signup restriction on mount
   useEffect(() => {
-    supabase
-      .from('site_settings')
+    (supabase
+      .from('site_settings' as any)
       .select('value')
       .eq('key', 'signups_restricted')
-      .single()
-      .then(({ data }) => {
+      .single() as any)
+      .then(({ data }: any) => {
         if (data?.value === true) setSignupsRestricted(true);
       });
   }, []);

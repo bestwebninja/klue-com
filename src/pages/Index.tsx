@@ -21,8 +21,12 @@ const FeaturedBlog = lazy(() => import("@/components/FeaturedBlog").then(m => ({
 
 function PlatformManifestoCTA() {
   return (
-    <section className="py-16 px-4 bg-gradient-to-br from-slate-900 to-primary/90 text-white">
-      <div className="max-w-4xl mx-auto text-center space-y-6">
+    <section
+      className="relative py-16 px-4 text-white bg-cover bg-center"
+      style={{ backgroundImage: `url(${heroManifestoHome})` }}
+    >
+      <div className="absolute inset-0 bg-slate-900/70" />
+      <div className="relative max-w-4xl mx-auto text-center space-y-6">
         <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1 text-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           Living Document · Updated Continuously
@@ -53,7 +57,6 @@ function PlatformManifestoCTA() {
             </div>
           ))}
         </div>
-      </div>
       </div>
     </section>
   );

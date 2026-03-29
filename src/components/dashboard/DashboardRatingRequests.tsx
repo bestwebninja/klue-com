@@ -202,7 +202,7 @@ const DashboardRatingRequests = () => {
                         jobId={request.job_id}
                         onReviewSubmitted={fetchRatingRequests}
                         trigger={
-                          <Button size="sm" className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white">
+                          <Button size="sm" className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground">
                             <Star className="w-4 h-4" />
                             Leave Review
                           </Button>

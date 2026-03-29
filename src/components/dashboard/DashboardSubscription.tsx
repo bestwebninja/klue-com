@@ -132,7 +132,7 @@ const DashboardSubscription = ({ profile, onSubscriptionUpdate }: DashboardSubsc
       <Card className={isSubscribed ? 'border-primary bg-primary/5' : ''}>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-amber-500" />
+            <Crown className="w-5 h-5 text-primary" />
             <CardTitle>Pro</CardTitle>
           </div>
           <CardDescription>Everything you need to win jobs</CardDescription>

@@ -330,7 +330,7 @@ const DashboardJobs = ({ userId, isSubscribed, onSubscribe }: DashboardJobsProps
           <div className="flex items-center gap-2">
             {!isSubscribed && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-2 rounded-lg">
-                <Crown className="w-4 h-4 text-amber-500" />
+                <Crown className="w-4 h-4 text-primary" />
                 Subscribe to request quotes
               </div>
             )}

@@ -282,7 +282,7 @@ export function HeroSection() {
               className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${
                 index === currentSlide
                   ? "bg-primary w-6 md:w-8"
-                  : "bg-primary-foreground/50 hover:bg-primary-foreground/70 w-2 md:w-3"
+                  : "bg-white/50 hover:bg-white/70 w-2 md:w-3"
               }`}
               aria-label={`Slide ${index + 1}: ${slide.title} ${slide.highlight}`}
               aria-selected={index === currentSlide}

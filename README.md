@@ -1,73 +1,64 @@
-# Welcome to your Lovable project
+# Kluje Enterprise Platform Monorepo
 
-## Project info
+Production-ready scaffold aligned with `docs/enterprise-build-spec.md`.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Project Structure
 
-## How can I edit this code?
+- `apps/web` — React + Vite operations dashboard shell
+- `apps/api` — Node.js/Express API with `/api/v1` route groups
+- `packages/shared` — Shared TypeScript domain contracts
+- `infra` — Docker Compose stack + PostgreSQL bootstrap schema
+- `n8n/workflows` — Workflow templates for onboarding, routing, billing, and campaign approvals
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 20+
+- npm 10+
+- Docker + Docker Compose (for local infra stack)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Quick Start
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Install dependencies at repo root:
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
 ```
 
-**Edit a file directly in GitHub**
+2. Copy environment values:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+```
 
-**Use GitHub Codespaces**
+3. Run services (recommended in separate terminals):
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run dev:api
+npm run dev:web
+```
 
-## What technologies are used for this project?
+- Web: `http://localhost:5173`
+- API: `http://localhost:4000/api/v1`
 
-This project is built with:
+## Build & Typecheck
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+npm run build
+npm run typecheck
+```
 
-## How can I deploy this project?
+## Run Infra Stack
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```bash
+cd infra
+docker compose up --build
+```
 
-## Can I connect a custom domain to my Lovable project?
+This brings up PostgreSQL, API, Web, and n8n with workflows mounted from `n8n/workflows`.
 
-Yes, you can!
+## Notes
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- API contracts and route conventions are documented in `apps/api/openapi.yaml`.
+- Database bootstrap schema is in `infra/db/schema.sql`.
+- Additional architecture and rollout docs are under `docs/`.

@@ -59,7 +59,7 @@
     --font-size-label: 0.9375rem; /* 15px */
     --font-size-subheading: clamp(1.25rem, 2vw, 1.5rem); /* 20-24px */
     --font-size-heading: clamp(1.875rem, 3vw, 2.25rem); /* 30-36px, matches text-3xl→text-4xl */
-    --font-size-hero: clamp(1.875rem, 3vw, 2.25rem); /* 30-36px, matches text-3xl→text-4xl */
+    --font-size-hero: clamp(1.875rem, 4vw, 3rem); /* 30-48px, matches text-3xl→text-5xl */
 
     /* Map category tokens (HSL only) */
     --cat-home: 24 74% 55%;

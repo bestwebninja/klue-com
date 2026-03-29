@@ -1,8 +1,13 @@
+@import '@fontsource/open-sans/300.css';
+@import '@fontsource/open-sans/400.css';
+@import '@fontsource/open-sans/500.css';
+@import '@fontsource/open-sans/600.css';
+@import '@fontsource/open-sans/700.css';
+@import '@fontsource/open-sans/800.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Typography defaults use a system sans-serif stack for fast rendering */
 
 @layer base {
   :root {

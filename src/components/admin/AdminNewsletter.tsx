@@ -27,12 +27,12 @@ export default function AdminNewsletter() {
 
   const fetch = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('newsletter_subscribers')
+    const { data, error } = await (supabase
+      .from('newsletter_subscribers' as any)
       .select('*')
-      .order('subscribed_at', { ascending: false });
+      .order('subscribed_at', { ascending: false }) as any);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: (error as any).message, variant: 'destructive' });
     } else {
       setSubscribers((data ?? []) as Subscriber[]);
       setFiltered((data ?? []) as Subscriber[]);

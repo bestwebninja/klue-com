@@ -43,8 +43,8 @@ function FeatureBlock({
         <Icon className="h-5 w-5 text-white" />
       </div>
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-1">{title}</h4>
-        <p className="text-xs text-muted-foreground leading-relaxed">{children}</p>
+        <h4 className="text-base font-semibold text-foreground mb-1">{title}</h4>
+        <p className="text-sm text-muted-foreground leading-relaxed">{children}</p>
       </div>
     </div>
   );

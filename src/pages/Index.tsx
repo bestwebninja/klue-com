@@ -80,14 +80,14 @@ function VeteransSection() {
   ];
 
   return (
-    <section className="py-20 px-4 bg-blue-950 text-white">
+    <section className="py-20 px-4 bg-secondary text-foreground">
       <div className="max-w-5xl mx-auto text-center space-y-4">
-        <div className="inline-flex items-center gap-2 border border-yellow-400/30 rounded-full px-4 py-1 text-sm text-yellow-400 font-semibold">
+        <div className="inline-flex items-center gap-2 border border-primary/30 rounded-full px-4 py-1 text-sm text-primary font-semibold">
           <Shield className="h-4 w-4" />
           Veteran-First Platform
         </div>
         <h2 className="text-3xl md:text-4xl font-bold">Built for Those Who Served</h2>
-        <p className="text-blue-200 max-w-2xl mx-auto text-lg">
+        <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
           Kluje is proud to champion veteran-owned businesses across every trade, service, and
           profession. From a dedicated AI agent to community-driven matching, we put veterans first.
         </p>
@@ -97,13 +97,13 @@ function VeteransSection() {
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="bg-blue-900/50 border border-yellow-400/30 rounded-xl p-6 text-left space-y-3"
+            className="bg-card border border-primary/30 rounded-xl p-6 text-left space-y-3"
           >
-            <div className="w-11 h-11 rounded-lg bg-blue-800 flex items-center justify-center">
+            <div className="w-11 h-11 rounded-lg bg-muted flex items-center justify-center">
               {feature.icon}
             </div>
-            <h3 className="text-lg font-semibold text-yellow-400">{feature.title}</h3>
-            <p className="text-blue-200 leading-relaxed">{feature.description}</p>
+            <h3 className="text-lg font-semibold text-primary">{feature.title}</h3>
+            <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
           </div>
         ))}
       </div>
@@ -111,7 +111,7 @@ function VeteransSection() {
       <div className="mt-10 text-center">
         <Link
           to="/pricing#veterans"
-          className="inline-flex items-center justify-center rounded-md bg-yellow-400 text-blue-950 font-bold px-8 py-3 text-sm hover:bg-yellow-300 transition-colors"
+          className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground font-bold px-8 py-3 text-sm hover:bg-primary/90 transition-colors"
         >
           <Medal className="h-4 w-4 mr-2" />
           Explore Veterans Pricing

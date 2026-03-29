@@ -11,7 +11,7 @@ import {
   Zap, TrendingUp, Network, Lock, Eye, DollarSign, Home,
   Building2, Users, CheckCircle, Calendar,
 } from 'lucide-react';
-import heroPricing from '@/assets/hero-pricing.jpg';
+import heroManifesto from '@/assets/hero-manifesto.jpg';
 
 export default function PlatformManifesto() {
   return (

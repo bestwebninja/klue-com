@@ -60,19 +60,19 @@ function PlatformManifestoCTA() {
 function VeteransSection() {
   const features = [
     {
-      icon: <Medal className="h-6 w-6 text-yellow-400" />,
+      icon: <Medal className="h-6 w-6 text-primary" />,
       title: "Veteran Badge",
       description:
         "Every veteran-owned business on Kluje displays a verified Veteran-Owned badge, building instant trust with customers who want to support those who served.",
     },
     {
-      icon: <BrainCircuit className="h-6 w-6 text-blue-400" />,
+      icon: <BrainCircuit className="h-6 w-6 text-muted-foreground" />,
       title: "Veterans AI Agent",
       description:
         "Our dedicated Veterans AI Agent helps veteran providers grow their business — from profile optimisation to lead follow-ups — tailored to the veteran community.",
     },
     {
-      icon: <Star className="h-6 w-6 text-yellow-400" />,
+      icon: <Star className="h-6 w-6 text-primary" />,
       title: "Veterans Hire Veterans",
       description:
         "Kluje's intelligent matching surfaces veteran-owned providers first when a job-poster indicates a preference for veteran businesses, closing the loop on community support.",

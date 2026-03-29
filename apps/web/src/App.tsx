@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { AdvertiserLandingPage } from "./pages/AdvertiserLandingPage";
 import { AdvertiserDashboardPage } from "./pages/AdvertiserDashboardPage";
 import { BillingPage } from "./pages/BillingPage";
 import { CampaignSubmissionPage } from "./pages/CampaignSubmissionPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PlacementsPage } from "./pages/PlacementsPage";
+import { SignupPage } from "./pages/SignupPage";
 
 function usePathname() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -28,9 +30,12 @@ export function App() {
 
   const page = useMemo(() => {
     switch (pathname) {
-      case "/login":
       case "/":
+        return <AdvertiserLandingPage />;
+      case "/login":
         return <LoginPage />;
+      case "/signup":
+        return <SignupPage />;
       case "/dashboard":
         return <AdvertiserDashboardPage />;
       case "/campaigns/new":

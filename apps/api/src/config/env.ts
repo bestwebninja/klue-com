@@ -22,6 +22,7 @@ export const env = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
   stripePriceIdStarter: process.env.STRIPE_PRICE_ID_STARTER ?? "price_starter_placeholder",
   stripePriceIdGrowth: process.env.STRIPE_PRICE_ID_GROWTH ?? "price_growth_placeholder",
+  stripePriceIdEnterprise: process.env.STRIPE_PRICE_ID_ENTERPRISE ?? "price_enterprise_placeholder",
   stripeProductIdStarter: process.env.STRIPE_PRODUCT_ID_STARTER ?? "prod_starter_placeholder",
   stripeProductIdGrowth: process.env.STRIPE_PRODUCT_ID_GROWTH ?? "prod_growth_placeholder",
   stripeCheckoutSuccessUrl:

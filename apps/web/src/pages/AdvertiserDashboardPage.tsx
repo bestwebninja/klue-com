@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { AppShell } from "../components/AppShell";
+import { navigate } from "../App";
+import { fetchBillingSubscription } from "../lib/api";
 
 const stats = [
   { label: "Active Campaigns", value: "12" },
@@ -16,6 +19,19 @@ const navItems = [
 ];
 
 export function AdvertiserDashboardPage() {
+  const [billingStatus, setBillingStatus] = useState("loading");
+
+  useEffect(() => {
+    fetchBillingSubscription("tenant-demo")
+      .then((subscription) => {
+        setBillingStatus(subscription ? `${subscription.planTier} • ${subscription.billingStatus}` : "starter • trial");
+      })
+      .catch(() => {
+        const selectedTier = new URLSearchParams(window.location.search).get("tier") ?? "starter";
+        setBillingStatus(`${selectedTier} • setup pending`);
+      });
+  }, []);
+
   return (
     <AppShell
       title="Advertiser Dashboard"
@@ -48,6 +64,16 @@ export function AdvertiserDashboardPage() {
             <li>• 1 placement pending budget approval</li>
             <li>• Next invoice posts on April 1</li>
           </ul>
+          <div className="mt-4 rounded-md bg-slate-800 p-3 text-sm text-slate-100">
+            <p>Billing: <span className="capitalize">{billingStatus}</span></p>
+            <button
+              type="button"
+              onClick={() => navigate("/billing")}
+              className="mt-3 rounded-md bg-brand-600 px-3 py-1.5 text-white hover:bg-brand-500"
+            >
+              Manage billing
+            </button>
+          </div>
         </article>
       </section>
     </AppShell>

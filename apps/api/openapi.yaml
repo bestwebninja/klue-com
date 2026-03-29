@@ -59,7 +59,7 @@ paths:
                 customerId: { type: string }
                 planTier:
                   type: string
-                  enum: [starter, growth]
+                  enum: [starter, growth, enterprise]
                 advertiserId: { type: string }
                 successUrl: { type: string, format: uri }
                 cancelUrl: { type: string, format: uri }
@@ -91,6 +91,25 @@ paths:
           description: Event processed
         '400':
           description: Signature verification failed
+  /ads/placements/recommendations:
+    post:
+      summary: Generate AI placement recommendations for a campaign brief
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vertical, dailyBudget, targetGeos]
+              properties:
+                vertical: { type: string }
+                dailyBudget: { type: number }
+                targetGeos:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: Ranked placements returned
 components:
   securitySchemes:
     bearerAuth:

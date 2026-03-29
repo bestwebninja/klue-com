@@ -192,7 +192,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-amber-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-yellow-300;
   }
 
   .hero-gradient {

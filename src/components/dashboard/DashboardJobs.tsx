@@ -559,7 +559,7 @@ const DashboardJobs = ({ userId, isSubscribed, onSubscribe }: DashboardJobsProps
                             
                             {!isSubscribed ? (
                               <div className="text-center py-4">
-                                <Crown className="w-12 h-12 mx-auto mb-4 text-amber-500" />
+                                <Crown className="w-12 h-12 mx-auto mb-4 text-primary" />
                                 <h3 className="font-semibold mb-2">Subscription Required</h3>
                                 <p className="text-muted-foreground mb-4">
                                   Upgrade to Pro for just $4.99/month to request quotes on jobs.

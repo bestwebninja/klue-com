@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { AboutPage } from "./pages/AboutPage";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdvertiserLandingPage } from "./pages/AdvertiserLandingPage";
 import { AdvertiserDashboardPage } from "./pages/AdvertiserDashboardPage";

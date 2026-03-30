@@ -107,7 +107,17 @@ const App = () => (
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               <Route path="/about" element={<AboutUs />} />
+              {/* ComplyOS SaaS routes */}
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/metrics" element={<MetricsPage />} />
+              <Route path="/privacy/request" element={<PrivacyRequestPage />} />
+              <Route path="/privacy/preferences" element={<PrivacyPreferencesPage />} />
+              <Route path="/privacy/do-not-sell" element={<DoNotSellPage />} />
+              <Route path="/cookie-admin/login" element={<CookieAdminLoginPage />} />
+              <Route path="/cookie-admin" element={<CookieAdminPage />} />
+              <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

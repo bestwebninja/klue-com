@@ -57,6 +57,12 @@ export function Footer() {
               <Link to="/privacy/request" className="hover:text-white transition-colors py-1">Data Subject Request</Link>
               <Link to="/privacy/preferences" className="hover:text-white transition-colors py-1">Cookie Preferences</Link>
               <Link to="/privacy/do-not-sell" className="hover:text-white transition-colors py-1">Do Not Sell My Info</Link>
+              <Link
+                to="/advertiser-dashboard"
+                className="py-1 px-2 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all"
+              >
+                Advert-Login
+              </Link>
             </div>
           </nav>
 

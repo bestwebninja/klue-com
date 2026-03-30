@@ -58,6 +58,8 @@ export function App() {
         return <BillingPage />;
       case "/admin":
         return <AdminDashboardPage />;
+      case "/about":
+        return <AboutPage />;
       default:
         return <LoginPage />;
     }

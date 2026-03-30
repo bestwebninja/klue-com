@@ -41,6 +41,14 @@ const Advertise = lazy(() => import("./pages/Advertise"));
 const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
+const DemoPage = lazy(() => import("./pages/DemoPage"));
+const MetricsPage = lazy(() => import("./pages/MetricsPage"));
+const PrivacyRequestPage = lazy(() => import("./pages/PrivacyRequestPage"));
+const PrivacyPreferencesPage = lazy(() => import("./pages/PrivacyPreferencesPage"));
+const DoNotSellPage = lazy(() => import("./pages/DoNotSellPage"));
+const CookieAdminPage = lazy(() => import("./pages/CookieAdminPage"));
+const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
+const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -99,6 +107,15 @@ const App = () => (
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               <Route path="/about" element={<AboutUs />} />
+              {/* ComplyOS SaaS routes */}
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/metrics" element={<MetricsPage />} />
+              <Route path="/privacy/request" element={<PrivacyRequestPage />} />
+              <Route path="/privacy/preferences" element={<PrivacyPreferencesPage />} />
+              <Route path="/privacy/do-not-sell" element={<DoNotSellPage />} />
+              <Route path="/cookie-admin/login" element={<CookieAdminLoginPage />} />
+              <Route path="/cookie-admin" element={<CookieAdminPage />} />
+              <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

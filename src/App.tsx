@@ -40,6 +40,7 @@ const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -97,6 +98,7 @@ const App = () => (
               <Route path="/advertiser-dashboard" element={<AdvertiserDashboard />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
+              <Route path="/about" element={<AboutUs />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

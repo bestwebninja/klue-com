@@ -1,4 +1,5 @@
 import { navigate } from "../App";
+import { Footer } from "../components/Footer";
 import { pricingTiers } from "../lib/pricing";
 
 export function AdvertiserLandingPage() {

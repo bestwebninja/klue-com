@@ -1,9 +1,9 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { NotificationPermissionBanner } from "@/components/NotificationPermissionBanner";
 import { MessageNotificationListener } from "@/components/MessageNotificationListener";
@@ -42,6 +42,12 @@ const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -53,6 +59,7 @@ const App = () => (
         <NotificationPermissionBanner />
         <MessageNotificationListener />
         <BrowserRouter>
+          <ScrollToTop />
           <CookieConsent />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>

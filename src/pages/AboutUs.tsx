@@ -44,6 +44,7 @@ export default function AboutUs() {
       <Navbar />
 
       <PageHero
+        backgroundImage={aboutHero}
         title="About Kluje"
         description="Your trusted platform for finding verified service providers — from home renovations to commercial projects and everything in between."
       />

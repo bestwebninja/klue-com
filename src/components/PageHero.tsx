@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface PageHeroProps {
   /** The hero background image (ES6 imported asset) */
-  backgroundImage: string;
+  backgroundImage?: string;
   /** Main title text */
   title: string;
   /** Optional subtitle/description */

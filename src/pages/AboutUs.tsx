@@ -37,9 +37,30 @@ export default function AboutUs() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="About Us | Kluje - Connecting You With Trusted Service Providers"
-        description="Learn about Kluje's mission to connect homeowners and businesses with verified, trusted service providers for every project."
+        title="About Kluje | AI-Powered Service Marketplace | Kluje"
+        description="Kluje connects US homeowners and businesses with trusted, verified service providers. Learn about our mission, AI platform, and the veteran-first values powering the built economy."
         pageType="website"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kluje.com" },
+                { "@type": "ListItem", "position": 2, "name": "About", "item": "https://kluje.com/about" }
+              ]
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                { "@type": "Question", "name": "What is Kluje?", "acceptedAnswer": { "@type": "Answer", "text": "Kluje is an AI-powered neural command platform that connects US homeowners, businesses, and professionals with trusted, verified service providers across trades, events, health, IT, legal, and more." } },
+                { "@type": "Question", "name": "Is Kluje available across the US?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Kluje operates in all 50 US states, connecting customers with local service providers wherever they are. Our AI-powered matching ensures you find the right professional for your project." } },
+                { "@type": "Question", "name": "Does Kluje support veteran-owned businesses?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Kluje is a veteran-first platform. Veteran-owned businesses receive a verified badge, priority matching, dedicated AI agent support, and special pricing to help them grow." } },
+                { "@type": "Question", "name": "How does Kluje use AI?", "acceptedAnswer": { "@type": "Answer", "text": "Kluje uses AI risk intelligence, a 24/7 AI Voice receptionist, predictive dashboards, and smart matching to help providers manage operations and homeowners find the best professionals for their projects." } }
+              ]
+            }
+          ]
+        }}
       />
       <Navbar />
 

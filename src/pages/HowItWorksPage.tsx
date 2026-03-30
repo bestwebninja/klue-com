@@ -57,7 +57,33 @@ const providerSteps = [
 const HowItWorksPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="How It Works – Hire with Confidence | Kluje" description="Post your job, receive quotes from up to 3 providers, compare profiles and reviews, then hire the best fit. Simple, free, and transparent." pageType="how-it-works" />
+      <SEOHead
+        title="How Kluje Works | Post a Job & Get Matched | Kluje"
+        description="Post your job for free, receive quotes from up to 3 verified providers, compare profiles and reviews, then hire the best fit. Simple, free, and transparent."
+        pageType="how-it-works"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kluje.com" },
+                { "@type": "ListItem", "position": 2, "name": "How It Works", "item": "https://kluje.com/how-it-works" }
+              ]
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": [
+                { "@type": "Question", "name": "Is it free to post a job on Kluje?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, posting a job on Kluje is completely free. You describe your project, and up to 3 verified service providers will send you personalised quotes at no cost." } },
+                { "@type": "Question", "name": "How many quotes will I receive?", "acceptedAnswer": { "@type": "Answer", "text": "You can receive up to 3 quotes from qualified, verified service providers. This lets you compare prices, profiles, and reviews before making a decision." } },
+                { "@type": "Question", "name": "How does Kluje verify service providers?", "acceptedAnswer": { "@type": "Answer", "text": "Service providers complete a verification process including business registration, insurance documentation, and qualifications review. Verified providers display a trust badge on their profile." } },
+                { "@type": "Question", "name": "Can I communicate with providers before hiring?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Once a provider sends a quote, you can message them directly through Kluje to ask questions, discuss project details, and negotiate before committing." } },
+                { "@type": "Question", "name": "What happens after I hire a provider?", "acceptedAnswer": { "@type": "Answer", "text": "After the job is complete, you can rate and review the service provider. Your feedback helps maintain quality across the platform and assists other homeowners in making informed decisions." } }
+              ]
+            }
+          ]
+        }}
+      />
       <Navbar />
       
       <PageHero

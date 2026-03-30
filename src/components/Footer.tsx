@@ -13,7 +13,7 @@ export function Footer() {
       <div className="relative container mx-auto px-4">
         <div className="flex flex-col items-center gap-6 md:gap-8">
           <Link to="/" className="flex items-center" aria-label="Kluje homepage">
-            <img src={logo} alt="Kluje — AI-powered service provider platform" className="h-8 md:h-10 w-auto" loading="lazy" decoding="async" width="120" height="40" />
+            <img src={logo} alt="Kluje — AI-powered service provider platform for US contractors and homeowners" className="h-8 md:h-10 w-auto" loading="lazy" decoding="async" width="120" height="40" />
           </Link>
 
           {/* Primary nav */}

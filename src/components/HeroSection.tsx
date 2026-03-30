@@ -33,72 +33,84 @@ const heroSlides = [
     description: "",
     shortDescription: "",
     showCopy: false,
+    alt: "Kluje AI platform connecting US homeowners with trusted service providers",
   },
   {
     title: "Design &",
     highlight: "Build",
     description: "Architects, interior designers, and design-build contractors for residential and commercial projects",
     shortDescription: "Design & build pros near you",
+    alt: "Architects and design-build contractors working on a residential project in the US",
   },
   {
     title: "Smart",
     highlight: "Security",
     description: "CCTV, access control, smart locks, and intelligent surveillance systems installed by certified specialists",
     shortDescription: "Protect your property today",
+    alt: "Smart security system installation with CCTV and access control by certified specialists",
   },
   {
     title: "Build",
-    highlight: "Ops Trades",
-    description: "Licensed general contractors, electricians, plumbers, HVAC, roofers, and every specialist trade",
-    shortDescription: "Find licensed trades near you",
+    highlight: "Ops",
+    description: "General contractors, MEP specialists, and project managers powering residential and commercial builds",
+    shortDescription: "Build smarter, build faster",
+    alt: "General contractors and project managers on a US commercial construction site",
   },
   {
     title: "Capital &",
     highlight: "Finance",
-    description: "CPAs, construction lenders, hard money, financial advisors, and business capital specialists",
+    description: "Construction lending, escrow, insurance, and invoice factoring for contractors and developers",
     shortDescription: "Fund your next project",
+    alt: "Capital and finance services for US contractors including construction lending and insurance",
   },
   {
     title: "AI",
-    highlight: "Core Solutions",
-    description: "Automate workflows, analyze data, and transform your construction or real estate operations with AI",
-    shortDescription: "Supercharge your business with AI",
+    highlight: "Core",
+    description: "Kluje's neural AI engine — voice receptionist, risk intelligence, predictive dashboards, and autonomous operations",
+    shortDescription: "AI runs the platform",
+    alt: "Kluje AI core dashboard showing risk intelligence and predictive analytics for contractors",
   },
   {
     title: "Legal",
     highlight: "Shield",
-    description: "Construction attorneys, real estate lawyers, contract review, mechanic liens, and compliance specialists",
-    shortDescription: "Protect your deals legally",
+    description: "Attorneys, compliance officers, and AI-powered contract management for the built economy",
+    shortDescription: "Legal protection built in",
+    alt: "Legal shield services including attorneys and AI-powered contract management for construction",
   },
   {
-    title: "Business",
-    highlight: "Connections",
-    description: "Consultants, project managers, HR, marketing, and tech professionals to grow your business",
-    shortDescription: "Connect with the right pros",
+    title: "Connections &",
+    highlight: "Network",
+    description: "Realtor-contractor matching, subcontractor networks, and professional referrals across the US",
+    shortDescription: "Expand your network",
+    alt: "Professional networking and realtor-contractor matching on the Kluje platform",
   },
   {
     title: "Property",
     highlight: "Deals",
-    description: "Fix & flip, buy & hold, commercial, and off-market properties — find your next investment deal",
+    description: "Fix-and-flip deal rooms, AI appraisals, MLS integration, and investment property services",
     shortDescription: "Find your next deal",
+    alt: "Property deal room with AI appraisals and investment property services on Kluje",
   },
   {
     title: "Sales",
     highlight: "Agents",
     description: "Buyer agents, listing agents, investment specialists, and commercial brokers across the US",
     shortDescription: "Find the right agent",
+    alt: "Real estate sales agents and commercial brokers serving US homeowners on Kluje",
   },
   {
     title: "Living",
     highlight: "Solutions",
     description: "Home repairs, remodeling, cleaning, landscaping, and residential services from trusted local pros",
     shortDescription: "Home services made easy",
+    alt: "Home repair and remodeling services from trusted local professionals in the US",
   },
   {
     title: "Building",
     highlight: "Materials",
     description: "Lumber, MEP supplies, roofing, flooring, hardware, and wholesale building materials with bulk pricing",
     shortDescription: "Source materials at wholesale",
+    alt: "Wholesale building materials including lumber, roofing, and flooring supplies for US contractors",
   },
 ];
 
@@ -187,8 +199,8 @@ export function HeroSection() {
         >
           <img
             src={getSlideImage(index)}
-            alt=""
-            role="presentation"
+            alt={slide.alt || "Kluje service provider marketplace"}
+            role={slide.showCopy === false ? undefined : "presentation"}
             className="absolute inset-0 w-full h-full object-cover object-top"
             {...(index === 0
               ? { fetchPriority: "high" as const, decoding: "sync" as const, loading: "eager" as const }

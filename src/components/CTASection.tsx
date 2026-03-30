@@ -11,6 +11,8 @@ export function CTASection() {
       aria-label="Post a job call to action"
       className="relative py-16 md:py-20 bg-cover bg-center"
       style={{ backgroundImage: `url(${ctaBg})` }}
+      role="img"
+      aria-roledescription="Post a free job on Kluje and get quotes from verified US contractors"
     >
       <div className="absolute inset-0 bg-black/50" />
       <div className="relative container mx-auto px-6 md:px-4 text-center">

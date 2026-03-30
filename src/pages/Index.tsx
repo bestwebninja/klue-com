@@ -24,6 +24,8 @@ function PlatformManifestoCTA() {
     <section
       className="relative py-16 px-4 text-white bg-cover bg-center"
       style={{ backgroundImage: `url(${heroManifestoHome})` }}
+      role="img"
+      aria-label="Kluje Platform Manifesto — AI architecture, biometric intelligence, and predictive dashboards"
     >
       <div className="absolute inset-0 bg-slate-900/70" />
       <div className="relative max-w-4xl mx-auto text-center space-y-6">

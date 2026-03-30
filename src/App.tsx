@@ -53,6 +53,7 @@ const App = () => (
         <NotificationPermissionBanner />
         <MessageNotificationListener />
         <BrowserRouter>
+          <ScrollToTop />
           <CookieConsent />
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>

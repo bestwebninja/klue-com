@@ -35,10 +35,10 @@ export function Footer() {
             <Link to="/contact" className="text-center hover:text-white transition-colors py-1">
               Contact
             </Link>
-            <Link to="/services/home-diy-renovation" className="text-center hover:text-white transition-colors py-1">
+            <Link to="/services/living-solutions" className="text-center hover:text-white transition-colors py-1">
               Home Services
             </Link>
-            <Link to="/services/commercial-services" className="text-center hover:text-white transition-colors py-1">
+            <Link to="/services/design-and-build" className="text-center hover:text-white transition-colors py-1">
               Commercial
             </Link>
             <Link to="/services/it-services" className="text-center hover:text-white transition-colors py-1">

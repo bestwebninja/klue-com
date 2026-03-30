@@ -99,7 +99,7 @@ export function App() {
       default:
         return <LoginPage />;
     }
-  }, [pathname]);
+  }, [pathname, requiresAuth, session]);
 
   return page;
 }

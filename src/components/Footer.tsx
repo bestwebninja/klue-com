@@ -27,7 +27,7 @@ export function Footer() {
               <Link to="/pricing" className="hover:text-white transition-colors py-1">AI Voice Pricing</Link>
               <Link to="/ask-expert" className="hover:text-white transition-colors py-1">Ask an Expert</Link>
               <Link to="/demo" className="hover:text-white transition-colors py-1">Live Platform Demo</Link>
-              <Link to="/metrics" className="hover:text-white transition-colors py-1">Platform Metrics</Link>
+              <Link to="/ask-expert" className="hover:text-white transition-colors py-1">Ask an Expert</Link>
               <Link to="/platform-manifesto" className="hover:text-white transition-colors py-1">AI Platform Manifesto</Link>
 
               {/* Services */}
@@ -59,9 +59,15 @@ export function Footer() {
               <Link to="/privacy/do-not-sell" className="hover:text-white transition-colors py-1">Do Not Sell My Info</Link>
               <Link
                 to="/advertiser-dashboard"
-                className="py-1 px-2 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all"
+                className="inline-block w-fit py-1 px-3 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all"
               >
                 Advertiser
+              </Link>
+              <Link
+                to="/metrics"
+                className="inline-block w-fit py-1 px-3 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all"
+              >
+                Platform AD-Metrics
               </Link>
             </div>
           </nav>

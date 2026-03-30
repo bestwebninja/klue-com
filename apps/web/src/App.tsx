@@ -48,16 +48,17 @@ export function App() {
   const session = getSession();
   const requiresAuth = !PUBLIC_ROUTES.has(pathname);
 
-  if (requiresAuth && !session) {
-    return <LoginPage />;
-  }
-
-  // Admin-only routes
-  if ((pathname === "/admin-dashboard" || pathname === "/cookie-admin") && !isAdminSession(session)) {
-    return <AdvertiserDashboardPage />;
-  }
-
   const page = useMemo(() => {
+    // Auth gate
+    if (requiresAuth && !session) {
+      return <LoginPage />;
+    }
+
+    // Admin-only routes
+    if ((pathname === "/admin-dashboard" || pathname === "/cookie-admin") && !isAdminSession(session)) {
+      return <AdvertiserDashboardPage />;
+    }
+
     switch (pathname) {
       case "/":
         return <AdvertiserLandingPage />;

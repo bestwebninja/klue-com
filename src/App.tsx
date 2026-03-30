@@ -41,6 +41,14 @@ const Advertise = lazy(() => import("./pages/Advertise"));
 const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
+const DemoPage = lazy(() => import("./pages/DemoPage"));
+const MetricsPage = lazy(() => import("./pages/MetricsPage"));
+const PrivacyRequestPage = lazy(() => import("./pages/PrivacyRequestPage"));
+const PrivacyPreferencesPage = lazy(() => import("./pages/PrivacyPreferencesPage"));
+const DoNotSellPage = lazy(() => import("./pages/DoNotSellPage"));
+const CookieAdminPage = lazy(() => import("./pages/CookieAdminPage"));
+const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
+const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import {
   Users, Shield, Star, Zap, Home, Building2, Target, Heart,
 } from 'lucide-react';
+import aboutHero from '@/assets/about-hero.jpg';
 
 const values = [
   {

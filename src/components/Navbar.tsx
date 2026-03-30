@@ -62,7 +62,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Kluje" className="h-8 md:h-10 w-auto" width={120} height={40} decoding="async" />
+            <img src={logo} alt="Kluje — find trusted US service providers and contractors" className="h-8 md:h-10 w-auto" width={120} height={40} decoding="async" />
           </Link>
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>

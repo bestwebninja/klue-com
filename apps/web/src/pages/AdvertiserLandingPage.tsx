@@ -1,8 +1,10 @@
 import { navigate } from "../App";
+import { Footer } from "../components/Footer";
 import { pricingTiers } from "../lib/pricing";
 
 export function AdvertiserLandingPage() {
   return (
+    <>
     <main className="mx-auto min-h-screen max-w-7xl space-y-12 p-6">
       <section className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
         <p className="text-sm uppercase tracking-wide text-brand-500">Kluje for Advertisers</p>
@@ -52,5 +54,7 @@ export function AdvertiserLandingPage() {
         </div>
       </section>
     </main>
+    <Footer />
+    </>
   );
 }

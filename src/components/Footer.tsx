@@ -27,7 +27,7 @@ export function Footer() {
               <Link to="/pricing" className="hover:text-white transition-colors py-1">AI Voice Pricing</Link>
               <Link to="/ask-expert" className="hover:text-white transition-colors py-1">Ask an Expert</Link>
               <Link to="/demo" className="hover:text-white transition-colors py-1">Live Platform Demo</Link>
-              <Link to="/metrics" className="hover:text-white transition-colors py-1">Platform Metrics</Link>
+              <Link to="/ask-expert" className="hover:text-white transition-colors py-1">Ask an Expert</Link>
               <Link to="/platform-manifesto" className="hover:text-white transition-colors py-1">AI Platform Manifesto</Link>
 
               {/* Services */}

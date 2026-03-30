@@ -262,12 +262,12 @@ export function HeroSection() {
           <Button
             size="lg"
             variant="hero"
-            className="mb-6 md:mb-8 animate-fade-in-up relative z-20 px-8 md:px-10 py-3 md:py-4"
+            className="mb-6 md:mb-8 animate-fade-in-up relative z-20 px-8 md:px-10 py-3 md:py-4 font-signature normal-case tracking-normal font-normal text-2xl md:text-3xl"
             style={{ animationDelay: "0.2s" }}
             onClick={handlePostJobClick}
             type="button"
           >
-            Post a Job Now
+            Just Kluje it
           </Button>
         )}
 

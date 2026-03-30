@@ -14,6 +14,10 @@ export default {
   	},
   		extend: {
 		fontFamily: {
+			signature: [
+				'Great Vibes',
+				'cursive'
+			],
 			sans: [
 				'Open Sans',
 				'ui-sans-serif',

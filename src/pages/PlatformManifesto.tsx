@@ -34,6 +34,42 @@ export default function PlatformManifesto() {
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto space-y-12">
 
+          {/* Dictionary Definition */}
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 px-8 py-8 space-y-5">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">from the Kluje Dictionary</p>
+              <p className="text-3xl font-bold text-foreground">
+                kluje{' '}
+                <span className="text-base font-normal text-muted-foreground italic">(v.)</span>
+                {' '}
+                <span className="text-base font-normal text-muted-foreground">/kluːʒ/</span>
+              </p>
+            </div>
+            <ol className="space-y-3 list-none">
+              <li className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  <span className="text-foreground font-semibold">1.</span>{' '}
+                  To effortlessly connect a need with the perfect professional; to resolve a home or business challenge through intelligent, trust-verified matching.
+                </p>
+                <p className="text-sm text-primary/80 italic pl-4">
+                  "The boiler packed in on a Sunday morning — I klujet it and had a certified engineer on-site within the hour."
+                </p>
+              </li>
+              <li className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  <span className="text-foreground font-semibold">2.</span>{' '}
+                  (informal) To take decisive, confident action by leveraging the right network at the right moment.
+                </p>
+                <p className="text-sm text-primary/80 italic pl-4">
+                  "Don't overthink it — just Kluje it."
+                </p>
+              </li>
+            </ol>
+            <div className="pt-2 border-t border-primary/15 text-center">
+              <span className="font-signature text-4xl text-primary/80">Just Kluje it</span>
+            </div>
+          </div>
+
           {/* Intro */}
           <div className="space-y-4 text-center">
             <p className="text-lg text-muted-foreground leading-relaxed">

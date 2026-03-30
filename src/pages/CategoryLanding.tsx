@@ -26,6 +26,7 @@ import PropertyDealsDirectory from '@/components/PropertyDealsDirectory';
 import SalesAgentsDirectory from '@/components/SalesAgentsDirectory';
 import LivingSolutionsDirectory from '@/components/LivingSolutionsDirectory';
 import MaterialsDirectory from '@/components/MaterialsDirectory';
+import ITServicesDirectory from '@/components/ITServicesDirectory';
 
 /* ------------------------------------------------------------------ */
 /* Hero image imports – we import dynamically via the resolved path   */
@@ -43,6 +44,7 @@ import ctaBg from '@/assets/cta-bg.jpg';
 
 const heroMap: Record<string, string> = {
   // Current service categories
+  'it-services': heroIT,
   'design-and-build': heroCommercial,
   'smart-security': heroIT,
   'build-ops': heroContractor,
@@ -259,6 +261,12 @@ export default function CategoryLanding() {
           <>
             <Separator />
             <MaterialsDirectory />
+          </>
+        )}
+        {slug === 'it-services' && (
+          <>
+            <Separator />
+            <ITServicesDirectory />
           </>
         )}
 

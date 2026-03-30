@@ -276,6 +276,41 @@ const categories: CategoryLandingInfo[] = [
     ],
   },
   {
+    slug: 'it-services',
+    name: 'IT Services',
+    heroImage: '/src/assets/hero-it-services.jpg',
+    tagline: 'Web design, software development, cybersecurity, and managed IT for US businesses',
+    article: [
+      'Find expert US-based IT and digital service providers for your business — from web design and custom software to cybersecurity and managed IT support.',
+      'Whether you run a construction firm, real estate agency, or small business, Kluje connects you with verified IT professionals who understand your industry.',
+      'Our network covers the full technology stack: front-end and back-end development, cloud infrastructure, SEO, data analytics, and enterprise IT support.',
+      'Post your IT project, compare portfolios and quotes from multiple providers, and hire the right team with confidence.',
+    ],
+    subcategories: [
+      'Web Design', 'Software Development', 'SEO & Digital Marketing', 'Cybersecurity',
+      'Cloud Services', 'IT Support & MSP', 'Mobile App Development', 'Database Management',
+      'Network Infrastructure', 'UI/UX Design', 'E-Commerce Development', 'DevOps & CI/CD',
+    ],
+    stats: [
+      { label: 'IT Professionals', value: '50k+' },
+      { label: 'US Market Size', value: '$600bn+' },
+      { label: 'Avg Project Delivery', value: '2–8 wks' },
+    ],
+    faqs: [
+      { q: 'How much does a business website cost?', a: 'A professional business website typically ranges from $2,000–$15,000 depending on complexity, custom features, and the agency you choose. E-commerce sites run higher.' },
+      { q: 'What is a Managed Service Provider (MSP)?', a: 'An MSP handles your IT infrastructure on an ongoing basis — network monitoring, security patches, helpdesk support, and backups — for a predictable monthly fee.' },
+      { q: 'Do I need cybersecurity services for a small business?', a: 'Yes. Over 43% of cyberattacks target small businesses. Basic measures like endpoint protection, secure backups, and employee training are essential.' },
+      { q: 'How do I choose between custom software and off-the-shelf tools?', a: 'Off-the-shelf tools are faster and cheaper upfront; custom software pays off when your workflow is unique, you need deep integrations, or you want a competitive advantage.' },
+    ],
+    internalLinks: [
+      { label: 'Post an IT Project', href: '/post-job' },
+      { label: 'Browse IT Professionals', href: '/browse-providers' },
+      { label: 'Explore AI Core Services', href: '/services/ai-core' },
+      { label: 'Smart Security Systems', href: '/services/smart-security' },
+      { label: 'Ask an IT Expert', href: '/ask-expert' },
+    ],
+  },
+  {
     slug: 'materials',
     name: 'Materials',
     heroImage: '/src/assets/hero-commercial.jpg',

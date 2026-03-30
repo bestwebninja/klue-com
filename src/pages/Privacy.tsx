@@ -22,6 +22,7 @@ const Privacy = () => {
 
       <PageHero
         backgroundImage={heroPrivacy}
+        imageAlt="Kluje privacy policy — how we protect your personal data under US law"
         title="Privacy Policy"
         description="How we collect, use, and protect your personal information"
         variant="compact"

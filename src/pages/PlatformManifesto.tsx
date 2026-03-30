@@ -25,6 +25,7 @@ export default function PlatformManifesto() {
 
       <PageHero
         backgroundImage={heroManifesto}
+        imageAlt="Kluje Platform Manifesto — neural AI architecture, biometric intelligence, and predictive dashboards"
         title="The Kluje Platform Manifesto"
         description="A living document covering our neural AI architecture, proprietary systems, and why Kluje is unbeatable."
       >

@@ -158,6 +158,7 @@ export default function CategoryLanding() {
       {/* Hero */}
       <PageHero
         backgroundImage={heroImg}
+        imageAlt={`${category.name} — find trusted ${category.name.toLowerCase()} providers in the US on Kluje`}
         title={category.name}
         description={category.tagline}
       >

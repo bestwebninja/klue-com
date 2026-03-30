@@ -30,7 +30,7 @@ const recentConsents = [
 function CookieAdminContent() {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Cookie Management | Kluje Admin" description="Manage cookie categories and view consent logs." />
+      <SEOHead title="Cookie Management | Kluje Admin" description="Manage cookie categories and view consent logs." noIndex={true} />
       <Navbar />
 
       <PageHero title="Cookie Management" description="Configure cookie categories and view consent logs." variant="compact" />

@@ -42,8 +42,22 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Live Demo | Kluje Ad Platform"
-        description="See Kluje Ad Platform in action — explore dashboards, campaigns, and analytics."
+        title="Live Platform Demo | Kluje AI Dashboard | Kluje"
+        description="See the Kluje AI platform in action. Explore dashboards, campaigns, analytics, and the AI Voice system powering US contractors. Try the live demo now."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Kluje Live Platform Demo",
+          "description": "Interactive demo of the Kluje AI dashboard, campaign builder, and analytics for US service providers.",
+          "url": "https://kluje.com/demo",
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kluje.com" },
+              { "@type": "ListItem", "position": 2, "name": "Demo", "item": "https://kluje.com/demo" }
+            ]
+          }
+        }}
       />
       <Navbar />
 

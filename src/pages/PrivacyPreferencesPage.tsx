@@ -23,8 +23,8 @@ export default function PrivacyPreferencesPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Privacy Preferences | Kluje"
-        description="Control how Kluje collects and uses your data, including cookie preferences."
+        title="Cookie & Privacy Preferences | Kluje"
+        description="Control how Kluje collects and uses your data. Manage cookie preferences, analytics tracking, and marketing communications in one place."
       />
       <Navbar />
 

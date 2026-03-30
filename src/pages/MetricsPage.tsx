@@ -19,8 +19,8 @@ export default function MetricsPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Platform Metrics | Kluje"
-        description="Transparent performance data for the Kluje Ad Platform — updated quarterly."
+        title="Platform Performance Metrics | Kluje"
+        description="Transparent performance data for the Kluje marketplace — advertisers, campaigns, impressions, CTR, and lead conversion rates updated quarterly."
       />
       <Navbar />
 

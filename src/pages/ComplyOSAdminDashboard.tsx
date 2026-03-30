@@ -18,7 +18,7 @@ const stats = [
 function AdminContent() {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Admin Dashboard | Kluje" description="Operations and compliance admin panel." />
+      <SEOHead title="Admin Dashboard | Kluje" description="Operations and compliance admin panel." noIndex={true} />
       <Navbar />
 
       <PageHero title="Admin Dashboard" description="Operations and compliance workflows." variant="compact" />

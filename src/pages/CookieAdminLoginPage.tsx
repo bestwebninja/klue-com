@@ -49,7 +49,7 @@ export default function CookieAdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Cookie Admin Login | Kluje" description="Authorised personnel only — sign in to manage cookie policies." />
+      <SEOHead title="Cookie Admin Login | Kluje" description="Authorised personnel only — sign in to manage cookie policies." noIndex={true} />
       <Navbar />
 
       <div className="flex items-center justify-center px-4 py-24">

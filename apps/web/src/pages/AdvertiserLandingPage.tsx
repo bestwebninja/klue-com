@@ -53,5 +53,7 @@ export function AdvertiserLandingPage() {
         </div>
       </section>
     </main>
+    <Footer />
+    </>
   );
 }

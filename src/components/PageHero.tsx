@@ -36,10 +36,10 @@ export function PageHero({
           : 'py-16 md:py-20',
         className
       )}
-      style={{ 
+      style={backgroundImage ? { 
         backgroundImage: `url(${backgroundImage})`,
         backgroundPosition: 'center top'
-      }}
+      } : undefined}
     >
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50" />

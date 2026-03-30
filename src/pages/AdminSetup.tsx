@@ -52,6 +52,7 @@ export default function AdminSetup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
+      <SEOHead title="Admin Setup | Kluje" description="One-time admin role bootstrap for Kluje platform owners." noIndex={true} />
       <div className="max-w-md w-full border rounded-2xl p-8 shadow-lg bg-card text-center space-y-6">
         <div className="mx-auto w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center">
           <Shield className="h-7 w-7 text-orange-500" />

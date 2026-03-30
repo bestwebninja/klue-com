@@ -105,7 +105,7 @@ const HowItWorksPage = () => {
           </div>
 
           <div className="mt-8 text-center">
-            <Button asChild size="lg">
+            <Button asChild size="lg" variant="hero">
               <Link to="/post-job">Post a Job Now</Link>
             </Button>
             <p className="text-sm text-muted-foreground mt-3">

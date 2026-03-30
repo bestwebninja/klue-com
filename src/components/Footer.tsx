@@ -17,9 +17,9 @@ export function Footer() {
           </Link>
 
           <nav aria-label="Footer navigation" className="grid w-full max-w-5xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-x-3 gap-y-2 text-sm text-white/70">
-            <a href="#" className="text-center hover:text-white transition-colors py-1">
+            <Link to="/about" className="text-center hover:text-white transition-colors py-1">
               About Us
-            </a>
+            </Link>
             <Link to="/blog" className="text-center hover:text-white transition-colors py-1">
               Blog
             </Link>

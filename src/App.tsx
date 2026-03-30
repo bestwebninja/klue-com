@@ -40,6 +40,7 @@ const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {

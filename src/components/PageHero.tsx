@@ -2,24 +2,20 @@ import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 interface PageHeroProps {
-  /** The hero background image (ES6 imported asset) */
   backgroundImage?: string;
-  /** Main title text */
+  /** Descriptive alt text for the background image (for accessibility and SEO) */
+  imageAlt?: string;
   title: string;
-  /** Optional subtitle/description */
   description?: string;
-  /** Optional children for CTAs or additional content */
   children?: ReactNode;
-  /** Height variant: 'full' (50vh), 'compact' (auto with padding) */
   variant?: 'full' | 'compact';
-  /** Additional className for the section */
   className?: string;
-  /** Text alignment */
   align?: 'center' | 'left';
 }
 
 export function PageHero({
   backgroundImage,
+  imageAlt,
   title,
   description,
   children,
@@ -40,6 +36,8 @@ export function PageHero({
         backgroundImage: `url(${backgroundImage})`,
         backgroundPosition: 'center top'
       } : undefined}
+      role="img"
+      aria-label={imageAlt || title}
     >
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50" />

@@ -21,8 +21,8 @@ export function CTASection() {
           title="Post your job today"
           subtitle="Get up to 3 quotes from relevant service providers"
         />
-        <Button variant="hero" size="lg" type="button" onClick={() => navigate("/post-job")}>
-          Post a Job Now
+        <Button variant="hero" size="lg" type="button" onClick={() => navigate("/post-job")} className="font-signature normal-case tracking-normal font-normal text-2xl md:text-3xl">
+          Just Kluje it
         </Button>
         <p className="text-white/70 mt-4">
           Are you a tradesperson?{" "}

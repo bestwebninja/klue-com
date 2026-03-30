@@ -105,8 +105,8 @@ const HowItWorksPage = () => {
           </div>
 
           <div className="mt-8 text-center">
-            <Button asChild size="lg">
-              <Link to="/post-job">Post a Job Now</Link>
+            <Button asChild size="lg" variant="hero" className="font-signature normal-case tracking-normal font-normal text-2xl md:text-3xl">
+              <Link to="/post-job">Just Kluje it</Link>
             </Button>
             <p className="text-sm text-muted-foreground mt-3">
               Not sure who to hire? <Link to="/browse-providers" className="text-primary font-medium hover:underline">Browse rated service providers near you</Link> or{" "}

@@ -748,6 +748,10 @@ const Auth = () => {
                 </div>
               </>
             )}
+          {/* Brand signature */}
+          <div className="mt-6 pt-5 border-t border-border/30 text-center">
+            <p className="font-signature text-3xl text-primary/70 select-none">Just Kluje it</p>
+          </div>
           </div>
         </div>
       </div>
@@ -845,6 +849,11 @@ const Auth = () => {
             <button type="button" onClick={() => { setAuthView('signup'); setSignupStep('select-type'); }} className="text-primary hover:underline text-sm">
               Don't have an account? Sign up
             </button>
+          </div>
+
+          {/* Brand signature */}
+          <div className="mt-8 pt-6 border-t border-border/30 text-center">
+            <p className="font-signature text-3xl text-primary/70 select-none">Just Kluje it</p>
           </div>
         </div>
       </div>

@@ -127,8 +127,8 @@ export function Navbar() {
 
                 {/* Primary CTA */}
                 <SheetClose asChild>
-                  <Button variant="hero" size="lg" className="w-full mb-4 h-12 text-base font-semibold" asChild>
-                    <Link to="/post-job">Post a Job Now!</Link>
+                  <Button variant="hero" size="lg" className="w-full mb-4 h-14 font-signature normal-case tracking-normal font-normal text-2xl" asChild>
+                    <Link to="/post-job">Just Kluje it</Link>
                   </Button>
                 </SheetClose>
 

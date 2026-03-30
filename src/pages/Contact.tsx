@@ -79,6 +79,7 @@ const Contact = () => {
 
       <PageHero
         backgroundImage={heroContact}
+        imageAlt="Contact Kluje — get support or partnership inquiries for the US service provider platform"
         title="Contact Us"
         description="Have a question or feedback? We'd love to hear from you."
         variant="compact"

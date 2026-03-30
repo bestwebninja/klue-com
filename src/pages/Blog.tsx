@@ -98,6 +98,7 @@ const Blog = () => {
       
       <PageHero
         backgroundImage={heroBlog}
+        imageAlt="Kluje blog — expert home improvement tips and guides for US homeowners and contractors"
         title="Kluje Blog"
         description="Tips, guides, and insights for homeowners and service providers"
       />

@@ -330,6 +330,7 @@ export default function Pricing() {
 
       <PageHero
         backgroundImage={heroPricing}
+        imageAlt="Kluje AI Voice pricing plans for US contractors and service providers"
         title="AI Runs the Platform. You Build the Empire."
         description="Every Kluje subscription comes with Kluje AI Voice — your 24/7 AI receptionist, call handler, CRM logger, and operations manager."
       >

@@ -66,6 +66,7 @@ export default function AboutUs() {
 
       <PageHero
         backgroundImage={aboutHero}
+        imageAlt="About Kluje — AI-powered platform connecting US homeowners with trusted service providers"
         title="About Kluje"
         description="Your trusted platform for finding verified service providers — from home renovations to commercial projects and everything in between."
       />

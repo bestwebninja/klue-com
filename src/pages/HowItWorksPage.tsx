@@ -88,6 +88,7 @@ const HowItWorksPage = () => {
       
       <PageHero
         backgroundImage={heroHowItWorks}
+        imageAlt="How Kluje works — post a job and get matched with verified US service providers"
         title="How It Works"
         description="Whether you're a homeowner looking for help or a service provider seeking new clients, Kluje makes it easy to connect and get work done."
       />

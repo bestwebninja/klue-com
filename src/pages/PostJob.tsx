@@ -391,6 +391,7 @@ const PostJob = () => {
 
       <PageHero
         backgroundImage={heroPostJob}
+        imageAlt="Post a job for free on Kluje and get quotes from verified US contractors"
         title="Post a Job"
         description="Describe your project and receive quotes from qualified professionals"
         variant="compact"

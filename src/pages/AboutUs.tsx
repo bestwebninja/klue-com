@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import {
   Users, Shield, Star, Zap, Home, Building2, Target, Heart,
 } from 'lucide-react';
+import aboutHero from '@/assets/about-hero.jpg';
 
 const values = [
   {
@@ -43,6 +44,7 @@ export default function AboutUs() {
       <Navbar />
 
       <PageHero
+        backgroundImage={aboutHero}
         title="About Kluje"
         description="Your trusted platform for finding verified service providers — from home renovations to commercial projects and everything in between."
       />

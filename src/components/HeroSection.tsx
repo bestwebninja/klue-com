@@ -199,8 +199,8 @@ export function HeroSection() {
         >
           <img
             src={getSlideImage(index)}
-            alt=""
-            role="presentation"
+            alt={slide.alt || "Kluje service provider marketplace"}
+            role={slide.showCopy === false ? undefined : "presentation"}
             className="absolute inset-0 w-full h-full object-cover object-top"
             {...(index === 0
               ? { fetchPriority: "high" as const, decoding: "sync" as const, loading: "eager" as const }

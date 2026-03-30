@@ -49,6 +49,7 @@ const DoNotSellPage = lazy(() => import("./pages/DoNotSellPage"));
 const CookieAdminPage = lazy(() => import("./pages/CookieAdminPage"));
 const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
 const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
+const Trademark = lazy(() => import("./pages/Trademark"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -116,6 +117,7 @@ const App = () => (
               <Route path="/cookie-admin/login" element={<CookieAdminLoginPage />} />
               <Route path="/cookie-admin" element={<CookieAdminPage />} />
               <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
+              <Route path="/trademark" element={<Trademark />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

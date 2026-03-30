@@ -50,6 +50,10 @@ export function Footer() {
               <Link to="/newsletter" className="hover:text-white transition-colors py-1">Newsletter</Link>
               <Link to="/sitemap" className="hover:text-white transition-colors py-1">Sitemap</Link>
 
+              {/* Trademark */}
+              <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Trademark</h3>
+              <Link to="/trademark" className="hover:text-white transition-colors py-1">Official Trademark Statement</Link>
+
               {/* Legal & Privacy */}
               <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Legal & Privacy</h3>
               <Link to="/privacy" className="hover:text-white transition-colors py-1">Privacy Policy</Link>

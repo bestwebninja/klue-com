@@ -10,7 +10,7 @@ export default function Trademark() {
       <SEOHead
         title="Official Trademark Statement | Kluje"
         description="Official trademark declaration for 'Just Kluje it™' by Divitiae Terrae LLC, a Wyoming limited liability company."
-        canonicalPath="/trademark"
+        canonical="/trademark"
       />
       <Navbar />
       <PageHeader

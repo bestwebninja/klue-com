@@ -17,8 +17,8 @@ export default function PrivacyRequestPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Data Subject Request | Kluje"
-        description="Submit a request to access, correct, or delete your personal data held by Kluje."
+        title="Data Subject Access Request | Kluje"
+        description="Submit a request to access, correct, or delete your personal data held by Kluje. Exercise your rights under CCPA, CPRA, and US privacy laws."
       />
       <Navbar />
 

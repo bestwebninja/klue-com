@@ -17,7 +17,7 @@ export default function DoNotSellPage() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Do Not Sell My Personal Information | Kluje"
-        description="Exercise your rights under CCPA/CPRA — opt out of any data sharing classified as a sale."
+        description="Exercise your CCPA/CPRA rights — opt out of any data sharing classified as a sale on Kluje. Your privacy, your choice. Process in 15 business days."
       />
       <Navbar />
 

@@ -1,15 +1,18 @@
-# Kluje - Service Provider Platform
-# https://kluje.co.uk
+# Kluje - AI-Powered Service Provider Platform
+# https://kluje.com
 
 User-agent: Googlebot
 Allow: /
 Disallow: /dashboard
 Disallow: /my-dashboard
 Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /admin-setup
 Disallow: /messages
 Disallow: /settings/
 Disallow: /complete-profile
 Disallow: /reset-password
+Disallow: /cookie-admin
 Disallow: /index.html
 Disallow: /index.php
 Crawl-delay: 1
@@ -19,10 +22,13 @@ Allow: /
 Disallow: /dashboard
 Disallow: /my-dashboard
 Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /admin-setup
 Disallow: /messages
 Disallow: /settings/
 Disallow: /complete-profile
 Disallow: /reset-password
+Disallow: /cookie-admin
 Disallow: /index.html
 Disallow: /index.php
 Crawl-delay: 2
@@ -47,10 +53,13 @@ Allow: /
 Disallow: /dashboard
 Disallow: /my-dashboard
 Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /admin-setup
 Disallow: /messages
 Disallow: /settings/
 Disallow: /complete-profile
 Disallow: /reset-password
+Disallow: /cookie-admin
 Disallow: /index.html
 Disallow: /index.php
 
@@ -59,12 +68,15 @@ Allow: /
 Disallow: /dashboard
 Disallow: /my-dashboard
 Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /admin-setup
 Disallow: /messages
 Disallow: /settings/
 Disallow: /complete-profile
 Disallow: /reset-password
+Disallow: /cookie-admin
 Disallow: /index.html
 Disallow: /index.php
 
 # Sitemaps
-Sitemap: https://kluje.co.uk/sitemap.xml
+Sitemap: https://kluje.com/sitemap.xml

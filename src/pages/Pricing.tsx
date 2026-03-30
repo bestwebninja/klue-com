@@ -297,9 +297,34 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Pricing & AI Voice Tiers | Kluje"
-        description="Choose your Kluje AI Voice plan. Solo $49, Pro $99, Agency $199, Enterprise $399. Every plan includes a 24/7 AI receptionist powered by Google Dialogflow CX and Vertex AI."
+        title="AI Voice Plans & Pricing for Providers | Kluje"
+        description="Choose your Kluje AI Voice plan: Solo $49, Pro $99, Agency $199, Enterprise $399/mo. 24/7 AI receptionist, CRM, and lead management included. Start free."
         pageType="pricing"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "name": "Kluje AI Voice Plans & Pricing",
+              "url": "https://kluje.com/pricing",
+              "breadcrumb": {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kluje.com" },
+                  { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://kluje.com/pricing" }
+                ]
+              }
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": faqs.map(f => ({
+                "@type": "Question",
+                "name": f.q,
+                "acceptedAnswer": { "@type": "Answer", "text": f.a }
+              }))
+            }
+          ]
+        }}
       />
       <Navbar />
 

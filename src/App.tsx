@@ -42,6 +42,12 @@ const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 const queryClient = new QueryClient();
 
 const App = () => (

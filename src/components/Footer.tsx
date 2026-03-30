@@ -45,7 +45,7 @@ export function Footer() {
               <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Company</h3>
               <Link to="/about" className="hover:text-white transition-colors py-1">About Kluje</Link>
               <Link to="/blog" className="hover:text-white transition-colors py-1">Blog & Guides</Link>
-              <Link to="/advertise" className="hover:text-white transition-colors py-1">Advertise on Kluje</Link>
+              <Link to="/advertise" className="inline-block w-fit py-1 px-3 rounded-md border-2 border-yellow-400 text-yellow-200 hover:text-yellow-100 shadow-[0_0_12px_rgba(250,204,21,0.7)] hover:shadow-[0_0_18px_rgba(250,204,21,0.95)] transition-all">Advertise on Kluje</Link>
               <Link to="/contact" className="hover:text-white transition-colors py-1">Contact Us</Link>
               <Link to="/newsletter" className="hover:text-white transition-colors py-1">Newsletter</Link>
               <Link to="/sitemap" className="hover:text-white transition-colors py-1">Sitemap</Link>

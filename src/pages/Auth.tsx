@@ -52,6 +52,9 @@ const Auth = () => {
   const [newsletterConsent, setNewsletterConsent] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [signupsRestricted, setSignupsRestricted] = useState(false);
+  const [contractorType, setContractorType] = useState<'general' | 'sub' | ''>('');
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
   
   
   // Check signup restriction on mount

@@ -185,7 +185,7 @@
             "@type": "BlogPosting",
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": `https://klue-us.lovable.app/blog/${post.slug}`
+              "@id": `https://kluje.com/blog/${post.slug}`
             },
             "headline": post.title,
             "description": post.excerpt || '',
@@ -202,10 +202,10 @@
             "publisher": {
               "@type": "Organization",
               "name": "Kluje",
-              "url": "https://klue-us.lovable.app",
+              "url": "https://kluje.com",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://klue-us.lovable.app/favicon.png"
+                "url": "https://kluje.com/favicon.png"
               }
             }
           }}

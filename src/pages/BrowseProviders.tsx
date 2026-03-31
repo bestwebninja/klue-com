@@ -336,12 +336,12 @@ const BrowseProviders = () => {
           "@type": "ItemList",
           "name": "Service Providers in the US",
           "description": "Browse rated and verified service providers near you. Filter by trade, location and reviews to find the right professional for your project.",
-          "url": "https://klue-us.lovable.app/browse-providers",
+          "url": "https://kluje.com/browse-providers",
           "numberOfItems": filteredProviders.length,
           "itemListElement": filteredProviders.slice(0, 10).map((provider, index) => ({
             "@type": "ListItem",
             "position": index + 1,
-            "url": `https://klue-us.lovable.app/service-provider/${provider.id}`,
+            "url": `https://kluje.com/service-provider/${provider.id}`,
             "name": provider.full_name || "Service Provider",
           })),
         }}

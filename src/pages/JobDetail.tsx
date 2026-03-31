@@ -433,7 +433,7 @@ const JobDetail = () => {
         keywords={[job.service_categories?.name, 'job', 'quote', 'US', job.location].filter(Boolean) as string[]}
         pageType="job-detail"
         pageContent={job.description}
-        canonical={`https://klue-us.lovable.app/jobs/${id}`}
+        canonical={`https://kluje.com/jobs/${id}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "JobPosting",
@@ -451,7 +451,7 @@ const JobDetail = () => {
           "hiringOrganization": {
             "@type": "Organization",
             "name": "Kluje",
-            "sameAs": "https://klue-us.lovable.app"
+            "sameAs": "https://kluje.com"
           },
           ...(job.budget_min && job.budget_max && {
             "baseSalary": {

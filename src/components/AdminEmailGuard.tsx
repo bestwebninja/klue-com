@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 const ALLOWED_EMAILS = [
   "marcus@kluje.com",
   "divitiae.terrae.llc@gmail.com",
+  "andrew.ew@kluje.com",
 ];
 
 export function AdminEmailGuard({ children }: { children: ReactNode }) {

@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Only these emails can ever be granted admin via this function
-const ADMIN_EMAILS = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com"];
+const ADMIN_EMAILS = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com", "andrew.ew@kluje.com"];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

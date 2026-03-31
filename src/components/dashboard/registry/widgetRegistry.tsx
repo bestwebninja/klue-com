@@ -14,7 +14,7 @@ const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
     <CardHeader><CardTitle>Profile Summary</CardTitle></CardHeader>
     <CardContent className="text-sm text-muted-foreground">
       <p>{profile?.full_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Name pending'}</p>
-      <p>{profile?.company_name || 'Company pending'} · {profile?.service_type_label || profile?.services_offered?.[0] || 'Service pending'}</p>
+      <p>{profile?.company_name || 'Company pending'} · {profile?.services_offered?.[0] || 'Service pending'}</p>
       <p>{profile?.city || 'City'}{profile?.state ? `, ${profile.state}` : ''} {profile?.zip_code || ''}</p>
     </CardContent>
   </Card>

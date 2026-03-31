@@ -5,14 +5,14 @@ import { SEOHead } from "@/components/SEOHead";
 import { Card, CardContent } from "@/components/ui/card";
 
 const metrics = [
-  { label: "Active Advertisers", value: "320+", delta: "+18% this quarter" },
-  { label: "Campaigns Delivered", value: "4,800+", delta: "+22% this quarter" },
-  { label: "Total Impressions", value: "12.4M", delta: "+31% this quarter" },
-  { label: "Average CTR", value: "3.8%", delta: "+0.4pp vs industry avg" },
-  { label: "Lead Conversion Rate", value: "14.2%", delta: "+2.1pp this quarter" },
-  { label: "Avg. Cost per Lead", value: "$18.50", delta: "−12% this quarter" },
-  { label: "Marketplace Reach", value: "48 metros", delta: "+6 new this quarter" },
-  { label: "Uptime SLA", value: "99.97%", delta: "Last 90 days" },
+  { label: "Active Advertisers", value: "0", delta: "No live data yet" },
+  { label: "Campaigns Delivered", value: "0", delta: "No live data yet" },
+  { label: "Total Impressions", value: "0", delta: "No live data yet" },
+  { label: "Average CTR", value: "0%", delta: "No live data yet" },
+  { label: "Lead Conversion Rate", value: "0%", delta: "No live data yet" },
+  { label: "Avg. Cost per Lead", value: "$0.00", delta: "No live data yet" },
+  { label: "Marketplace Reach", value: "0 metros", delta: "No live data yet" },
+  { label: "Uptime SLA", value: "—", delta: "No live data yet" },
 ];
 
 export default function MetricsPage() {

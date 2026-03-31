@@ -40,7 +40,7 @@ const NextBestActionWidget = ({ profile }: WidgetContext) => (
       <CardTitle className="flex items-center justify-between">AI Next Best Action <Badge>Scaffold</Badge></CardTitle>
     </CardHeader>
     <CardContent className="text-sm text-muted-foreground">
-      Prioritize profile completion, local weather risk, and {profile?.service_type_label || 'service'} pipeline opportunities.
+      Prioritize profile completion, local weather risk, and {profile?.services_offered?.[0] || 'service'} pipeline opportunities.
     </CardContent>
   </Card>
 );

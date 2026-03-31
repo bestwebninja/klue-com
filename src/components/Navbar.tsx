@@ -67,17 +67,17 @@ export function Navbar() {
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Show different CTA based on role */}
               {!user ? (
                 <Button variant="hero" size="sm" asChild>
-                  <Link to="/auth?type=provider">List Your Business</Link>
+                  <Link to="/auth?type=provider" className="text-xs sm:text-sm">List Your Business</Link>
                 </Button>
               ) : (
                 <Button variant="hero" size="sm" asChild>
                   <Link to={getDashboardLink()}>
                     <Home className="w-4 h-4 mr-2" />
-                    My Dashboard
+                    <span className="hidden sm:inline">My Dashboard</span>
                   </Link>
                 </Button>
               )}

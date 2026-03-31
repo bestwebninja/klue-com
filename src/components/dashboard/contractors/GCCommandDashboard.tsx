@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, lazy, Suspense, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Phone, Package, Lock, BookOpen, TrendingUp, TrendingDown,
   Mic, Mail, ClipboardList, Send, BarChart3, MapPin, Calendar,

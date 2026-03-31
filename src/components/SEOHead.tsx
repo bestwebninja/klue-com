@@ -187,7 +187,7 @@ const defaultSeoMap: Record<string, { title: string; description: string; keywor
 };
 
 const BASE_URL = 'https://kluje.com';
-const DEFAULT_OG_IMAGE = 'https://kluje.com/og-image.png';
+const DEFAULT_OG_IMAGE = 'https://kluje.com/og-image.jpg';
 
 export const SEOHead = ({
   title,

@@ -5,8 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { LocationPicker } from '@/components/LocationPicker';
+import { mapServicesToCategoryIds } from '@/lib/providerServiceTaxonomy';
 import {
   Select,
   SelectContent,
@@ -61,6 +63,7 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
   useEffect(() => {
     fetchCategories();
     fetchExistingProfile();
+    checkSignupMetadata();
   }, []);
 
   const fetchCategories = async () => {
@@ -80,6 +83,46 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
     if (data) {
       setFullName(data.full_name || '');
       setBio(data.bio || '');
+    }
+  };
+
+  // Auto-populate from signup metadata
+  const checkSignupMetadata = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.user_metadata) return;
+
+    const meta = user.user_metadata;
+    const signupServices = meta.selected_services as string[] | undefined;
+
+    if (signupServices && signupServices.length > 0) {
+      // Fetch categories then auto-save services
+      const { data: cats } = await supabase
+        .from('service_categories')
+        .select('*')
+        .order('name');
+      if (!cats) return;
+
+      const { categoryIds } = mapServicesToCategoryIds(signupServices, cats);
+
+      if (categoryIds.length > 0) {
+        // Check if already saved
+        const { data: existing } = await supabase
+          .from('provider_services')
+          .select('id')
+          .eq('provider_id', userId)
+          .limit(1);
+
+        if (!existing || existing.length === 0) {
+          const insertData = categoryIds.map(categoryId => ({
+            provider_id: userId,
+            category_id: categoryId,
+          }));
+          await supabase.from('provider_services').insert(insertData);
+        }
+
+        // Skip to location step since services are done
+        setStep('location');
+      }
     }
   };
 

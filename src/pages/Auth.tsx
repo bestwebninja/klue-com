@@ -8,11 +8,16 @@ import { useProfileComplete } from '@/hooks/useProfileComplete';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+import { providerServiceTaxonomy } from '@/lib/providerServiceTaxonomy';
 import { z } from 'zod';
-import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2, Lock } from 'lucide-react';
+import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2, Lock, ChevronsUpDown, X, HardHat, Wrench } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 
 
@@ -47,6 +52,9 @@ const Auth = () => {
   const [newsletterConsent, setNewsletterConsent] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [signupsRestricted, setSignupsRestricted] = useState(false);
+  const [contractorType, setContractorType] = useState<'general' | 'sub' | ''>('');
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
   
   
   // Check signup restriction on mount
@@ -127,13 +135,16 @@ const Auth = () => {
     }
   };
 
+  const toggleService = (name: string) => {
+    setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  };
+
   const handleSelectType = (type: UserType) => {
     setUserType(type);
     setSignupStep('details');
   };
 
   const handleDetailsNext = () => {
-    // Validate name/company
     if (userType === 'homeowner') {
       if (!fullName || fullName.trim().length < 2) {
         toast({ title: 'Name required', description: 'Please enter your full name (at least 2 characters).', variant: 'destructive' });
@@ -142,6 +153,14 @@ const Auth = () => {
     } else {
       if (!companyName || companyName.trim().length < 2) {
         toast({ title: 'Company name required', description: 'Please enter your company name (at least 2 characters).', variant: 'destructive' });
+        return;
+      }
+      if (!contractorType) {
+        toast({ title: 'Contractor type required', description: 'Please select whether you are a General Contractor or Sub Contractor.', variant: 'destructive' });
+        return;
+      }
+      if (selectedServices.length === 0) {
+        toast({ title: 'Services required', description: 'Please select at least one service you offer.', variant: 'destructive' });
         return;
       }
     }
@@ -192,7 +211,12 @@ const Auth = () => {
       }
 
       const displayName = userType === 'provider' ? companyName : fullName;
-      const { error, data } = await signUp(email, password, displayName);
+      const extraMeta = userType === 'provider' ? {
+        user_type: 'provider',
+        contractor_type: contractorType,
+        selected_services: selectedServices,
+      } : {};
+      const { error, data } = await signUp(email, password, displayName, extraMeta);
       
       if (error) {
         if (error.message.includes('already registered')) {
@@ -587,18 +611,114 @@ const Auth = () => {
                       <p className="text-xs text-muted-foreground mt-1">Your name as it will appear on your account.</p>
                     </div>
                   ) : (
-                    <div>
-                      <Label htmlFor="companyName">Company Name <span className="text-destructive">*</span></Label>
-                      <Input
-                        id="companyName"
-                        type="text"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        placeholder="Type your LLC Name"
-                        required
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">This will be displayed on your public profile and quotes.</p>
-                    </div>
+                    <>
+                      <div>
+                        <Label htmlFor="companyName">Company Name <span className="text-destructive">*</span></Label>
+                        <Input
+                          id="companyName"
+                          type="text"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="Type your LLC Name"
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">This will be displayed on your public profile and quotes.</p>
+                      </div>
+
+                      {/* Contractor Type */}
+                      <div>
+                        <Label>Contractor Type <span className="text-destructive">*</span></Label>
+                        <div className="grid grid-cols-2 gap-3 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => setContractorType('general')}
+                            className={cn(
+                              'p-4 rounded-xl border-2 text-left transition-all duration-200',
+                              contractorType === 'general'
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border hover:border-primary/50 bg-background'
+                            )}
+                          >
+                            <HardHat className={cn('w-5 h-5 mb-1', contractorType === 'general' ? 'text-primary' : 'text-muted-foreground')} />
+                            <p className="text-sm font-semibold text-foreground">General Contractor</p>
+                            <p className="text-[11px] text-muted-foreground">I manage projects &amp; hire subs</p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setContractorType('sub')}
+                            className={cn(
+                              'p-4 rounded-xl border-2 text-left transition-all duration-200',
+                              contractorType === 'sub'
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border hover:border-primary/50 bg-background'
+                            )}
+                          >
+                            <Wrench className={cn('w-5 h-5 mb-1', contractorType === 'sub' ? 'text-primary' : 'text-muted-foreground')} />
+                            <p className="text-sm font-semibold text-foreground">Sub Contractor</p>
+                            <p className="text-[11px] text-muted-foreground">I specialize in a trade</p>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Service Picker */}
+                      <div>
+                        <Label>Services Offered <span className="text-destructive">*</span></Label>
+                        <Popover open={isServicePickerOpen} onOpenChange={setIsServicePickerOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={isServicePickerOpen}
+                              className="mt-1 w-full justify-between font-normal"
+                            >
+                              {selectedServices.length > 0
+                                ? `${selectedServices.length} service${selectedServices.length === 1 ? '' : 's'} selected`
+                                : 'Search and select services'}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                            <Command>
+                              <CommandInput placeholder="Search services..." />
+                              <CommandList>
+                                <CommandEmpty>No service found.</CommandEmpty>
+                                {providerServiceTaxonomy.map((group) => (
+                                  <CommandGroup key={group.category} heading={group.category}>
+                                    {group.subcategories.map((sub) => {
+                                      const isSelected = selectedServices.includes(sub);
+                                      return (
+                                        <CommandItem
+                                          key={sub}
+                                          value={`${group.category} ${sub}`}
+                                          onSelect={() => toggleService(sub)}
+                                        >
+                                          <CheckCircle className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')} />
+                                          <span>{sub}</span>
+                                        </CommandItem>
+                                      );
+                                    })}
+                                  </CommandGroup>
+                                ))}
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+
+                        {selectedServices.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {selectedServices.map((svc) => (
+                              <Badge key={svc} variant="secondary" className="gap-1 text-xs">
+                                {svc}
+                                <button type="button" onClick={() => toggleService(svc)} className="rounded-full hover:text-foreground" aria-label={`Remove ${svc}`}>
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">Select all services you provide.</p>
+                      </div>
+                    </>
                   )}
 
                   {/* Email */}

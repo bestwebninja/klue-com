@@ -245,7 +245,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`${filteredProviders.length} providers within their preferred distance`);
 
     // Prepare email content
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.com';
     const budgetText = job.budget_min && job.budget_max 
       ? `$${job.budget_min.toLocaleString()} - $${job.budget_max.toLocaleString()}`
       : job.budget_min 

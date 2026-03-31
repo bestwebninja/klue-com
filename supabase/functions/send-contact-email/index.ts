@@ -87,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
         EmailMessageBox(message),
       ],
       buttons: [
-        { href: 'https://kluje.lovable.app', text: 'Visit Kluje' },
+        { href: 'https://kluje.com', text: 'Visit Kluje' },
       ],
       footer: "This is an automated confirmation email. Please do not reply directly to this message.",
       closing: "Best regards,\nThe Kluje Team",

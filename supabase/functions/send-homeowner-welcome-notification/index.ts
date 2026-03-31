@@ -105,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const userName = profile?.full_name || "there";
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.com';
     const subject = `Welcome to Kluje! 🏠 Let's find you the perfect tradesperson`;
 
     const howItWorksSteps = EmailSteps({

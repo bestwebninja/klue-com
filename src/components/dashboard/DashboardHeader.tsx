@@ -21,7 +21,7 @@ export function DashboardHeader({
   onSignOut,
 }: DashboardHeaderProps) {
   return (
-    <header className="bg-[hsl(220,13%,18%)] sticky top-0 z-50 border-b border-border/50">
+    <header className="bg-primary sticky top-0 z-50 border-b border-primary/40">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -29,7 +29,7 @@ export function DashboardHeader({
             <SidebarTrigger className="hidden sm:flex text-white/70 hover:text-white hover:bg-white/10" />
             
             {/* Mobile: Show logo */}
-            <a href="/" className="sm:hidden text-xl font-bold text-primary">Kluje</a>
+            <a href="/" className="sm:hidden text-xl font-bold text-white">Kluje</a>
             
             {/* Desktop: Show page title */}
             <span className="hidden sm:inline text-white font-medium">Provider Dashboard</span>

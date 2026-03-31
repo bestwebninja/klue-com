@@ -138,11 +138,42 @@ export default function CategoryLanding() {
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: category.name,
-    description: category.tagline,
-      url: `https://kluje.com/services/${category.slug}`,
-    isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://kluje.com' },
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        name: category.name,
+        description: category.tagline,
+        url: `https://kluje.com/services/${category.slug}`,
+        isPartOf: { '@type': 'WebSite', name: 'Kluje', url: 'https://kluje.com' },
+        breadcrumb: {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://kluje.com' },
+            { '@type': 'ListItem', position: 2, name: category.name, item: `https://kluje.com/services/${category.slug}` },
+          ],
+        },
+      },
+      ...category.subcategories.map((sc) => ({
+        '@type': 'Service',
+        name: sc,
+        description: `Professional ${sc.toLowerCase()} services from verified providers across the US.`,
+        provider: {
+          '@type': 'Organization',
+          name: 'Kluje',
+          url: 'https://kluje.com',
+        },
+        areaServed: { '@type': 'Country', name: 'United States' },
+        url: `https://kluje.com/services/${category.slug}`,
+      })),
+      {
+        '@type': 'FAQPage',
+        mainEntity: category.faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: { '@type': 'Answer', text: faq.a },
+        })),
+      },
+    ],
   };
 
   return (

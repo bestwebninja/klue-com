@@ -156,11 +156,19 @@ const ServiceProviderProfile = () => {
             is_suspended: false,
             suspended_at: null,
             suspension_reason: null,
-            subscription_status: 'free',
+            subscription_status: 'free' as const,
             subscription_expires_at: null,
             updated_at: publicData.created_at,
             featured_at: null,
             phone_verified: false,
+            first_name: null,
+            last_name: null,
+            company_name: null,
+            services_offered: null,
+            zip_code: null,
+            city: null,
+            state: null,
+            county: null,
           };
         }
       }

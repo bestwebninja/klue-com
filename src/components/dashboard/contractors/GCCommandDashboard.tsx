@@ -219,13 +219,37 @@ function EmptyState({ message }: { message: string }) {
 
 // ─── Main component ──────────────────────────────────────────────
 export default function GCCommandDashboard() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
+  const [contractorType, setContractorType] = useState<string>('');
+  const [serviceNames, setServiceNames] = useState<string[]>([]);
   // Collapsed state per section label; Legals starts expanded
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
     Overview: false, Communications: false, Materials: true,
     Workforce: true, Finance: true, Legals: false,
   });
+
+  // Fetch contractor type from user metadata + services from DB
+  useEffect(() => {
+    if (!user) return;
+    // Contractor type from metadata
+    const ct = user.user_metadata?.contractor_type;
+    if (ct) setContractorType(ct);
+
+    // Fetch provider services
+    const fetchServices = async () => {
+      const { data } = await supabase
+        .from('provider_services')
+        .select('category_id, custom_name, service_categories:category_id(name)')
+        .eq('provider_id', user.id);
+      if (data) {
+        const names = data.map((s: any) => s.service_categories?.name || s.custom_name || '').filter(Boolean);
+        setServiceNames(names);
+      }
+    };
+    fetchServices();
+  }, [user]);
   const legalsRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 

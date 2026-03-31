@@ -127,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const userName = profile?.full_name || "there";
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.lovable.app';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://kluje.com';
     const budgetText = job.budget_min && job.budget_max 
       ? `$${job.budget_min.toLocaleString()} - $${job.budget_max.toLocaleString()}`
       : job.budget_min 

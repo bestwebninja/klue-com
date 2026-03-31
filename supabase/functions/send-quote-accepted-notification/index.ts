@@ -56,7 +56,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const siteUrl = Deno.env.get("SITE_URL") || "https://kluje.lovable.app";
+    const siteUrl = Deno.env.get("SITE_URL") || "https://kluje.com";
 
     const { data: provider, error: providerError } = await supabase
       .from("profiles")

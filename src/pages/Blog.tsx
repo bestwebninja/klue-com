@@ -81,14 +81,14 @@ const Blog = () => {
           "@type": "CollectionPage",
           "name": "Tips & Guides for Home Improvement | Kluje",
           "description": "Read expert articles on hiring tradespeople, home renovation tips, event planning, and business services from experienced US professionals.",
-          "url": "https://klue-us.lovable.app/blog",
+          "url": "https://kluje.com/blog",
           "mainEntity": {
             "@type": "ItemList",
             "numberOfItems": posts.length,
             "itemListElement": posts.slice(0, 10).map((post, index) => ({
               "@type": "ListItem",
               "position": index + 1,
-              "url": `https://klue-us.lovable.app/blog/${post.slug}`,
+              "url": `https://kluje.com/blog/${post.slug}`,
               "name": post.title,
             })),
           },

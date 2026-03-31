@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { providerServiceTaxonomy } from '@/lib/providerServiceTaxonomy';
+import { ZipCodeAutocomplete } from '@/components/auth/ZipCodeAutocomplete';
+import { resolveZipLocation, syncZipIntelligence } from '@/lib/onboardingIntelligence';
 import { z } from 'zod';
 import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2, Lock, ChevronsUpDown, X, HardHat, Wrench } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
@@ -45,7 +47,15 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [county, setCounty] = useState('');
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -151,8 +161,16 @@ const Auth = () => {
         return;
       }
     } else {
+      if (!firstName || firstName.trim().length < 2 || !lastName || lastName.trim().length < 2) {
+        toast({ title: 'Name required', description: 'Please enter your first and last name.', variant: 'destructive' });
+        return;
+      }
       if (!companyName || companyName.trim().length < 2) {
         toast({ title: 'Company name required', description: 'Please enter your company name (at least 2 characters).', variant: 'destructive' });
+        return;
+      }
+      if (zipCode.length !== 5) {
+        toast({ title: 'ZIP code required', description: 'Please select a valid 5-digit ZIP code.', variant: 'destructive' });
         return;
       }
       if (!contractorType) {
@@ -213,8 +231,17 @@ const Auth = () => {
       const displayName = userType === 'provider' ? companyName : fullName;
       const extraMeta = userType === 'provider' ? {
         user_type: 'provider',
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        company_name: companyName.trim(),
         contractor_type: contractorType,
         selected_services: selectedServices,
+        zip_code: zipCode,
+        city,
+        state,
+        county,
+        latitude,
+        longitude,
       } : {};
       const { error, data } = await signUp(email, password, displayName, extraMeta);
       
@@ -237,6 +264,33 @@ const Auth = () => {
         }
 
         if (userType === 'provider' && data?.user) {
+          const normalizedProfile = {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            full_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+            company_name: companyName.trim(),
+            services_offered: selectedServices,
+            zip_code: zipCode,
+            city: city || null,
+            state: state || null,
+            county: county || null,
+            latitude,
+            longitude,
+          };
+
+          await supabase.from('profiles').update(normalizedProfile as any).eq('id', data.user.id);
+          await supabase.from('provider_services').insert(
+            selectedServices.map((service) => ({ provider_id: data.user.id, custom_name: service })),
+          );
+          await supabase.from('dashboard_bootstraps').upsert({
+            user_id: data.user.id,
+            role_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor',
+            template_key: selectedServices[0]?.toLowerCase() || 'general-contractor',
+            profile_snapshot: normalizedProfile,
+            widget_config: [],
+          } as any);
+          syncZipIntelligence(zipCode).catch(() => null);
+
           // Assign provider role
           await supabase.from('user_roles').insert({ user_id: data.user.id, role: 'provider' as any });
 
@@ -613,6 +667,30 @@ const Auth = () => {
                   ) : (
                     <>
                       <div>
+                        <Label htmlFor="firstName">First Name <span className="text-destructive">*</span></Label>
+                        <Input
+                          id="firstName"
+                          type="text"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="John"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="lastName">Last Name <span className="text-destructive">*</span></Label>
+                        <Input
+                          id="lastName"
+                          type="text"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Smith"
+                          required
+                        />
+                      </div>
+
+                      <div>
                         <Label htmlFor="companyName">Company Name <span className="text-destructive">*</span></Label>
                         <Input
                           id="companyName"
@@ -623,6 +701,29 @@ const Auth = () => {
                           required
                         />
                         <p className="text-xs text-muted-foreground mt-1">This will be displayed on your public profile and quotes.</p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="zipCode">ZIP Code <span className="text-destructive">*</span></Label>
+                        <ZipCodeAutocomplete
+                          value={zipCode}
+                          onChange={async (value, suggestion) => {
+                            setZipCode(value);
+                            if (suggestion) {
+                              setCity(suggestion.city);
+                              setState(suggestion.state);
+                            }
+                            if (value.length === 5) {
+                              const location = await resolveZipLocation(value);
+                              setCity(location.city || suggestion?.city || '');
+                              setState(location.state || suggestion?.state || '');
+                              setCounty(location.county || '');
+                              setLatitude(location.latitude ?? null);
+                              setLongitude(location.longitude ?? null);
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Autocomplete with normalized city/state intelligence.</p>
                       </div>
 
                       {/* Contractor Type */}

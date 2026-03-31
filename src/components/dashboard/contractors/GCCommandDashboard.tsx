@@ -285,15 +285,27 @@ export default function GCCommandDashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-foreground flex items-center gap-2">
               Contractors — kluje.com
+              {contractorType && (
+                <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">
+                  {contractorType === 'general' ? 'General Contractor' : 'Sub Contractor'}
+                </Badge>
+              )}
               {isDept && (
-                <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                <span className="text-[11px] font-normal text-muted-foreground">
                   / {activeSidebar}
                 </span>
               )}
             </div>
-            <div className="text-[11px] text-muted-foreground">General Contractor AI Agent · kluje.com</div>
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1 flex-wrap">
+              <span>{contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : ''} Contractor AI Agent · kluje.com</span>
+              {serviceNames.length > 0 && (
+                <span className="text-[10px] text-muted-foreground/70">
+                  — {serviceNames.slice(0, 3).join(', ')}{serviceNames.length > 3 ? ` +${serviceNames.length - 3} more` : ''}
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <div className="hidden lg:block text-xs text-muted-foreground bg-muted border border-border rounded-md px-3 py-1.5">

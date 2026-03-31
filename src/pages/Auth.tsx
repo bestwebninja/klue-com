@@ -211,7 +211,12 @@ const Auth = () => {
       }
 
       const displayName = userType === 'provider' ? companyName : fullName;
-      const { error, data } = await signUp(email, password, displayName);
+      const extraMeta = userType === 'provider' ? {
+        user_type: 'provider',
+        contractor_type: contractorType,
+        selected_services: selectedServices,
+      } : {};
+      const { error, data } = await signUp(email, password, displayName, extraMeta);
       
       if (error) {
         if (error.message.includes('already registered')) {

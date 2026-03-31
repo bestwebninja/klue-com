@@ -50,6 +50,7 @@ const CookieAdminPage = lazy(() => import("./pages/CookieAdminPage"));
 const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
 const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
 const Trademark = lazy(() => import("./pages/Trademark"));
+const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {

@@ -135,6 +135,10 @@ const Auth = () => {
     }
   };
 
+  const toggleService = (name: string) => {
+    setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  };
+
   const handleSelectType = (type: UserType) => {
     setUserType(type);
     setSignupStep('details');

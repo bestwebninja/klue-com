@@ -145,7 +145,6 @@ const Auth = () => {
   };
 
   const handleDetailsNext = () => {
-    // Validate name/company
     if (userType === 'homeowner') {
       if (!fullName || fullName.trim().length < 2) {
         toast({ title: 'Name required', description: 'Please enter your full name (at least 2 characters).', variant: 'destructive' });
@@ -154,6 +153,14 @@ const Auth = () => {
     } else {
       if (!companyName || companyName.trim().length < 2) {
         toast({ title: 'Company name required', description: 'Please enter your company name (at least 2 characters).', variant: 'destructive' });
+        return;
+      }
+      if (!contractorType) {
+        toast({ title: 'Contractor type required', description: 'Please select whether you are a General Contractor or Sub Contractor.', variant: 'destructive' });
+        return;
+      }
+      if (selectedServices.length === 0) {
+        toast({ title: 'Services required', description: 'Please select at least one service you offer.', variant: 'destructive' });
         return;
       }
     }

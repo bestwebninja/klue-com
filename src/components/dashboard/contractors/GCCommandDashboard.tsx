@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -63,6 +64,7 @@ const sidebarSections = [
       { icon: Factory,      name: 'Suppliers',      badge: null },
       { icon: Archive,      name: 'Inventory',      badge: null },
       { icon: DollarSign,   name: 'Quote Builder',  badge: null },
+      { icon: ClipboardList, name: 'Design Checklist', badge: 'New', badgeType: 'green' },
     ],
   },
   {
@@ -267,7 +269,13 @@ export default function GCCommandDashboard() {
   const ActiveDept = deptComponentMap[activeSidebar] ?? null;
   const isDept = ActiveDept !== null;
 
+  const nav = useNavigate();
+
   const handleSidebarClick = (name: string) => {
+    if (name === 'Design Checklist') {
+      nav('/contractor/quote-intake');
+      return;
+    }
     setActiveSidebar(name);
   };
 

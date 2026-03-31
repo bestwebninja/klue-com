@@ -346,7 +346,7 @@ const CompleteProfile = () => {
                     type="text"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="Smith Plumbing Ltd"
+                    placeholder="Type your LLC Name"
                     required
                   />
                   <p className="text-xs text-muted-foreground mt-1">

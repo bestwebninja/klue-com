@@ -95,6 +95,39 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_bootstraps: {
+        Row: {
+          created_at: string | null
+          id: string
+          profile_snapshot: Json | null
+          role_key: string
+          template_key: string
+          updated_at: string | null
+          user_id: string
+          widget_config: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          profile_snapshot?: Json | null
+          role_key: string
+          template_key: string
+          updated_at?: string | null
+          user_id: string
+          widget_config?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          profile_snapshot?: Json | null
+          role_key?: string
+          template_key?: string
+          updated_at?: string | null
+          user_id?: string
+          widget_config?: Json | null
+        }
+        Relationships: []
+      }
       email_notifications: {
         Row: {
           created_at: string
@@ -517,54 +550,13 @@ export type Database = {
           },
         ]
       }
-      dashboard_bootstraps: {
-        Row: {
-          created_at: string
-          intelligence_snapshot: Json
-          profile_snapshot: Json
-          role_key: string
-          template_key: string
-          updated_at: string
-          user_id: string
-          widget_config: Json
-        }
-        Insert: {
-          created_at?: string
-          intelligence_snapshot?: Json
-          profile_snapshot?: Json
-          role_key: string
-          template_key: string
-          updated_at?: string
-          user_id: string
-          widget_config?: Json
-        }
-        Update: {
-          created_at?: string
-          intelligence_snapshot?: Json
-          profile_snapshot?: Json
-          role_key?: string
-          template_key?: string
-          updated_at?: string
-          user_id?: string
-          widget_config?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dashboard_bootstraps_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           city: string | null
           company_name: string | null
           county: string | null
-          bio: string | null
           created_at: string
           email: string | null
           featured_at: string | null
@@ -575,11 +567,9 @@ export type Database = {
           is_suspended: boolean
           is_verified: boolean
           last_name: string | null
-          latitude: number | null
-          longitude: number | null
           phone: string | null
           phone_verified: boolean
-          services_offered: string[]
+          services_offered: string[] | null
           state: string | null
           subscription_expires_at: string | null
           subscription_status: Database["public"]["Enums"]["subscription_status"]
@@ -590,10 +580,10 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           city?: string | null
           company_name?: string | null
           county?: string | null
-          bio?: string | null
           created_at?: string
           email?: string | null
           featured_at?: string | null
@@ -604,11 +594,9 @@ export type Database = {
           is_suspended?: boolean
           is_verified?: boolean
           last_name?: string | null
-          latitude?: number | null
-          longitude?: number | null
           phone?: string | null
           phone_verified?: boolean
-          services_offered?: string[]
+          services_offered?: string[] | null
           state?: string | null
           subscription_expires_at?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
@@ -619,10 +607,10 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           city?: string | null
           company_name?: string | null
           county?: string | null
-          bio?: string | null
           created_at?: string
           email?: string | null
           featured_at?: string | null
@@ -633,11 +621,9 @@ export type Database = {
           is_suspended?: boolean
           is_verified?: boolean
           last_name?: string | null
-          latitude?: number | null
-          longitude?: number | null
           phone?: string | null
           phone_verified?: boolean
-          services_offered?: string[]
+          services_offered?: string[] | null
           state?: string | null
           subscription_expires_at?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
@@ -645,51 +631,6 @@ export type Database = {
           suspension_reason?: string | null
           updated_at?: string
           zip_code?: string | null
-        }
-        Relationships: []
-      }
-      zip_code_intelligence_cache: {
-        Row: {
-          city: string | null
-          county: string | null
-          created_at: string
-          crime_data: Json
-          latitude: number | null
-          longitude: number | null
-          refreshed_at: string
-          source: Json
-          state: string | null
-          updated_at: string
-          weather_data: Json
-          zip_code: string
-        }
-        Insert: {
-          city?: string | null
-          county?: string | null
-          created_at?: string
-          crime_data?: Json
-          latitude?: number | null
-          longitude?: number | null
-          refreshed_at?: string
-          source?: Json
-          state?: string | null
-          updated_at?: string
-          weather_data?: Json
-          zip_code: string
-        }
-        Update: {
-          city?: string | null
-          county?: string | null
-          created_at?: string
-          crime_data?: Json
-          latitude?: number | null
-          longitude?: number | null
-          refreshed_at?: string
-          source?: Json
-          state?: string | null
-          updated_at?: string
-          weather_data?: Json
-          zip_code?: string
         }
         Relationships: []
       }
@@ -1041,6 +982,42 @@ export type Database = {
           status?: string
           submitted_at?: string
           years_experience?: number | null
+        }
+        Relationships: []
+      }
+      zip_code_intelligence_cache: {
+        Row: {
+          city: string | null
+          county: string | null
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          refreshed_at: string | null
+          state: string | null
+          zip_code: string
+        }
+        Insert: {
+          city?: string | null
+          county?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          refreshed_at?: string | null
+          state?: string | null
+          zip_code: string
+        }
+        Update: {
+          city?: string | null
+          county?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          refreshed_at?: string | null
+          state?: string | null
+          zip_code?: string
         }
         Relationships: []
       }

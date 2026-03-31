@@ -319,7 +319,7 @@ const Dashboard = () => {
           </Suspense>
         );
       default:
-        return <DashboardHome userId={user.id} profile={profile} onNavigate={handleTabChange} />;
+        return <RoleBasedDashboardHome profile={profile} />;
     }
   };
 

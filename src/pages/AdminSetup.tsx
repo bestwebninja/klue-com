@@ -6,7 +6,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-const ADMIN_EMAILS = ['divitiae.terrae.llc@gmail.com', 'marcus@kluje.com'];
+const ADMIN_EMAILS = ['divitiae.terrae.llc@gmail.com', 'marcus@kluje.com', 'andrew.ew@kluje.com'];
 
 export default function AdminSetup() {
   const { user, loading } = useAuth();

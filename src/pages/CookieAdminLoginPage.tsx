@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 const ALLOWED_EMAILS = [
   "marcus@kluje.com",
   "divitiae.terrae.llc@gmail.com",
+  "andrew.ew@kluje.com",
 ];
 
 export default function CookieAdminLoginPage() {

@@ -242,6 +242,9 @@ const Auth = () => {
         county,
         latitude,
         longitude,
+        lat: latitude,
+        lng: longitude,
+        service_type_label: selectedServices[0] || null,
       } : {};
       const { error, data } = await signUp(email, password, displayName, extraMeta);
       
@@ -276,6 +279,11 @@ const Auth = () => {
             county: county || null,
             latitude,
             longitude,
+            lat: latitude,
+            lng: longitude,
+            service_type_label: selectedServices[0] || null,
+            service_type_key: selectedServices[0] ? selectedServices[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null,
+            dashboard_template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
           };
 
           await supabase.from('profiles').update(normalizedProfile as any).eq('id', data.user.id);
@@ -289,6 +297,11 @@ const Auth = () => {
             profile_snapshot: normalizedProfile,
             widget_config: [],
           } as any);
+          await (supabase.from('user_dashboard_preferences' as any).upsert({
+            user_id: data.user.id,
+            template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
+            pinned_widget_keys: ['profile_summary', 'weather', 'ai_next_action'],
+          } as any) as any);
           syncZipIntelligence(zipCode).catch(() => null);
 
           // Assign provider role

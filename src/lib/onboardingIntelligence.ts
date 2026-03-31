@@ -52,9 +52,18 @@ export const syncZipIntelligence = async (zipCode: string) => {
     return cached;
   }
 
-  const response = await fetch(`/api/v1/onboarding/zip-intelligence/${zipCode}`, { method: 'POST' });
-  if (!response.ok) return cached;
+  const response = await fetch(`/api/v1/internal/geo-intelligence/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ zipCode }),
+  });
 
-  const payload = await response.json();
-  return payload?.cache ?? cached;
+  if (!response.ok) {
+    const fallback = await fetch(`/api/v1/onboarding/zip-intelligence/${zipCode}`, { method: 'POST' });
+    if (!fallback.ok) return cached;
+    const payload = await fallback.json();
+    return payload?.cache ?? cached;
+  }
+
+  return cached;
 };

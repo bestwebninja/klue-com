@@ -1,56 +1,68 @@
 import type { Database } from '@/integrations/supabase/types';
+import type { DashboardTemplateConfig, WidgetKey } from '@/types/onboarding';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-export type WidgetKey =
-  | 'profile-summary'
-  | 'jobs-leads'
-  | 'compliance'
-  | 'weather'
-  | 'crime-risk'
-  | 'suppliers'
-  | 'legal-logistics'
-  | 'ai-recommendations';
-
-export interface DashboardTemplate {
-  key: string;
-  label: string;
-  nav: string[];
-  widgets: WidgetKey[];
-  permissions: string[];
-}
-
-const sharedWidgets: WidgetKey[] = ['profile-summary', 'jobs-leads', 'weather', 'crime-risk', 'ai-recommendations'];
-
-export const DASHBOARD_TEMPLATE_REGISTRY: Record<string, DashboardTemplate> = {
-  'general-contractor': {
-    key: 'general-contractor',
-    label: 'General Contractor / Master Admin',
-    nav: ['home', 'projects', 'vendors', 'compliance', 'finance', 'ai'],
-    widgets: [...sharedWidgets, 'compliance', 'suppliers', 'legal-logistics'],
-    permissions: ['ops:full', 'vendors:manage', 'risk:full'],
-  },
-  hvac: { key: 'hvac', label: 'HVAC', nav: ['home', 'jobs', 'dispatch', 'weather', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  electrical: { key: 'electrical', label: 'Electrical', nav: ['home', 'jobs', 'permits', 'safety', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  plumbing: { key: 'plumbing', label: 'Plumbing', nav: ['home', 'jobs', 'inventory', 'service-area', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  roofing: { key: 'roofing', label: 'Roofing', nav: ['home', 'jobs', 'weather', 'claims', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  painting: { key: 'painting', label: 'Painting', nav: ['home', 'jobs', 'scheduling', 'supplies', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  carpentry: { key: 'carpentry', label: 'Carpentry', nav: ['home', 'jobs', 'materials', 'quality', 'ai'], widgets: sharedWidgets, permissions: ['jobs:trade', 'risk:read'] },
-  subcontractor: { key: 'subcontractor', label: 'Sub Contractor', nav: ['home', 'jobs', 'messages', 'ai'], widgets: sharedWidgets, permissions: ['jobs:limited', 'risk:read'] },
-  default: { key: 'default', label: 'Trade Dashboard', nav: ['home', 'jobs', 'messages', 'ai'], widgets: sharedWidgets, permissions: ['jobs:limited', 'risk:read'] },
+const baseLayout = {
+  profile_summary: { colSpan: 1 },
+  weather: { colSpan: 1 },
+  area_risk: { colSpan: 1 },
+  ai_next_action: { colSpan: 2 },
 };
 
-export const resolveDashboardTemplate = (profile: Profile | null, contractorType?: string | null) => {
-  if (!profile) return DASHBOARD_TEMPLATE_REGISTRY.default;
+const createTemplate = (config: DashboardTemplateConfig): DashboardTemplateConfig => config;
+
+export const DASHBOARD_TEMPLATE_REGISTRY: Record<string, DashboardTemplateConfig> = {
+  'general-contractor': createTemplate({
+    key: 'general-contractor',
+    label: 'General Contractor / Master Dashboard',
+    userCategory: 'general_contractor',
+    description: 'Advanced contractor operating system with multi-team controls.',
+    version: 1,
+    navItems: [
+      { key: 'home', label: 'Home' },
+      { key: 'projects', label: 'Projects' },
+      { key: 'vendors', label: 'Vendors' },
+      { key: 'compliance', label: 'Compliance' },
+      { key: 'risk', label: 'Risk' },
+      { key: 'ai', label: 'AI Ops' },
+    ],
+    widgetKeys: ['profile_summary', 'profile_completion', 'weather', 'area_risk', 'jobs', 'suppliers', 'legal_logistics', 'ai_next_action', 'project_alerts', 'compliance'],
+    defaultLayout: baseLayout,
+    featureFlags: ['advanced_ops', 'supplier_intelligence'],
+  }),
+  hvac: createTemplate({
+    key: 'hvac', label: 'HVAC Dashboard', userCategory: 'subcontractor', description: 'Dispatch and weather-aware job flow.', version: 1,
+    navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'dispatch', label: 'Dispatch' }, { key: 'ai', label: 'AI' }],
+    widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'],
+    defaultLayout: baseLayout,
+  }),
+  plumbing: createTemplate({ key: 'plumbing', label: 'Plumbing Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'inventory', label: 'Inventory' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'], defaultLayout: baseLayout }),
+  electrical: createTemplate({ key: 'electrical', label: 'Electrical Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'safety', label: 'Safety' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'compliance', 'ai_next_action'], defaultLayout: baseLayout }),
+  roofing: createTemplate({ key: 'roofing', label: 'Roofing Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'claims', label: 'Claims' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'project_alerts', 'ai_next_action'], defaultLayout: baseLayout }),
+  painting: createTemplate({ key: 'painting', label: 'Painting Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'schedule', label: 'Schedule' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'], defaultLayout: baseLayout }),
+  carpentry: createTemplate({ key: 'carpentry', label: 'Carpentry Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'materials', label: 'Materials' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'jobs', 'suppliers', 'ai_next_action'], defaultLayout: baseLayout }),
+  'subcontractor-default': createTemplate({ key: 'subcontractor-default', label: 'Subcontractor Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'messages', label: 'Messages' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'], defaultLayout: baseLayout }),
+};
+
+export const resolveDashboardTemplate = (profile: Profile | null): DashboardTemplateConfig => {
+  if (!profile) return DASHBOARD_TEMPLATE_REGISTRY['subcontractor-default'];
+
+  const explicitTemplate = profile.dashboard_template_key && DASHBOARD_TEMPLATE_REGISTRY[profile.dashboard_template_key];
+  if (explicitTemplate) return explicitTemplate;
 
   const normalizedServices = (profile.services_offered ?? []).map((s) => s.toLowerCase());
-  if (contractorType === 'general' || normalizedServices.some((service) => service.includes('general contractor'))) {
-    return DASHBOARD_TEMPLATE_REGISTRY['general-contractor'];
-  }
+  const firstService = normalizedServices[0] ?? '';
 
-  const found = Object.keys(DASHBOARD_TEMPLATE_REGISTRY).find((key) =>
-    key !== 'default' && key !== 'general-contractor' && normalizedServices.some((service) => service.includes(key)),
-  );
+  if (firstService.includes('general contractor')) return DASHBOARD_TEMPLATE_REGISTRY['general-contractor'];
+  if (firstService.includes('hvac')) return DASHBOARD_TEMPLATE_REGISTRY.hvac;
+  if (firstService.includes('plumb')) return DASHBOARD_TEMPLATE_REGISTRY.plumbing;
+  if (firstService.includes('electr')) return DASHBOARD_TEMPLATE_REGISTRY.electrical;
+  if (firstService.includes('roof')) return DASHBOARD_TEMPLATE_REGISTRY.roofing;
+  if (firstService.includes('paint')) return DASHBOARD_TEMPLATE_REGISTRY.painting;
+  if (firstService.includes('carpent')) return DASHBOARD_TEMPLATE_REGISTRY.carpentry;
 
-  return found ? DASHBOARD_TEMPLATE_REGISTRY[found] : DASHBOARD_TEMPLATE_REGISTRY.subcontractor;
+  return DASHBOARD_TEMPLATE_REGISTRY['subcontractor-default'];
 };
+
+export type { WidgetKey };

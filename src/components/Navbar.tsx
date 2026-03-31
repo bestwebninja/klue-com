@@ -67,17 +67,17 @@ export function Navbar() {
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Show different CTA based on role */}
               {!user ? (
                 <Button variant="hero" size="sm" asChild>
-                  <Link to="/auth?type=provider">List Your Business</Link>
+                  <Link to="/auth?type=provider" className="text-xs sm:text-sm">List Your Business</Link>
                 </Button>
               ) : (
                 <Button variant="hero" size="sm" asChild>
                   <Link to={getDashboardLink()}>
                     <Home className="w-4 h-4 mr-2" />
-                    My Dashboard
+                    <span className="hidden sm:inline">My Dashboard</span>
                   </Link>
                 </Button>
               )}
@@ -95,11 +95,7 @@ export function Navbar() {
             </div>
 
             {/* Mobile/Tablet Menu Button */}
-            <SheetTrigger asChild>
-              <button className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg text-primary-foreground hover:bg-white/10 active:bg-white/20 transition-colors" aria-label="Open menu">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
+            {/* Hidden — unified menu button is now always visible above */}
 
             <SheetContent
               side="right"

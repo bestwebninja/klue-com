@@ -23,6 +23,14 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    company_name: '',
+    services_offered: '',
+    zip_code: '',
+    city: '',
+    state: '',
+    county: '',
     full_name: '',
     phone: '',
     bio: '',
@@ -33,6 +41,14 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
     if (profile) {
       setFormData({
         full_name: profile.full_name || '',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        company_name: profile.company_name || '',
+        services_offered: (profile.services_offered || []).join(', '),
+        zip_code: profile.zip_code || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        county: profile.county || '',
         phone: profile.phone || '',
         bio: profile.bio || '',
         avatar_url: profile.avatar_url || ''
@@ -119,6 +135,14 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
         .from('profiles')
         .update({
           full_name: formData.full_name.trim(),
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          company_name: formData.company_name.trim(),
+          services_offered: formData.services_offered.split(',').map((service) => service.trim()).filter(Boolean),
+          zip_code: formData.zip_code.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          county: formData.county.trim(),
           phone: formData.phone.trim(),
           bio: formData.bio.trim(),
           avatar_url: formData.avatar_url || null
@@ -223,6 +247,14 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
+                <Label htmlFor="first_name">First Name</Label>
+                <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="full_name">Full Name / Business Name</Label>
                 <Input
                   id="full_name"
@@ -232,6 +264,10 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
                   placeholder="John's Plumbing Services"
                   maxLength={100}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company_name">Company Name</Label>
+                <Input id="company_name" name="company_name" value={formData.company_name} onChange={handleChange} />
               </div>
 
               <div className="space-y-2">
@@ -248,6 +284,29 @@ const DashboardProfile = ({ profile, onProfileUpdate }: DashboardProfileProps) =
                 <p className="text-xs text-muted-foreground">
                   Your contact number. This will be shared with customers when they accept your quote.
                 </p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="services_offered">Services Offered</Label>
+                <Input id="services_offered" name="services_offered" value={formData.services_offered} onChange={handleChange} placeholder="HVAC, Plumbing" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="zip_code">ZIP Code</Label>
+                <Input id="zip_code" name="zip_code" value={formData.zip_code} onChange={handleChange} maxLength={5} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input id="city" name="city" value={formData.city} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="state">State</Label>
+                <Input id="state" name="state" value={formData.state} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="county">County</Label>
+                <Input id="county" name="county" value={formData.county} onChange={handleChange} />
               </div>
             </div>
 

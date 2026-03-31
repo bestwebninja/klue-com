@@ -14,7 +14,7 @@ const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
 const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
 const AdminSiteSettingsInline = lazy(() => import('@/components/admin/AdminSiteSettings'));
 const AdminNewsletterInline = lazy(() => import('@/components/admin/AdminNewsletter'));
-import DashboardHome from '@/components/dashboard/DashboardHome';
+import { RoleBasedDashboardHome } from '@/components/dashboard/RoleBasedDashboardHome';
 import DashboardServices from '@/components/dashboard/DashboardServices';
 import DashboardLocations from '@/components/dashboard/DashboardLocations';
 import DashboardSubscription from '@/components/dashboard/DashboardSubscription';
@@ -257,7 +257,7 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <DashboardHome userId={user.id} profile={profile} onNavigate={handleTabChange} />;
+        return <RoleBasedDashboardHome profile={profile} />;
       case 'profile':
         return <DashboardProfile profile={profile} onProfileUpdate={fetchProfile} />;
       case 'services':

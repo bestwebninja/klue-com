@@ -1,0 +1,11 @@
+[
+  { "category": "General Contractors", "subcategories": ["General Contractor", "Building Contractor", "Renovation Contractor", "Handyman", "Carpentry Services", "Joiner"] },
+  { "category": "Interior Services", "subcategories": ["Interior Designer", "Flooring Contractor", "Painting Contractor", "Plastering Contractor", "Tiling Contractor"] },
+  { "category": "Kitchen & Bathroom", "subcategories": ["Kitchen Renovation Contractor", "Bathroom Contractor", "Bathroom Renovation"] },
+  { "category": "Electrical Services", "subcategories": ["Electrician", "Lighting Electrician", "Outdoor Lighting"] },
+  { "category": "Plumbing Services", "subcategories": ["Plumbing Contractor"] },
+  { "category": "HVAC / Air Conditioning", "subcategories": ["Air Conditioning Installer", "Air Conditioning Servicing", "Air Conditioning Specialist"] },
+  { "category": "Exterior & Landscaping", "subcategories": ["Garden Designer", "Landscaping Contractor", "Paving Contractor", "Roofing Contractor", "Waterproofing Contractor", "Window Contractor"] },
+  { "category": "Cleaning & Maintenance", "subcategories": ["Cleaning Services", "Maintenance Services"] },
+  { "category": "Specialist Services", "subcategories": ["Swimming Pool Contractor", "Scaffolding Contractor", "Custom Furniture Designer"] }
+]

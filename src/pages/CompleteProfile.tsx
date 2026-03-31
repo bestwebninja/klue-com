@@ -8,18 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+import { mapServicesToCategoryIds, providerServiceTaxonomy } from '@/lib/providerServiceTaxonomy';
 
-import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle } from 'lucide-react';
+import { Briefcase, Home, Loader2, MapPin, CheckCircle, AlertCircle, UserCircle, ChevronsUpDown, X } from 'lucide-react';
 
 import { isValidUSZipCode, formatUSZipCode } from '@/lib/zipCodeValidation';
 
@@ -54,10 +52,9 @@ const CompleteProfile = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Provider-specific state
-  const [selectedMainCategory, setSelectedMainCategory] = useState('');
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [mainCategories, setMainCategories] = useState<Category[]>([]);
-  const [subcategories, setSubcategories] = useState<Category[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<Category[]>([]);
+  const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
 
   // Location state
   const [locationQuery, setLocationQuery] = useState('');
@@ -100,35 +97,17 @@ const CompleteProfile = () => {
     checkProfile();
   }, [user, authLoading, roleLoading, roles, navigate]);
 
-  // Fetch categories
+  // Fetch categories for backend mapping
   useEffect(() => {
-    const fetchMainCategories = async () => {
+    const fetchCategories = async () => {
       const { data } = await supabase
         .from('service_categories')
         .select('*')
-        .is('parent_id', null)
-        .order('name');
-      if (data) setMainCategories(data);
+        .order('name', { ascending: true });
+      if (data) setServiceCategories(data);
     };
-    fetchMainCategories();
+    fetchCategories();
   }, []);
-
-  useEffect(() => {
-    if (selectedMainCategory) {
-      const fetchSubs = async () => {
-        const { data } = await supabase
-          .from('service_categories')
-          .select('*')
-          .eq('parent_id', selectedMainCategory)
-          .order('name');
-        if (data) setSubcategories(data);
-      };
-      fetchSubs();
-      setSelectedSubcategories([]);
-    } else {
-      setSubcategories([]);
-    }
-  }, [selectedMainCategory]);
 
   // Location search
   const searchLocation = async (query: string) => {
@@ -185,11 +164,11 @@ const CompleteProfile = () => {
     setLocationSuggestions([]);
   };
 
-  const toggleSubcategory = (categoryId: string) => {
+  const toggleSubcategory = (subcategoryName: string) => {
     setSelectedSubcategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(subcategoryName)
+        ? prev.filter(serviceName => serviceName !== subcategoryName)
+        : [...prev, subcategoryName]
     );
   };
 
@@ -205,10 +184,6 @@ const CompleteProfile = () => {
     if (userType === 'provider') {
       if (!companyName || companyName.trim().length < 2) {
         toast({ title: 'Company name required', description: 'Please enter your company name.', variant: 'destructive' });
-        return;
-      }
-      if (!selectedMainCategory) {
-        toast({ title: 'Category required', description: 'Please select your main service category.', variant: 'destructive' });
         return;
       }
       if (selectedSubcategories.length === 0) {
@@ -242,7 +217,19 @@ const CompleteProfile = () => {
           .insert({ user_id: user.id, role: 'provider' as any });
 
         // Add services
-        const serviceInserts = selectedSubcategories.map(categoryId => ({
+        const { categoryIds, missingServices } = mapServicesToCategoryIds(selectedSubcategories, serviceCategories);
+
+        if (missingServices.length > 0) {
+          toast({
+            title: 'Service mapping error',
+            description: 'Some selected services are currently unavailable. Please reselect and try again.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        const serviceInserts = categoryIds.map(categoryId => ({
           provider_id: user.id,
           category_id: categoryId,
         }));
@@ -368,46 +355,69 @@ const CompleteProfile = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="mainCategory">Main Service Category <span className="text-destructive">*</span></Label>
-                  <Select value={selectedMainCategory} onValueChange={setSelectedMainCategory}>
-                    <SelectTrigger id="mainCategory">
-                      <SelectValue placeholder="Select your main category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mainCategories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Choose the category that best describes your primary trade.
-                  </p>
-                </div>
+                  <Label>Services Offered <span className="text-destructive">*</span> (select all that apply)</Label>
+                  <Popover open={isServicePickerOpen} onOpenChange={setIsServicePickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isServicePickerOpen}
+                        className="mt-1 w-full justify-between font-normal"
+                      >
+                        {selectedSubcategories.length > 0
+                          ? `${selectedSubcategories.length} service${selectedSubcategories.length === 1 ? '' : 's'} selected`
+                          : 'Search and select services'}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search services..." />
+                        <CommandList>
+                          <CommandEmpty>No service found.</CommandEmpty>
+                          {providerServiceTaxonomy.map((group) => (
+                            <CommandGroup key={group.category} heading={group.category}>
+                              {group.subcategories.map((subcategory) => {
+                                const isSelected = selectedSubcategories.includes(subcategory);
+                                return (
+                                  <CommandItem
+                                    key={subcategory}
+                                    value={`${group.category} ${subcategory}`}
+                                    onSelect={() => toggleSubcategory(subcategory)}
+                                  >
+                                    <CheckCircle className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')} />
+                                    <span>{subcategory}</span>
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
 
-                {selectedMainCategory && subcategories.length > 0 && (
-                  <div>
-                    <Label>Services Offered <span className="text-destructive">*</span> (select all that apply)</Label>
-                    <div className="mt-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3 space-y-2">
-                      {subcategories.map((cat) => (
-                        <div key={cat.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`cp-service-${cat.id}`}
-                            checked={selectedSubcategories.includes(cat.id)}
-                            onCheckedChange={() => toggleSubcategory(cat.id)}
-                          />
-                          <label htmlFor={`cp-service-${cat.id}`} className="text-sm cursor-pointer text-foreground">
-                            {cat.name}
-                          </label>
-                        </div>
+                  {selectedSubcategories.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {selectedSubcategories.map((subcategory) => (
+                        <Badge key={subcategory} variant="secondary" className="gap-1">
+                          {subcategory}
+                          <button
+                            type="button"
+                            className="rounded-full hover:text-foreground"
+                            onClick={() => toggleSubcategory(subcategory)}
+                            aria-label={`Remove ${subcategory}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
                       ))}
                     </div>
-                    {selectedSubcategories.length > 0 && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {selectedSubcategories.length} service{selectedSubcategories.length !== 1 ? 's' : ''} selected
-                      </p>
-                    )}
-                  </div>
-                )}
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Search by service name and choose all services you provide.
+                  </p>
+                </div>
 
                 {/* Location field */}
                 <div className="relative">

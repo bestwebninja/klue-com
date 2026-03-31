@@ -95,3 +95,77 @@ export async function fetchPlacementRecommendations(input: {
   const payload = (await response.json()) as { data: PlacementRecommendation[] };
   return payload.data;
 }
+
+export type GeoIntelligencePayload = {
+  zipCode: string;
+  weather: Record<string, unknown>;
+  crime: Record<string, unknown>;
+  refreshedAt: string;
+  cacheStatus: "hit" | "miss";
+};
+
+export async function fetchGeoIntelligence(zipCode: string): Promise<GeoIntelligencePayload> {
+  const response = await fetch(`${API_BASE}/geo-intelligence?zipCode=${encodeURIComponent(zipCode)}`);
+  if (!response.ok) throw new Error("Failed to load geo intelligence");
+  return response.json() as Promise<GeoIntelligencePayload>;
+}
+
+export type ContractorQuoteIntakeInput = {
+  clientName: string;
+  projectAddress: string;
+  zipCode: string;
+  phone: string;
+  email: string;
+  builder: string;
+  projectDate: string;
+  realtorContact: string;
+  attorneyEmail: string;
+  selectedSupplier: string;
+  selectedMaterials: string[];
+  sections: Record<string, { checked: boolean; note: string }>;
+  textFields: Record<string, string>;
+  weatherSummary: string;
+  workflowFlags: {
+    requestFinanceNow: boolean;
+    notifyRealtor: boolean;
+    generateEsignAfterAcceptance: boolean;
+  };
+};
+
+export type ContractorQuoteIntakeResponse = {
+  quoteIntakeId: string;
+  status: string;
+  createdAt: string;
+};
+
+export async function createContractorQuoteIntake(input: ContractorQuoteIntakeInput): Promise<ContractorQuoteIntakeResponse> {
+  const response = await fetch(`${API_BASE}/quote-intake`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer dev-token"
+    },
+    body: JSON.stringify(input)
+  });
+
+  if (!response.ok) throw new Error("Failed to create quote intake");
+  return response.json() as Promise<ContractorQuoteIntakeResponse>;
+}
+
+export async function fetchContractorCostPreview(input: {
+  supplier: string;
+  zipCode: string;
+  selectedMaterials: string[];
+  projectScope: string;
+}): Promise<{ supplier: string; totalLow: number; totalHigh: number }> {
+  const response = await fetch(`${API_BASE}/quote-intake/cost-preview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(input)
+  });
+
+  if (!response.ok) throw new Error("Failed to get cost preview");
+  return response.json() as Promise<{ supplier: string; totalLow: number; totalHigh: number }>;
+}

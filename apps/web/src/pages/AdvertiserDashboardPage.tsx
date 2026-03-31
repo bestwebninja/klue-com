@@ -15,6 +15,7 @@ const navItems = [
   { label: "New Campaign", path: "/campaigns/new" },
   { label: "Placements", path: "/placements" },
   { label: "Billing", path: "/billing" },
+  { label: "Quote Intake", path: "/contractor/quote-intake" },
   { label: "Admin", path: "/admin" }
 ];
 
@@ -63,16 +64,26 @@ export function AdvertiserDashboardPage() {
             <li>• 2 campaigns need updated ad copy</li>
             <li>• 1 placement pending budget approval</li>
             <li>• Next invoice posts on April 1</li>
+            <li>• New: barndominium quote checklist is ready for intake</li>
           </ul>
           <div className="mt-4 rounded-md bg-slate-800 p-3 text-sm text-slate-100">
             <p>Billing: <span className="capitalize">{billingStatus}</span></p>
-            <button
-              type="button"
-              onClick={() => navigate("/billing")}
-              className="mt-3 rounded-md bg-brand-600 px-3 py-1.5 text-white hover:bg-brand-500"
-            >
-              Manage billing
-            </button>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={() => navigate("/billing")}
+                className="rounded-md bg-brand-600 px-3 py-1.5 text-white hover:bg-brand-500"
+              >
+                Manage billing
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/contractor/quote-intake")}
+                className="rounded-md bg-emerald-600 px-3 py-1.5 text-white hover:bg-emerald-500"
+              >
+                New Quote Intake
+              </button>
+            </div>
           </div>
         </article>
       </section>

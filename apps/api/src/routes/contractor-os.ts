@@ -26,6 +26,42 @@ const patchProfileSchema = z.object({
   coverageRadiusMiles: z.number().int().min(1).max(500).optional()
 });
 
+
+const quoteIntakeSchema = z.object({
+  clientName: z.string().trim().min(1),
+  projectAddress: z.string().trim().min(1),
+  zipCode: z.string().trim().regex(/^\d{5}$/),
+  phone: z.string().trim().min(1),
+  email: z.string().email(),
+  builder: z.string().trim().min(1),
+  projectDate: z.string().trim().optional().default(""),
+  realtorContact: z.string().trim().optional().default(""),
+  attorneyEmail: z.string().trim().optional().default(""),
+  selectedSupplier: z.string().trim().optional().default("Default Supplier Network"),
+  selectedMaterials: z.array(z.string()).default([]),
+  sections: z.record(z.object({ checked: z.boolean(), note: z.string() })),
+  textFields: z.record(z.string()),
+  weatherSummary: z.string().optional().default(""),
+  workflowFlags: z.object({
+    requestFinanceNow: z.boolean().default(false),
+    notifyRealtor: z.boolean().default(false),
+    generateEsignAfterAcceptance: z.boolean().default(true)
+  })
+});
+
+const costPreviewSchema = z.object({
+  supplier: z.string().trim().min(1),
+  zipCode: z.string().trim().regex(/^\d{5}$/),
+  selectedMaterials: z.array(z.string()).default([]),
+  projectScope: z.string().trim().min(1)
+});
+
+const supplierBaseRates: Record<string, number> = {
+  "Default Supplier Network": 12500,
+  "Builder First Supply": 13200,
+  "Kona Preferred Warehouse": 14100
+};
+
 const normalizeServiceTypeKey = (serviceType: string) =>
   serviceType.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "subcontractor-default";
 
@@ -211,6 +247,106 @@ router.get("/dashboard/config", async (req, res, next) => {
     const { data: template } = await admin.from("dashboard_templates").select("*").eq("key", templateKey).maybeSingle();
 
     return res.json({ template, preferences });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+
+router.post("/quote-intake/cost-preview", async (req, res, next) => {
+  try {
+    const parsed = costPreviewSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+    const { supplier, selectedMaterials, projectScope } = parsed.data;
+    const base = supplierBaseRates[supplier] ?? 13500;
+    const materialMultiplier = 1 + selectedMaterials.length * 0.045;
+    const scopeMultiplier = Math.max(1, Math.min(1.35, projectScope.length / 100));
+
+    const totalLow = Math.round(base * materialMultiplier * scopeMultiplier);
+    const totalHigh = Math.round(totalLow * 1.18);
+
+    return res.json({
+      supplier,
+      totalLow,
+      totalHigh,
+      pricingTimestamp: new Date().toISOString(),
+      pricingWindow: "Real-time target with 24h fallback",
+      source: "supplier-feed-placeholder"
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/quote-intake", async (req, res, next) => {
+  try {
+    const parsed = quoteIntakeSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+    const admin = ensureAdmin();
+    if (!admin) return res.status(500).json({ error: "SUPABASE admin unavailable" });
+
+    const authResolution = await resolveSupabaseUser(req);
+    const requesterUserId = authResolution.user?.id ?? null;
+
+    const { data, error } = await admin
+      .from("contractor_quote_intakes")
+      .insert({
+        requester_user_id: requesterUserId,
+        client_name: parsed.data.clientName,
+        project_address: parsed.data.projectAddress,
+        zip_code: parsed.data.zipCode,
+        phone: parsed.data.phone,
+        email: parsed.data.email,
+        builder_name: parsed.data.builder,
+        project_date: parsed.data.projectDate || null,
+        realtor_contact: parsed.data.realtorContact || null,
+        attorney_email: parsed.data.attorneyEmail || null,
+        selected_supplier: parsed.data.selectedSupplier,
+        selected_materials: parsed.data.selectedMaterials,
+        checklist_json: parsed.data.sections,
+        text_fields_json: parsed.data.textFields,
+        weather_summary: parsed.data.weatherSummary,
+        workflow_flags_json: parsed.data.workflowFlags,
+        status: "draft"
+      })
+      .select("id, created_at")
+      .single();
+
+    if (error || !data) return res.status(400).json({ error: error?.message ?? "Could not save quote intake" });
+
+    await admin.from("contractor_quote_workflow_events").insert([
+      {
+        quote_intake_id: data.id,
+        event_type: "QUOTE_CREATED",
+        event_payload_json: {
+          channel: "internal",
+          action: "awaiting_review"
+        }
+      },
+      {
+        quote_intake_id: data.id,
+        event_type: "REQUEST_FINANCE_OPTION",
+        event_payload_json: {
+          requested: parsed.data.workflowFlags.requestFinanceNow
+        }
+      },
+      {
+        quote_intake_id: data.id,
+        event_type: "ESIGN_FLOW_READY",
+        event_payload_json: {
+          enabled: parsed.data.workflowFlags.generateEsignAfterAcceptance,
+          attorney_email: parsed.data.attorneyEmail || null
+        }
+      }
+    ]);
+
+    return res.status(201).json({
+      quoteIntakeId: data.id,
+      status: "draft",
+      createdAt: data.created_at
+    });
   } catch (error) {
     return next(error);
   }

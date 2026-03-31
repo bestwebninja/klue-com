@@ -63,6 +63,7 @@ const sidebarSections = [
       { icon: Factory,      name: 'Suppliers',      badge: null },
       { icon: Archive,      name: 'Inventory',      badge: null },
       { icon: DollarSign,   name: 'Quote Builder',  badge: null },
+      { icon: ClipboardList, name: 'Design Checklist', badge: 'New', badgeType: 'green' },
     ],
   },
   {

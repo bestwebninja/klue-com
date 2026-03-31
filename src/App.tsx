@@ -119,6 +119,7 @@ const App = () => (
               <Route path="/cookie-admin" element={<CookieAdminPage />} />
               <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               <Route path="/trademark" element={<Trademark />} />
+              <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

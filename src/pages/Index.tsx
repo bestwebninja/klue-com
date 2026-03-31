@@ -145,7 +145,7 @@ const Index = () => {
               "url": "https://kluje.com",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://kluje.com/og-image.png",
+                "url": "https://kluje.com/og-image.jpg",
                 "width": 1200,
                 "height": 630
               },
@@ -156,6 +156,38 @@ const Index = () => {
                 "contactType": "customer service",
                 "url": "https://kluje.com/contact"
               }
+            },
+            {
+              "@type": "LocalBusiness",
+              "@id": "https://kluje.com/#localbusiness",
+              "name": "Kluje",
+              "url": "https://kluje.com",
+              "logo": "https://kluje.com/og-image.jpg",
+              "image": "https://kluje.com/og-image.jpg",
+              "description": "AI-powered platform connecting homeowners and businesses with trusted, verified service providers across all 50 US states.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressRegion": "WY",
+                "addressCountry": "US"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 42.756,
+                "longitude": -107.3025
+              },
+              "areaServed": {
+                "@type": "Country",
+                "name": "United States"
+              },
+              "priceRange": "Free - $$",
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                "opens": "00:00",
+                "closes": "23:59"
+              },
+              "sameAs": ["https://x.com/Kluje"],
+              "parentOrganization": { "@id": "https://kluje.com/#organization" }
             },
             {
               "@type": "WebSite",

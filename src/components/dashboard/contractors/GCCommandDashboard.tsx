@@ -269,7 +269,13 @@ export default function GCCommandDashboard() {
   const ActiveDept = deptComponentMap[activeSidebar] ?? null;
   const isDept = ActiveDept !== null;
 
+  const nav = useNavigate();
+
   const handleSidebarClick = (name: string) => {
+    if (name === 'Design Checklist') {
+      nav('/contractor/quote-intake');
+      return;
+    }
     setActiveSidebar(name);
   };
 

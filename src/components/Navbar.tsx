@@ -95,11 +95,7 @@ export function Navbar() {
             </div>
 
             {/* Mobile/Tablet Menu Button */}
-            <SheetTrigger asChild>
-              <button className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg text-primary-foreground hover:bg-white/10 active:bg-white/20 transition-colors" aria-label="Open menu">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
+            {/* Hidden — unified menu button is now always visible above */}
 
             <SheetContent
               side="right"

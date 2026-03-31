@@ -17,6 +17,7 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { PrivacyPreferencesPage } from "./pages/PrivacyPreferencesPage";
 import { PrivacyRequestPage } from "./pages/PrivacyRequestPage";
 import { SignupPage } from "./pages/SignupPage";
+import { ContractorQuoteFormPage } from "./pages/ContractorQuoteFormPage";
 import { getSession, isAdminSession } from "./lib/auth";
 
 function usePathname() {
@@ -96,6 +97,8 @@ export function App() {
         return <CookieAdminPage />;
       case "/cookie-admin/login":
         return <CookieAdminLoginPage />;
+      case "/contractor/quote-intake":
+        return <ContractorQuoteFormPage />;
       default:
         return <LoginPage />;
     }

@@ -48,7 +48,7 @@ export const DASHBOARD_TEMPLATE_REGISTRY: Record<string, DashboardTemplateConfig
 export const resolveDashboardTemplate = (profile: Profile | null): DashboardTemplateConfig => {
   if (!profile) return DASHBOARD_TEMPLATE_REGISTRY['subcontractor-default'];
 
-  const explicitTemplate = profile.dashboard_template_key && DASHBOARD_TEMPLATE_REGISTRY[profile.dashboard_template_key];
+  const explicitTemplate = (profile as any).dashboard_template_key && DASHBOARD_TEMPLATE_REGISTRY[(profile as any).dashboard_template_key];
   if (explicitTemplate) return explicitTemplate;
 
   const normalizedServices = (profile.services_offered ?? []).map((s) => s.toLowerCase());

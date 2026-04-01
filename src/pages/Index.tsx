@@ -64,6 +64,18 @@ function PlatformManifestoCTA() {
   );
 }
 
+function ZipExplorerEntry() {
+  return (
+    <section className="px-4 py-8">
+      <div className="mx-auto max-w-5xl rounded-lg border bg-card p-6">
+        <h2 className="text-2xl font-semibold">New: USA ZIP Explorer</h2>
+        <p className="mt-2 text-muted-foreground">Explore Census-backed ZIP and ZCTA public profiles before posting your project.</p>
+        <Link to="/zip/90210" className="mt-3 inline-block text-primary underline">Try ZIP 90210</Link>
+      </div>
+    </section>
+  );
+}
+
 function VeteransSection() {
   const features = [
     {
@@ -216,6 +228,7 @@ const Index = () => {
         <HeroSection />
         <HomepageIntro />
         <HowItWorks />
+        <ZipExplorerEntry />
         <Suspense fallback={null}>
           <SocialJobPosts />
           <CTASection />

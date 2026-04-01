@@ -226,6 +226,7 @@ export default function GCCommandDashboard() {
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
   const [contractorType, setContractorType] = useState<string>('');
   const [serviceNames, setServiceNames] = useState<string[]>([]);
+  const [tickerHeight, setTickerHeight] = useState(36);
   // Collapsed state per section label; Legals starts expanded
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
     Overview: false, Communications: false, Materials: true,
@@ -280,9 +281,36 @@ export default function GCCommandDashboard() {
   };
 
   const allKpisEmpty = kpis.every(k => k.value === '—');
+  const isTickerResizing = useRef(false);
+
+  const handleTickerResizeStart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    isTickerResizing.current = true;
+    const startY = e.clientY;
+    const startHeight = tickerHeight;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (ev: MouseEvent) => {
+      if (!isTickerResizing.current) return;
+      const delta = startY - ev.clientY;
+      setTickerHeight(Math.min(140, Math.max(36, startHeight + delta)));
+    };
+
+    const onUp = () => {
+      isTickerResizing.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   return (
-    <div className="flex flex-col h-full -m-4 sm:-m-6 lg:-m-8">
+    <div className="flex flex-col h-full min-h-0 -m-4 sm:-m-6 lg:-m-8">
       {/* ── Top Bar ── */}
       <div className="bg-card border-b border-border px-4 sm:px-5 h-[52px] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
@@ -356,7 +384,7 @@ export default function GCCommandDashboard() {
       </div>
 
       {/* ── Main Layout ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ── Sidebar ── */}
         <div ref={sidebarRef} className="hidden md:flex w-[195px] bg-card border-r border-border shrink-0 flex-col overflow-hidden">
           {/* Scrollable section list */}
@@ -444,7 +472,7 @@ export default function GCCommandDashboard() {
         </div>
 
         {/* ── Content Panel ── */}
-        <div className="flex-1 overflow-y-auto p-4 bg-muted/30">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-muted/30">
           {isDept ? (
             /* Department view */
             <Suspense fallback={<DeptLoader />}>
@@ -641,11 +669,23 @@ export default function GCCommandDashboard() {
         </div>
       </div>
 
-      {/* ── Ticker ── */}
-      <div className="bg-card border-t border-border px-4 py-2 text-[11px] text-muted-foreground shrink-0 whitespace-nowrap overflow-hidden">
-        🤖 <span className="text-orange-500 font-medium">Agent activity — last hour:</span>{' '}
-        Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-        <span className="cursor-pointer underline text-orange-500">See full log ↗</span>
+      {/* ── Resizable ticker ── */}
+      <div className="shrink-0">
+        <button
+          type="button"
+          aria-label="Resize agent activity panel"
+          title="Drag to resize agent activity panel"
+          onMouseDown={handleTickerResizeStart}
+          className="w-full h-2 border-t border-border bg-muted/70 hover:bg-muted cursor-row-resize"
+        />
+        <div
+          className="bg-card border-t border-border px-4 py-2 text-[11px] text-muted-foreground overflow-y-auto"
+          style={{ height: `${tickerHeight}px` }}
+        >
+          🤖 <span className="text-orange-500 font-medium">Agent activity — last hour:</span>{' '}
+          Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
+          <span className="cursor-pointer underline text-orange-500">See full log ↗</span>
+        </div>
       </div>
     </div>
   );

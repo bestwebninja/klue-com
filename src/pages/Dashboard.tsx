@@ -367,7 +367,11 @@ const Dashboard = () => {
           <main
             ref={contentRef}
             onScroll={updateScrollState}
-            className="h-[calc(100vh-4rem)] overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth"
+            className={`h-[calc(100vh-4rem)] scroll-smooth ${
+              activeTab === 'gc-command'
+                ? 'overflow-hidden p-0'
+                : 'overflow-y-auto p-4 sm:p-6 lg:p-8'
+            }`}
           >
             {showSetupWizard && setupChecked ? (
               <ProviderSetupWizard

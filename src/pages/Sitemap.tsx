@@ -109,6 +109,15 @@ export default function Sitemap() {
 
           {!loading && !error && (
             <div className="space-y-10">
+          <section className="mb-8 rounded-lg border p-4">
+            <h2 className="text-lg font-semibold">ZIP Explorer discovery</h2>
+            <p className="text-sm text-muted-foreground mt-1">Start from the ZIP Explorer hub, then navigate to individual ZIP pages.</p>
+            <div className="mt-2 flex gap-4 text-sm">
+              <Link to="/zip-explorer" className="underline">ZIP Explorer hub</Link>
+              <Link to="/zip/90210" className="underline">Sample ZIP page</Link>
+            </div>
+          </section>
+
               {groupUrls(urls).map(([group, items]) => (
                 <section key={group}>
                   <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">

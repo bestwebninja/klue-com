@@ -1,57 +1,36 @@
-# ZIP Explorer
+# ZIP Explorer Architecture
 
-## Architecture
-ZIP Explorer is a repo-local, public React vertical under `/zip/:zipCode`.
-- Route-level lazy loading is wired in `src/App.tsx`.
-- `src/pages/ZipExplorer.tsx` orchestrates state rendering and SEO.
-- `src/hooks/useZipExplorer.ts` collects provider data with TanStack Query and normalizes to a single UI model.
-- `src/features/zip-explorer/*` contains typed adapters, request builders, formatters, validators, and scoring.
+This PR adds a Census-first ZIP Explorer funnel in the Vite + React SPA.
 
 ## File map
-- `src/pages/ZipExplorer.tsx`
-- `src/hooks/useZipExplorer.ts`
-- `src/hooks/useZipSearch.ts`
-- `src/features/zip-explorer/*`
-- `src/components/zip-explorer/*`
+- Route/page: `src/pages/ZipExplorer.tsx`, `src/pages/ZipExplorerHub.tsx`
+- Hooks: `src/hooks/useZipExplorer.ts`, `src/hooks/useZipSearch.ts`
+- Feature core: `src/features/zip-explorer/*`
+- UI modules: `src/components/zip-explorer/*`
+- SEO helpers: `src/components/seo/*`, `src/features/zip-explorer/seo.ts`
 
-## Provider responsibilities
-- Census adapter: functional, canonical source for demographics/housing (ACS 2024 profile + detailed).
-- AirNow adapter: functional only when browser-safe base URL + key exist.
-- Walk Score adapter: stub (proxy-required).
-- GreatSchools adapter: stub (proxy-required).
-- Kluje Risk adapter: stub (API contract pending/proxy-required).
+## Functional vs stubbed
+- **Functional now:** ZIP validation, Census adapter wiring, query caching, section rendering, conversion CTAs, internal links.
+- **Stubbed intentionally:** AirNow, Walk Score, GreatSchools, Kluje Risk adapters return graceful unavailable states until proxy/server integration is added.
 
-## Env vars
-- `VITE_PUBLIC_SITE_URL`
-- `VITE_CENSUS_API_BASE_URL`
-- `VITE_CENSUS_API_KEY`
-- `VITE_AIRNOW_API_BASE_URL`
-- `VITE_AIRNOW_API_KEY`
-- `VITE_WALKSCORE_API_BASE_URL`
-- `VITE_WALKSCORE_API_KEY`
-- `VITE_GREATSCHOOLS_API_BASE_URL`
-- `VITE_GREATSCHOOLS_API_KEY`
-- `VITE_KLUJE_RISK_API_BASE_URL`
-- `VITE_KLUJE_RISK_API_KEY`
+## Limitations
+- Client-rendered metadata is included but depends on crawler JS execution.
+- Optional data providers are disabled by default unless env vars are supplied.
+- Nearby ZIP links use a placeholder strategy for now.
 
-## Implemented vs stubbed
-Implemented:
-- ZIP route integration
-- ZIP page sections/states
-- Census request builders/adapters
-- model normalization and derived scoring
+## Testing checklist
+- Load `/zip/90210` and verify hero, stats, and source statuses.
+- Enter invalid ZIP and verify invalid state.
+- Remove Census env vars and verify disabled/unavailable Census message.
+- Configure only one optional provider and verify partial-availability status.
 
-Stubbed:
-- Walk Score
-- GreatSchools
-- Kluje risk endpoint
+## Rollout checklist
+1. Set Census env vars in deployment.
+2. Verify canonical URL domain via `VITE_PUBLIC_SITE_URL`.
+3. QA conversion links to `/browse-providers`, `/post-job`, `/contractor/quote-intake`.
+4. Monitor route indexation and crawl behavior.
 
-## Rollout notes
-- Public route, no auth dependency.
-- Missing provider config never crashes UI; each source reports status.
-- Keys that are unsafe for browser usage should be treated as placeholders and replaced with proxy-backed endpoints.
-
-## Next repo-only PR suggestions
-1. Add backend proxy endpoints for Walk Score/GreatSchools/Kluje risk and switch adapters to those endpoints.
-2. Add ZIP sitemap generation and pre-render strategy for highest traffic ZIPs.
-3. Add observability events for ZIP searches and CTA conversion.
+## Next repo-only PR recommendations
+- Add pre-render/SSR for `/zip/:zipCode` and hub pages.
+- Add server proxy endpoints for optional providers.
+- Add deterministic nearby ZIP logic from geospatial data.

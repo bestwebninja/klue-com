@@ -1,13 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatPercent } from "@/features/zip-explorer/formatters";
 import type { ZipExplorerModel } from "@/features/zip-explorer/types";
 
-export const ZipAffordability = ({ model }: { model: ZipExplorerModel }) => (
-  <Card>
-    <CardHeader><CardTitle>Affordability</CardTitle></CardHeader>
-    <CardContent>
-      <p>Rent burden: {formatPercent(model.affordability.rentBurdenRate)}</p>
-      <p className="text-sm text-muted-foreground">Affordability score: {model.derivedScores.affordability}/100</p>
-    </CardContent>
-  </Card>
+export const ZipAffordability = ({ model, summary }: { model: ZipExplorerModel; summary: string }) => (
+  <section className="rounded-lg border p-6">
+    <h2 className="text-xl font-semibold">Affordability</h2>
+    <p className="mt-2 text-sm text-muted-foreground">{summary}</p>
+    <p className="mt-2 text-sm">Band: <strong>{model.derivedScores.affordabilityScore >= 65 ? "More affordable" : model.derivedScores.affordabilityScore >= 45 ? "Mid-range" : "Higher cost"}</strong></p>
+  </section>
 );

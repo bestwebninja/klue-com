@@ -54,6 +54,7 @@ const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard
 const Trademark = lazy(() => import("./pages/Trademark"));
 const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
+const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -124,6 +125,7 @@ const App = () => (
               <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               <Route path="/trademark" element={<Trademark />} />
               <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
+              <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

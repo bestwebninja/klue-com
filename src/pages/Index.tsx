@@ -70,7 +70,10 @@ function ZipExplorerEntry() {
       <div className="mx-auto max-w-5xl rounded-lg border bg-card p-6">
         <h2 className="text-2xl font-semibold">New: USA ZIP Explorer</h2>
         <p className="mt-2 text-muted-foreground">Explore Census-backed ZIP and ZCTA public profiles before posting your project.</p>
-        <Link to="/zip/90210" className="mt-3 inline-block text-primary underline">Try ZIP 90210</Link>
+        <div className="mt-3 flex gap-4 text-sm">
+          <Link to="/zip-explorer" className="inline-block text-primary underline">Open ZIP Explorer</Link>
+          <Link to="/zip/90210" className="inline-block text-primary underline">Try ZIP 90210</Link>
+        </div>
       </div>
     </section>
   );

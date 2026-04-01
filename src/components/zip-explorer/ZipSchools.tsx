@@ -1,12 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ZipExplorerModel } from "@/features/zip-explorer/types";
 
 export const ZipSchools = ({ model }: { model: ZipExplorerModel }) => (
-  <Card>
-    <CardHeader><CardTitle>Schools</CardTitle></CardHeader>
-    <CardContent>
-      <p>Avg rating: {model.schools.averageRating ?? "Unavailable"}</p>
-      <p className="text-sm text-muted-foreground">{model.schools.notes ?? "GreatSchools adapter currently stubbed."}</p>
-    </CardContent>
-  </Card>
+  <section className="rounded-lg border p-6">
+    <h2 className="text-xl font-semibold">Schools</h2>
+    <p className="mt-2 text-sm text-muted-foreground">{model.schools.averageRating ? `Average rating ${model.schools.averageRating}/10` : "School data source unavailable for this ZIP right now."}</p>
+  </section>
 );

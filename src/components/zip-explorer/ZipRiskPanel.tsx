@@ -1,12 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ZipExplorerModel } from "@/features/zip-explorer/types";
 
 export const ZipRiskPanel = ({ model }: { model: ZipExplorerModel }) => (
-  <Card>
-    <CardHeader><CardTitle>Kluje risk</CardTitle></CardHeader>
-    <CardContent>
-      <p>Risk band: {model.klujeRisk.riskBand ?? "Unavailable"}</p>
-      <p className="text-sm text-muted-foreground">Livability score: {model.derivedScores.livability}/100</p>
-    </CardContent>
-  </Card>
+  <section className="rounded-lg border p-6">
+    <h2 className="text-xl font-semibold">Kluje risk snapshot</h2>
+    <p className="mt-2 text-sm text-muted-foreground">{model.klujeRisk.riskBand ? `Risk band: ${model.klujeRisk.riskBand}` : "Risk source unavailable for this ZIP right now."}</p>
+  </section>
 );

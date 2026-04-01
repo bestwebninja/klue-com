@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchZipProfileViaProxy } from '@/features/zip-explorer/api';
+import { buildAcs2024ProfileUrl, fetchJsonRows } from '@/features/zip-explorer/api';
+import type { SourceHealth } from '@/features/zip-explorer/types';
 import { fetchAirNowByZip } from '@/features/zip-explorer/adapters/airnow';
 import { fetchWalkScoreByZip } from '@/features/zip-explorer/adapters/walkscore';
 import { fetchGreatSchoolsByZip } from '@/features/zip-explorer/adapters/greatschools';

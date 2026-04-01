@@ -1,86 +1,62 @@
-import { Link, useParams } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
+import { useParams } from "react-router-dom";
 import { Footer } from "@/components/Footer";
-import { SEOHead } from "@/components/SEOHead";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ZipHero } from "@/components/zip-explorer/ZipHero";
-import { ZipQuickStats } from "@/components/zip-explorer/ZipQuickStats";
-import { ZipFamilyFit } from "@/components/zip-explorer/ZipFamilyFit";
-import { ZipAffordability } from "@/components/zip-explorer/ZipAffordability";
-import { ZipAirQuality } from "@/components/zip-explorer/ZipAirQuality";
-import { ZipWalkability } from "@/components/zip-explorer/ZipWalkability";
-import { ZipSchools } from "@/components/zip-explorer/ZipSchools";
-import { ZipRiskPanel } from "@/components/zip-explorer/ZipRiskPanel";
-import { ZipSearchBox } from "@/components/zip-explorer/ZipSearchBox";
-import { ZipSourceStatus } from "@/components/zip-explorer/ZipSourceStatus";
-import { ZipEmptyState } from "@/components/zip-explorer/ZipEmptyState";
+import { Navbar } from "@/components/Navbar";
+import { SEOHead } from "@/components/SEOHead";
 import { useZipExplorer } from "@/hooks/useZipExplorer";
-import { useZipSearch } from "@/hooks/useZipSearch";
-import { isValidZipCode } from "@/features/zip-explorer/validators";
-import { zipCanonicalUrl, zipIntroCopy, zipMetaDescription } from "@/features/zip-explorer/formatters";
-import { ZIP_FAQ_COPY } from "@/features/zip-explorer/constants";
+
+const formatNumber = (value: number | null) => (typeof value === "number" ? value.toLocaleString("en-US") : "N/A");
 
 const ZipExplorer = () => {
   const { zipCode = "" } = useParams<{ zipCode: string }>();
   const zip = zipCode.trim();
-  const isValid = isValidZipCode(zip);
-  const { zipInput, setZipInput, submitZip } = useZipSearch(zip);
-  const { data, isLoading } = useZipExplorer(zip, isValid);
+  const { data, isLoading } = useZipExplorer(zip);
+
+  const isInvalidZip = data?.status === "invalid_zip";
+  const isDisabled = data?.status === "disabled";
+  const isError = data?.status === "error";
+  const isSuccess = data?.status === "ok";
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={`ZIP ${zip || "Explorer"} | Kluje`} description={zipMetaDescription(zip || "US")} canonical={isValid ? zipCanonicalUrl(zip) : undefined} />
+      <SEOHead
+        title={`ZIP ${zip || "Explorer"} | Kluje`}
+        description="ZIP Explorer powered by Census data through a secure Supabase Edge Function proxy."
+      />
       <Navbar />
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-        <ZipSearchBox value={zipInput} onChange={setZipInput} onSubmit={submitZip} />
+      <main className="mx-auto max-w-3xl space-y-4 px-4 py-8">
+        <h1 className="text-3xl font-semibold">ZIP Explorer</h1>
+        <p className="text-muted-foreground">Viewing ZIP: {zip || "(none)"}</p>
 
-        {!isValid && <ZipEmptyState title="Invalid ZIP code" description="Please use a valid 5-digit US ZIP code." />}
+        {isLoading && <LoadingSpinner />}
 
-        {isValid && isLoading && <LoadingSpinner />}
-
-        {isValid && !isLoading && !data?.hasAnyData && (
-          <ZipEmptyState title="No ZIP data available" description="We could not find public signals for this ZIP yet." />
+        {isInvalidZip && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4">
+            Invalid ZIP code. Please provide a valid 5-digit ZIP.
+          </div>
         )}
 
-        {isValid && data?.hasAnyData && (
-          <>
-            <p className="text-muted-foreground">{zipIntroCopy(zip)}</p>
-            <ZipHero model={data} />
-            {data.hasPartialData && (
-              <ZipEmptyState
-                title="Partial data available"
-                description="Some optional providers are unavailable. Census-backed sections still render when possible."
-              />
-            )}
-            <section className="grid gap-4 md:grid-cols-2">
-              <ZipQuickStats model={data} />
-              <ZipFamilyFit model={data} />
-              <ZipAffordability model={data} />
-              <ZipAirQuality model={data} />
-              <ZipWalkability model={data} />
-              <ZipSchools model={data} />
-              <ZipRiskPanel model={data} />
-              <ZipSourceStatus sources={data.sourceStatus} />
-            </section>
+        {isDisabled && (
+          <div className="rounded-md border border-amber-300 bg-amber-50 p-4 text-amber-900">
+            Census proxy is disabled. Please configure the Supabase Edge secret CENSUS_API_KEY.
+          </div>
+        )}
 
-            <section className="rounded-lg border p-6">
-              <h2 className="text-xl font-semibold">FAQ</h2>
-              <div className="mt-3 space-y-3">
-                {ZIP_FAQ_COPY.map((item) => (
-                  <div key={item.q}>
-                    <p className="font-medium">{item.q}</p>
-                    <p className="text-sm text-muted-foreground">{item.a}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+        {isError && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4">
+            Unable to load ZIP data. {data?.message ?? "Please try again later."}
+          </div>
+        )}
 
-            <section className="rounded-lg bg-muted p-6">
-              <h2 className="text-xl font-semibold">Ready to hire in this ZIP?</h2>
-              <p className="text-muted-foreground">Create a job on Kluje and match with verified local providers.</p>
-              <Link to="/post-job" className="mt-3 inline-block text-primary underline">Post a job</Link>
-            </section>
-          </>
+        {isSuccess && (
+          <section className="space-y-3 rounded-lg border p-4">
+            <h2 className="text-xl font-medium">{data.data.name ?? "Unknown place"}</h2>
+            <p><strong>ZIP:</strong> {data.data.zip}</p>
+            <p><strong>Population:</strong> {formatNumber(data.data.population)}</p>
+            <p><strong>Median income:</strong> {formatNumber(data.data.medianIncome)}</p>
+            <p><strong>Owner-occupied units:</strong> {formatNumber(data.data.ownerOccupiedUnits)}</p>
+            <p><strong>Median rent:</strong> {formatNumber(data.data.medianRent)}</p>
+          </section>
         )}
       </main>
       <Footer />

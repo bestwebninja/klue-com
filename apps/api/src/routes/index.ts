@@ -7,6 +7,7 @@ import adsRoutes from "./ads";
 import onboardingRoutes from "./onboarding";
 import zipCodesRoutes from "./zipcodes";
 import contractorOsRoutes from "./contractor-os";
+import areaRiskRoutes from "./area-risk";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -16,6 +17,7 @@ router.use("/auth", authRoutes);
 router.use("/billing", billingRoutes);
 router.use("/onboarding", onboardingRoutes);
 router.use("/zipcodes", zipCodesRoutes);
+router.use("/area-risk", areaRiskRoutes);
 router.use("/", contractorOsRoutes);
 
 router.use(requireAuth);

@@ -117,6 +117,37 @@ paths:
           description: Event processed
         '400':
           description: Signature verification failed
+  /area-risk/score:
+    post:
+      summary: Score regional operational area risk at a safe geography level
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input, areaProfiles]
+              properties:
+                input:
+                  type: object
+                  properties:
+                    address: { type: string }
+                    lat: { type: number }
+                    lng: { type: number }
+                    tract: { type: string }
+                    zip: { type: string }
+                    county: { type: string }
+                    cityCluster: { type: string }
+                context:
+                  type: object
+                  properties:
+                    clientKey: { type: string }
+                areaProfiles:
+                  type: object
+                  description: Candidate geographic profiles used for safe geography escalation
+      responses:
+        '200':
+          description: Area risk score or safe suppression
   /ads/placements/recommendations:
     post:
       summary: Generate AI placement recommendations for a campaign brief

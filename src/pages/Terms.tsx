@@ -87,14 +87,30 @@ const Terms = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">7. Changes to Terms</h2>
+            <h2 className="text-2xl font-semibold text-foreground">7. Area Risk & Data Use Restrictions</h2>
+            <p className="text-muted-foreground">
+              You may only use area-risk outputs for regional operational context. You must not use Kluje outputs or APIs to identify, describe, or infer characteristics of any specific person, household, homeowner, resident, or occupant.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-2">
+              <li>No identification or re-identification of any person, household, or property occupant</li>
+              <li>No property-level or household-level inference using Kluje outputs</li>
+              <li>No overlapping-query mosaicing or adjacent query probing to recover suppressed detail</li>
+              <li>No CRM, parcel, or third-party append workflows that enable individual or household inference</li>
+            </ul>
+            <p className="text-muted-foreground">
+              Census attribution: This product uses the Census Bureau Data API but is not endorsed or certified by the Census Bureau.
+            </p>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-foreground">8. Changes to Terms</h2>
             <p className="text-muted-foreground">
               We reserve the right to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days' notice prior to any new terms taking effect.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">8. Contact Us</h2>
+            <h2 className="text-2xl font-semibold text-foreground">9. Contact Us</h2>
             <p className="text-muted-foreground">
               If you have any questions about these Terms, please contact us through our website.
             </p>

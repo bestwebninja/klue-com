@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchZipProfileViaProxy } from '@/features/zip-explorer/api';
+import { buildAcs2024ProfileUrl, fetchJsonRows } from '@/features/zip-explorer/api';
+import type { SourceHealth } from '@/features/zip-explorer/types';
 import { fetchAirNowByZip } from '@/features/zip-explorer/adapters/airnow';
 import { fetchWalkScoreByZip } from '@/features/zip-explorer/adapters/walkscore';
 import { fetchGreatSchoolsByZip } from '@/features/zip-explorer/adapters/greatschools';
@@ -27,8 +28,29 @@ const buildModel = async (
   zipCode: string,
   includeOptional: boolean,
 ): Promise<ZipExplorerModel> => {
+  const fetchCensus = async () => {
+    try {
+      const url = buildAcs2024ProfileUrl(zipCode);
+      const row = await fetchJsonRows(url);
+      if (!row) return { status: 'error' as const, data: null, message: 'No data returned' };
+      return {
+        status: 'ok' as const,
+        data: {
+          name: row.NAME,
+          population: row.DP05_0001E,
+          medianIncome: row.DP03_0062E,
+          ownerOccupiedUnits: row.DP04_0046E,
+          medianRent: row.DP04_0134E,
+        },
+        message: undefined,
+      };
+    } catch (e: any) {
+      return { status: 'error' as const, data: null, message: e?.message ?? 'Census fetch failed' };
+    }
+  };
+
   const [census, air, walk, schools, risk] = await Promise.all([
-    fetchZipProfileViaProxy(zipCode),
+    fetchCensus(),
     includeOptional ? fetchAirNowByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchWalkScoreByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchGreatSchoolsByZip(zipCode) : Promise.resolve(skippedSource),
@@ -37,12 +59,7 @@ const buildModel = async (
 
   const censusData = census?.data ?? null;
 
-  const censusStatus =
-    census.status === 'ok'
-      ? 'available'
-      : census.status === 'disabled'
-        ? 'unavailable'
-        : 'error';
+  const censusStatus: SourceHealth = census.status === 'ok' ? 'available' : 'error';
 
   const baseModel = {
     identity: {
@@ -59,7 +76,6 @@ const buildModel = async (
     },
     housing: {
       ownerOccupiedRate: undefined,
-      ownerOccupiedUnits: toNum(censusData?.ownerOccupiedUnits),
       medianGrossRent: toNum(censusData?.medianRent),
       medianHomeValue: undefined,
       housingUnits: undefined,

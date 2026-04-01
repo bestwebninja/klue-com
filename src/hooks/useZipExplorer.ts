@@ -59,7 +59,7 @@ const buildModel = async (
 
   const censusData = census?.data ?? null;
 
-  const censusStatus =
+  const censusStatus: SourceHealth =
     census.status === 'ok'
       ? 'available'
       : census.status === 'disabled'

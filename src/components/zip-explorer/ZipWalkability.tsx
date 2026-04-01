@@ -1,12 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ZipExplorerModel } from "@/features/zip-explorer/types";
 
 export const ZipWalkability = ({ model }: { model: ZipExplorerModel }) => (
-  <Card>
-    <CardHeader><CardTitle>Walkability</CardTitle></CardHeader>
-    <CardContent>
-      <p>Walk Score: {model.walkability.walkScore ?? "Unavailable"}</p>
-      <p>Transit Score: {model.walkability.transitScore ?? "Unavailable"}</p>
-    </CardContent>
-  </Card>
+  <section className="rounded-lg border p-6">
+    <h2 className="text-xl font-semibold">Walkability</h2>
+    <p className="mt-2 text-sm text-muted-foreground">{model.walkability.walkScore ? `Walk score ${model.walkability.walkScore}/100` : "Walkability source unavailable for this ZIP right now."}</p>
+  </section>
 );

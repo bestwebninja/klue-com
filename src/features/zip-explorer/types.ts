@@ -11,21 +11,22 @@ export interface SourceStatus {
 export interface ZipIdentity {
   zipCode: string;
   zcta?: string;
-  city?: string;
-  state?: string;
+  placeName?: string;
 }
 
 export interface Demographics {
   population?: number;
   medianAge?: number;
   medianHouseholdIncome?: number;
-  ownerOccupiedRate?: number;
+  householdsWithChildrenRate?: number;
+  bachelorsOrHigherRate?: number;
 }
 
 export interface Housing {
   medianHomeValue?: number;
   medianGrossRent?: number;
   housingUnits?: number;
+  ownerOccupiedRate?: number;
 }
 
 export interface Affordability {
@@ -59,9 +60,12 @@ export interface KlujeRisk {
 }
 
 export interface DerivedScores {
-  familyFit: number;
-  affordability: number;
-  livability: number;
+  familyFitScore: number;
+  affordabilityScore: number;
+  renterFriendlinessScore: number;
+  homeownerFriendlinessScore: number;
+  overallZipSnapshotScore: number;
+  profileLabel: string;
 }
 
 export interface ZipExplorerModel {
@@ -89,9 +93,12 @@ export interface ProviderResponse<T> {
 export interface CensusProfileRow {
   NAME?: string;
   DP05_0001E?: string;
-  DP05_0018E?: string;
   DP03_0062E?: string;
   DP04_0046E?: string;
+  DP04_0134E?: string;
+  DP05_0018E?: string;
+  DP02_0067PE?: string;
+  DP02_0012PE?: string;
   zip?: string;
 }
 

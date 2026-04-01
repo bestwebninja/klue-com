@@ -1,16 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SourceStatus } from "@/features/zip-explorer/types";
 
 export const ZipSourceStatus = ({ sources }: { sources: SourceStatus[] }) => (
-  <Card>
-    <CardHeader><CardTitle>Source status</CardTitle></CardHeader>
-    <CardContent className="space-y-2">
+  <section className="rounded-lg border p-6">
+    <h2 className="text-xl font-semibold">Source status</h2>
+    <ul className="mt-3 space-y-1 text-sm">
       {sources.map((source) => (
-        <div key={source.key} className="text-sm">
-          <span className="font-medium">{source.label}:</span> {source.status}
-          {source.reason ? <span className="text-muted-foreground"> — {source.reason}</span> : null}
-        </div>
+        <li key={source.key}><strong>{source.label}:</strong> {source.status}{source.reason ? ` — ${source.reason}` : ""}</li>
       ))}
-    </CardContent>
-  </Card>
+    </ul>
+  </section>
 );

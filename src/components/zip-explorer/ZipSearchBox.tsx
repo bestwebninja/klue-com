@@ -1,15 +1,15 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { FormEvent } from "react";
 
-interface Props {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-}
+export const ZipSearchBox = ({ value, onChange, onSubmit }: { value: string; onChange: (v: string) => void; onSubmit: () => boolean }) => {
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    onSubmit();
+  };
 
-export const ZipSearchBox = ({ value, onChange, onSubmit }: Props) => (
-  <div className="flex gap-2">
-    <Input value={value} maxLength={5} onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))} placeholder="Enter ZIP" />
-    <Button onClick={onSubmit}>Explore</Button>
-  </div>
-);
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input value={value} onChange={(e) => onChange(e.target.value)} inputMode="numeric" placeholder="Enter 5-digit ZIP" className="w-48 rounded border px-3 py-2" />
+      <button type="submit" className="rounded bg-primary px-4 py-2 text-primary-foreground">Explore ZIP</button>
+    </form>
+  );
+};

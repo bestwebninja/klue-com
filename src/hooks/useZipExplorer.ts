@@ -81,7 +81,6 @@ const buildModel = async (
     },
     housing: {
       ownerOccupiedRate: undefined,
-      ownerOccupiedUnits: toNum(censusData?.ownerOccupiedUnits),
       medianGrossRent: toNum(censusData?.medianRent),
       medianHomeValue: undefined,
       housingUnits: undefined,

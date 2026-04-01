@@ -28,8 +28,29 @@ const buildModel = async (
   zipCode: string,
   includeOptional: boolean,
 ): Promise<ZipExplorerModel> => {
+  const fetchCensus = async () => {
+    try {
+      const url = buildAcs2024ProfileUrl(zipCode);
+      const row = await fetchJsonRows(url);
+      if (!row) return { status: 'error' as const, data: null, message: 'No data returned' };
+      return {
+        status: 'ok' as const,
+        data: {
+          name: row.NAME,
+          population: row.DP05_0001E,
+          medianIncome: row.DP03_0062E,
+          ownerOccupiedUnits: row.DP04_0046E,
+          medianRent: row.DP04_0134E,
+        },
+        message: undefined,
+      };
+    } catch (e: any) {
+      return { status: 'error' as const, data: null, message: e?.message ?? 'Census fetch failed' };
+    }
+  };
+
   const [census, air, walk, schools, risk] = await Promise.all([
-    fetchZipProfileViaProxy(zipCode),
+    fetchCensus(),
     includeOptional ? fetchAirNowByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchWalkScoreByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchGreatSchoolsByZip(zipCode) : Promise.resolve(skippedSource),

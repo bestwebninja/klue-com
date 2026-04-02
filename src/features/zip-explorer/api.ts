@@ -11,6 +11,16 @@ export interface CensusProxyResponse {
   message?: string;
 }
 
+export type OptionalZipProviderKey = "airnow" | "walkscore" | "greatschools" | "klujeRisk";
+
+export interface OptionalZipProviderProxyResponse<T = Record<string, unknown>> {
+  status: "ok" | "error";
+  provider: OptionalZipProviderKey;
+  sourceStatus: "available" | "unavailable" | "error";
+  data: T | null;
+  message?: string;
+}
+
 export const fetchCensusZipProfile = async (zipCode: string): Promise<CensusProxyResponse> => {
   const { data, error } = await invokeEdgeFunction<CensusProxyResponse>("census-zip-profile", { zipCode });
 
@@ -20,6 +30,27 @@ export const fetchCensusZipProfile = async (zipCode: string): Promise<CensusProx
 
   if (!data) {
     throw new Error("Census proxy returned no payload");
+  }
+
+  return data;
+};
+
+export const fetchOptionalZipProvider = async <T>(
+  provider: OptionalZipProviderKey,
+  zipCode: string,
+): Promise<OptionalZipProviderProxyResponse<T>> => {
+  const { data, error } = await invokeEdgeFunction<OptionalZipProviderProxyResponse<T>>("command-center-adapter-proxy", {
+    provider,
+    zipCode,
+    context: "zip-explorer",
+  });
+
+  if (error) {
+    throw new Error(error.message || `${provider} proxy request failed`);
+  }
+
+  if (!data) {
+    throw new Error(`${provider} proxy returned no payload`);
   }
 
   return data;

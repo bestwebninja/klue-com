@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Crown, Shield, LogOut, Settings, Menu } from 'lucide-react';
+import { Crown, Shield, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NotificationBell } from '@/components/NotificationBell';
 import { MessageBadge } from '@/components/MessageBadge';
@@ -21,12 +21,12 @@ export function DashboardHeader({
   onSignOut,
 }: DashboardHeaderProps) {
   return (
-    <header className="bg-orange-400 sticky top-0 z-50 border-b border-orange-500/60">
-      <div className="px-4 py-2">
+    <header className="bg-amber-100 sticky top-0 z-50 border-b border-amber-300/70">
+      <div className="px-4 py-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle - desktop only */}
-            <SidebarTrigger className="hidden sm:flex text-black/70 hover:text-black hover:bg-black/10" />
+            <SidebarTrigger className="hidden sm:flex text-black hover:text-black hover:bg-black/10" />
             
             {/* Mobile: Show logo */}
             <a href="/" className="sm:hidden text-xl font-bold text-black">Kluje</a>
@@ -53,11 +53,11 @@ export function DashboardHeader({
               </span>
             )}
             <Link to="/settings/notifications" className="hidden sm:block">
-              <Button variant="ghost" size="icon" title="Notification Settings" className="text-black/70 hover:text-black hover:bg-black/10">
+              <Button variant="ghost" size="icon" title="Notification Settings" className="text-black hover:text-black hover:bg-black/10">
                 <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-black/70 hover:text-black hover:bg-black/10">
+            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-black hover:text-black hover:bg-black/10">
               <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>

@@ -3,6 +3,8 @@
 This directory scaffolds canonical outputs for the slash commands requested in planning sessions.
 Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, and `outputs` contract.
 
+- Canonical seed artifact (merged shared patterns + command registry): `vertical-expert-agents.seed.yaml`
+
 - `/build-shared-foundation` → `build-shared-foundation.yaml`
 - `/build-v1-agent` → `build-v1-agent.yaml`
 - `/build-v2-agent` → `build-v2-agent.yaml`

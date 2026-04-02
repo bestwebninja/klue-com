@@ -56,7 +56,7 @@ const ZipExplorer = () => {
         {isValid && data?.hasAnyData && (
           <>
             <ZipHero model={data} summary={getHeroSummary(data)} />
-            {data.hasPartialData && <ZipEmptyState title="Partial provider availability" description="Census sections are available, but one or more optional providers are currently unavailable." />}
+            {data.hasPartialData && <ZipEmptyState title="Partial provider availability" description="One or more data providers are currently unavailable for this ZIP. Available sections still render normally." />}
             <section className="grid gap-4 md:grid-cols-2">
               <ZipQuickStats model={data} />
               <ZipFamilyFit model={data} summary={getFamilyFitSummary(data)} />

@@ -1,0 +1,26 @@
+meta:
+  command: /v5/build-compliance-warning-library
+  agent_id: V5
+  agent_title: Autonomous Security & Surveillance Expert
+  version: 1
+  status: draft
+intent: Generate `build-compliance-warning-library` artifact for Autonomous Security & Surveillance Expert.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+    - constraints
+processing_rules:
+  - identify ambiguities before finalizing
+  - return actionable and provider-ready structure
+  - include missing_information_list when assumptions are used
+outputs:
+  primary_artifact: compliance-warning-library
+  schema:
+    summary: string
+    assumptions: string[]
+    missing_information_list: string[]
+    recommendations: string[]

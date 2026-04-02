@@ -1,10 +1,21 @@
+import { fetchOptionalZipProvider } from "../api";
 import type { KlujeRisk, ProviderResponse } from "../types";
 
-export const fetchKlujeRiskByZip = async (_zipCode: string): Promise<ProviderResponse<KlujeRisk>> => {
-  const base = import.meta.env.VITE_KLUJE_RISK_API_BASE_URL as string | undefined;
-  const key = import.meta.env.VITE_KLUJE_RISK_API_KEY as string | undefined;
-  if (!base || !key) {
-    return { enabled: false, status: "unavailable", data: null, reason: "Kluje Risk not configured" };
+export const fetchKlujeRiskByZip = async (zipCode: string): Promise<ProviderResponse<KlujeRisk>> => {
+  try {
+    const response = await fetchOptionalZipProvider<KlujeRisk>("klujeRisk", zipCode);
+    return {
+      enabled: true,
+      status: response.sourceStatus,
+      data: response.data,
+      reason: response.message,
+    };
+  } catch (error) {
+    return {
+      enabled: true,
+      status: "error",
+      data: null,
+      reason: error instanceof Error ? error.message : "Kluje Risk request failed",
+    };
   }
-  return { enabled: true, status: "unavailable", data: null, reason: "Kluje Risk adapter reserved for proxy/server integration" };
 };

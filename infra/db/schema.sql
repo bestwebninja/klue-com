@@ -111,6 +111,76 @@ CREATE TABLE lead_routes (
   UNIQUE (lead_id, advertiser_id)
 );
 
+
+CREATE TABLE routing_rules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  scope TEXT NOT NULL DEFAULT 'marketplace',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, name)
+);
+
+CREATE TABLE routing_rule_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  routing_rule_id UUID NOT NULL REFERENCES routing_rules(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  version_number INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'archived', 'rolled_back')),
+  definition JSONB NOT NULL DEFAULT '{}'::jsonb,
+  change_summary TEXT,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  activated_at TIMESTAMPTZ,
+  UNIQUE (routing_rule_id, version_number)
+);
+
+CREATE TABLE routing_runs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  lead_id UUID REFERENCES leads(id),
+  correlation_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'evaluated' CHECK (status IN ('evaluated', 'dispatched', 'failed')),
+  dry_run BOOLEAN NOT NULL DEFAULT false,
+  request_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  response_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  rule_version_id UUID REFERENCES routing_rule_versions(id),
+  decision_metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE handoffs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  run_id UUID NOT NULL REFERENCES routing_runs(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  correlation_id TEXT NOT NULL,
+  target_type TEXT NOT NULL CHECK (target_type IN ('provider', 'partner', 'queue')),
+  target_ref TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'sent', 'acknowledged', 'failed')),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE routing_decisions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  run_id UUID NOT NULL REFERENCES routing_runs(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  correlation_id TEXT NOT NULL,
+  decision_type TEXT NOT NULL CHECK (decision_type IN ('candidate_selection', 'priority')),
+  rule_id UUID REFERENCES routing_rules(id),
+  rule_version_id UUID REFERENCES routing_rule_versions(id),
+  outcome TEXT NOT NULL,
+  score NUMERIC(8,2),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id),
@@ -149,3 +219,8 @@ CREATE INDEX idx_events_tenant_created_at ON events (tenant_id, created_at DESC)
 CREATE INDEX idx_leads_tenant_created_at ON leads (tenant_id, created_at DESC);
 CREATE INDEX idx_campaigns_active ON campaigns (tenant_id, status) WHERE status = 'active';
 CREATE INDEX idx_leads_unresolved ON leads (tenant_id, status) WHERE status IN ('new','routed');
+CREATE INDEX idx_routing_rules_tenant_active ON routing_rules (tenant_id, is_active);
+CREATE INDEX idx_routing_runs_tenant_created_at ON routing_runs (tenant_id, created_at DESC);
+CREATE INDEX idx_routing_runs_correlation_id ON routing_runs (correlation_id);
+CREATE INDEX idx_handoffs_run_status ON handoffs (run_id, status);
+CREATE INDEX idx_routing_decisions_run_created_at ON routing_decisions (run_id, created_at DESC);

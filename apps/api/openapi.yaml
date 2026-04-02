@@ -25,8 +25,8 @@ paths:
                 email: { type: string, format: email }
                 password: { type: string, minLength: 8 }
       responses:
-        '201':
-          description: User registered
+        '503':
+          description: Disabled. Use Supabase auth flow instead
   /auth/login:
     post:
       summary: Authenticate a user and issue JWT tokens
@@ -41,8 +41,8 @@ paths:
                 email: { type: string, format: email }
                 password: { type: string, minLength: 8 }
       responses:
-        '200':
-          description: Authenticated
+        '503':
+          description: Disabled. Use Supabase auth flow instead
   /auth/me:
     get:
       summary: Return the authenticated user from access JWT
@@ -53,6 +53,8 @@ paths:
           description: Authenticated user profile
         '401':
           description: Missing, invalid, or expired token
+        '503':
+          description: Auth validation backend unavailable
   /campaigns:
     get:
       summary: List campaigns

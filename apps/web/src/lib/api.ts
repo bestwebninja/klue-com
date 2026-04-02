@@ -24,7 +24,8 @@ export async function login(input: { email: string; password: string }): Promise
   });
 
   if (!response.ok) {
-    throw new Error("Invalid email or password");
+    const payload = (await response.json().catch(() => null)) as { message?: string; error?: string } | null;
+    throw new Error(payload?.message ?? payload?.error ?? "Invalid email or password");
   }
 
   return response.json() as Promise<LoginResponse>;

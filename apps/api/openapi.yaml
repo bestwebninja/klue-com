@@ -243,6 +243,43 @@ paths:
           description: Routing run details
         '404':
           description: Routing run not found
+  /api/v1/concierge/respond:
+    post:
+      summary: Deterministic concierge response for marketplace intake guidance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConciergeRespondRequest'
+      responses:
+        '200':
+          description: Concierge response generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConciergeRespondResponse'
+        '400':
+          description: Validation error
+  /api/v1/concierge/sessions/{sessionId}:
+    get:
+      summary: Fetch concierge session history
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Concierge session found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConciergeSessionResponse'
+        '404':
+          description: Concierge session not found
   /billing/checkout-session:
     post:
       summary: Create Stripe Checkout session
@@ -448,3 +485,93 @@ components:
             routedAt: { type: string, format: date-time }
             createdAt: { type: string, format: date-time }
             updatedAt: { type: string, format: date-time }
+    ConciergeSessionContext:
+      type: object
+      properties:
+        marketplace: { type: string }
+        locale: { type: string }
+        channel:
+          type: string
+          enum: [web, mobile, partner_api, unknown]
+        metadata:
+          type: object
+          additionalProperties: true
+    ConciergeRespondRequest:
+      type: object
+      required: [message]
+      properties:
+        sessionId: { type: string, format: uuid }
+        message: { type: string, minLength: 1 }
+        context:
+          $ref: '#/components/schemas/ConciergeSessionContext'
+    ConciergeMessage:
+      type: object
+      required: [id, sessionId, role, messageType, content, metadata, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        sessionId: { type: string, format: uuid }
+        role:
+          type: string
+          enum: [customer, concierge, system]
+        messageType:
+          type: string
+          enum: [response, guidance, faq, category_suggestion, system]
+        content: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+    ConciergeRespondResponse:
+      type: object
+      required:
+        [sessionId, responseType, responseText, confidence, guidanceChecklist, faqReferences, extensionHooks, messages]
+      properties:
+        sessionId: { type: string, format: uuid }
+        responseType:
+          type: string
+          enum: [category_suggestion, intake_guidance, faq_response]
+        responseText: { type: string }
+        suggestedCategory: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        guidanceChecklist:
+          type: array
+          items: { type: string }
+        faqReferences:
+          type: array
+          items: { type: string }
+        extensionHooks:
+          type: object
+          required: [mode, aiReady, suggestedPromptTemplate]
+          properties:
+            mode: { type: string, enum: [deterministic_v1] }
+            aiReady: { type: boolean }
+            suggestedPromptTemplate: { type: string }
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConciergeMessage'
+    ConciergeSession:
+      type: object
+      required: [id, status, context, guidanceState, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [active, closed]
+        context:
+          $ref: '#/components/schemas/ConciergeSessionContext'
+        guidanceState:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ConciergeSessionResponse:
+      type: object
+      required: [session, messages]
+      properties:
+        session:
+          $ref: '#/components/schemas/ConciergeSession'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConciergeMessage'

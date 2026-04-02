@@ -107,6 +107,32 @@ CREATE TABLE leads (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE concierge_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES tenants(id),
+  channel TEXT NOT NULL DEFAULT 'web' CHECK (channel IN ('web', 'mobile', 'partner_api', 'unknown')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'closed')),
+  customer_name TEXT,
+  customer_email TEXT,
+  marketplace_context JSONB NOT NULL DEFAULT '{}'::jsonb,
+  guidance_state JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ai_extension_hook JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE concierge_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID NOT NULL REFERENCES concierge_sessions(id) ON DELETE CASCADE,
+  tenant_id UUID REFERENCES tenants(id),
+  role TEXT NOT NULL CHECK (role IN ('customer', 'concierge', 'system')),
+  message_type TEXT NOT NULL DEFAULT 'response' CHECK (message_type IN ('response', 'guidance', 'faq', 'category_suggestion', 'system')),
+  content TEXT NOT NULL,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ai_extension_hook JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE lead_routes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,

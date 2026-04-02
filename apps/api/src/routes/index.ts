@@ -11,6 +11,7 @@ import areaRiskRoutes from "./area-risk";
 import routingRoutes from "./routing";
 import providersRoutes from "./providers";
 import quoteRequestsRoutes from "./quote-requests";
+import conciergeRoutes from "./concierge";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -31,6 +32,7 @@ router.use("/billing", billingRoutes);
 router.use("/onboarding", onboardingRoutes);
 router.use("/zipcodes", zipCodesRoutes);
 router.use("/area-risk", areaRiskRoutes);
+router.use("/concierge", conciergeRoutes);
 router.use("/", contractorOsRoutes);
 
 router.use(requireAuth);

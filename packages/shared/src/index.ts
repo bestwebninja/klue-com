@@ -23,3 +23,4 @@ export interface TenantScoped {
 }
 
 export * from "./leads";
+export * from "./concierge";

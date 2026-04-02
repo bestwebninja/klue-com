@@ -53,8 +53,8 @@ export function DashboardHeader({
               </span>
             )}
             <Link to="/settings/notifications" className="hidden sm:block">
-              <Button variant="ghost" size="icon" title="Notification Settings" className="text-black hover:text-black hover:bg-black/10">
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Button variant="ghost" size="icon" title="Notification Settings" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Settings className="w-4 h-4" />
               </Button>
             </Link>
             <Button variant="ghost" size="icon" onClick={onSignOut} className="text-black hover:text-black hover:bg-black/10">

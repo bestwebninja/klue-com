@@ -33,7 +33,7 @@ export function LoginPromptDialog({
 
   const handleSignUp = () => {
     onOpenChange(false);
-    navigate(`/auth?mode=signup&redirect=${encodeURIComponent(redirectUrl)}`);
+    navigate(`/auth?signup=true&redirect=${encodeURIComponent(redirectUrl)}`);
   };
 
   return (

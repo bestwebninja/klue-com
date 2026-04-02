@@ -52,7 +52,7 @@ function AdminContent() {
                 <Link to="/cookie-admin">Cookie Management</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/admin">Site Admin</Link>
+                <Link to="/admin-dashboard">Site Admin</Link>
               </Button>
             </div>
           </CardContent>

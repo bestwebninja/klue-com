@@ -1,0 +1,24 @@
+meta:
+  command: /build-shared-input-output-contracts
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Canonical shared artifact used across V1-V10 vertical expert agents.
+inputs:
+  required:
+    - platform_context
+    - target_agent_ids
+  optional:
+    - prior_contracts
+    - regional_constraints
+processing_rules:
+  - keep outputs reusable across all verticals
+  - preserve deterministic field names
+  - mark assumptions when required inputs are missing
+outputs:
+  artifact_type: input-output-contracts
+  schema:
+    id: string
+    version: string
+    summary: string
+    sections: object

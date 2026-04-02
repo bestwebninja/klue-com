@@ -1,0 +1,26 @@
+meta:
+  command: /v9/build-output-json-schemas
+  agent_id: V9
+  agent_title: Real Estate Transactions Expert
+  version: 1
+  status: draft
+intent: Generate `build-output-json-schemas` artifact for Real Estate Transactions Expert.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+    - constraints
+processing_rules:
+  - identify ambiguities before finalizing
+  - return actionable and provider-ready structure
+  - include missing_information_list when assumptions are used
+outputs:
+  primary_artifact: output-json-schemas
+  schema:
+    summary: string
+    assumptions: string[]
+    missing_information_list: string[]
+    recommendations: string[]

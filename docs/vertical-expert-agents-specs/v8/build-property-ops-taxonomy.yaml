@@ -1,0 +1,26 @@
+meta:
+  command: /v8/build-property-ops-taxonomy
+  agent_id: V8
+  agent_title: Property Management Expert
+  version: 1
+  status: draft
+intent: Generate `build-property-ops-taxonomy` artifact for Property Management Expert.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+    - constraints
+processing_rules:
+  - identify ambiguities before finalizing
+  - return actionable and provider-ready structure
+  - include missing_information_list when assumptions are used
+outputs:
+  primary_artifact: property-ops-taxonomy
+  schema:
+    summary: string
+    assumptions: string[]
+    missing_information_list: string[]
+    recommendations: string[]

@@ -1,0 +1,26 @@
+meta:
+  command: /v6/build-prompt-templates
+  agent_id: V6
+  agent_title: Business Services Expert
+  version: 1
+  status: draft
+intent: Generate `build-prompt-templates` artifact for Business Services Expert.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+    - constraints
+processing_rules:
+  - identify ambiguities before finalizing
+  - return actionable and provider-ready structure
+  - include missing_information_list when assumptions are used
+outputs:
+  primary_artifact: prompt-templates
+  schema:
+    summary: string
+    assumptions: string[]
+    missing_information_list: string[]
+    recommendations: string[]

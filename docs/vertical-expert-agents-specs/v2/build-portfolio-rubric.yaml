@@ -1,0 +1,26 @@
+meta:
+  command: /v2/build-portfolio-rubric
+  agent_id: V2
+  agent_title: Design & Build Expert
+  version: 1
+  status: draft
+intent: Generate `build-portfolio-rubric` artifact for Design & Build Expert.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+    - constraints
+processing_rules:
+  - identify ambiguities before finalizing
+  - return actionable and provider-ready structure
+  - include missing_information_list when assumptions are used
+outputs:
+  primary_artifact: portfolio-rubric
+  schema:
+    summary: string
+    assumptions: string[]
+    missing_information_list: string[]
+    recommendations: string[]

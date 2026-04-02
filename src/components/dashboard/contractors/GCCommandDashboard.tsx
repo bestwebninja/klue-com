@@ -321,7 +321,7 @@ export default function GCCommandDashboard() {
                 </span>
               )}
             </div>
-            <div className="text-xs text-blue-700/80 dark:text-slate-400 flex items-center gap-1 flex-wrap leading-relaxed">
+            <div className="text-[11px] text-white/60 flex items-center gap-1 flex-wrap leading-relaxed">
               <span>{contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : ''} Contractor AI Agent · kluje.com</span>
               {serviceNames.length > 0 && (
                 <span className="text-[10px] text-muted-foreground/70">

@@ -308,7 +308,7 @@ export default function GCCommandDashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-base font-semibold text-blue-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="text-sm font-semibold text-white flex items-center gap-2">
               Contractors — kluje.com
               {contractorType && (
                 <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">

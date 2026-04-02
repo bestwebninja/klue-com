@@ -1,0 +1,509 @@
+metadata:
+  version: 0.1
+  suite: vertical_expert_agents
+  agent_id: V5
+  command: /v5/build-intake-question-tree
+  source_command: /v5/security-intake
+  mode: canonical
+  owner: core_agents
+  output_format: yaml
+  design_goals:
+    - high_signal_minimum_questions
+    - provider_ready_scoping
+    - branch_by_site_and_security_pattern
+    - safety_and_compliance_guardrails
+
+staged_question_tree:
+  entry_conditions:
+    required_any:
+      - need_cctv_or_surveillance
+      - need_access_control
+      - need_monitoring_or_incident_response
+      - site_security_risk_concern
+    disqualify_if:
+      - asks_for_offensive_or_evasion_tactics
+      - asks_for_guaranteed_crime_prevention
+    handoff_if:
+      - purely_cybersecurity_request
+      - active_emergency_in_progress
+
+  qualification_gate:
+    questions:
+      - question_id: q_site_type
+        requiredness: required
+        wording: "What best describes the site: residential, commercial, industrial, mixed-use, remote/perimeter, or high-sensitivity?"
+        intent: classify_site_context
+        answer_type: single_select
+        answer_options:
+          - residential
+          - commercial
+          - industrial
+          - mixed_use
+          - remote_perimeter
+          - high_sensitivity
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - site_type
+      - question_id: q_property_use
+        requiredness: required
+        wording: "How is this property used day to day?"
+        intent: understand_operational_profile
+        answer_type: short_text
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - property_use
+      - question_id: q_primary_goal
+        requiredness: required
+        wording: "What is your primary monitoring goal: deterrence, real-time detection/response, post-incident evidence, access control, or a combination?"
+        intent: anchor_solution_direction
+        answer_type: multi_select
+        answer_options:
+          - deterrence
+          - live_detection_response
+          - post_incident_evidence
+          - access_control
+          - mixed
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - monitoring_goal
+          - protection_goals
+      - question_id: q_primary_risk
+        requiredness: required
+        wording: "What is the top risk concern right now?"
+        intent: derive_risk_profile
+        answer_type: short_text
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - primary_risk_concern
+      - question_id: q_entry_count
+        requiredness: required
+        wording: "How many entrances/exits or access points need to be controlled or observed?"
+        intent: estimate_scope_scale
+        answer_type: number
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - number_of_entries
+
+  core_questions:
+    questions:
+      - question_id: q_current_setup
+        requiredness: conditional
+        wording: "What security setup already exists (if any)?"
+        intent: detect_upgrade_vs_new_install
+        answer_type: short_text
+        ask_when: after(q_entry_count)
+        skip_when: never
+        maps_to_fields:
+          - current_security_setup
+      - question_id: q_monitoring_mode
+        requiredness: conditional
+        wording: "Do you need live monitoring, event alerts only, or mainly recorded review?"
+        intent: separate_live_vs_review_needs
+        answer_type: single_select
+        answer_options:
+          - live_monitoring
+          - alert_only
+          - recorded_review
+          - mixed
+        ask_when: after(q_primary_goal)
+        skip_when: never
+        maps_to_fields:
+          - monitoring_goal
+      - question_id: q_staff_hours
+        requiredness: conditional
+        wording: "What are normal operating hours and after-hours occupancy?"
+        intent: determine_coverage_windows
+        answer_type: short_text
+        ask_when: site_type_in([commercial, industrial, mixed_use, high_sensitivity])
+        skip_when: site_type_in([residential, remote_perimeter])
+        maps_to_fields:
+          - staff_hours
+          - operating_profile
+      - question_id: q_incident_history
+        requiredness: optional
+        wording: "Have there been recent incidents or near-misses (type and rough frequency)?"
+        intent: calibrate_urgency
+        answer_type: short_text
+        ask_when: after(q_primary_risk)
+        skip_when: never
+        maps_to_fields:
+          - incident_history
+      - question_id: q_constraints
+        requiredness: conditional
+        wording: "Any known network, power, cabling, heritage-building, or landlord constraints?"
+        intent: identify_implementation_dependencies
+        answer_type: short_text
+        ask_when: after(q_current_setup)
+        skip_when: never
+        maps_to_fields:
+          - network_or_power_constraints
+          - installation_constraints
+      - question_id: q_privacy_zones
+        requiredness: conditional
+        wording: "Are there privacy-sensitive or restricted zones where monitoring is limited or prohibited?"
+        intent: enforce_privacy_guardrails
+        answer_type: short_text
+        ask_when: always
+        skip_when: never
+        maps_to_fields:
+          - privacy_sensitive_zones
+      - question_id: q_budget_timeline
+        requiredness: optional
+        wording: "What is your budget range and preferred install timeline?"
+        intent: bound_solution_options
+        answer_type: short_text
+        ask_when: after(q_monitoring_mode)
+        skip_when: never
+        maps_to_fields:
+          - budget_range
+          - preferred_install_timeline
+
+  branch_questions:
+    site_branches:
+      residential:
+        - question_id: q_res_perimeter
+          requiredness: conditional
+          wording: "Which areas matter most: front door, garage, driveway, backyard/perimeter, package drop zone?"
+          intent: prioritize_home_coverage
+          answer_type: multi_select
+          answer_options: [front_door, garage, driveway, backyard_perimeter, package_zone, interior_common]
+          ask_when: site_type_equals(residential)
+          skip_when: never
+          maps_to_fields: [coverage_priorities]
+        - question_id: q_res_access_patterns
+          requiredness: optional
+          wording: "Any domestic staff, frequent visitors, or contractor access patterns to account for?"
+          intent: capture_home_access_logic
+          answer_type: short_text
+          ask_when: site_type_equals(residential)
+          skip_when: never
+          maps_to_fields: [contractor_access_patterns, visitor_volume]
+
+      commercial:
+        - question_id: q_com_people_flow
+          requiredness: conditional
+          wording: "How do staff, visitors, and deliveries move through the site each day?"
+          intent: map_operational_flow
+          answer_type: short_text
+          ask_when: site_type_equals(commercial)
+          skip_when: never
+          maps_to_fields: [visitor_volume, delivery_paths]
+        - question_id: q_com_loading
+          requiredness: optional
+          wording: "Are there loading bays, parking areas, or public-facing entrances with elevated risk?"
+          intent: capture_external_risk_nodes
+          answer_type: short_text
+          ask_when: site_type_equals(commercial)
+          skip_when: never
+          maps_to_fields: [parking_or_loading_areas, outdoor_area]
+
+      industrial:
+        - question_id: q_ind_hazards
+          requiredness: conditional
+          wording: "Any hazardous zones, equipment yards, or off-hours asset storage requiring layered controls?"
+          intent: map_industrial_risk_zones
+          answer_type: short_text
+          ask_when: site_type_equals(industrial)
+          skip_when: never
+          maps_to_fields: [high_value_zones, restricted_zones]
+
+      mixed_use:
+        - question_id: q_mix_tenant_split
+          requiredness: conditional
+          wording: "How should monitoring and access be separated between tenant, staff, and public/shared spaces?"
+          intent: define_multi_stakeholder_boundaries
+          answer_type: short_text
+          ask_when: site_type_equals(mixed_use)
+          skip_when: never
+          maps_to_fields: [tenant_rules, privacy_sensitive_zones]
+
+      remote_perimeter:
+        - question_id: q_remote_connectivity
+          requiredness: conditional
+          wording: "How stable are power/connectivity at the perimeter or remote areas?"
+          intent: assess_remote_operability
+          answer_type: single_select
+          answer_options: [stable, intermittent, poor, unknown]
+          ask_when: site_type_equals(remote_perimeter)
+          skip_when: never
+          maps_to_fields: [network_or_power_constraints]
+        - question_id: q_remote_patrol
+          requiredness: optional
+          wording: "Will this overlap with patrols, gates, or drone-assisted perimeter checks?"
+          intent: integration_with_field_ops
+          answer_type: short_text
+          ask_when: site_type_equals(remote_perimeter)
+          skip_when: never
+          maps_to_fields: [guard_or_patrol_overlap, drone_requirement]
+
+      high_sensitivity:
+        - question_id: q_hs_chain
+          requiredness: conditional
+          wording: "Who owns alert decisions, evidence handling, and approvals for restricted-zone access?"
+          intent: chain_of_responsibility
+          answer_type: short_text
+          ask_when: site_type_equals(high_sensitivity)
+          skip_when: never
+          maps_to_fields: [approval_hierarchy, incident_response_requirement]
+        - question_id: q_hs_audit
+          requiredness: conditional
+          wording: "What audit log, retention, and access-review expectations are mandatory?"
+          intent: compliance_grade_recordkeeping
+          answer_type: short_text
+          ask_when: site_type_equals(high_sensitivity)
+          skip_when: never
+          maps_to_fields: [audit_log_requirement, retention_expectation]
+
+    pattern_branches:
+      cctv_led:
+        ask_when: primary_goal_contains_any([deterrence, post_incident_evidence, live_detection_response])
+        questions:
+          - question_id: q_cctv_focus
+            requiredness: conditional
+            wording: "Which outcomes matter most for surveillance: identifiable events, flow monitoring, queue/loading visibility, or perimeter breach detection?"
+            intent: define_observation_objectives
+            answer_type: multi_select
+            answer_options: [identifiable_events, flow_monitoring, loading_visibility, perimeter_breach_detection]
+            ask_when: branch_active(cctv_led)
+            skip_when: never
+            maps_to_fields: [coverage_priorities, surveillance_outcomes]
+
+      biometric_access_led:
+        ask_when: primary_goal_contains(access_control)
+        questions:
+          - question_id: q_access_groups
+            requiredness: conditional
+            wording: "Which user groups need distinct access rights (staff, visitors, contractors, tenants, admin)?"
+            intent: build_role_matrix
+            answer_type: multi_select
+            answer_options: [staff, visitors, contractors, tenants, admin, security_team]
+            ask_when: branch_active(biometric_access_led)
+            skip_when: never
+            maps_to_fields: [user_groups]
+          - question_id: q_bio_warning_ack
+            requiredness: conditional
+            wording: "If biometrics are preferred, can you confirm privacy, consent, and policy review will be completed before deployment?"
+            intent: compliance_warning_gate
+            answer_type: single_select
+            answer_options: [yes_review_planned, no_unsure]
+            ask_when: branch_active(biometric_access_led)
+            skip_when: biometric_not_requested
+            maps_to_fields: [biometric_preference, compliance_review_status]
+
+      drone_perimeter_led:
+        ask_when: mentions_any([drone, perimeter_patrol, large_open_site])
+        questions:
+          - question_id: q_drone_use_case
+            requiredness: conditional
+            wording: "What is the drone/perimeter objective: scheduled sweeps, alarm verification, remote asset checks, or incident follow-up?"
+            intent: constrain_drone_scope
+            answer_type: multi_select
+            answer_options: [scheduled_sweeps, alarm_verification, remote_asset_checks, incident_follow_up]
+            ask_when: branch_active(drone_perimeter_led)
+            skip_when: never
+            maps_to_fields: [drone_requirement, monitoring_goal]
+
+      monitoring_incident_led:
+        ask_when: monitoring_mode_in([live_monitoring, mixed])
+        questions:
+          - question_id: q_escalation_target
+            requiredness: conditional
+            wording: "Who should be notified first during an event, and what escalation timing is expected?"
+            intent: define_incident_workflow
+            answer_type: short_text
+            ask_when: branch_active(monitoring_incident_led)
+            skip_when: never
+            maps_to_fields: [incident_response_requirement, site_contacts]
+          - question_id: q_response_ownership
+            requiredness: conditional
+            wording: "Should provider responsibilities include only monitoring, or monitoring plus dispatch coordination/reporting?"
+            intent: separate_scope_boundaries
+            answer_type: single_select
+            answer_options: [monitoring_only, monitoring_plus_coordination, full_reporting_package]
+            ask_when: branch_active(monitoring_incident_led)
+            skip_when: never
+            maps_to_fields: [service_boundary_preference]
+
+  missing_info_recovery:
+    rules:
+      - if_missing: [site_type, property_use]
+        next_best_question: q_site_type
+      - if_missing: [number_of_entries]
+        next_best_question: q_entry_count
+      - if_missing: [monitoring_goal]
+        next_best_question: q_primary_goal
+      - if_missing: [primary_risk_concern]
+        next_best_question: q_primary_risk
+      - if_conflicting: [live_monitoring, recorded_review]
+        action: ask_clarifier_on_priority_outcome
+      - if_answer_unknown:
+          field: network_or_power_constraints
+        action: mark_as_assumption_and_continue
+
+  early_risk_flags:
+    triggers:
+      - id: rf_active_losses
+        condition: incident_history_mentions_repeated_recent_events
+        severity: high
+        action: suggest_fast_track_provider_shortlist
+      - id: rf_restricted_monitoring
+        condition: privacy_sensitive_zones_not_clearly_defined
+        severity: medium
+        action: require_privacy_scope_clarification
+      - id: rf_high_sensitivity_governance_gap
+        condition: site_type_equals(high_sensitivity) and missing(approval_hierarchy)
+        severity: high
+        action: escalate_for_governance_definition
+      - id: rf_unstable_infrastructure
+        condition: network_or_power_constraints_in([intermittent, poor])
+        severity: medium
+        action: add_resilience_dependency_flag
+
+branch_logic:
+  site_type_routing:
+    residential: run_branch(residential)
+    commercial: run_branch(commercial)
+    industrial: run_branch(industrial)
+    mixed_use: run_branch(mixed_use)
+    remote_perimeter: run_branch(remote_perimeter)
+    high_sensitivity: run_branch(high_sensitivity)
+  pattern_routing:
+    - if: primary_goal_includes(access_control)
+      then: run_branch(biometric_access_led)
+    - if: primary_goal_includes_any([deterrence, post_incident_evidence, live_detection_response])
+      then: run_branch(cctv_led)
+    - if: mentions_any([drone, perimeter_patrol, large_open_site])
+      then: run_branch(drone_perimeter_led)
+    - if: monitoring_mode_in([live_monitoring, mixed])
+      then: run_branch(monitoring_incident_led)
+  prioritization:
+    - safety_and_compliance_questions_first_when_sensitive
+    - site_type_branch_before_pattern_branch_if_question_budget_limited
+
+fast_path_rules:
+  - id: fp_minimum_dataset_reached
+    condition: has_all([site_type, property_use, number_of_entries, monitoring_goal, primary_risk_concern])
+    action: allow_scope_preview_and_provider_type_recommendation
+  - id: fp_existing_system_upgrade
+    condition: current_security_setup_present and monitoring_goal_clear and constraints_known
+    action: skip_nonessential_baseline_questions
+  - id: fp_quote_comparison_ready
+    condition: budget_range_present and preferred_install_timeline_present and service_boundary_preference_present
+    action: mark_ready_for_quote_request_pack
+
+escalation_rules:
+  - id: esc_privacy_or_tenant_monitoring
+    trigger: privacy_sensitive_zones_include_any([tenant_private_areas, employee_break_areas, legally_sensitive_locations])
+    escalate_to: core_agents_policy_review
+    reason: privacy_and_permitted_surveillance_validation
+  - id: esc_biometric_without_policy
+    trigger: biometric_preference_true and compliance_review_status_equals(no_unsure)
+    escalate_to: compliance_warning_flow
+    reason: consent_and_policy_gap
+  - id: esc_high_sensitivity_incomplete
+    trigger: site_type_equals(high_sensitivity) and missing_any([approval_hierarchy, audit_log_requirement])
+    escalate_to: specialist_intake_followup
+    reason: governance_critical_fields_missing
+  - id: esc_emergency_request
+    trigger: user_indicates_active_incident
+    escalate_to: emergency_guidance_notice
+    reason: advisory_mode_only
+
+completion_criteria:
+  minimum_required_fields:
+    - site_type
+    - property_use
+    - number_of_entries
+    - monitoring_goal
+    - primary_risk_concern
+  sufficient_context_fields_any_3:
+    - current_security_setup
+    - incident_history
+    - network_or_power_constraints
+    - staff_hours
+    - privacy_sensitive_zones
+    - budget_range
+    - preferred_install_timeline
+  done_when:
+    - minimum_required_fields_complete
+    - at_least_one_site_branch_executed
+    - at_least_one_pattern_branch_executed_or_explicitly_not_applicable
+    - unresolved_critical_warnings_equals_zero
+  stop_conditions:
+    - user_requests_scope_output_now and minimum_required_fields_complete
+    - question_budget_exceeded and ambiguity_reduced_below_threshold
+
+output_mapping:
+  intake_summary:
+    site_profile:
+      from: [site_type, property_use, number_of_entries, staff_hours]
+    security_goal:
+      from: [monitoring_goal, protection_goals]
+    threat_summary:
+      from: [primary_risk_concern, incident_history]
+  risk_profile:
+    primary_risks:
+      from: [primary_risk_concern, incident_history, early_risk_flags]
+    urgency:
+      derive:
+        - critical_if_active_incident_or_repeat_severe_losses
+        - high_if_recent_patterned_incidents
+        - medium_if_control_gaps_without_recent_incident
+        - low_if_preventive_upgrade_only
+    operational_exposure:
+      from: [operating_profile, visitor_volume, contractor_access_patterns]
+  site_complexity_rating:
+    level:
+      derive:
+        - enterprise_if_multi_site_or_high_sensitivity_with_role_segmentation
+        - high_if_mixed_use_or_industrial_with_multiple_control_zones
+        - medium_if_commercial_standard_flow_or_remote_with_constraints
+        - low_if_single_site_residential_with_basic_needs
+    drivers:
+      from:
+        - number_of_entries
+        - site_type
+        - network_or_power_constraints
+        - privacy_sensitive_zones
+        - integration_needs
+  recommended_provider_types:
+    derive:
+      - residential_security_integrator_for_residential_basic
+      - commercial_cctv_access_integrator_for_commercial_or_mixed_use
+      - industrial_perimeter_specialist_for_industrial_or_remote_perimeter
+      - managed_monitoring_provider_if_live_monitoring_required
+      - high_assurance_security_integrator_if_high_sensitivity
+  missing_information_list:
+    from: missing_required_or_high_impact_optional_fields
+  next_best_action:
+    derive:
+      - generate_provider_ready_system_scope_if_completion_met
+      - run_incident_policy_if_monitoring_incident_led
+      - run_quote_check_when_proposals_available
+
+warning_library:
+  - warning_id: w_privacy_sensitive_monitoring
+    severity: high
+    show_when: privacy_sensitive_zones_not_empty
+    message: "Monitoring in private or protected areas may require policy and legal review before any deployment decisions."
+  - warning_id: w_biometric_consent
+    severity: high
+    show_when: biometric_preference_true
+    message: "Biometric use should proceed only with clear consent, data-governance controls, and jurisdiction-specific review."
+  - warning_id: w_employee_tenant_monitoring
+    severity: medium
+    show_when: site_type_in([commercial, mixed_use, high_sensitivity])
+    message: "Employee or tenant monitoring expectations should be documented and reviewed for notice and access limitations."
+  - warning_id: w_restricted_area_coverage
+    severity: high
+    show_when: restricted_zones_present
+    message: "Restricted-area surveillance and access rules require explicit role-based approvals and evidence handling boundaries."
+  - warning_id: w_no_guarantee_notice
+    severity: low
+    show_when: always
+    message: "Security design can reduce risk but cannot guarantee prevention of incidents."

@@ -29,7 +29,7 @@ export function DashboardHeader({
             <SidebarTrigger className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10" />
             
             {/* Mobile: Show logo */}
-            <a href="/" className="sm:hidden text-xl font-bold text-black">Kluje</a>
+            <a href="/" className="sm:hidden text-xl font-bold text-primary">Kluje</a>
             
             {/* Desktop: Show page title */}
             <span className="hidden sm:inline text-black font-semibold leading-none">Provider Dashboard</span>

@@ -321,6 +321,98 @@ paths:
       responses:
         '200':
           description: Area risk score or safe suppression
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaRiskScoreResponse'
+  /verification/start:
+    post:
+      summary: Start provider verification workflow
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartVerificationRequest'
+      responses:
+        '201':
+          description: Verification request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartVerificationResponse'
+  /verification/documents:
+    post:
+      summary: Store provider verification document metadata
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationDocumentUploadRequest'
+      responses:
+        '201':
+          description: Document metadata saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationDocumentUploadResponse'
+        '404':
+          description: Verification request not found
+  /verification/{providerId}/status:
+    get:
+      summary: Get latest verification and compliance status for provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Verification status details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationStatusResponse'
+        '404':
+          description: Verification request not found for provider
+  /admin/verification/{requestId}/decision:
+    post:
+      summary: Admin decision on provider verification request
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminVerificationDecisionRequest'
+      responses:
+        '200':
+          description: Decision captured and audited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminVerificationDecisionResponse'
+        '403':
+          description: Admin role required
+        '404':
+          description: Verification request not found
   /ads/placements/recommendations:
     post:
       summary: Generate AI placement recommendations for a campaign brief
@@ -448,3 +540,178 @@ components:
             routedAt: { type: string, format: date-time }
             createdAt: { type: string, format: date-time }
             updatedAt: { type: string, format: date-time }
+    ComplianceFlag:
+      type: object
+      required: [id, providerId, source, code, severity, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        requestId: { type: string, format: uuid, nullable: true }
+        providerId: { type: string, format: uuid }
+        source: { type: string }
+        code: { type: string }
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        status:
+          type: string
+          enum: [open, resolved]
+        details:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        resolvedAt: { type: string, format: date-time, nullable: true }
+    VerificationEvent:
+      type: object
+      required: [id, eventType, actorId, createdAt, payload]
+      properties:
+        id: { type: string, format: uuid }
+        eventType:
+          type: string
+          enum: [verification_started, document_uploaded, decision_recorded, compliance_flag_created]
+        actorId: { type: string }
+        payload:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+    VerificationDocument:
+      type: object
+      required: [id, requestId, providerId, documentType, storageUrl, status, uploadedBy, uploadedAt]
+      properties:
+        id: { type: string, format: uuid }
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        documentType:
+          type: string
+          enum: [business_license, insurance_certificate, identity_document, tax_document, other]
+        storageUrl: { type: string, format: uri }
+        checksum: { type: string, nullable: true }
+        metadata:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          enum: [submitted, accepted, rejected]
+        uploadedBy: { type: string }
+        uploadedAt: { type: string, format: date-time }
+    StartVerificationRequest:
+      type: object
+      required: [providerId]
+      properties:
+        providerId: { type: string, format: uuid }
+        notes: { type: string, maxLength: 2000 }
+    StartVerificationResponse:
+      type: object
+      required: [requestId, providerId, status, createdAt]
+      properties:
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [pending, approved, rejected, needs_more_info]
+        createdAt: { type: string, format: date-time }
+    VerificationDocumentUploadRequest:
+      type: object
+      required: [requestId, providerId, documentType, storageUrl]
+      properties:
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        documentType:
+          type: string
+          enum: [business_license, insurance_certificate, identity_document, tax_document, other]
+        storageUrl: { type: string, format: uri }
+        checksum: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    VerificationDocumentUploadResponse:
+      type: object
+      required: [documentId, requestId, providerId, status, uploadedAt]
+      properties:
+        documentId: { type: string, format: uuid }
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [submitted]
+        uploadedAt: { type: string, format: date-time }
+    VerificationStatusResponse:
+      type: object
+      required: [requestId, providerId, status, documents, complianceFlags, events, createdAt, updatedAt]
+      properties:
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [pending, approved, rejected, needs_more_info]
+        notes: { type: string, nullable: true }
+        decidedAt: { type: string, format: date-time, nullable: true }
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationDocument'
+        complianceFlags:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceFlag'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationEvent'
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminVerificationDecisionRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approved, rejected, needs_more_info]
+        notes: { type: string, maxLength: 2000 }
+        reasonCode: { type: string }
+    AdminVerificationDecisionResponse:
+      type: object
+      required: [requestId, providerId, status, decidedAt]
+      properties:
+        requestId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [approved, rejected, needs_more_info]
+        decidedAt: { type: string, format: date-time }
+    AreaRiskScoreResponse:
+      type: object
+      required: [status, compliance, compliance_flags]
+      properties:
+        status:
+          type: string
+          enum: [ok, suppressed, blocked]
+        geography:
+          type: object
+          nullable: true
+          properties:
+            output_level: { type: string, enum: [tract, zip, county, city_cluster] }
+            geography_id: { type: string }
+            geography_name: { type: string }
+        area_risk:
+          type: object
+          nullable: true
+          properties:
+            score: { type: number }
+            band: { type: string, enum: [low, moderate, elevated, high] }
+        compliance:
+          type: object
+          required: [output_level, property_specific_inference, household_specific_inference]
+          properties:
+            output_level: { type: string, enum: [tract, zip, county, city_cluster, suppressed] }
+            property_specific_inference: { type: boolean }
+            household_specific_inference: { type: boolean }
+        suppression_reason: { type: string }
+        block_reason: { type: string }
+        compliance_flags:
+          type: array
+          items:
+            type: object
+            required: [code, severity]
+            properties:
+              code: { type: string }
+              severity: { type: string, enum: [info, warning, critical] }

@@ -21,6 +21,26 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/build-shared-quote-evaluation-model` → `shared/build-shared-quote-evaluation-model.yaml`
 - `/build-shared-rebundlable-module-schema` → `shared/build-shared-rebundlable-module-schema.yaml`
 
+
+## Codex execution order
+
+For orchestrated multi-agent builds and release packaging, use:
+- `codex-execution-order.yaml`
+
+Command phases:
+- Shared foundation: `/build-shared-foundation`
+- Agent builds: `/build-v1-agent` through `/build-v10-agent`
+- Validation:
+  - `/validate-shared-contract-consistency`
+  - `/validate-agent-command-coverage`
+  - `/validate-output-schema-alignment`
+  - `/validate-guardrail-completeness`
+  - `/validate-rebundlable-module-attachments`
+- Packaging:
+  - `/build-master-agent-registry`
+  - `/build-cross-agent-dependency-map`
+  - `/build-release-ready-yaml`
+
 ## V1 — Home Trades Expert
 - `/v1/build-intake-question-tree` → `v1/build-intake-question-tree.yaml`
 - `/v1/build-command-contracts` → `v1/build-command-contracts.yaml`

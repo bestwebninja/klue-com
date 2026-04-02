@@ -288,9 +288,9 @@ export default function Pricing() {
     if (user && isProvider) {
       navigate('/dashboard?tab=subscription');
     } else if (user) {
-      navigate('/auth?mode=provider');
+      navigate('/auth?type=provider');
     } else {
-      navigate('/auth?mode=signup&provider=true');
+      navigate('/auth?type=provider');
     }
   };
 
@@ -436,7 +436,7 @@ export default function Pricing() {
             <p className="font-semibold text-foreground">Start with a free account</p>
             <p className="text-sm text-muted-foreground">Build your profile, add services, browse jobs — no card required.</p>
           </div>
-          <Button variant="outline" onClick={() => navigate('/auth?mode=signup&provider=true')}>
+          <Button variant="outline" onClick={() => navigate('/auth?type=provider')}>
             Create Free Account
           </Button>
         </div>

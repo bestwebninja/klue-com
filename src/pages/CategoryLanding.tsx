@@ -376,7 +376,7 @@ export default function CategoryLanding() {
               <Link to="/post-job">
                 <Button variant="hero" size="lg">Post a Job Free</Button>
               </Link>
-              <Link to="/auth?role=provider">
+              <Link to="/auth?type=provider">
                 <Button variant="hero-outline" size="lg">Join as a Provider</Button>
               </Link>
             </div>
@@ -417,7 +417,7 @@ export default function CategoryLanding() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No providers listed yet. <Link to="/auth?role=provider" className="text-primary hover:underline">Join as a provider</Link>.</p>
+            <p className="text-muted-foreground">No providers listed yet. <Link to="/auth?type=provider" className="text-primary hover:underline">Join as a provider</Link>.</p>
           )}
         </section>
 

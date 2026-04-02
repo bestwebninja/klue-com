@@ -1,9 +1,11 @@
 import { hasSupabaseAdmin, supabaseAdmin } from "../supabase-admin";
-import type { HandoffRecord, RoutingDecision, RoutingRunRecord } from "./types";
+import type { DispatchRecord, HandoffRecord, QuoteRequestRecord, RoutingDecision, RoutingRunRecord } from "./types";
 
 const runs = new Map<string, RoutingRunRecord>();
 const handoffs = new Map<string, HandoffRecord[]>();
 const decisions = new Map<string, RoutingDecision[]>();
+const quoteRequests = new Map<string, QuoteRequestRecord>();
+const dispatches = new Map<string, DispatchRecord[]>();
 
 const persistSupabase = async (table: string, payload: Record<string, unknown>) => {
   if (!hasSupabaseAdmin || !supabaseAdmin) return;
@@ -125,5 +127,79 @@ export const routingStore = {
 
   getHandoffs(runId: string) {
     return handoffs.get(runId) ?? [];
+  },
+
+  async saveQuoteRequest(quoteRequest: QuoteRequestRecord) {
+    quoteRequests.set(quoteRequest.id, quoteRequest);
+
+    await persistSupabase("quote_requests", {
+      id: quoteRequest.id,
+      tenant_id: quoteRequest.tenantId,
+      run_id: quoteRequest.runId,
+      lead_id: quoteRequest.leadId,
+      service_category: quoteRequest.serviceCategory,
+      status: quoteRequest.status,
+      requested_at: quoteRequest.requestedAt,
+      quote_by_at: quoteRequest.quoteByAt,
+      reasoning: quoteRequest.reasoning,
+      outcomes: quoteRequest.outcomes,
+      created_at: quoteRequest.createdAt,
+      updated_at: quoteRequest.updatedAt
+    });
+  },
+
+  async updateQuoteRequest(id: string, patch: Partial<QuoteRequestRecord>) {
+    const existing = quoteRequests.get(id);
+    if (!existing) return null;
+
+    const next = { ...existing, ...patch, updatedAt: new Date().toISOString() };
+    quoteRequests.set(id, next);
+
+    await updateSupabase(
+      "quote_requests",
+      {
+        status: next.status,
+        quote_by_at: next.quoteByAt,
+        reasoning: next.reasoning,
+        outcomes: next.outcomes,
+        updated_at: next.updatedAt
+      },
+      "id",
+      id
+    );
+
+    return next;
+  },
+
+  getQuoteRequest(id: string) {
+    return quoteRequests.get(id) ?? null;
+  },
+
+  async appendDispatches(runId: string, runDispatches: DispatchRecord[]) {
+    const existing = dispatches.get(runId) ?? [];
+    dispatches.set(runId, [...existing, ...runDispatches]);
+
+    await Promise.all(
+      runDispatches.map((dispatch) =>
+        persistSupabase("dispatches", {
+          id: dispatch.id,
+          run_id: dispatch.runId,
+          quote_request_id: dispatch.quoteRequestId,
+          tenant_id: dispatch.tenantId,
+          provider_id: dispatch.providerId,
+          correlation_id: dispatch.correlationId,
+          status: dispatch.status,
+          attempt_count: dispatch.attemptCount,
+          last_error: dispatch.lastError,
+          payload: dispatch.payload,
+          created_at: dispatch.createdAt,
+          updated_at: dispatch.updatedAt
+        })
+      )
+    );
+  },
+
+  getDispatches(runId: string) {
+    return dispatches.get(runId) ?? [];
   }
 };

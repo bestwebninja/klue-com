@@ -10,6 +10,9 @@ const evaluateSchema = z.object({
   leadSummary: z.string().trim().min(1),
   serviceCategory: z.string().trim().min(1),
   requestedTimeline: z.string().trim().optional(),
+  budget: z.coerce.number().nonnegative().optional(),
+  zipCode: z.string().trim().min(3).max(10).optional(),
+  topN: z.coerce.number().int().min(1).max(20).optional(),
   dryRun: z.boolean().default(false),
   requester: z.object({
     email: z.string().email().optional(),

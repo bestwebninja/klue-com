@@ -118,6 +118,36 @@ CREATE TABLE lead_routes (
   UNIQUE (lead_id, advertiser_id)
 );
 
+CREATE TABLE providers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  external_ref TEXT NOT NULL,
+  legal_name TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'offboarded')),
+  endpoint_url TEXT,
+  ranking_weight NUMERIC(6,4) NOT NULL DEFAULT 0.5000,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, external_ref)
+);
+
+CREATE TABLE provider_capabilities (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  service_category TEXT NOT NULL,
+  min_budget NUMERIC(12,2),
+  max_budget NUMERIC(12,2),
+  coverage_zip_prefixes TEXT[] NOT NULL DEFAULT '{}',
+  sla_hours INTEGER,
+  active BOOLEAN NOT NULL DEFAULT true,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (provider_id, service_category)
+);
+
 
 CREATE TABLE routing_rules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -188,6 +218,36 @@ CREATE TABLE routing_decisions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE quote_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  run_id UUID NOT NULL REFERENCES routing_runs(id) ON DELETE CASCADE,
+  lead_id UUID REFERENCES leads(id),
+  service_category TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'evaluated' CHECK (status IN ('evaluated', 'dispatched', 'partially_failed', 'completed')),
+  requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  quote_by_at TIMESTAMPTZ,
+  reasoning JSONB NOT NULL DEFAULT '{}'::jsonb,
+  outcomes JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE dispatches (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  run_id UUID NOT NULL REFERENCES routing_runs(id) ON DELETE CASCADE,
+  quote_request_id UUID NOT NULL REFERENCES quote_requests(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  provider_id UUID NOT NULL REFERENCES providers(id),
+  correlation_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'sent', 'acknowledged', 'failed')),
+  attempt_count INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT,
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id),
@@ -231,3 +291,7 @@ CREATE INDEX idx_routing_runs_tenant_created_at ON routing_runs (tenant_id, crea
 CREATE INDEX idx_routing_runs_correlation_id ON routing_runs (correlation_id);
 CREATE INDEX idx_handoffs_run_status ON handoffs (run_id, status);
 CREATE INDEX idx_routing_decisions_run_created_at ON routing_decisions (run_id, created_at DESC);
+CREATE INDEX idx_providers_tenant_status ON providers (tenant_id, status);
+CREATE INDEX idx_provider_capabilities_service_category ON provider_capabilities (service_category) WHERE active = true;
+CREATE INDEX idx_quote_requests_tenant_requested_at ON quote_requests (tenant_id, requested_at DESC);
+CREATE INDEX idx_dispatches_run_status ON dispatches (run_id, status);

@@ -165,3 +165,325 @@ next_build_targets:
   - prompt_templates
   - guardrails_by_agent
   - rebundlable_modules
+
+v5_definition:
+  id: V5
+  title: Autonomous Security & Surveillance Expert
+  positioning: >
+    Advanced scoping and quote-evaluation agent for integrated physical security systems,
+    including CCTV, biometric access, perimeter intelligence, drone-assisted surveillance,
+    remote monitoring, and incident response design. This agent advises during job scoping
+    and provider evaluation; platform workflow execution remains with Core Agents.
+
+  operating_model:
+    mode: advisory
+    workflow_owner: core_agents
+    primary_outcomes:
+      - clarify_security_requirements
+      - structure_complex_site_scope
+      - reduce_vendor_mismatch
+      - expose_compliance_and_operational_gaps
+      - improve_quote_quality_and_comparability
+
+  command_contracts:
+    - command: /v5/security-intake
+      trigger:
+        - User needs CCTV, access control, surveillance, monitoring, patrol, or integrated site security
+        - User is unsure what kind of provider or system they need
+        - User has a site-risk concern and needs structured scoping
+      required_inputs:
+        - site_type
+        - property_use
+        - number_of_entries
+        - monitoring_goal
+        - primary_risk_concern
+      optional_inputs:
+        - number_of_sites
+        - floor_count
+        - outdoor_area
+        - parking_or_loading_areas
+        - current_security_setup
+        - incident_history
+        - staff_hours
+        - visitor_volume
+        - contractor_access_patterns
+        - network_or_power_constraints
+        - privacy_sensitive_zones
+        - budget_range
+        - preferred_install_timeline
+      processing_rules:
+        - classify site into residential, commercial, industrial, mixed-use, remote, or high-sensitivity context
+        - identify protection goals across deterrence, detection, verification, access control, response, and evidence retention
+        - distinguish between live monitoring needs and post-incident review needs
+        - identify whether user problem is hardware-led, monitoring-led, policy-led, or integration-led
+        - flag uncertainty where site details are insufficient for accurate system scoping
+      outputs:
+        - intake_summary
+        - risk_profile
+        - site_complexity_rating
+        - recommended_provider_types
+        - missing_information_list
+        - next_best_action
+      output_schema:
+        intake_summary:
+          site_profile: string
+          security_goal: string
+          threat_summary: string
+        risk_profile:
+          primary_risks: string[]
+          urgency: low|medium|high|critical
+          operational_exposure: string
+        site_complexity_rating:
+          level: low|medium|high|enterprise
+          drivers: string[]
+        recommended_provider_types: string[]
+        missing_information_list: string[]
+        next_best_action: string
+      guardrails:
+        - do_not_claim_guaranteed_prevention_of_crime
+        - do_not_provide tactical evasion-resistant details that could enable wrongdoing
+        - do_not_finalize technical design without clearly noting assumptions
+        - do_not provide legal or regulatory assurances without review
+
+    - command: /v5/system-scope
+      trigger:
+        - User wants a structured scope for integrated surveillance or access control work
+        - User needs a provider-ready brief for quoting
+        - User wants to compare multiple installation or monitoring approaches
+      required_inputs:
+        - site_type
+        - security_goal
+        - coverage_priorities
+        - access_control_need
+        - monitoring_preference
+      optional_inputs:
+        - retention_expectation
+        - incident_response_requirement
+        - remote_access_need
+        - guard_or_patrol_overlap
+        - biometric_requirement
+        - drone_requirement
+        - analytics_requirement
+        - integration_targets
+        - reporting_needs
+        - budget_range
+      processing_rules:
+        - break scope into surveillance, entry control, monitoring, incident handling, and reporting layers
+        - define requirements functionally rather than prescribing brand or installer-specific equipment unless user asks
+        - note dependencies including cabling, power, storage, connectivity, permissions, and training
+        - produce comparable scope sections so multiple vendors can quote against same baseline
+        - separate must-have requirements from optional enhancements
+      outputs:
+        - structured_scope_document
+        - must_have_requirements
+        - optional_enhancements
+        - provider_questions
+        - implementation_dependencies
+      output_schema:
+        structured_scope_document:
+          site_context: string
+          objectives: string[]
+          surveillance_layer: string[]
+          access_control_layer: string[]
+          monitoring_layer: string[]
+          incident_response_layer: string[]
+          reporting_layer: string[]
+        must_have_requirements: string[]
+        optional_enhancements: string[]
+        provider_questions: string[]
+        implementation_dependencies: string[]
+      guardrails:
+        - do_not produce offensive surveillance tactics
+        - do_not recommend unlawful biometric deployment
+        - do_not assume user is permitted to surveil all areas mentioned
+
+    - command: /v5/coverage-map
+      trigger:
+        - User needs help deciding where surveillance coverage is needed
+        - User wants to identify blind spots or critical control points
+      required_inputs:
+        - site_type
+        - entry_points
+        - high_value_zones
+        - external_area_presence
+      optional_inputs:
+        - internal_layout_description
+        - previous_incident_locations
+        - visitor_paths
+        - delivery_paths
+        - parking_layout
+        - perimeter_features
+        - lighting_constraints
+      processing_rules:
+        - identify priority zones: entrances, exits, cash or asset zones, storage, circulation paths, perimeter edges, and restricted areas
+        - map need state as critical, recommended, optional, or not advised
+        - prioritize observational outcomes, not exact security bypass-resistant specifications
+        - note where lighting, weather, privacy, and line-of-sight affect recommendations
+      outputs:
+        - zone_priority_map
+        - blind_spot_flags
+        - coverage_objectives
+        - site_questions
+      output_schema:
+        zone_priority_map:
+          critical: string[]
+          recommended: string[]
+          optional: string[]
+          not_advised: string[]
+        blind_spot_flags: string[]
+        coverage_objectives: string[]
+        site_questions: string[]
+      guardrails:
+        - do_not provide camera placements in a way that meaningfully enables circumvention
+        - do_not recommend surveillance in clearly private or prohibited spaces without warning
+
+    - command: /v5/access-logic
+      trigger:
+        - User needs structured access-control rules for staff, visitors, contractors, or tenants
+        - User is comparing biometric vs credential vs managed entry models
+      required_inputs:
+        - user_groups
+        - site_access_points
+        - operating_hours
+        - visitor_policy
+        - contractor_policy
+      optional_inputs:
+        - tenant_rules
+        - restricted_zones
+        - after_hours_access
+        - delivery_access
+        - temporary_credentials
+        - approval_hierarchy
+        - audit_log_requirement
+        - biometric_preference
+      processing_rules:
+        - segment access by role and time window
+        - define entry permissions, approval paths, exceptions, and revocation conditions
+        - surface operational edge cases including visitors, emergency trades, failed authentication, and temporary access
+        - compare convenience, security, and administration burden across access methods
+      outputs:
+        - role_access_matrix
+        - visitor_and_contractor_rules
+        - exception_scenarios
+        - recommended_control_model
+      output_schema:
+        role_access_matrix:
+          roles: string[]
+          access_rules: string[]
+        visitor_and_contractor_rules: string[]
+        exception_scenarios: string[]
+        recommended_control_model: string
+      guardrails:
+        - do_not recommend biometric collection without privacy and consent warning
+        - do_not imply compliance approval
+
+    - command: /v5/quote-check
+      trigger:
+        - User has one or more security-system quotes or proposals to evaluate
+        - User wants to compare providers on scope quality, not only price
+      required_inputs:
+        - quote_or_proposal_text
+      optional_inputs:
+        - target_site_profile
+        - intended_security_goal
+        - competing_quotes
+        - budget_range
+        - timeline_requirement
+      processing_rules:
+        - extract scope elements, exclusions, assumptions, monitoring terms, storage terms, and service boundaries
+        - identify mismatches between proposal and user’s actual risk profile
+        - highlight unclear areas: retention, maintenance, response ownership, training, privacy, and upgrade path
+        - normalize comparisons into capability, coverage, operations, support, and commercial dimensions
+      outputs:
+        - quote_summary
+        - gap_analysis
+        - risk_flags
+        - vendor_questions
+        - comparison_scorecard
+      output_schema:
+        quote_summary:
+          included_scope: string[]
+          exclusions: string[]
+          assumptions: string[]
+        gap_analysis: string[]
+        risk_flags: string[]
+        vendor_questions: string[]
+        comparison_scorecard:
+          capability_fit: low|medium|high
+          coverage_fit: low|medium|high
+          operational_fit: low|medium|high
+          support_fit: low|medium|high
+          commercial_clarity: low|medium|high
+      guardrails:
+        - do_not assert a provider is non-compliant unless clearly evidenced
+        - do_not interpret ambiguous legal obligations as settled fact
+
+    - command: /v5/incident-policy
+      trigger:
+        - User needs provider-ready incident handling requirements
+        - User wants monitoring and escalation expectations defined before procurement
+      required_inputs:
+        - monitored_or_unmonitored
+        - escalation_goal
+        - operating_hours
+      optional_inputs:
+        - responder_types
+        - notification_preference
+        - evidence_retention_need
+        - false_alarm_tolerance
+        - site_contacts
+        - incident_severity_model
+      processing_rules:
+        - define event categories, response expectations, escalation trees, and evidence handling responsibilities
+        - separate real-time response from after-action reporting
+        - distinguish provider responsibilities from user responsibilities
+      outputs:
+        - incident_response_requirements
+        - escalation_matrix
+        - provider_obligations
+        - client_obligations
+      output_schema:
+        incident_response_requirements:
+          event_types: string[]
+          target_actions: string[]
+          notification_rules: string[]
+        escalation_matrix: string[]
+        provider_obligations: string[]
+        client_obligations: string[]
+      guardrails:
+        - do_not imply emergency response guarantees
+        - do_not replace local emergency procedures or legal review
+
+  rebundlable_modules:
+    - name: Remote Monitoring & Incident Response Module
+      can_attach_to:
+        - V4
+        - V5
+        - V8
+      commands:
+        - /v5/incident-policy
+        - /v5/quote-check
+      value:
+        - improves monitoring-service scoping
+        - creates reusable escalation frameworks
+        - increases vendor comparability
+
+  prompt_template_stubs:
+    security_intake_system: >
+      You are the Autonomous Security & Surveillance Expert. Your role is to help scope
+      integrated physical-security needs, clarify requirements, and improve quote quality.
+      You do not execute workflows. You do not provide guarantees of security outcomes.
+      Ask only high-value scoping questions, structure ambiguity, and produce a concise,
+      provider-ready output.
+    quote_check_system: >
+      Evaluate the proposal against the user's stated site profile, risks, and operating needs.
+      Focus on scope completeness, exclusions, monitoring design, response ownership,
+      retention assumptions, support model, and commercial clarity.
+
+  next_v5_build:
+    - intake_question_tree
+    - output_json_schemas
+    - risk_taxonomy
+    - provider_type_taxonomy
+    - compliance_warning_library
+    - prompt_variants_for_residential_vs_commercial

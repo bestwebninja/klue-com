@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { buildAcs2024ProfileUrl, fetchJsonRows } from '@/features/zip-explorer/api';
+import { fetchCensusViaProxy } from '@/features/zip-explorer/censusProxy';
 import type { SourceHealth } from '@/features/zip-explorer/types';
 import { fetchAirNowByZip } from '@/features/zip-explorer/adapters/airnow';
 import { fetchWalkScoreByZip } from '@/features/zip-explorer/adapters/walkscore';
@@ -30,9 +30,17 @@ const buildModel = async (
 ): Promise<ZipExplorerModel> => {
   const fetchCensus = async () => {
     try {
-      const url = buildAcs2024ProfileUrl(zipCode);
-      const row = await fetchJsonRows(url);
-      if (!row) return { status: 'error' as const, data: null, message: 'No data returned' };
+      const response = await fetchCensusViaProxy(zipCode);
+
+      if (response.status === 'disabled') {
+        return { status: 'error' as const, data: null, message: response.message ?? 'Census provider is disabled' };
+      }
+
+      if (response.status === 'unavailable' || !response.profile) {
+        return { status: 'error' as const, data: null, message: response.message ?? 'No data returned' };
+      }
+
+      const row = response.profile;
       return {
         status: 'ok' as const,
         data: {
@@ -42,7 +50,7 @@ const buildModel = async (
           ownerOccupiedUnits: row.DP04_0046E,
           medianRent: row.DP04_0134E,
         },
-        message: undefined,
+        message: response.message,
       };
     } catch (e: any) {
       return { status: 'error' as const, data: null, message: e?.message ?? 'Census fetch failed' };

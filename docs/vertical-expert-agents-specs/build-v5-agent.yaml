@@ -1,0 +1,25 @@
+meta:
+  command: /build-v5-agent
+  agent_id: V5
+  agent_title: Autonomous Security & Surveillance Expert
+  version: 1
+  status: draft
+intent: Build the full V5 agent specification bundle.
+inputs:
+  required:
+    - risk_context
+    - site_or_asset_context
+  optional:
+    - regulatory_scope
+    - incident_history
+processing_rules:
+  - run shared foundation dependency checks first
+  - prioritize safety and compliance assumptions
+outputs:
+  primary_artifact: v5-agent-bundle
+  includes:
+    - /v5/build-output-json-schemas
+    - /v5/build-risk-taxonomy
+    - /v5/build-provider-type-taxonomy
+    - /v5/build-compliance-warning-library
+    - /v5/build-prompt-variants

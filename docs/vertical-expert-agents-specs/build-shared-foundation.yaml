@@ -1,0 +1,29 @@
+meta:
+  command: /build-shared-foundation
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Build the shared foundation artifacts required by all vertical expert agents.
+inputs:
+  required:
+    - platform_context
+    - quality_bar
+  optional:
+    - regional_constraints
+    - compliance_baseline
+processing_rules:
+  - produce artifacts in dependency order
+  - validate stable naming across all shared schemas
+  - include unresolved_questions when assumptions are required
+outputs:
+  primary_artifact: shared-foundation-bundle
+  includes:
+    - /build-shared-command-schema
+    - /build-shared-input-output-contracts
+    - /build-shared-standard-outputs
+    - /build-shared-quote-evaluation-model
+    - /build-shared-rebundlable-module-schema
+  schema:
+    summary: string
+    generated_commands: string[]
+    unresolved_questions: string[]

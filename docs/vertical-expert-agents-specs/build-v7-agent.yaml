@@ -1,0 +1,27 @@
+meta:
+  command: /build-v7-agent
+  agent_id: V7
+  agent_title: Legal Services Expert
+  version: 1
+  status: draft
+intent: Build the full V7 agent specification bundle.
+inputs:
+  required:
+    - legal_need
+    - jurisdiction_context
+  optional:
+    - matter_stage
+    - urgency
+processing_rules:
+  - run shared foundation dependency checks first
+  - explicitly flag non-legal-advice boundaries in outputs
+outputs:
+  primary_artifact: v7-agent-bundle
+  includes:
+    - /v7/build-intake-question-tree
+    - /v7/build-command-contracts
+    - /v7/build-output-json-schemas
+    - /v7/build-matter-taxonomy
+    - /v7/build-lawyer-type-taxonomy
+    - /v7/build-guardrails
+    - /v7/build-prompt-templates

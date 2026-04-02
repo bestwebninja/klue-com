@@ -1,0 +1,27 @@
+meta:
+  command: /build-v2-agent
+  agent_id: V2
+  agent_title: Design & Build Expert
+  version: 1
+  status: draft
+intent: Build the full V2 agent specification bundle.
+inputs:
+  required:
+    - project_type
+    - site_or_matter_context
+  optional:
+    - design_preferences
+    - budget_range
+processing_rules:
+  - run shared foundation dependency checks first
+  - preserve deterministic artifact references
+outputs:
+  primary_artifact: v2-agent-bundle
+  includes:
+    - /v2/build-intake-question-tree
+    - /v2/build-command-contracts
+    - /v2/build-output-json-schemas
+    - /v2/build-design-brief-schema
+    - /v2/build-portfolio-rubric
+    - /v2/build-guardrails
+    - /v2/build-prompt-templates

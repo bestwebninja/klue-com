@@ -3,6 +3,18 @@
 This directory scaffolds canonical outputs for the slash commands requested in planning sessions.
 Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, and `outputs` contract.
 
+- `/build-shared-foundation` → `build-shared-foundation.yaml`
+- `/build-v1-agent` → `build-v1-agent.yaml`
+- `/build-v2-agent` → `build-v2-agent.yaml`
+- `/build-v3-agent` → `build-v3-agent.yaml`
+- `/build-v4-agent` → `build-v4-agent.yaml`
+- `/build-v5-agent` → `build-v5-agent.yaml`
+- `/build-v6-agent` → `build-v6-agent.yaml`
+- `/build-v7-agent` → `build-v7-agent.yaml`
+- `/build-v8-agent` → `build-v8-agent.yaml`
+- `/build-v9-agent` → `build-v9-agent.yaml`
+- `/build-v10-agent` → `build-v10-agent.yaml`
+
 - `/build-shared-command-schema` → `shared/build-shared-command-schema.yaml`
 - `/build-shared-input-output-contracts` → `shared/build-shared-input-output-contracts.yaml`
 - `/build-shared-standard-outputs` → `shared/build-shared-standard-outputs.yaml`

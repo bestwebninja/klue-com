@@ -1,0 +1,27 @@
+meta:
+  command: /build-v1-agent
+  agent_id: V1
+  agent_title: Home Trades Expert
+  version: 1
+  status: draft
+intent: Build the full V1 agent specification bundle.
+inputs:
+  required:
+    - user_goal
+    - site_or_matter_context
+  optional:
+    - budget_range
+    - timeline
+processing_rules:
+  - run shared foundation dependency checks first
+  - include assumptions and missing information lists
+outputs:
+  primary_artifact: v1-agent-bundle
+  includes:
+    - /v1/build-intake-question-tree
+    - /v1/build-command-contracts
+    - /v1/build-output-json-schemas
+    - /v1/build-risk-taxonomy
+    - /v1/build-provider-type-taxonomy
+    - /v1/build-guardrails
+    - /v1/build-prompt-templates

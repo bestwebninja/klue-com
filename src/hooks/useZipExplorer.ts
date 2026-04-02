@@ -1,95 +1,70 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchCensusZipProfile } from '@/features/zip-explorer/api';
-import type { SourceHealth } from '@/features/zip-explorer/types';
-import { fetchAirNowByZip } from '@/features/zip-explorer/adapters/airnow';
-import { fetchWalkScoreByZip } from '@/features/zip-explorer/adapters/walkscore';
-import { fetchGreatSchoolsByZip } from '@/features/zip-explorer/adapters/greatschools';
-import { fetchKlujeRiskByZip } from '@/features/zip-explorer/adapters/klujeRisk';
-import { SOURCE_LABELS } from '@/features/zip-explorer/constants';
-import { calculateDerivedScores } from '@/features/zip-explorer/scoring';
-import type { ZipExplorerModel } from '@/features/zip-explorer/types';
+import { useQuery } from "@tanstack/react-query";
+import { fetchCensusByZip } from "@/features/zip-explorer/adapters/census";
+import type { SourceHealth, ZipExplorerModel } from "@/features/zip-explorer/types";
+import { fetchAirNowByZip } from "@/features/zip-explorer/adapters/airnow";
+import { fetchWalkScoreByZip } from "@/features/zip-explorer/adapters/walkscore";
+import { fetchGreatSchoolsByZip } from "@/features/zip-explorer/adapters/greatschools";
+import { fetchKlujeRiskByZip } from "@/features/zip-explorer/adapters/klujeRisk";
+import { SOURCE_LABELS } from "@/features/zip-explorer/constants";
+import { calculateDerivedScores } from "@/features/zip-explorer/scoring";
 
 const THIRTY_DAYS_MS = 1000 * 60 * 60 * 24 * 30;
 
 const toNum = (value: unknown): number | undefined => {
-  if (value === null || value === undefined || value === '') return undefined;
+  if (value === null || value === undefined || value === "") return undefined;
   const num = Number(value);
   return Number.isFinite(num) ? num : undefined;
 };
 
 const skippedSource = {
   enabled: false,
-  status: 'unavailable' as const,
+  status: "unavailable" as const,
   data: null,
-  reason: 'Skipped',
+  reason: "Skipped",
 };
 
-const buildModel = async (
-  zipCode: string,
-  includeOptional: boolean,
-): Promise<ZipExplorerModel> => {
-  const fetchCensus = async () => {
-    try {
-      const response = await fetchCensusZipProfile(zipCode);
-      if (response.status !== 'ok' || !response.data?.profile) {
-        return { status: 'error' as const, data: null, message: response.message ?? 'No data returned' };
-      }
-
-      return {
-        status: 'ok' as const,
-        data: {
-          name: response.data.profile.NAME,
-          population: response.data.profile.DP05_0001E,
-          medianIncome: response.data.profile.DP03_0062E,
-          ownerOccupiedUnits: response.data.profile.DP04_0046E,
-          medianRent: response.data.profile.DP04_0134E,
-        },
-        message: undefined,
-      };
-    } catch (e: any) {
-      return { status: 'error' as const, data: null, message: e?.message ?? 'Census fetch failed' };
-    }
-  };
-
+const buildModel = async (zipCode: string, includeOptional: boolean): Promise<ZipExplorerModel> => {
   const [census, air, walk, schools, risk] = await Promise.all([
-    fetchCensus(),
+    fetchCensusByZip(zipCode),
     includeOptional ? fetchAirNowByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchWalkScoreByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchGreatSchoolsByZip(zipCode) : Promise.resolve(skippedSource),
     includeOptional ? fetchKlujeRiskByZip(zipCode) : Promise.resolve(skippedSource),
   ]);
 
-  const censusData = census?.data ?? null;
+  const profile = census.data?.profile;
+  const detailed = census.data?.detailed;
+  const censusStatus: SourceHealth = census.status === "available" ? "available" : "error";
 
-  const censusStatus: SourceHealth = census.status === 'ok' ? 'available' : 'error';
+  const medianIncome = toNum(profile?.DP03_0062E);
+  const medianRent = toNum(profile?.DP04_0134E);
 
   const baseModel = {
     identity: {
       zipCode,
-      zcta: zipCode,
-      placeName: censusData?.name ?? undefined,
+      zcta: profile?.zip ?? detailed?.zip ?? zipCode,
+      placeName: profile?.NAME ?? detailed?.NAME,
     },
     demographics: {
-      population: toNum(censusData?.population),
-      medianAge: undefined,
-      medianHouseholdIncome: toNum(censusData?.medianIncome),
-      householdsWithChildrenRate: undefined,
-      bachelorsOrHigherRate: undefined,
+      population: toNum(profile?.DP05_0001E),
+      medianAge: toNum(profile?.DP05_0018E),
+      medianHouseholdIncome: medianIncome,
+      householdsWithChildrenRate: toNum(profile?.DP02_0012PE),
+      bachelorsOrHigherRate: toNum(profile?.DP02_0067PE),
     },
     housing: {
-      ownerOccupiedRate: undefined,
-      medianGrossRent: toNum(censusData?.medianRent),
-      medianHomeValue: undefined,
-      housingUnits: undefined,
+      ownerOccupiedRate: toNum(profile?.DP04_0046E),
+      medianGrossRent: medianRent,
+      medianHomeValue: toNum(detailed?.B25077_001E),
+      housingUnits: toNum(detailed?.B25001_001E),
     },
     affordability: {
-      incomeToHomeValueRatio: undefined,
-      incomeToRentRatio:
-        toNum(censusData?.medianIncome) && toNum(censusData?.medianRent)
-          ? (toNum(censusData?.medianIncome) ?? 0) /
-            ((toNum(censusData?.medianRent) ?? 1) * 12)
+      incomeToHomeValueRatio:
+        medianIncome && toNum(detailed?.B25077_001E)
+          ? medianIncome / (toNum(detailed?.B25077_001E) ?? 1)
           : undefined,
-      rentBurdenRate: undefined,
+      incomeToRentRatio: medianIncome && medianRent ? medianIncome / (medianRent * 12) : undefined,
+      rentBurdenRate: toNum(detailed?.B25070_007E),
     },
     airQuality: air.data ?? {},
     walkability: walk.data ?? {},
@@ -97,40 +72,38 @@ const buildModel = async (
     klujeRisk: risk.data ?? {},
     sourceStatus: [
       {
-        key: 'census' as const,
+        key: "census" as const,
         label: SOURCE_LABELS.census,
         status: censusStatus,
-        reason: census.message,
+        reason: census.reason,
       },
       {
-        key: 'airnow' as const,
+        key: "airnow" as const,
         label: SOURCE_LABELS.airnow,
         status: air.status,
         reason: air.reason,
       },
       {
-        key: 'walkscore' as const,
+        key: "walkscore" as const,
         label: SOURCE_LABELS.walkscore,
         status: walk.status,
         reason: walk.reason,
       },
       {
-        key: 'greatschools' as const,
+        key: "greatschools" as const,
         label: SOURCE_LABELS.greatschools,
         status: schools.status,
         reason: schools.reason,
       },
       {
-        key: 'klujeRisk' as const,
+        key: "klujeRisk" as const,
         label: SOURCE_LABELS.klujeRisk,
         status: risk.status,
         reason: risk.reason,
       },
     ],
-    hasAnyData: Boolean(censusData || air.data || walk.data || schools.data || risk.data),
-    hasPartialData: [censusStatus, air.status, walk.status, schools.status, risk.status].some(
-      (s) => s !== 'available',
-    ),
+    hasAnyData: Boolean(profile || detailed || air.data || walk.data || schools.data || risk.data),
+    hasPartialData: [censusStatus, air.status, walk.status, schools.status, risk.status].some((s) => s !== "available"),
   };
 
   return {
@@ -139,13 +112,9 @@ const buildModel = async (
   };
 };
 
-export const useZipExplorer = (
-  zipCode: string,
-  enabled = true,
-  includeOptional = true,
-) =>
+export const useZipExplorer = (zipCode: string, enabled = true, includeOptional = true) =>
   useQuery({
-    queryKey: ['zip-explorer', zipCode, includeOptional],
+    queryKey: ["zip-explorer", zipCode, includeOptional],
     queryFn: () => buildModel(zipCode, includeOptional),
     enabled: enabled && Boolean(zipCode),
     staleTime: THIRTY_DAYS_MS,

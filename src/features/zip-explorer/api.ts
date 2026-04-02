@@ -1,10 +1,12 @@
 import { invokeEdgeFunction } from "@/integrations/supabase/client";
 
+export type CensusRawRow = Record<string, string>;
+
 export interface CensusProxyResponse {
   status: "ok" | "error";
   data: {
-    profile: Record<string, string> | null;
-    detailed: Record<string, string> | null;
+    profile: CensusRawRow | null;
+    detailed: CensusRawRow | null;
   } | null;
   message?: string;
 }

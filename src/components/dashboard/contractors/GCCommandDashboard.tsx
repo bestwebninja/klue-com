@@ -331,10 +331,10 @@ export default function GCCommandDashboard() {
             </div>
           </div>
         </div>
-        <div className="hidden xl:block text-xs text-blue-800 dark:text-slate-300 bg-blue-50/80 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 rounded-md px-3 py-1.5">
+        <div className="hidden xl:block text-[11px] text-white/70 bg-white/10 border border-white/10 rounded-md px-3 py-1">
           {isDept
-            ? `AI monitoring active — ${activeSidebar} department`
-            : 'Try: "Order 500 bags of Portland cement" or "How many subs are on site today?"'}
+            ? `AI monitoring — ${activeSidebar}`
+            : 'Try: "Order 500 bags of Portland cement"'}
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -233,6 +233,56 @@ CREATE TABLE quote_requests (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE provider_reviews_summary (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  review_count INTEGER NOT NULL DEFAULT 0,
+  average_rating NUMERIC(3,2) NOT NULL DEFAULT 0,
+  complaint_rate_percent NUMERIC(5,2) NOT NULL DEFAULT 0,
+  on_time_percent NUMERIC(5,2) NOT NULL DEFAULT 0,
+  workmanship_percent NUMERIC(5,2) NOT NULL DEFAULT 0,
+  last_review_at TIMESTAMPTZ,
+  source_updated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, provider_id)
+);
+
+CREATE TABLE quotes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  quote_request_id UUID REFERENCES quote_requests(id) ON DELETE SET NULL,
+  lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+  provider_id UUID NOT NULL REFERENCES providers(id),
+  currency TEXT NOT NULL DEFAULT 'USD',
+  subtotal NUMERIC(12,2) NOT NULL DEFAULT 0,
+  tax NUMERIC(12,2) NOT NULL DEFAULT 0,
+  fees NUMERIC(12,2) NOT NULL DEFAULT 0,
+  discount NUMERIC(12,2) NOT NULL DEFAULT 0,
+  total NUMERIC(12,2) NOT NULL DEFAULT 0,
+  credentials TEXT[] NOT NULL DEFAULT '{}',
+  scope_coverage JSONB NOT NULL DEFAULT '{}'::jsonb,
+  submitted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE quote_line_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  quote_id UUID NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
+  line_code TEXT NOT NULL,
+  label TEXT NOT NULL,
+  quantity NUMERIC(12,3) NOT NULL DEFAULT 0,
+  unit_price NUMERIC(12,2) NOT NULL DEFAULT 0,
+  unit TEXT,
+  included BOOLEAN NOT NULL DEFAULT true,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (quote_id, line_code)
+);
+
 CREATE TABLE dispatches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   run_id UUID NOT NULL REFERENCES routing_runs(id) ON DELETE CASCADE,

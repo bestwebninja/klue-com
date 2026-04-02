@@ -243,6 +243,62 @@ paths:
           description: Routing run details
         '404':
           description: Routing run not found
+  /quotes:
+    get:
+      summary: List quotes for a lead
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: leadId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Quotes returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuoteRecord'
+        '400':
+          description: Invalid lead id
+  /quotes/compare:
+    post:
+      summary: Compare quotes for a lead with deterministic explainability
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [leadId]
+              properties:
+                leadId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Quote comparison result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/QuoteComparisonResult'
+        '404':
+          description: No quotes found for lead
   /billing/checkout-session:
     post:
       summary: Create Stripe Checkout session
@@ -347,6 +403,76 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    QuoteLineItem:
+      type: object
+      required: [code, label, quantity, unitPrice, included]
+      properties:
+        code: { type: string }
+        label: { type: string }
+        quantity: { type: number }
+        unitPrice: { type: number }
+        unit: { type: string }
+        included: { type: boolean }
+    QuoteRecord:
+      type: object
+      required: [id, leadId, providerId, providerName, currency, subtotal, tax, fees, discount, total, lineItems, credentials, scopeCoverage, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        leadId: { type: string, format: uuid }
+        providerId: { type: string }
+        providerName: { type: string }
+        currency: { type: string }
+        subtotal: { type: number }
+        tax: { type: number }
+        fees: { type: number }
+        discount: { type: number }
+        total: { type: number }
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteLineItem'
+        credentials:
+          type: array
+          items: { type: string }
+        scopeCoverage:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+    QuoteComparisonResult:
+      type: object
+      required: [leadId, engineVersion, generatedAt, totals, lineItemComparison, providerComparison, followUpQuestions, explainability]
+      properties:
+        leadId: { type: string, format: uuid }
+        engineVersion: { type: string }
+        generatedAt: { type: string, format: date-time }
+        totals:
+          type: object
+          required: [min, max, median, normalized]
+          properties:
+            min: { type: number }
+            max: { type: number }
+            median: { type: number }
+            normalized:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+        lineItemComparison:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        providerComparison:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        followUpQuestions:
+          type: array
+          items: { type: string }
+        explainability:
+          type: array
+          items: { type: string }
     LeadAttachment:
       type: object
       required: [name, url]

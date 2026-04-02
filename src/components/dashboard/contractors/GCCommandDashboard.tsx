@@ -337,9 +337,9 @@ export default function GCCommandDashboard() {
             : 'Try: "Order 500 bags of Portland cement"'}
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="w-[7px] h-[7px] rounded-full bg-emerald-500 inline-block" />
-            Agent online
+          <span className="flex items-center gap-1.5 text-[11px] text-white/60">
+            <span className="w-[6px] h-[6px] rounded-full bg-emerald-500 inline-block" />
+            Online
           </span>
         </div>
       </div>

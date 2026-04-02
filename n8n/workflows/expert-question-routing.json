@@ -1,0 +1,149 @@
+{
+  "name": "Ask an Expert - Unanswered Question Routing v1",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - expert.question.created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-940, 220],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expert-question-routing",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-700, 220],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "for (const item of items) {\n  if (!item.json.questionId || !item.json.tenantId || !item.json.category) {\n    throw new Error('invalid_expert_question_payload');\n  }\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Get recommended experts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-460, 220],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'http://api:4000/api/v1/providers/search?tenantId=' + $json.tenantId + '&serviceCategory=' + encodeURIComponent($json.category) + '&topN=3' }}",
+        "options": {
+          "timeout": 15000,
+          "retry": {
+            "enabled": true,
+            "maxTries": 3,
+            "waitBetweenTries": 8000,
+            "backoff": true
+          }
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Select first expert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-220, 220],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "for (const item of items) {\n  const candidates = item.json?.data?.candidates ?? [];\n  const top = candidates[0];\n  if (!top) {\n    item.json.selectedExpert = null;\n    continue;\n  }\n\n  item.json.selectedExpert = {\n    expertUserId: top.providerId,\n    reason: `Auto-assigned from category match score ${top.score ?? 'n/a'}`\n  };\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Has candidate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [20, 220],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$json.selectedExpert }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Assign expert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 140],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/expert/questions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"title\":$json.title,\"body\":$json.body,\"category\":$json.category,\"tags\":$json.tags,\"assignToExpertUserId\":$json.selectedExpert.expertUserId,\"assignmentReason\":$json.selectedExpert.reason,\"metadata\":{\"source\":\"n8n/expert-question-routing\",\"questionId\":$json.questionId}}"
+      }
+    },
+    {
+      "id": "7",
+      "name": "No expert available log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/events",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event_type\":\"expert.question.unassigned\",\"payload\":{\"questionId\":$json.questionId,\"tenantId\":$json.tenantId,\"category\":$json.category}}"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [520, 220],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"accepted\",\"workflow\":\"expert_question_routing_v1\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - expert.question.created": {
+      "main": [[{ "node": "Validate payload", "type": "main", "index": 0 }]]
+    },
+    "Validate payload": {
+      "main": [[{ "node": "Get recommended experts", "type": "main", "index": 0 }]]
+    },
+    "Get recommended experts": {
+      "main": [[{ "node": "Select first expert", "type": "main", "index": 0 }]]
+    },
+    "Select first expert": {
+      "main": [[{ "node": "Has candidate?", "type": "main", "index": 0 }]]
+    },
+    "Has candidate?": {
+      "main": [
+        [{ "node": "Assign expert", "type": "main", "index": 0 }],
+        [{ "node": "No expert available log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Assign expert": {
+      "main": [[{ "node": "Respond accepted", "type": "main", "index": 0 }]]
+    },
+    "No expert available log": {
+      "main": [[{ "node": "Respond accepted", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "version": "1.0.0",
+    "owner": "Automation Engineering"
+  }
+}

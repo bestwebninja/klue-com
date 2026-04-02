@@ -295,3 +295,61 @@ CREATE INDEX idx_providers_tenant_status ON providers (tenant_id, status);
 CREATE INDEX idx_provider_capabilities_service_category ON provider_capabilities (service_category) WHERE active = true;
 CREATE INDEX idx_quote_requests_tenant_requested_at ON quote_requests (tenant_id, requested_at DESC);
 CREATE INDEX idx_dispatches_run_status ON dispatches (run_id, status);
+
+CREATE TABLE expert_questions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  asked_by_user_id UUID REFERENCES users(id),
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  category TEXT NOT NULL,
+  tags TEXT[] NOT NULL DEFAULT '{}',
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'assigned', 'answered', 'closed', 'moderation_hold')),
+  unsafe_advice_state TEXT NOT NULL DEFAULT 'none' CHECK (unsafe_advice_state IN ('none', 'suspected', 'confirmed', 'cleared')),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE expert_answers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  question_id UUID NOT NULL REFERENCES expert_questions(id) ON DELETE CASCADE,
+  expert_user_id UUID REFERENCES users(id),
+  body TEXT NOT NULL,
+  citations TEXT[] NOT NULL DEFAULT '{}',
+  unsafe_advice_state TEXT NOT NULL DEFAULT 'none' CHECK (unsafe_advice_state IN ('none', 'suspected', 'confirmed', 'cleared')),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE expert_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  question_id UUID NOT NULL REFERENCES expert_questions(id) ON DELETE CASCADE,
+  expert_user_id UUID NOT NULL REFERENCES users(id),
+  assigned_by_user_id UUID REFERENCES users(id),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'completed')),
+  reason TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE moderation_actions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  target_type TEXT NOT NULL CHECK (target_type IN ('question', 'answer')),
+  target_id UUID NOT NULL,
+  action_type TEXT NOT NULL CHECK (action_type IN ('approve', 'reject', 'flag', 'escalate', 'request_changes')),
+  unsafe_advice_state TEXT NOT NULL DEFAULT 'none' CHECK (unsafe_advice_state IN ('none', 'suspected', 'confirmed', 'cleared')),
+  reason TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  reviewed_by_user_id UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_expert_questions_tenant_status_created_at ON expert_questions (tenant_id, status, created_at DESC);
+CREATE INDEX idx_expert_answers_question_created_at ON expert_answers (question_id, created_at ASC);
+CREATE INDEX idx_expert_assignments_expert_status ON expert_assignments (expert_user_id, status, created_at DESC);
+CREATE INDEX idx_moderation_actions_target_created_at ON moderation_actions (target_type, target_id, created_at DESC);

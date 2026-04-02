@@ -340,6 +340,126 @@ paths:
       responses:
         '200':
           description: Ranked placements returned
+
+  /expert/questions:
+    post:
+      summary: Create a new Ask-an-Expert question
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertQuestionCreateRequest'
+      responses:
+        '201':
+          description: Expert question created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      question:
+                        $ref: '#/components/schemas/ExpertQuestion'
+                      assignment:
+                        $ref: '#/components/schemas/ExpertAssignment'
+        '400':
+          description: Validation error
+    get:
+      summary: List Ask-an-Expert questions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            $ref: '#/components/schemas/ExpertQuestionStatus'
+      responses:
+        '200':
+          description: Expert questions list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      allOf:
+                        - $ref: '#/components/schemas/ExpertQuestion'
+                        - type: object
+                          properties:
+                            answers:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/ExpertAnswer'
+                            assignments:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/ExpertAssignment'
+  /expert/questions/{questionId}/answers:
+    post:
+      summary: Post an expert answer to a question
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: questionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertAnswerCreateRequest'
+      responses:
+        '201':
+          description: Expert answer created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExpertAnswer'
+        '404':
+          description: Question not found
+  /moderation/review:
+    post:
+      summary: Log a moderation review action
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationReviewRequest'
+      responses:
+        '201':
+          description: Moderation action logged
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ModerationAction'
+        '400':
+          description: Validation error
+
 components:
   securitySchemes:
     bearerAuth:
@@ -448,3 +568,134 @@ components:
             routedAt: { type: string, format: date-time }
             createdAt: { type: string, format: date-time }
             updatedAt: { type: string, format: date-time }
+
+    ExpertQuestionStatus:
+      type: string
+      enum: [open, assigned, answered, closed, moderation_hold]
+    UnsafeAdviceState:
+      type: string
+      enum: [none, suspected, confirmed, cleared]
+    ModerationActionType:
+      type: string
+      enum: [approve, reject, flag, escalate, request_changes]
+    ModerationTargetType:
+      type: string
+      enum: [question, answer]
+    ExpertQuestionCreateRequest:
+      type: object
+      required: [title, body, category]
+      properties:
+        title: { type: string, minLength: 5, maxLength: 200 }
+        body: { type: string, minLength: 10, maxLength: 10000 }
+        category: { type: string, minLength: 2, maxLength: 120 }
+        tags:
+          type: array
+          items: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+        assignToExpertUserId: { type: string, format: uuid }
+        assignmentReason: { type: string }
+    ExpertAnswerCreateRequest:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, minLength: 10, maxLength: 10000 }
+        citations:
+          type: array
+          items: { type: string, format: uri }
+        unsafeAdviceState:
+          $ref: '#/components/schemas/UnsafeAdviceState'
+        metadata:
+          type: object
+          additionalProperties: true
+    ExpertQuestion:
+      type: object
+      required: [id, tenantId, askedByUserId, title, body, category, tags, status, unsafeAdviceState, metadata, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string }
+        askedByUserId: { type: string }
+        title: { type: string }
+        body: { type: string }
+        category: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        status:
+          $ref: '#/components/schemas/ExpertQuestionStatus'
+        unsafeAdviceState:
+          $ref: '#/components/schemas/UnsafeAdviceState'
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ExpertAnswer:
+      type: object
+      required: [id, tenantId, questionId, expertUserId, body, citations, unsafeAdviceState, metadata, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string }
+        questionId: { type: string, format: uuid }
+        expertUserId: { type: string }
+        body: { type: string }
+        citations:
+          type: array
+          items: { type: string, format: uri }
+        unsafeAdviceState:
+          $ref: '#/components/schemas/UnsafeAdviceState'
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ExpertAssignment:
+      type: object
+      nullable: true
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string }
+        questionId: { type: string, format: uuid }
+        expertUserId: { type: string, format: uuid }
+        assignedByUserId: { type: string }
+        status:
+          type: string
+          enum: [pending, accepted, declined, completed]
+        reason: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ModerationReviewRequest:
+      type: object
+      required: [targetType, targetId, actionType, unsafeAdviceState]
+      properties:
+        targetType:
+          $ref: '#/components/schemas/ModerationTargetType'
+        targetId: { type: string, format: uuid }
+        actionType:
+          $ref: '#/components/schemas/ModerationActionType'
+        unsafeAdviceState:
+          $ref: '#/components/schemas/UnsafeAdviceState'
+        reason: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    ModerationAction:
+      type: object
+      required: [id, tenantId, targetType, targetId, actionType, unsafeAdviceState, metadata, reviewedByUserId, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string }
+        targetType:
+          $ref: '#/components/schemas/ModerationTargetType'
+        targetId: { type: string, format: uuid }
+        actionType:
+          $ref: '#/components/schemas/ModerationActionType'
+        unsafeAdviceState:
+          $ref: '#/components/schemas/UnsafeAdviceState'
+        reason: { type: string, nullable: true }
+        metadata:
+          type: object
+          additionalProperties: true
+        reviewedByUserId: { type: string }
+        createdAt: { type: string, format: date-time }

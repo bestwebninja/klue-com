@@ -28,8 +28,8 @@ export function LoginPage() {
           email: user.email
         });
         navigate(user.role === "admin" ? "/admin" : "/dashboard");
-      } catch {
-        setError("Unable to log in. Please check your credentials and try again.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unable to log in. Please check your credentials and try again.");
       } finally {
         setLoading(false);
       }

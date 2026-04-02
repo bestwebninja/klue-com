@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "../config/env";
+import { resolveSupabaseUser } from "../services/supabase-session";
 
 export type AuthRequest = Request & {
   user?: {
@@ -80,18 +81,26 @@ export const verifyRefreshToken = (token: string) => {
   return payload;
 };
 
-export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const authHeader = req.header("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing bearer token" });
+export async function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
+  const { user, error } = await resolveSupabaseUser(req);
+
+  if (!user) {
+    if (error === "SUPABASE_ADMIN_MISSING") {
+      return res.status(503).json({
+        error: "Auth route disabled",
+        code: "AUTH_DISABLED",
+        message: "Supabase auth validation is not configured on this API"
+      });
+    }
+
+    return res.status(401).json({ error: "Invalid or missing bearer token" });
   }
 
-  const token = authHeader.slice(7);
-  const payload = verifyToken(token);
-  if (!payload || payload.type !== "access") {
-    return res.status(401).json({ error: "Invalid or expired token" });
-  }
+  req.user = {
+    sub: user.id,
+    email: user.email ?? "",
+    role: String(user.app_metadata?.role ?? user.user_metadata?.role ?? "user")
+  };
 
-  req.user = { sub: payload.sub, email: payload.email, role: payload.role };
   return next();
 }

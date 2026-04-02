@@ -6,8 +6,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Only these emails can ever be granted admin via this function
-const ADMIN_EMAILS = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com", "andrew.ew@kluje.com"];
+const DEFAULT_ADMIN_ALLOWLIST = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com"];
+
+const resolveAdminAllowlist = (): string[] => {
+  const configured = Deno.env.get("ADMIN_ALLOWLIST_EMAILS");
+  if (!configured) return DEFAULT_ADMIN_ALLOWLIST;
+
+  return configured
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+};
+
+// Only these emails can ever be granted admin via this function.
+const ADMIN_EMAILS = resolveAdminAllowlist();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -27,7 +39,7 @@ serve(async (req) => {
     if (listErr) throw new Error(`Cannot list users: ${listErr.message}`);
 
     for (const email of ADMIN_EMAILS) {
-      const user = usersData.users.find((u) => u.email === email);
+      const user = usersData.users.find((u) => u.email?.toLowerCase() === email);
       if (!user) {
         results[email] = "not signed up yet";
         continue;

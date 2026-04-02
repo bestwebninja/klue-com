@@ -6,7 +6,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-const ADMIN_EMAILS = ['divitiae.terrae.llc@gmail.com', 'marcus@kluje.com', 'andrew.ew@kluje.com'];
+import { isAllowlistedAdminEmail } from '@/constants/adminAllowlist';
 
 export default function AdminSetup() {
   const { user, loading } = useAuth();
@@ -33,7 +33,7 @@ export default function AdminSetup() {
     );
   }
 
-  const isEligible = ADMIN_EMAILS.includes(user.email ?? '');
+  const isEligible = isAllowlistedAdminEmail(user.email);
 
   const handleClaim = async () => {
     setStatus('loading');
@@ -42,7 +42,7 @@ export default function AdminSetup() {
       const { data, error } = await supabase.functions.invoke('ensure-admin-roles');
       if (error) throw error;
       setStatus('success');
-      const result = data?.results?.[user.email ?? ''] ?? 'Done';
+      const result = data?.results?.[(user.email ?? '').toLowerCase()] ?? 'Done';
       setMessage(result);
     } catch (err: unknown) {
       setStatus('error');

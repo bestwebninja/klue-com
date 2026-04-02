@@ -10,12 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-
-const ALLOWED_EMAILS = [
-  "marcus@kluje.com",
-  "divitiae.terrae.llc@gmail.com",
-  "andrew.ew@kluje.com",
-];
+import { isAllowlistedAdminEmail } from "@/constants/adminAllowlist";
 
 export default function CookieAdminLoginPage() {
   const { user, signIn } = useAuth();
@@ -26,14 +21,14 @@ export default function CookieAdminLoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Already authenticated — redirect if allowed
-  if (user && ALLOWED_EMAILS.includes(user.email?.toLowerCase() ?? "")) {
+  if (user && isAllowlistedAdminEmail(user.email)) {
     navigate("/cookie-admin", { replace: true });
     return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ALLOWED_EMAILS.includes(email.toLowerCase())) {
+    if (!isAllowlistedAdminEmail(email)) {
       toast({ title: "Access denied", description: "This email is not authorised.", variant: "destructive" });
       return;
     }

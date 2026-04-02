@@ -5,12 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const ALLOWED_EMAILS = [
-  "marcus@kluje.com",
-  "divitiae.terrae.llc@gmail.com",
-  "andrew.ew@kluje.com",
-];
+import { isAllowlistedAdminEmail } from "@/constants/adminAllowlist";
 
 export function AdminEmailGuard({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -23,8 +18,7 @@ export function AdminEmailGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  const email = user?.email?.toLowerCase();
-  const isAllowed = email && ALLOWED_EMAILS.includes(email);
+  const isAllowed = isAllowlistedAdminEmail(user?.email);
 
   if (!user || !isAllowed) {
     return (

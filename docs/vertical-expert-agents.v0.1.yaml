@@ -68,6 +68,8 @@ agents:
     codex_commands:
       - command: /v5/security-intake
         purpose: Capture site type, threat model, perimeter, entry points, monitoring goals, and risk profile.
+      - command: /v5/build-intake-question-tree
+        purpose: Generate an adaptive intake decision tree that asks only the next best security-scoping questions.
       - command: /v5/system-scope
         purpose: Generate an integrated scope covering CCTV, biometrics, drone support, remote monitoring, and incident workflows.
       - command: /v5/coverage-map
@@ -244,6 +246,70 @@ v5_definition:
         - do_not_provide tactical evasion-resistant details that could enable wrongdoing
         - do_not_finalize technical design without clearly noting assumptions
         - do_not provide legal or regulatory assurances without review
+
+
+    - command: /v5/build-intake-question-tree
+      trigger:
+        - User needs a dynamic, conditional questionnaire before full security scoping
+        - User wants to operationalize intake in forms, chat flows, or call-center scripts
+        - Core Agent needs a reusable branch logic map for missing-information follow-up
+      required_inputs:
+        - site_type
+        - monitoring_goal
+        - primary_risk_concern
+      optional_inputs:
+        - property_use
+        - number_of_sites
+        - number_of_entries
+        - floor_count
+        - outdoor_area
+        - current_security_setup
+        - incident_history
+        - staff_hours
+        - visitor_volume
+        - contractor_access_patterns
+        - network_or_power_constraints
+        - privacy_sensitive_zones
+        - budget_range
+        - preferred_install_timeline
+      processing_rules:
+        - derive the minimum mandatory question path before recommending provider type
+        - branch questions by site complexity, risk urgency, and monitoring operating model
+        - encode conditional follow-up for access control, perimeter exposure, and evidence retention
+        - cap each branch depth to reduce user fatigue while preserving scope accuracy
+        - include explicit stop conditions when enough information is available for /v5/security-intake
+      outputs:
+        - intake_question_tree
+        - branching_logic_notes
+        - required_vs_optional_question_map
+        - termination_conditions
+        - handoff_payload_template
+      output_schema:
+        intake_question_tree:
+          root_question: string
+          nodes:
+            - id: string
+              question: string
+              rationale: string
+              answer_type: single_select|multi_select|text|number|boolean|date_range
+              required: boolean
+              options: string[]
+              follow_up_rules:
+                - if_answer: string
+                  next_node_id: string
+              terminal: boolean
+        branching_logic_notes: string[]
+        required_vs_optional_question_map:
+          required: string[]
+          optional: string[]
+        termination_conditions: string[]
+        handoff_payload_template:
+          minimum_fields_for_security_intake: string[]
+          enrichment_fields_for_system_scope: string[]
+      guardrails:
+        - do_not ask for tactical vulnerabilities that could meaningfully enable wrongdoing
+        - do_not collect sensitive personal identifiers unless directly required for scoping
+        - do_not imply that completion of tree guarantees full risk coverage
 
     - command: /v5/system-scope
       trigger:
@@ -481,7 +547,6 @@ v5_definition:
       retention assumptions, support model, and commercial clarity.
 
   next_v5_build:
-    - intake_question_tree
     - output_json_schemas
     - risk_taxonomy
     - provider_type_taxonomy

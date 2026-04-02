@@ -167,7 +167,7 @@ export default function InsuranceDept({ onBack }: { onBack: () => void }) {
 
           {/* Upload Policy / COI drag-drop zone */}
           <Field label="Upload Policy / COI" fullWidth>
-            <div className="border-2 border-dashed border-orange-400/70 rounded-lg px-4 py-6 flex flex-col items-center gap-2 bg-orange-50/30 dark:bg-orange-950/10 cursor-pointer hover:bg-orange-50/50 transition-colors">
+            <div className="contractor-upload-zone">
               <Upload className="w-6 h-6 text-orange-400" />
               <p className="text-xs text-muted-foreground text-center">
                 Drag &amp; drop policy declaration or COI here, or <span className="text-orange-500 font-medium">browse</span>

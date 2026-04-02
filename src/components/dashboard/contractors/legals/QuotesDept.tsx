@@ -199,7 +199,7 @@ export default function QuotesDept({ onBack }: { onBack: () => void }) {
 
           {/* Voice Quote Upload */}
           <Field label="Voice Quote Upload" fullWidth hint="Upload voice memo — AI transcribes and populates line items">
-            <div className="border-2 border-dashed border-border/60 rounded-lg px-4 py-5 flex flex-col items-center gap-2 bg-muted/20 cursor-pointer hover:bg-muted/30 transition-colors">
+            <div className="contractor-upload-zone py-5">
               <Upload className="w-5 h-5 text-muted-foreground" />
               <p className="text-xs text-muted-foreground text-center">Drag &amp; drop voice memo or <span className="text-orange-500 font-medium">browse</span></p>
               <p className="text-[10px] text-muted-foreground">MP3, M4A, WAV — max 50 MB</p>
@@ -208,7 +208,7 @@ export default function QuotesDept({ onBack }: { onBack: () => void }) {
 
           {/* Handwriting Upload */}
           <Field label="Handwritten Estimate Upload" fullWidth hint="Upload handwritten estimate — AI converts to digital quote">
-            <div className="border-2 border-dashed border-orange-400/70 rounded-lg px-4 py-5 flex flex-col items-center gap-2 bg-orange-50/30 dark:bg-orange-950/10 cursor-pointer hover:bg-orange-50/50 transition-colors">
+            <div className="contractor-upload-zone py-5">
               <Upload className="w-5 h-5 text-orange-400" />
               <p className="text-xs text-muted-foreground text-center">Drag &amp; drop handwritten estimate or <span className="text-orange-500 font-medium">browse</span></p>
               <p className="text-[10px] text-muted-foreground">PNG, JPG, PDF — max 20 MB</p>

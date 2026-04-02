@@ -310,9 +310,9 @@ export default function GCCommandDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 -m-4 sm:-m-6 lg:-m-8">
+    <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-sky-50/50 dark:bg-slate-950">
       {/* ── Top Bar ── */}
-      <div className="bg-card border-b border-border px-4 sm:px-5 h-[52px] flex items-center justify-between shrink-0">
+      <div className="bg-white/95 dark:bg-slate-900/95 border-b border-sky-200/80 dark:border-slate-700 px-4 sm:px-5 h-[44px] flex items-center justify-between shrink-0 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-primary-foreground">
@@ -321,7 +321,7 @@ export default function GCCommandDashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               Contractors — kluje.com
               {contractorType && (
                 <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">
@@ -334,7 +334,7 @@ export default function GCCommandDashboard() {
                 </span>
               )}
             </div>
-            <div className="text-[11px] text-muted-foreground flex items-center gap-1 flex-wrap">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 flex-wrap">
               <span>{contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : ''} Contractor AI Agent · kluje.com</span>
               {serviceNames.length > 0 && (
                 <span className="text-[10px] text-muted-foreground/70">
@@ -344,7 +344,7 @@ export default function GCCommandDashboard() {
             </div>
           </div>
         </div>
-        <div className="hidden lg:block text-xs text-muted-foreground bg-muted border border-border rounded-md px-3 py-1.5">
+        <div className="hidden xl:block text-xs text-slate-500 dark:text-slate-300 bg-sky-50/80 dark:bg-slate-800 border border-sky-200 dark:border-slate-700 rounded-md px-3 py-1">
           {isDept
             ? `AI monitoring active — ${activeSidebar} department`
             : 'Try: "Order 500 bags of Portland cement" or "How many subs are on site today?"'}
@@ -358,14 +358,14 @@ export default function GCCommandDashboard() {
       </div>
 
       {/* ── AI Input Bar ── */}
-      <div className="bg-card border-b border-border px-4 sm:px-5 py-2 flex items-center gap-2 shrink-0">
+      <div className="bg-white/90 dark:bg-slate-900 border-b border-sky-200/70 dark:border-slate-700 px-4 sm:px-5 py-1.5 flex items-center gap-2 shrink-0">
         <Input
           placeholder={
             isDept
               ? `Ask AI about ${activeSidebar}…`
               : 'Ask anything about your jobs, materials, subs, or finances…'
           }
-          className="flex-1 text-sm bg-muted"
+          className="flex-1 text-sm bg-sky-50 dark:bg-slate-800/80 border-sky-200/80 dark:border-slate-600"
         />
         <div className="hidden sm:flex items-center gap-2">
           <Button variant="default" size="sm" className="gap-1.5 text-xs">
@@ -386,7 +386,7 @@ export default function GCCommandDashboard() {
       {/* ── Main Layout ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ── Sidebar ── */}
-        <div ref={sidebarRef} className="hidden md:flex w-[195px] bg-card border-r border-border shrink-0 flex-col overflow-hidden">
+        <div ref={sidebarRef} className="hidden md:flex w-[210px] xl:w-[240px] bg-sky-100/45 dark:bg-slate-900 border-r border-sky-200 dark:border-slate-700 shrink-0 flex-col overflow-hidden">
           {/* Scrollable section list */}
           <div className="flex-1 overflow-y-auto py-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
             {sidebarSections.map((section) => {
@@ -397,7 +397,7 @@ export default function GCCommandDashboard() {
                   {/* Section header — clickable to collapse */}
                   <button
                     onClick={() => toggleSection(section.label)}
-                    className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-muted/60 transition-colors group"
+                    className="w-full flex items-center justify-between px-2 py-1 rounded hover:bg-sky-200/40 dark:hover:bg-slate-800 transition-colors group"
                   >
                     <span className={`flex items-center text-[10px] font-semibold tracking-wider uppercase ${isLegals ? 'text-orange-500' : 'text-muted-foreground'}`}>
                       {section.label}
@@ -416,8 +416,8 @@ export default function GCCommandDashboard() {
                         onClick={() => handleSidebarClick(item.name)}
                         className={`w-full flex items-center justify-between px-2 py-[3px] rounded text-[11.5px] text-left transition-colors ${
                           isActive
-                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium'
-                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                            ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 font-medium'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-sky-200/40 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
@@ -444,7 +444,7 @@ export default function GCCommandDashboard() {
           </div>
 
           {/* Quick-jump strip at bottom */}
-          <div className="border-t border-border px-3 py-2 shrink-0">
+          <div className="border-t border-sky-200 dark:border-slate-700 px-3 py-2 shrink-0">
             <p className="text-[9.5px] text-muted-foreground uppercase tracking-wider mb-1 font-semibold">Jump to</p>
             <div className="flex flex-wrap gap-1">
               {sidebarSections.map(s => (
@@ -460,8 +460,8 @@ export default function GCCommandDashboard() {
                   }}
                   className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${
                     s.label === 'Legals'
-                      ? 'border-orange-400 text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950'
-                      : 'border-border text-muted-foreground hover:bg-muted'
+                      ? 'border-sky-400 text-sky-600 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-slate-800'
+                      : 'border-sky-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:bg-sky-100/70 dark:hover:bg-slate-800'
                   }`}
                 >
                   {s.label}
@@ -472,7 +472,7 @@ export default function GCCommandDashboard() {
         </div>
 
         {/* ── Content Panel ── */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-muted/30">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-5 bg-gradient-to-b from-sky-100/35 to-white dark:from-slate-950 dark:to-slate-900">
           {isDept ? (
             /* Department view */
             <Suspense fallback={<DeptLoader />}>
@@ -482,15 +482,15 @@ export default function GCCommandDashboard() {
             /* Main dashboard view */
             <>
               {/* Tabs */}
-              <div className="flex gap-0 border-b border-border bg-card rounded-t-lg px-3 mb-4">
+              <div className="flex gap-0 border-b border-sky-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900 rounded-t-lg px-2 sm:px-3 mb-4 overflow-x-auto">
                 {tabs.map((tab, i) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(i)}
                     className={`px-3.5 py-2.5 text-[13px] border-b-2 -mb-px transition-colors ${
                       i === activeTab
-                        ? 'text-foreground border-orange-500 font-medium'
-                        : 'text-muted-foreground border-transparent hover:text-foreground'
+                        ? 'text-slate-900 dark:text-white border-sky-500 font-medium'
+                        : 'text-slate-500 dark:text-slate-300 border-transparent hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     {tab}
@@ -499,9 +499,9 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* KPI Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
                 {kpis.map((kpi) => (
-                  <Card key={kpi.label} className="shadow-none">
+                  <Card key={kpi.label} className="shadow-none border-sky-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                     <CardContent className="p-3.5">
                       <div className="text-[11px] text-muted-foreground mb-0.5">{kpi.label}</div>
                       {/* AI Watched badge */}
@@ -531,8 +531,8 @@ export default function GCCommandDashboard() {
               )}
 
               {/* Row 1 */}
-              <div className="grid md:grid-cols-2 gap-3 mb-3">
-                <Card className="shadow-none">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-3">
+                <Card className="shadow-none border-sky-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[13px] font-medium flex items-center gap-1.5">
@@ -561,7 +561,7 @@ export default function GCCommandDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-none">
+                <Card className="shadow-none border-sky-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[13px] font-medium flex items-center gap-1.5">
@@ -589,8 +589,8 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* Row 2 */}
-              <div className="grid md:grid-cols-2 gap-3 mb-3">
-                <Card className="shadow-none">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-3">
+                <Card className="shadow-none border-sky-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[13px] font-medium flex items-center gap-1.5">
@@ -619,7 +619,7 @@ export default function GCCommandDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-none">
+                <Card className="shadow-none border-sky-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[13px] font-medium flex items-center gap-1.5">
@@ -642,9 +642,9 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* Legals quick-access strip */}
-              <Card className="shadow-none border-orange-200/40 dark:border-orange-900/30 bg-orange-50/20 dark:bg-orange-950/10">
+              <Card className="shadow-none border-sky-200/70 dark:border-slate-700 bg-sky-50/70 dark:bg-slate-900">
                 <CardContent className="p-3.5">
-                  <div className="text-[11px] font-semibold text-orange-600 dark:text-orange-400 mb-2 uppercase tracking-wide">
+                  <div className="text-[11px] font-semibold text-sky-700 dark:text-sky-300 mb-2 uppercase tracking-wide">
                     Legals — Quick Access
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -654,7 +654,7 @@ export default function GCCommandDashboard() {
                         <button
                           key={item.name}
                           onClick={() => handleSidebarClick(item.name)}
-                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-orange-200/60 dark:border-orange-800/40 bg-card text-[11px] text-muted-foreground hover:text-orange-600 hover:border-orange-400/60 transition-colors"
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-sky-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-200 hover:text-sky-700 dark:hover:text-sky-300 hover:border-sky-400/60 transition-colors"
                         >
                           <Icon className="w-3 h-3" />
                           {item.name}
@@ -679,12 +679,12 @@ export default function GCCommandDashboard() {
           className="w-full h-2 border-t border-border bg-muted/70 hover:bg-muted cursor-row-resize"
         />
         <div
-          className="bg-card border-t border-border px-4 py-2 text-[11px] text-muted-foreground overflow-y-auto"
+          className="bg-white/90 dark:bg-slate-900 border-t border-sky-200 dark:border-slate-700 px-4 py-1.5 text-[11px] text-slate-600 dark:text-slate-300 overflow-y-auto"
           style={{ height: `${tickerHeight}px` }}
         >
-          🤖 <span className="text-orange-500 font-medium">Agent activity — last hour:</span>{' '}
+          🤖 <span className="text-sky-600 dark:text-sky-300 font-medium">Agent activity — last hour:</span>{' '}
           Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-          <span className="cursor-pointer underline text-orange-500">See full log ↗</span>
+          <span className="cursor-pointer underline text-sky-600 dark:text-sky-300">See full log ↗</span>
         </div>
       </div>
     </div>

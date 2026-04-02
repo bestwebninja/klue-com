@@ -257,7 +257,7 @@ export default function ArbitrationDept({ onBack }: { onBack: () => void }) {
 
           {/* Upload Evidence */}
           <Field label="Upload Evidence" fullWidth>
-            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border/60 rounded-lg cursor-pointer hover:border-orange-400/60 hover:bg-orange-50/20 dark:hover:bg-orange-950/10 transition-colors group">
+            <label className="contractor-upload-zone flex items-center justify-center w-full h-24 px-3 py-3 group">
               <Upload className="w-5 h-5 text-muted-foreground group-hover:text-orange-500 mb-1.5 transition-colors" />
               <span className="text-xs text-muted-foreground">
                 Drop files here or{' '}

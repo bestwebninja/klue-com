@@ -1,0 +1,103 @@
+{
+  "name": "No Response Nudges",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Cron - hourly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-980, 260],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Fetch due nudges",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-740, 260],
+      "parameters": {
+        "method": "GET",
+        "url": "http://api:4000/api/v1/internal/reminders?type=no_response_nudge&status=queued&dueWithinMinutes=60"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Split nudges",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-520, 260],
+      "parameters": {
+        "batchSize": 25,
+        "options": {}
+      }
+    },
+    {
+      "id": "4",
+      "name": "Send in-app nudge",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-300, 260],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/internal/notifications/send",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"reminderId\":$json.id,\"channel\":\"in_app\",\"payload\":$json.payload}"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Record nudge event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-80, 260],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/events",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"event_type\":\"messaging.no_response_nudge.sent\",\"payload\":{\"threadId\":$json.thread_id,\"reminderId\":$json.id}}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Mark nudge sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [140, 260],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{`http://api:4000/api/v1/internal/reminders/${$json.id}`}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"status\":\"sent\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Cron - hourly": {
+      "main": [[{ "node": "Fetch due nudges", "type": "main", "index": 0 }]]
+    },
+    "Fetch due nudges": {
+      "main": [[{ "node": "Split nudges", "type": "main", "index": 0 }]]
+    },
+    "Split nudges": {
+      "main": [[{ "node": "Send in-app nudge", "type": "main", "index": 0 }]]
+    },
+    "Send in-app nudge": {
+      "main": [[{ "node": "Record nudge event", "type": "main", "index": 0 }]]
+    },
+    "Record nudge event": {
+      "main": [[{ "node": "Mark nudge sent", "type": "main", "index": 0 }]]
+    }
+  }
+}

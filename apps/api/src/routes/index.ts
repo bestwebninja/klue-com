@@ -11,6 +11,8 @@ import areaRiskRoutes from "./area-risk";
 import routingRoutes from "./routing";
 import providersRoutes from "./providers";
 import quoteRequestsRoutes from "./quote-requests";
+import messagesRoutes from "./messages";
+import appointmentsRoutes from "./appointments";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -40,5 +42,7 @@ router.use("/ads", adsRoutes);
 router.use("/routing", routingRoutes);
 router.use("/providers", providersRoutes);
 router.use("/quote-requests", quoteRequestsRoutes);
+router.use("/messages", messagesRoutes);
+router.use("/appointments", appointmentsRoutes);
 
 export default router;

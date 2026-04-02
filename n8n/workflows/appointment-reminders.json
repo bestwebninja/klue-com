@@ -1,0 +1,97 @@
+{
+  "name": "Appointment Reminders",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Cron - every 15m",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-900, 240],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Fetch queued appointment reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-660, 240],
+      "parameters": {
+        "method": "GET",
+        "url": "http://api:4000/api/v1/internal/reminders?type=appointment&status=queued&dueWithinMinutes=15"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Split reminders",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-440, 240],
+      "parameters": {
+        "batchSize": 20,
+        "options": {}
+      }
+    },
+    {
+      "id": "4",
+      "name": "Send reminder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-220, 240],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/internal/notifications/send",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"reminderId\":$json.id,\"channel\":$json.channel,\"payload\":$json.payload}"
+      }
+    },
+    {
+      "id": "5",
+      "name": "Mark reminder sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [0, 240],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{`http://api:4000/api/v1/internal/reminders/${$json.id}`}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"status\":\"sent\"}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Respond",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [220, 340],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Cron - every 15m": {
+      "main": [[{ "node": "Fetch queued appointment reminders", "type": "main", "index": 0 }]]
+    },
+    "Fetch queued appointment reminders": {
+      "main": [[{ "node": "Split reminders", "type": "main", "index": 0 }]]
+    },
+    "Split reminders": {
+      "main": [[{ "node": "Send reminder", "type": "main", "index": 0 }]]
+    },
+    "Send reminder": {
+      "main": [[{ "node": "Mark reminder sent", "type": "main", "index": 0 }]]
+    },
+    "Mark reminder sent": {
+      "main": [[{ "node": "Respond", "type": "main", "index": 0 }]]
+    }
+  }
+}

@@ -274,6 +274,67 @@ CREATE TABLE invoices (
   paid_at TIMESTAMPTZ
 );
 
+
+CREATE TABLE threads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  lead_id UUID REFERENCES leads(id),
+  participant_ids UUID[] NOT NULL DEFAULT '{}',
+  subject TEXT,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+  created_by UUID REFERENCES users(id),
+  last_message_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  thread_id UUID NOT NULL REFERENCES threads(id) ON DELETE CASCADE,
+  sender_user_id UUID REFERENCES users(id),
+  body TEXT NOT NULL,
+  message_type TEXT NOT NULL DEFAULT 'text' CHECK (message_type IN ('text', 'system')),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE appointments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  thread_id UUID REFERENCES threads(id),
+  lead_id UUID REFERENCES leads(id),
+  provider_id UUID REFERENCES providers(id),
+  customer_user_id UUID REFERENCES users(id),
+  scheduled_start_at TIMESTAMPTZ NOT NULL,
+  scheduled_end_at TIMESTAMPTZ NOT NULL,
+  timezone TEXT NOT NULL,
+  location TEXT,
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'rescheduled', 'cancelled', 'completed')),
+  cancellation_reason TEXT,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (scheduled_end_at > scheduled_start_at)
+);
+
+CREATE TABLE reminders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  appointment_id UUID REFERENCES appointments(id) ON DELETE CASCADE,
+  thread_id UUID REFERENCES threads(id) ON DELETE CASCADE,
+  reminder_type TEXT NOT NULL CHECK (reminder_type IN ('appointment', 'no_response_nudge')),
+  channel TEXT NOT NULL CHECK (channel IN ('email', 'sms', 'in_app')),
+  recipient_user_id UUID REFERENCES users(id),
+  scheduled_for TIMESTAMPTZ NOT NULL,
+  status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'sent', 'cancelled')),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (appointment_id IS NOT NULL OR thread_id IS NOT NULL)
+);
+
 CREATE TABLE events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id),
@@ -295,3 +356,8 @@ CREATE INDEX idx_providers_tenant_status ON providers (tenant_id, status);
 CREATE INDEX idx_provider_capabilities_service_category ON provider_capabilities (service_category) WHERE active = true;
 CREATE INDEX idx_quote_requests_tenant_requested_at ON quote_requests (tenant_id, requested_at DESC);
 CREATE INDEX idx_dispatches_run_status ON dispatches (run_id, status);
+
+CREATE INDEX idx_threads_tenant_updated_at ON threads (tenant_id, updated_at DESC);
+CREATE INDEX idx_messages_thread_created_at ON messages (thread_id, created_at DESC);
+CREATE INDEX idx_appointments_tenant_start_at ON appointments (tenant_id, scheduled_start_at DESC);
+CREATE INDEX idx_reminders_status_schedule ON reminders (status, scheduled_for);

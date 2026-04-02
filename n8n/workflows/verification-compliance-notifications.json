@@ -1,0 +1,56 @@
+{
+  "name": "Provider Verification & Compliance Notifications",
+  "nodes": [
+    {
+      "name": "Verification Event Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "verification-events",
+        "httpMethod": "POST"
+      }
+    },
+    {
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.function",
+      "parameters": {
+        "functionCode": "const body = items[0].json; return [{ json: { providerId: body.providerId, requestId: body.requestId, eventType: body.eventType, status: body.status, reasonCode: body.reasonCode ?? null, email: body.email ?? null } }];"
+      }
+    },
+    {
+      "name": "Route Event Type",
+      "type": "n8n-nodes-base.switch",
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.eventType}}",
+        "rules": [
+          { "operation": "equal", "value2": "decision_recorded" },
+          { "operation": "equal", "value2": "compliance_flag_created" }
+        ]
+      }
+    },
+    {
+      "name": "Send Provider Decision Email",
+      "type": "n8n-nodes-base.emailSend",
+      "parameters": {}
+    },
+    {
+      "name": "Send Compliance Alert",
+      "type": "n8n-nodes-base.slack",
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Verification Event Webhook": {
+      "main": [[{ "node": "Normalize Payload", "type": "main", "index": 0 }]]
+    },
+    "Normalize Payload": {
+      "main": [[{ "node": "Route Event Type", "type": "main", "index": 0 }]]
+    },
+    "Route Event Type": {
+      "main": [
+        [{ "node": "Send Provider Decision Email", "type": "main", "index": 0 }],
+        [{ "node": "Send Compliance Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

@@ -148,6 +148,58 @@ CREATE TABLE provider_capabilities (
   UNIQUE (provider_id, service_category)
 );
 
+CREATE TABLE verification_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'needs_more_info')),
+  requested_by UUID REFERENCES users(id),
+  reviewed_by UUID REFERENCES users(id),
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  decided_at TIMESTAMPTZ
+);
+
+CREATE TABLE verification_documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID NOT NULL REFERENCES verification_requests(id) ON DELETE CASCADE,
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  document_type TEXT NOT NULL,
+  storage_url TEXT NOT NULL,
+  checksum TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted', 'accepted', 'rejected')),
+  uploaded_by UUID REFERENCES users(id),
+  uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE verification_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  request_id UUID REFERENCES verification_requests(id) ON DELETE CASCADE,
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  event_type TEXT NOT NULL CHECK (event_type IN ('verification_started', 'document_uploaded', 'decision_recorded', 'compliance_flag_created')),
+  actor_id UUID REFERENCES users(id),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE compliance_flags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  provider_id UUID NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  request_id UUID REFERENCES verification_requests(id) ON DELETE SET NULL,
+  source TEXT NOT NULL,
+  code TEXT NOT NULL,
+  severity TEXT NOT NULL CHECK (severity IN ('info', 'warning', 'critical')),
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved')),
+  details JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  resolved_at TIMESTAMPTZ
+);
+
 
 CREATE TABLE routing_rules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -293,5 +345,9 @@ CREATE INDEX idx_handoffs_run_status ON handoffs (run_id, status);
 CREATE INDEX idx_routing_decisions_run_created_at ON routing_decisions (run_id, created_at DESC);
 CREATE INDEX idx_providers_tenant_status ON providers (tenant_id, status);
 CREATE INDEX idx_provider_capabilities_service_category ON provider_capabilities (service_category) WHERE active = true;
+CREATE INDEX idx_verification_requests_provider_created_at ON verification_requests (provider_id, created_at DESC);
+CREATE INDEX idx_verification_documents_request_uploaded_at ON verification_documents (request_id, uploaded_at DESC);
+CREATE INDEX idx_verification_events_request_created_at ON verification_events (request_id, created_at DESC);
+CREATE INDEX idx_compliance_flags_provider_status ON compliance_flags (provider_id, status, created_at DESC);
 CREATE INDEX idx_quote_requests_tenant_requested_at ON quote_requests (tenant_id, requested_at DESC);
 CREATE INDEX idx_dispatches_run_status ON dispatches (run_id, status);

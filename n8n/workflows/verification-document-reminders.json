@@ -1,0 +1,44 @@
+{
+  "name": "Provider Verification Document Reminders",
+  "nodes": [
+    {
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.cron",
+      "parameters": {
+        "triggerTimes": [{ "hour": 14, "minute": 0 }]
+      }
+    },
+    {
+      "name": "Fetch Pending Requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "={{$env.API_BASE_URL}}/api/v1/verification/pending",
+        "method": "GET",
+        "responseFormat": "json"
+      }
+    },
+    {
+      "name": "Filter Missing Docs",
+      "type": "n8n-nodes-base.function",
+      "parameters": {
+        "functionCode": "return items.filter((item) => (item.json.missingDocuments || []).length > 0);"
+      }
+    },
+    {
+      "name": "Send Reminder Email",
+      "type": "n8n-nodes-base.emailSend",
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Daily Cron": {
+      "main": [[{ "node": "Fetch Pending Requests", "type": "main", "index": 0 }]]
+    },
+    "Fetch Pending Requests": {
+      "main": [[{ "node": "Filter Missing Docs", "type": "main", "index": 0 }]]
+    },
+    "Filter Missing Docs": {
+      "main": [[{ "node": "Send Reminder Email", "type": "main", "index": 0 }]]
+    }
+  }
+}

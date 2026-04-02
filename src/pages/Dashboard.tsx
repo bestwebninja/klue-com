@@ -361,6 +361,7 @@ const Dashboard = () => {
             isSubscribed={isSubscribed}
             isAdmin={isAdmin}
             onSignOut={handleSignOut}
+            showContractorIdentity={activeTab === 'gc-command'}
           />
 
           {/* Scrollable content with up/down arrow buttons */}

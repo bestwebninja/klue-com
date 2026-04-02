@@ -18,6 +18,8 @@ processing_rules:
 outputs:
   primary_artifact: v5-agent-bundle
   includes:
+    - /v5/build-intake-question-tree
+    - /v5/build-command-contracts
     - /v5/build-output-json-schemas
     - /v5/build-risk-taxonomy
     - /v5/build-provider-type-taxonomy

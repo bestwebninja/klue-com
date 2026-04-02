@@ -1,10 +1,10 @@
 meta:
-  command: /v8/build-guardrails
-  agent_id: V8
-  agent_title: Property Management Expert
+  command: /v6/build-deliverable-type-taxonomy
+  agent_id: V6
+  agent_title: Business Services Expert
   version: 1
   status: draft
-intent: Generate `build-guardrails` artifact for Property Management Expert.
+intent: Generate `build-deliverable-type-taxonomy` artifact for Business Services Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: guardrails
+  primary_artifact: deliverable-type-taxonomy
   schema:
     summary: string
     assumptions: string[]

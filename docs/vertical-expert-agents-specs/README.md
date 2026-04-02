@@ -58,6 +58,8 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/v4/build-prompt-templates` → `v4/build-prompt-templates.yaml`
 
 ## V5 — Autonomous Security & Surveillance Expert
+- `/v5/build-intake-question-tree` → `v5/build-intake-question-tree.yaml`
+- `/v5/build-command-contracts` → `v5/build-command-contracts.yaml`
 - `/v5/build-output-json-schemas` → `v5/build-output-json-schemas.yaml`
 - `/v5/build-risk-taxonomy` → `v5/build-risk-taxonomy.yaml`
 - `/v5/build-provider-type-taxonomy` → `v5/build-provider-type-taxonomy.yaml`
@@ -68,7 +70,7 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/v6/build-intake-question-tree` → `v6/build-intake-question-tree.yaml`
 - `/v6/build-command-contracts` → `v6/build-command-contracts.yaml`
 - `/v6/build-output-json-schemas` → `v6/build-output-json-schemas.yaml`
-- `/v6/build-deliverables-taxonomy` → `v6/build-deliverables-taxonomy.yaml`
+- `/v6/build-deliverable-type-taxonomy` → `v6/build-deliverable-type-taxonomy.yaml`
 - `/v6/build-handoff-framework` → `v6/build-handoff-framework.yaml`
 - `/v6/build-guardrails` → `v6/build-guardrails.yaml`
 - `/v6/build-prompt-templates` → `v6/build-prompt-templates.yaml`
@@ -77,18 +79,18 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/v7/build-intake-question-tree` → `v7/build-intake-question-tree.yaml`
 - `/v7/build-command-contracts` → `v7/build-command-contracts.yaml`
 - `/v7/build-output-json-schemas` → `v7/build-output-json-schemas.yaml`
-- `/v7/build-matter-taxonomy` → `v7/build-matter-taxonomy.yaml`
+- `/v7/build-matter-type-taxonomy` → `v7/build-matter-type-taxonomy.yaml`
 - `/v7/build-lawyer-type-taxonomy` → `v7/build-lawyer-type-taxonomy.yaml`
-- `/v7/build-guardrails` → `v7/build-guardrails.yaml`
+- `/v7/build-legal-guardrail-library` → `v7/build-legal-guardrail-library.yaml`
 - `/v7/build-prompt-templates` → `v7/build-prompt-templates.yaml`
 
 ## V8 — Property Management Expert
 - `/v8/build-intake-question-tree` → `v8/build-intake-question-tree.yaml`
 - `/v8/build-command-contracts` → `v8/build-command-contracts.yaml`
 - `/v8/build-output-json-schemas` → `v8/build-output-json-schemas.yaml`
-- `/v8/build-property-ops-taxonomy` → `v8/build-property-ops-taxonomy.yaml`
-- `/v8/build-turnover-scope-schema` → `v8/build-turnover-scope-schema.yaml`
-- `/v8/build-guardrails` → `v8/build-guardrails.yaml`
+- `/v8/build-tenancy-state-taxonomy` → `v8/build-tenancy-state-taxonomy.yaml`
+- `/v8/build-turnover-workflow-taxonomy` → `v8/build-turnover-workflow-taxonomy.yaml`
+- `/v8/build-management-support-taxonomy` → `v8/build-management-support-taxonomy.yaml`
 - `/v8/build-prompt-templates` → `v8/build-prompt-templates.yaml`
 
 ## V9 — Real Estate Transactions Expert
@@ -96,8 +98,8 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/v9/build-command-contracts` → `v9/build-command-contracts.yaml`
 - `/v9/build-output-json-schemas` → `v9/build-output-json-schemas.yaml`
 - `/v9/build-transaction-stage-taxonomy` → `v9/build-transaction-stage-taxonomy.yaml`
-- `/v9/build-service-map-schema` → `v9/build-service-map-schema.yaml`
-- `/v9/build-guardrails` → `v9/build-guardrails.yaml`
+- `/v9/build-service-dependency-map` → `v9/build-service-dependency-map.yaml`
+- `/v9/build-deal-blocker-taxonomy` → `v9/build-deal-blocker-taxonomy.yaml`
 - `/v9/build-prompt-templates` → `v9/build-prompt-templates.yaml`
 
 ## V10 — Property Valuation & Advisory Expert
@@ -105,6 +107,6 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/v10/build-command-contracts` → `v10/build-command-contracts.yaml`
 - `/v10/build-output-json-schemas` → `v10/build-output-json-schemas.yaml`
 - `/v10/build-valuation-purpose-taxonomy` → `v10/build-valuation-purpose-taxonomy.yaml`
-- `/v10/build-inspection-scope-schema` → `v10/build-inspection-scope-schema.yaml`
-- `/v10/build-guardrails` → `v10/build-guardrails.yaml`
+- `/v10/build-property-risk-taxonomy` → `v10/build-property-risk-taxonomy.yaml`
+- `/v10/build-inspection-scope-taxonomy` → `v10/build-inspection-scope-taxonomy.yaml`
 - `/v10/build-prompt-templates` → `v10/build-prompt-templates.yaml`

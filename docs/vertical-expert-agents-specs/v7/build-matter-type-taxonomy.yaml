@@ -1,10 +1,10 @@
 meta:
-  command: /v8/build-property-ops-taxonomy
-  agent_id: V8
-  agent_title: Property Management Expert
+  command: /v7/build-matter-type-taxonomy
+  agent_id: V7
+  agent_title: Legal Services Expert
   version: 1
   status: draft
-intent: Generate `build-property-ops-taxonomy` artifact for Property Management Expert.
+intent: Generate `build-matter-type-taxonomy` artifact for Legal Services Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: property-ops-taxonomy
+  primary_artifact: matter-type-taxonomy
   schema:
     summary: string
     assumptions: string[]

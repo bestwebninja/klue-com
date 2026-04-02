@@ -1,10 +1,10 @@
 meta:
-  command: /v10/build-guardrails
-  agent_id: V10
-  agent_title: Property Valuation & Advisory Expert
+  command: /v8/build-management-support-taxonomy
+  agent_id: V8
+  agent_title: Property Management Expert
   version: 1
   status: draft
-intent: Generate `build-guardrails` artifact for Property Valuation & Advisory Expert.
+intent: Generate `build-management-support-taxonomy` artifact for Property Management Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: guardrails
+  primary_artifact: management-support-taxonomy
   schema:
     summary: string
     assumptions: string[]

@@ -21,7 +21,7 @@ outputs:
     - /v7/build-intake-question-tree
     - /v7/build-command-contracts
     - /v7/build-output-json-schemas
-    - /v7/build-matter-taxonomy
+    - /v7/build-matter-type-taxonomy
     - /v7/build-lawyer-type-taxonomy
-    - /v7/build-guardrails
+    - /v7/build-legal-guardrail-library
     - /v7/build-prompt-templates

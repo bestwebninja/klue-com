@@ -1,10 +1,10 @@
 meta:
-  command: /v9/build-guardrails
+  command: /v9/build-deal-blocker-taxonomy
   agent_id: V9
   agent_title: Real Estate Transactions Expert
   version: 1
   status: draft
-intent: Generate `build-guardrails` artifact for Real Estate Transactions Expert.
+intent: Generate `build-deal-blocker-taxonomy` artifact for Real Estate Transactions Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: guardrails
+  primary_artifact: deal-blocker-taxonomy
   schema:
     summary: string
     assumptions: string[]

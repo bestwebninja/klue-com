@@ -1,10 +1,10 @@
 meta:
-  command: /v10/build-inspection-scope-schema
-  agent_id: V10
-  agent_title: Property Valuation & Advisory Expert
+  command: /v5/build-intake-question-tree
+  agent_id: V5
+  agent_title: Autonomous Security & Surveillance Expert
   version: 1
   status: draft
-intent: Generate `build-inspection-scope-schema` artifact for Property Valuation & Advisory Expert.
+intent: Generate `build-intake-question-tree` artifact for Autonomous Security & Surveillance Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: inspection-scope-schema
+  primary_artifact: intake-question-tree
   schema:
     summary: string
     assumptions: string[]

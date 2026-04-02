@@ -1,10 +1,10 @@
 meta:
-  command: /v9/build-service-map-schema
-  agent_id: V9
-  agent_title: Real Estate Transactions Expert
+  command: /v10/build-property-risk-taxonomy
+  agent_id: V10
+  agent_title: Property Valuation & Advisory Expert
   version: 1
   status: draft
-intent: Generate `build-service-map-schema` artifact for Real Estate Transactions Expert.
+intent: Generate `build-property-risk-taxonomy` artifact for Property Valuation & Advisory Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: service-map-schema
+  primary_artifact: property-risk-taxonomy
   schema:
     summary: string
     assumptions: string[]

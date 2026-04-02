@@ -26,7 +26,7 @@ export function DashboardHeader({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle - desktop only */}
-            <SidebarTrigger className="hidden sm:flex text-black hover:text-black hover:bg-black/10" />
+            <SidebarTrigger className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10" />
             
             {/* Mobile: Show logo */}
             <a href="/" className="sm:hidden text-xl font-bold text-black">Kluje</a>

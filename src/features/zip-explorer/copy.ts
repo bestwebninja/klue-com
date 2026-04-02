@@ -9,8 +9,6 @@ export const getAffordabilitySummary = (model: ZipExplorerModel) =>
 export const getFamilyFitSummary = (model: ZipExplorerModel) =>
   `Family-fit score ${model.derivedScores.familyFitScore}/100 suggests this ZIP may be a fit for ${model.derivedScores.familyFitScore > 65 ? "family-focused" : "mixed-needs"} households.`;
 
-export const getRenterOwnerSummary = (model: ZipExplorerModel) =>
-  `Renter score ${model.derivedScores.renterFriendlinessScore}/100 vs homeowner score ${model.derivedScores.homeownerFriendlinessScore}/100.`;
 
 export const getZipFaq = (zip: string) => [
   { q: `How accurate is ZIP ${zip} data?`, a: "We use Census ACS 2024 5-year ZIP tabulation data where available and label optional providers when unavailable." },

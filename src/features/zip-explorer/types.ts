@@ -81,6 +81,7 @@ export interface ZipExplorerModel {
   sourceStatus: SourceStatus[];
   hasAnyData: boolean;
   hasPartialData: boolean;
+  hasAnyErrors: boolean;
 }
 
 export interface ProviderResponse<T> {

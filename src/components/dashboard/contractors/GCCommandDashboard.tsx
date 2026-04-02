@@ -299,7 +299,7 @@ export default function GCCommandDashboard() {
   return (
     <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-blue-50/60 dark:bg-slate-950">
       {/* ── Top Bar ── */}
-      <div className="bg-white/95 dark:bg-slate-900/95 border-b border-blue-200/80 dark:border-slate-700 px-4 sm:px-5 h-[46px] flex items-center justify-between shrink-0 backdrop-blur-sm">
+      <div className="bg-[hsl(222,47%,11%)]/95 backdrop-blur-sm border-b border-primary/20 px-4 sm:px-5 h-[40px] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-primary-foreground">

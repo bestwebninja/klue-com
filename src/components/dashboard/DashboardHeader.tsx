@@ -32,7 +32,7 @@ export function DashboardHeader({
             <a href="/" className="sm:hidden text-xl font-bold text-primary">Kluje</a>
             
             {/* Desktop: Show page title */}
-            <span className="hidden sm:inline text-black font-semibold leading-none">Provider Dashboard</span>
+            <span className="hidden sm:inline text-white font-semibold leading-none text-sm">Provider Dashboard</span>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-3">

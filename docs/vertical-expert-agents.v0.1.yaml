@@ -1,0 +1,167 @@
+version: 0.1
+suite: vertical_expert_agents
+purpose: >
+  Initial codex command scaffolds for 10 Vertical Expert Agents.
+  These commands are designed for job scoping, quote evaluation,
+  specialist intake, and platform-guided requirement clarification.
+
+defaults:
+  mode: advisory
+  workflow_owner: core_agents
+  output_style: structured
+  safety:
+    no_platform_execution: true
+    no_binding_legal_advice: true
+    no_regulated_claims_without_review: true
+
+agents:
+  - id: V1
+    title: Home Trades Expert
+    codex_commands:
+      - command: /v1/intake
+        purpose: Capture job type, symptoms, urgency, property context, and access constraints.
+      - command: /v1/scope
+        purpose: Generate a structured repair or renovation scope.
+      - command: /v1/quote-check
+        purpose: Evaluate quote completeness, exclusions, and likely missing line items.
+      - command: /v1/site-checklist
+        purpose: Produce pre-visit checklist for user and provider.
+
+  - id: V2
+    title: Design & Build Expert
+    codex_commands:
+      - command: /v2/vision-intake
+        purpose: Convert user goals, style preferences, and constraints into a design brief.
+      - command: /v2/project-brief
+        purpose: Build a structured project brief for architects or design-build firms.
+      - command: /v2/portfolio-check
+        purpose: Score portfolio fit against style, complexity, and budget expectations.
+      - command: /v2/quote-check
+        purpose: Review design/build proposals for scope gaps and assumption risk.
+
+  - id: V3
+    title: Living Solutions Expert
+    codex_commands:
+      - command: /v3/maintenance-intake
+        purpose: Capture recurring service needs, property routines, frequency, and preferences.
+      - command: /v3/recurring-plan
+        purpose: Create an ongoing maintenance scope with visit cadence.
+      - command: /v3/service-bundle
+        purpose: Recommend bundled recurring services by property profile.
+      - command: /v3/quote-check
+        purpose: Compare recurring service plans across providers.
+
+  - id: V4
+    title: Commercial & Facilities Expert
+    codex_commands:
+      - command: /v4/facility-intake
+        purpose: Capture site count, operating hours, compliance constraints, and vendor expectations.
+      - command: /v4/sow
+        purpose: Generate a facilities-focused statement of work.
+      - command: /v4/sla-check
+        purpose: Review SLA terms, response windows, coverage, and exclusions.
+      - command: /v4/vendor-compare
+        purpose: Compare vendors on capability, footprint, and service model.
+
+  - id: V5
+    title: Autonomous Security & Surveillance Expert
+    codex_commands:
+      - command: /v5/security-intake
+        purpose: Capture site type, threat model, perimeter, entry points, monitoring goals, and risk profile.
+      - command: /v5/system-scope
+        purpose: Generate an integrated scope covering CCTV, biometrics, drone support, remote monitoring, and incident workflows.
+      - command: /v5/coverage-map
+        purpose: Identify required surveillance zones, blind spots, and control points.
+      - command: /v5/access-logic
+        purpose: Define access-control roles, visitor logic, contractor rules, and escalation paths.
+      - command: /v5/quote-check
+        purpose: Evaluate proposals for equipment fit, monitoring design, integration gaps, and compliance risk.
+      - command: /v5/incident-policy
+        purpose: Draft operational incident response requirements for providers.
+
+  - id: V6
+    title: Business Services Expert
+    codex_commands:
+      - command: /v6/requirements-intake
+        purpose: Capture deliverables, timelines, confidentiality, dependencies, and success criteria.
+      - command: /v6/scope
+        purpose: Build a business services scope of work.
+      - command: /v6/quote-check
+        purpose: Review pricing models, assumptions, and deliverable clarity.
+      - command: /v6/handoff-plan
+        purpose: Create a handoff and reporting structure.
+
+  - id: V7
+    title: Legal Services Expert
+    codex_commands:
+      - command: /v7/matter-intake
+        purpose: Classify legal matter type, urgency, jurisdiction, and counsel type needed.
+      - command: /v7/lawyer-match
+        purpose: Narrow provider type without giving legal advice.
+      - command: /v7/brief-builder
+        purpose: Structure a factual matter summary for first consultation.
+      - command: /v7/quote-check
+        purpose: Review fee structure, engagement assumptions, and scope boundaries.
+
+  - id: V8
+    title: Property Management Expert
+    codex_commands:
+      - command: /v8/property-intake
+        purpose: Capture tenancy status, asset type, maintenance burden, and management needs.
+      - command: /v8/turnover-scope
+        purpose: Build a scope for tenant turnover, inspection, cleaning, and repairs.
+      - command: /v8/management-plan
+        purpose: Define recurring management support requirements.
+      - command: /v8/vendor-check
+        purpose: Assess property service quote coverage and management fit.
+
+  - id: V9
+    title: Real Estate Transactions Expert
+    codex_commands:
+      - command: /v9/transaction-intake
+        purpose: Capture buy, sell, or lease stage, timeline, property type, and supporting services needed.
+      - command: /v9/service-map
+        purpose: Map required professionals and tasks by transaction stage.
+      - command: /v9/deal-readiness
+        purpose: Flag missing documents, dependencies, and timeline blockers.
+      - command: /v9/quote-check
+        purpose: Compare transaction-support quotes by scope and milestone coverage.
+
+  - id: V10
+    title: Property Valuation & Advisory Expert
+    codex_commands:
+      - command: /v10/valuation-intake
+        purpose: Capture asset type, purpose of valuation, timeline, and risk concerns.
+      - command: /v10/inspection-scope
+        purpose: Build inspection or due-diligence requirements.
+      - command: /v10/advisory-brief
+        purpose: Structure an appraisal, survey, or investment-advisory brief.
+      - command: /v10/quote-check
+        purpose: Review valuation and inspection proposals for methodology and exclusions.
+
+shared_patterns:
+  quote_evaluation_dimensions:
+    - scope_completeness
+    - exclusions
+    - assumptions
+    - timeline
+    - access_requirements
+    - materials_or_tools
+    - compliance_or_liability
+    - reporting_deliverables
+    - pricing_structure
+    - risk_flags
+
+  standard_outputs:
+    - intake_summary
+    - scope_document
+    - provider_questions
+    - quote_gap_analysis
+    - next_best_action
+
+next_build_targets:
+  - command_schema
+  - input_output_contracts
+  - prompt_templates
+  - guardrails_by_agent
+  - rebundlable_modules

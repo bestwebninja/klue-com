@@ -209,6 +209,117 @@ paths:
           description: Routing dispatch accepted
         '404':
           description: Routing run not found
+  /messages/threads:
+    post:
+      summary: Create a messaging thread for marketplace coordination
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateThreadRequest'
+      responses:
+        '201':
+          description: Thread created
+  /messages/threads/{threadId}:
+    get:
+      summary: Fetch an existing messaging thread
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: threadId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Thread found
+        '404':
+          description: Thread not found
+  /messages/threads/{threadId}/messages:
+    post:
+      summary: Send a message in an existing thread
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: threadId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadMessage'
+        '404':
+          description: Thread not found
+  /appointments:
+    post:
+      summary: Create an appointment for marketplace follow-up
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentRequest'
+      responses:
+        '201':
+          description: Appointment created
+  /appointments/{appointmentId}:
+    get:
+      summary: Fetch a marketplace appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: appointmentId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Appointment found
+        '404':
+          description: Appointment not found
+    patch:
+      summary: Update an appointment status or schedule
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: appointmentId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAppointmentRequest'
+      responses:
+        '200':
+          description: Appointment updated
+        '404':
+          description: Appointment not found
   /quote-requests/{id}:
     get:
       summary: Fetch quote request reasoning and dispatch outcomes
@@ -439,6 +550,55 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    CreateThreadRequest:
+      type: object
+      required: [subject, participantIds]
+      properties:
+        subject: { type: string }
+        participantIds:
+          type: array
+          minItems: 1
+          items: { type: string, format: uuid }
+        context:
+          type: object
+          additionalProperties: true
+    SendMessageRequest:
+      type: object
+      required: [senderId, body]
+      properties:
+        senderId: { type: string, format: uuid }
+        body: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    ThreadMessage:
+      allOf:
+        - $ref: '#/components/schemas/SendMessageRequest'
+        - type: object
+          required: [id, threadId, createdAt]
+          properties:
+            id: { type: string, format: uuid }
+            threadId: { type: string, format: uuid }
+            createdAt: { type: string, format: date-time }
+    CreateAppointmentRequest:
+      type: object
+      required: [providerId, scheduledFor, timezone]
+      properties:
+        threadId: { type: string, format: uuid }
+        providerId: { type: string, format: uuid }
+        leadId: { type: string, format: uuid }
+        scheduledFor: { type: string, format: date-time }
+        timezone: { type: string }
+        notes: { type: string }
+    PatchAppointmentRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [scheduled, confirmed, completed, cancelled]
+        scheduledFor: { type: string, format: date-time }
+        timezone: { type: string }
+        notes: { type: string }
     LeadAttachment:
       type: object
       required: [name, url]

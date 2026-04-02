@@ -68,6 +68,8 @@ agents:
     codex_commands:
       - command: /v5/security-intake
         purpose: Capture site type, threat model, perimeter, entry points, monitoring goals, and risk profile.
+      - command: /v5/build-intake-question-tree
+        purpose: Build a prioritized follow-up interview tree for missing security-scope details.
       - command: /v5/system-scope
         purpose: Generate an integrated scope covering CCTV, biometrics, drone support, remote monitoring, and incident workflows.
       - command: /v5/coverage-map
@@ -244,6 +246,58 @@ v5_definition:
         - do_not_provide tactical evasion-resistant details that could enable wrongdoing
         - do_not_finalize technical design without clearly noting assumptions
         - do_not provide legal or regulatory assurances without review
+
+    - command: /v5/build-intake-question-tree
+      trigger:
+        - User completed or started intake but critical scoping data is still missing
+        - User needs a short, high-yield question sequence before requesting quotes
+        - User asks to minimize back-and-forth with providers
+      required_inputs:
+        - intake_summary
+        - missing_information_list
+      optional_inputs:
+        - site_type
+        - property_use
+        - current_security_setup
+        - incident_history
+        - budget_range
+        - preferred_install_timeline
+        - strict_question_limit
+        - user_role
+      processing_rules:
+        - prioritize unresolved items that materially impact scope quality, risk exposure, and provider fit
+        - sequence questions by dependency, collecting foundational context before technical details
+        - classify each question as blocking, high-value, or optional
+        - provide multiple-choice options where possible to reduce ambiguity and speed completion
+        - include stop-conditions so the flow can end early once enough data is captured for quoting
+      outputs:
+        - intake_question_tree
+        - question_priority_order
+        - decision_gates
+        - expected_scope_improvements
+      output_schema:
+        intake_question_tree:
+          root_goal: string
+          max_questions: number
+          branches:
+            - id: string
+              question: string
+              category: blocking|high_value|optional
+              why_it_matters: string
+              answer_type: single_select|multi_select|short_text|number|yes_no
+              answer_options: string[]
+              follow_up_if: string[]
+              stop_if: string[]
+        question_priority_order: string[]
+        decision_gates:
+          must_resolve_before_quote: string[]
+          can_defer_to_site_walk: string[]
+        expected_scope_improvements: string[]
+      guardrails:
+        - do_not ask for unnecessary sensitive personal data
+        - do_not include bypass-enabling tactical details
+        - do_not exceed strict_question_limit when provided
+        - do_not imply that unanswered optional items block provider engagement
 
     - command: /v5/system-scope
       trigger:
@@ -481,7 +535,6 @@ v5_definition:
       retention assumptions, support model, and commercial clarity.
 
   next_v5_build:
-    - intake_question_tree
     - output_json_schemas
     - risk_taxonomy
     - provider_type_taxonomy

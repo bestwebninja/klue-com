@@ -29,7 +29,8 @@ const ZipExplorer = () => {
   const zip = zipCode.trim();
   const isValid = isValidZipCode(zip);
   const { zipInput, setZipInput, submitZip } = useZipSearch(zip);
-  const { data, isLoading } = useZipExplorer(zip, isValid, true);
+  const includeOptionalProviders = true;
+  const { data, isLoading } = useZipExplorer(zip, isValid, includeOptionalProviders);
 
   const title = buildZipTitle(zip, data?.identity.placeName);
   const description = buildZipDescription(zip, data);

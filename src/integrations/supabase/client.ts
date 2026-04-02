@@ -15,3 +15,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+export const invokeEdgeFunction = <T>(functionName: string, body?: unknown) =>
+  supabase.functions.invoke<T>(functionName, {
+    body,
+  });

@@ -1,43 +1,24 @@
-import { CENSUS_DATASETS } from "./constants";
+import { invokeEdgeFunction } from "@/integrations/supabase/client";
 
-const DEFAULT_CENSUS_BASE_URL = "https://api.census.gov";
+export interface CensusProxyResponse {
+  status: "ok" | "error";
+  data: {
+    profile: Record<string, string> | null;
+    detailed: Record<string, string> | null;
+  } | null;
+  message?: string;
+}
 
-export const getCensusConfig = () => {
-  const rawBaseUrl = import.meta.env.VITE_CENSUS_API_BASE_URL as string | undefined;
-  const baseUrl = (rawBaseUrl || DEFAULT_CENSUS_BASE_URL).replace(/\/$/, "");
-  const apiKey = import.meta.env.VITE_CENSUS_API_KEY as string | undefined;
-  return { baseUrl, apiKey, enabled: Boolean(rawBaseUrl && apiKey) };
-};
+export const fetchCensusZipProfile = async (zipCode: string): Promise<CensusProxyResponse> => {
+  const { data, error } = await invokeEdgeFunction<CensusProxyResponse>("census-zip-profile", { zipCode });
 
-const buildAcsUrl = (datasetPath: string, variables: string[], zipCode: string) => {
-  const { baseUrl, apiKey } = getCensusConfig();
-  const params = new URLSearchParams();
-  params.set("get", variables.join(","));
-  params.set("for", `zip code tabulation area:${zipCode}`);
-  if (apiKey) params.set("key", apiKey);
-  return `${baseUrl}${datasetPath}?${params.toString()}`;
-};
+  if (error) {
+    throw new Error(error.message || "Census proxy request failed");
+  }
 
-export const buildAcs2024ProfileUrl = (zipCode: string) =>
-  buildAcsUrl(
-    CENSUS_DATASETS.profile2024,
-    ["NAME", "DP05_0001E", "DP03_0062E", "DP04_0046E", "DP04_0134E", "DP05_0018E", "DP02_0067PE", "DP02_0012PE"],
-    zipCode,
-  );
+  if (!data) {
+    throw new Error("Census proxy returned no payload");
+  }
 
-export const buildAcs2024DetailedUrl = (zipCode: string) =>
-  buildAcsUrl(CENSUS_DATASETS.detailed2024, ["NAME", "B25077_001E", "B25064_001E", "B25001_001E", "B25070_007E"], zipCode);
-
-export const fetchJsonRows = async (url: string) => {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
-
-  const data = (await response.json()) as string[][];
-  const [headers, row] = data;
-  if (!headers || !row) return null;
-
-  return headers.reduce<Record<string, string>>((acc, key, idx) => {
-    acc[key] = row[idx];
-    return acc;
-  }, {});
+  return data;
 };

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { buildAcs2024ProfileUrl, fetchJsonRows } from '@/features/zip-explorer/api';
+import { fetchCensusZipProfile } from '@/features/zip-explorer/api';
 import type { SourceHealth } from '@/features/zip-explorer/types';
 import { fetchAirNowByZip } from '@/features/zip-explorer/adapters/airnow';
 import { fetchWalkScoreByZip } from '@/features/zip-explorer/adapters/walkscore';
@@ -30,17 +30,19 @@ const buildModel = async (
 ): Promise<ZipExplorerModel> => {
   const fetchCensus = async () => {
     try {
-      const url = buildAcs2024ProfileUrl(zipCode);
-      const row = await fetchJsonRows(url);
-      if (!row) return { status: 'error' as const, data: null, message: 'No data returned' };
+      const response = await fetchCensusZipProfile(zipCode);
+      if (response.status !== 'ok' || !response.data?.profile) {
+        return { status: 'error' as const, data: null, message: response.message ?? 'No data returned' };
+      }
+
       return {
         status: 'ok' as const,
         data: {
-          name: row.NAME,
-          population: row.DP05_0001E,
-          medianIncome: row.DP03_0062E,
-          ownerOccupiedUnits: row.DP04_0046E,
-          medianRent: row.DP04_0134E,
+          name: response.data.profile.NAME,
+          population: response.data.profile.DP05_0001E,
+          medianIncome: response.data.profile.DP03_0062E,
+          ownerOccupiedUnits: response.data.profile.DP04_0046E,
+          medianRent: response.data.profile.DP04_0134E,
         },
         message: undefined,
       };

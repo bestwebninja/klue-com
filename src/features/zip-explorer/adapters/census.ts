@@ -1,28 +1,23 @@
-import { buildAcs2024DetailedUrl, buildAcs2024ProfileUrl, fetchJsonRows, getCensusConfig } from "../api";
+import { fetchCensusZipProfile } from "../api";
 import type { CensusDetailedRow, CensusProfileRow, ProviderResponse } from "../types";
 
 export const fetchCensusByZip = async (
   zipCode: string,
 ): Promise<ProviderResponse<{ profile: CensusProfileRow; detailed: CensusDetailedRow }>> => {
-  const { enabled } = getCensusConfig();
-  if (!enabled) {
-    return {
-      enabled: false,
-      status: "unavailable",
-      data: null,
-      reason: "Census adapter disabled: set VITE_CENSUS_API_BASE_URL and VITE_CENSUS_API_KEY",
-    };
-  }
-
   try {
-    const [profileRaw, detailedRaw] = await Promise.all([
-      fetchJsonRows(buildAcs2024ProfileUrl(zipCode)),
-      fetchJsonRows(buildAcs2024DetailedUrl(zipCode)),
-    ]);
+    const response = await fetchCensusZipProfile(zipCode);
 
-    if (!profileRaw && !detailedRaw) {
-      return { enabled: true, status: "unavailable", data: null, reason: "No Census rows returned" };
+    if (response.status !== "ok" || !response.data) {
+      return {
+        enabled: true,
+        status: "error",
+        data: null,
+        reason: response.message ?? "No Census rows returned",
+      };
     }
+
+    const profileRaw = response.data.profile;
+    const detailedRaw = response.data.detailed;
 
     const profile: CensusProfileRow = {
       NAME: profileRaw?.NAME,

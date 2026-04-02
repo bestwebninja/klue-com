@@ -41,6 +41,7 @@ router.use("/campaigns", campaignRoutes);
 router.use("/leads", leadRoutes);
 router.use("/ads", adsRoutes);
 router.use("/routing", routingRoutes);
+// routing + collaboration routes merged from main/work branches
 router.use("/messages", messagesRoutes);
 router.use("/appointments", appointmentsRoutes);
 router.use("/providers", providersRoutes);

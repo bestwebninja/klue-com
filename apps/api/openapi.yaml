@@ -190,6 +190,8 @@ paths:
       responses:
         '200':
           description: Routing evaluation result
+        '400':
+          description: Validation error
   /routing/dispatch:
     post:
       summary: Dispatch a previously evaluated routing run
@@ -207,6 +209,8 @@ paths:
       responses:
         '200':
           description: Routing dispatch accepted
+        '400':
+          description: Validation error
         '404':
           description: Routing run not found
   /routing/runs/{runId}:
@@ -224,6 +228,8 @@ paths:
       responses:
         '200':
           description: Routing run details
+        '400':
+          description: Invalid run identifier
         '404':
           description: Routing run not found
   /messages/threads:
@@ -240,6 +246,8 @@ paths:
       responses:
         '201':
           description: Thread created
+        '400':
+          description: Validation error
   /messages/threads/{threadId}:
     get:
       summary: Fetch an existing messaging thread
@@ -255,6 +263,8 @@ paths:
       responses:
         '200':
           description: Thread found
+        '400':
+          description: Invalid thread identifier
         '404':
           description: Thread not found
   /messages/threads/{threadId}/messages:
@@ -282,6 +292,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ThreadMessage'
+        '400':
+          description: Validation error
         '404':
           description: Thread not found
   /appointments:
@@ -298,6 +310,8 @@ paths:
       responses:
         '201':
           description: Appointment created
+        '400':
+          description: Validation error
   /appointments/{appointmentId}:
     get:
       summary: Fetch a marketplace appointment
@@ -313,6 +327,8 @@ paths:
       responses:
         '200':
           description: Appointment found
+        '400':
+          description: Invalid appointment identifier
         '404':
           description: Appointment not found
     patch:
@@ -335,6 +351,8 @@ paths:
       responses:
         '200':
           description: Appointment updated
+        '400':
+          description: Validation error
         '404':
           description: Appointment not found
   /quote-requests/{id}:

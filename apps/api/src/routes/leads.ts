@@ -1,24 +1,15 @@
 import { Router } from "express";
+import type { LeadIntakeResponse } from "@kluje/shared";
+import { leadIntakeSchema, type LeadIntakeInput } from "../services/leads/schema";
+import { normalizeAndEnrichIntake } from "../services/leads/intake";
 import { z } from "zod";
 
 type PriorityTier = "high" | "medium" | "low";
 type RouteStrategy = "round_robin" | "category_based";
 type RouteEventType = "created" | "routed" | "assigned" | "dispatched" | "disposition_updated";
 
-type LeadRecord = {
-  id: string;
-  source: string;
-  contactName: string;
-  contactEmail: string;
-  serviceCategory: string;
-  intentScore: number;
+type LeadRecord = LeadIntakeResponse & {
   priorityTier: PriorityTier;
-  status: "new" | "routed" | "accepted" | "rejected";
-  assignedAgentId?: string;
-  assignmentQueue: string[];
-  createdAt: string;
-  updatedAt: string;
-  routedAt?: string;
 };
 
 type RouteLogRecord = {
@@ -32,30 +23,21 @@ type RouteLogRecord = {
 
 const router = Router();
 
-const leadSchema = z.object({
-  source: z.string(),
-  contactName: z.string(),
-  contactEmail: z.string().email(),
-  serviceCategory: z.string(),
-  intentScore: z.number().min(0).max(100),
-  priorityTier: z.enum(["high", "medium", "low"]).default("medium")
-});
-
 const routeSchema = z
   .object({
-    strategy: z.enum(["round_robin", "category_based"]).default("round_robin")
+    strategy: z.enum(["round_robin", "category_based"]).default("round_robin"),
   })
   .default({ strategy: "round_robin" });
 
 const dispositionSchema = z.object({
-  status: z.enum(["accepted", "rejected"]).default("accepted")
+  status: z.enum(["accepted", "rejected"]).default("accepted"),
 });
 
 const defaultRoundRobinQueue = ["agent-01", "agent-02", "agent-03"];
 const categoryQueues: Record<string, string[]> = {
   plumbing: ["agent-11", "agent-12"],
   electrical: ["agent-21", "agent-22"],
-  hvac: ["agent-31", "agent-32"]
+  hvac: ["agent-31", "agent-32"],
 };
 const tierWeight: Record<PriorityTier, number> = { high: 1000, medium: 100, low: 10 };
 
@@ -63,14 +45,14 @@ const leads = new Map<string, LeadRecord>();
 const routeLogs: RouteLogRecord[] = [];
 const roundRobinState = {
   defaultIndex: 0,
-  categoryIndex: new Map<string, number>()
+  categoryIndex: new Map<string, number>(),
 };
 
 const logRouteEvent = (
   leadId: string,
   eventType: RouteEventType,
   strategy: RouteStrategy,
-  details: Record<string, unknown>
+  details: Record<string, unknown>,
 ) => {
   routeLogs.push({
     id: crypto.randomUUID(),
@@ -78,7 +60,7 @@ const logRouteEvent = (
     eventType,
     strategy,
     timestamp: new Date().toISOString(),
-    details
+    details,
   });
 };
 
@@ -99,7 +81,9 @@ const nextFromQueue = (queue: string[], queueKey = "default"): string => {
 
 const buildAssignmentQueue = (agents: string[], priorityTier: PriorityTier): string[] => {
   const weight = tierWeight[priorityTier];
-  return [...agents].sort((a, b) => (b.charCodeAt(b.length - 1) % weight) - (a.charCodeAt(a.length - 1) % weight));
+  return [...agents].sort(
+    (a, b) => (b.charCodeAt(b.length - 1) % weight) - (a.charCodeAt(a.length - 1) % weight),
+  );
 };
 
 const dispatchWebhookPlaceholder = (lead: LeadRecord, strategy: RouteStrategy) => {
@@ -110,12 +94,26 @@ const dispatchWebhookPlaceholder = (lead: LeadRecord, strategy: RouteStrategy) =
     note: "Placeholder dispatch only. Integrate outbound webhook provider.",
     strategy,
     leadId: lead.id,
-    dispatchedAt
+    dispatchedAt,
   };
+};
+
+const resolveIntakeStatus = (input: LeadIntakeInput, intakeScore: number, missingCount: number) => {
+  if (missingCount >= 3) return "needs_info" as const;
+  if (missingCount > 0) return "in_review" as const;
+  if ((input.intentScore >= 70 && intakeScore >= 70) || intakeScore >= 85) return "ready_for_routing" as const;
+  return "pending" as const;
 };
 
 router.get("/", (_req, res) => {
   res.json({ data: Array.from(leads.values()) });
+});
+
+router.get("/:leadId", (req, res) => {
+  const lead = leads.get(req.params.leadId);
+  if (!lead) return res.status(404).json({ error: "Lead not found" });
+
+  return res.json({ data: lead });
 });
 
 router.get("/:id/logs", (req, res) => {
@@ -127,26 +125,52 @@ router.get("/:id/logs", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const parsed = leadSchema.safeParse(req.body);
+  const parsed = leadIntakeSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
 
+  const enrichment = normalizeAndEnrichIntake(parsed.data);
+  const intakeStatus = resolveIntakeStatus(parsed.data, enrichment.intakeScore, enrichment.missingInformation.length);
+
   const lead: LeadRecord = {
     id,
-    ...parsed.data,
+    source: parsed.data.source,
+    contactName: parsed.data.contactName,
+    contactEmail: parsed.data.contactEmail,
+    contactPhone: parsed.data.contactPhone,
+    location: parsed.data.location,
+    serviceCategory: parsed.data.serviceCategory,
+    intentScore: parsed.data.intentScore,
     status: "new",
-    assignmentQueue: [],
+    intakeStatus,
+    budgetMin: parsed.data.budgetMin,
+    budgetMax: parsed.data.budgetMax,
+    timeline: parsed.data.timeline,
+    requirements: parsed.data.requirements,
+    scope: enrichment.scope,
+    attachments: parsed.data.attachments,
+    normalizedCategory: enrichment.normalizedCategory,
+    normalizedLocation: enrichment.normalizedLocation,
+    intakeScore: enrichment.intakeScore,
+    missingInformation: enrichment.missingInformation,
+    enrichmentNotes: enrichment.enrichmentNotes,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    assignmentQueue: [],
+    priorityTier: parsed.data.priorityTier,
   };
 
   leads.set(id, lead);
   logRouteEvent(id, "created", "round_robin", {
     source: lead.source,
     serviceCategory: lead.serviceCategory,
-    priorityTier: lead.priorityTier
+    priorityTier: lead.priorityTier,
+    normalizedCategory: lead.normalizedCategory,
+    normalizedLocation: lead.normalizedLocation,
+    intakeStatus: lead.intakeStatus,
+    intakeScore: lead.intakeScore,
   });
 
   return res.status(201).json(lead);
@@ -160,16 +184,15 @@ router.post("/:id/route", (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const { strategy } = parsed.data;
-  const normalizedCategory = lead.serviceCategory.toLowerCase();
 
   const targetPool =
     strategy === "category_based"
-      ? categoryQueues[normalizedCategory] ?? defaultRoundRobinQueue
+      ? categoryQueues[lead.normalizedCategory] ?? defaultRoundRobinQueue
       : defaultRoundRobinQueue;
 
   const assignedAgentId =
     strategy === "category_based"
-      ? nextFromQueue(targetPool, normalizedCategory)
+      ? nextFromQueue(targetPool, lead.normalizedCategory)
       : nextFromQueue(targetPool);
 
   const assignmentQueue = buildAssignmentQueue(targetPool, lead.priorityTier);
@@ -185,12 +208,14 @@ router.post("/:id/route", (req, res) => {
   logRouteEvent(lead.id, "routed", strategy, {
     assignedAgentId,
     priorityTier: lead.priorityTier,
-    serviceCategory: lead.serviceCategory
+    serviceCategory: lead.serviceCategory,
+    intakeStatus: lead.intakeStatus,
+    intakeScore: lead.intakeScore,
   });
 
   logRouteEvent(lead.id, "assigned", strategy, {
     assignedAgentId,
-    assignmentQueue
+    assignmentQueue,
   });
 
   const dispatch = dispatchWebhookPlaceholder(lead, strategy);
@@ -202,7 +227,7 @@ router.post("/:id/route", (req, res) => {
     strategy,
     assignedAgentId,
     assignmentQueue,
-    dispatch
+    dispatch,
   });
 });
 
@@ -218,7 +243,7 @@ router.post("/:id/disposition", (req, res) => {
   leads.set(lead.id, lead);
 
   logRouteEvent(lead.id, "disposition_updated", "round_robin", {
-    status: lead.status
+    status: lead.status,
   });
 
   return res.json({ id: lead.id, status: lead.status, updatedAt: lead.updatedAt });

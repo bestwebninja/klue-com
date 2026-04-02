@@ -21,3 +21,5 @@ export interface TenantScoped {
   createdAt: string;
   updatedAt?: string;
 }
+
+export * from "./leads";

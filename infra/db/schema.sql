@@ -95,6 +95,13 @@ CREATE TABLE leads (
   service_category TEXT,
   intent_score NUMERIC(5,2),
   quality_score NUMERIC(5,2),
+  budget_min NUMERIC(12,2),
+  budget_max NUMERIC(12,2),
+  timeline TEXT,
+  requirements_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  scope_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  attachments_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  intake_status TEXT NOT NULL DEFAULT 'pending' CHECK (intake_status IN ('pending', 'in_review', 'needs_info', 'ready_for_routing')),
   status TEXT NOT NULL DEFAULT 'new',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

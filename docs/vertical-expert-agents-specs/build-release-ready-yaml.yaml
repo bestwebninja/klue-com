@@ -1,0 +1,25 @@
+meta:
+  command: /build-release-ready-yaml
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Package shared foundation, agent bundles, validations, and registry data into a release-ready YAML bundle.
+inputs:
+  required:
+    - master_agent_registry
+    - cross_agent_dependency_map
+    - validation_reports
+  optional:
+    - changelog
+processing_rules:
+  - include only artifacts that passed required validation gates
+  - attach release metadata and compatibility notes
+  - emit deterministic ordering for repeatable packaging
+outputs:
+  primary_artifact: vertical-expert-agents-release-yaml
+  schema:
+    release_version: string
+    release_date: string
+    included_artifacts: string[]
+    validation_status: passed|blocked
+    notes: string[]

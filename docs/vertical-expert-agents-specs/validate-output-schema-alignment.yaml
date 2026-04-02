@@ -1,0 +1,25 @@
+meta:
+  command: /validate-output-schema-alignment
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Validate that agent output JSON schemas align with shared standard outputs and consumption expectations.
+inputs:
+  required:
+    - shared_standard_outputs
+    - agent_output_json_schemas
+  optional:
+    - downstream_consumer_contracts
+processing_rules:
+  - compare required fields, types, and enum values across all schemas
+  - identify backward compatibility breaks
+  - report compatibility matrix by agent and command
+outputs:
+  primary_artifact: output-schema-alignment-report
+  schema:
+    summary: string
+    compatibility_matrix:
+      - command: string
+        status: compatible|warning|incompatible
+        notes: string[]
+    migration_notes: string[]

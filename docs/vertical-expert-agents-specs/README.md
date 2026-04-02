@@ -15,11 +15,38 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/build-v9-agent` → `build-v9-agent.yaml`
 - `/build-v10-agent` → `build-v10-agent.yaml`
 
+- `/validate-shared-contract-consistency` → `validate-shared-contract-consistency.yaml`
+- `/validate-agent-command-coverage` → `validate-agent-command-coverage.yaml`
+- `/validate-output-schema-alignment` → `validate-output-schema-alignment.yaml`
+- `/validate-guardrail-completeness` → `validate-guardrail-completeness.yaml`
+- `/validate-rebundlable-module-attachments` → `validate-rebundlable-module-attachments.yaml`
+
+- `/build-master-agent-registry` → `build-master-agent-registry.yaml`
+- `/build-cross-agent-dependency-map` → `build-cross-agent-dependency-map.yaml`
+- `/build-release-ready-yaml` → `build-release-ready-yaml.yaml`
+
+- `/codex_execution_order` → `codex-execution-order.yaml`
 - `/build-shared-command-schema` → `shared/build-shared-command-schema.yaml`
 - `/build-shared-input-output-contracts` → `shared/build-shared-input-output-contracts.yaml`
 - `/build-shared-standard-outputs` → `shared/build-shared-standard-outputs.yaml`
 - `/build-shared-quote-evaluation-model` → `shared/build-shared-quote-evaluation-model.yaml`
 - `/build-shared-rebundlable-module-schema` → `shared/build-shared-rebundlable-module-schema.yaml`
+
+## Canonical Build Pipeline
+1. **Shared Foundation**
+   - `/build-shared-foundation`
+2. **Agent Builds**
+   - `/build-v1-agent` through `/build-v10-agent`
+3. **Validation Gates**
+   - `/validate-shared-contract-consistency`
+   - `/validate-agent-command-coverage`
+   - `/validate-output-schema-alignment`
+   - `/validate-guardrail-completeness`
+   - `/validate-rebundlable-module-attachments`
+4. **Packaging**
+   - `/build-master-agent-registry`
+   - `/build-cross-agent-dependency-map`
+   - `/build-release-ready-yaml`
 
 ## V1 — Home Trades Expert
 - `/v1/build-intake-question-tree` → `v1/build-intake-question-tree.yaml`

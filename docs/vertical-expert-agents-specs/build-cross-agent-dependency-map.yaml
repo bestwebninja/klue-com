@@ -1,0 +1,25 @@
+meta:
+  command: /build-cross-agent-dependency-map
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Build a dependency map showing shared modules, taxonomy overlap, and command-level coupling across agents.
+inputs:
+  required:
+    - agent_bundles
+    - shared_module_index
+  optional:
+    - weighting_policy
+processing_rules:
+  - map shared schema and module dependencies between agents
+  - identify high-coupling areas that need release coordination
+  - produce human-readable and machine-readable views
+outputs:
+  primary_artifact: cross-agent-dependency-map
+  schema:
+    summary: string
+    dependencies:
+      - from_agent: string
+        to_agent: string
+        dependency_type: schema|module|taxonomy|workflow
+        strength: low|medium|high

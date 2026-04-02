@@ -1,0 +1,34 @@
+meta:
+  command: /codex_execution_order
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Define the canonical execution order for building, validating, and packaging vertical expert agent artifacts.
+phases:
+  - phase: phase_1_shared_foundation
+    commands:
+      - /build-shared-foundation
+  - phase: phase_2_agent_builds
+    commands:
+      - /build-v1-agent
+      - /build-v2-agent
+      - /build-v3-agent
+      - /build-v4-agent
+      - /build-v5-agent
+      - /build-v6-agent
+      - /build-v7-agent
+      - /build-v8-agent
+      - /build-v9-agent
+      - /build-v10-agent
+  - phase: phase_3_validation
+    commands:
+      - /validate-shared-contract-consistency
+      - /validate-agent-command-coverage
+      - /validate-output-schema-alignment
+      - /validate-guardrail-completeness
+      - /validate-rebundlable-module-attachments
+  - phase: phase_4_packaging
+    commands:
+      - /build-master-agent-registry
+      - /build-cross-agent-dependency-map
+      - /build-release-ready-yaml

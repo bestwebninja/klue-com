@@ -1,0 +1,25 @@
+meta:
+  command: /validate-guardrail-completeness
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Validate that each agent includes complete guardrails for advisory scope, safety boundaries, and regulated-risk areas.
+inputs:
+  required:
+    - agent_guardrail_libraries
+    - shared_safety_baseline
+  optional:
+    - regional_regulatory_overlays
+processing_rules:
+  - verify baseline guardrails are present for every agent
+  - detect missing disclaimers in high-risk flows
+  - classify gaps by severity and remediation priority
+outputs:
+  primary_artifact: guardrail-completeness-report
+  schema:
+    summary: string
+    missing_guardrails:
+      - agent_id: string
+        severity: low|medium|high|critical
+        controls: string[]
+    recommended_remediations: string[]

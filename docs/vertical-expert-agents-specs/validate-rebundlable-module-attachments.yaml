@@ -1,0 +1,23 @@
+meta:
+  command: /validate-rebundlable-module-attachments
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Validate that rebundlable modules are correctly attached to commands and carry complete attachment metadata.
+inputs:
+  required:
+    - rebundlable_module_schema
+    - command_module_attachments
+  optional:
+    - module_version_policy
+processing_rules:
+  - verify each attachment references a valid module id and version
+  - ensure required attachment metadata is present
+  - flag orphaned modules and unused attachments
+outputs:
+  primary_artifact: rebundlable-module-attachment-report
+  schema:
+    summary: string
+    invalid_attachments: string[]
+    orphaned_modules: string[]
+    cleanup_recommendations: string[]

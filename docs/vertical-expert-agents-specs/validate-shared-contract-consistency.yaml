@@ -1,0 +1,23 @@
+meta:
+  command: /validate-shared-contract-consistency
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Validate consistency between shared schemas and all generated agent command contracts.
+inputs:
+  required:
+    - shared_foundation_bundle
+    - agent_bundles
+  optional:
+    - strict_mode
+processing_rules:
+  - ensure command ids, schema field names, and required output keys are aligned
+  - flag contract drift and duplicate semantics across agents
+  - report hard failures and recoverable warnings separately
+outputs:
+  primary_artifact: shared-contract-consistency-report
+  schema:
+    summary: string
+    hard_failures: string[]
+    warnings: string[]
+    remediation_actions: string[]

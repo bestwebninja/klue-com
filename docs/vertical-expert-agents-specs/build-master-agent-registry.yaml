@@ -1,0 +1,27 @@
+meta:
+  command: /build-master-agent-registry
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Build the master registry that indexes all agent definitions, command contracts, and release metadata.
+inputs:
+  required:
+    - shared_foundation_bundle
+    - agent_bundles
+    - validation_reports
+  optional:
+    - release_notes
+processing_rules:
+  - include only validated agents and commands
+  - assign stable ids and semantic versions for registry entries
+  - include provenance references for every generated artifact
+outputs:
+  primary_artifact: master-agent-registry
+  schema:
+    registry_version: string
+    generated_at: string
+    agents:
+      - agent_id: string
+        version: string
+        command_count: number
+        status: active|deprecated|draft

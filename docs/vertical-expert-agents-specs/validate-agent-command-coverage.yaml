@@ -1,0 +1,26 @@
+meta:
+  command: /validate-agent-command-coverage
+  owner: core_agents
+  version: 1
+  status: draft
+intent: Verify each vertical agent bundle covers the required command surface for intake, scope, and quote-evaluation workflows.
+inputs:
+  required:
+    - agent_bundles
+    - command_coverage_policy
+  optional:
+    - extension_commands
+processing_rules:
+  - check required command families per agent persona
+  - flag missing or ambiguous command intents
+  - include proposed command additions when gaps exist
+outputs:
+  primary_artifact: agent-command-coverage-report
+  schema:
+    summary: string
+    missing_commands_by_agent:
+      - agent_id: string
+        commands: string[]
+    optional_gaps_by_agent:
+      - agent_id: string
+        notes: string[]

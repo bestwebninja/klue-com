@@ -68,10 +68,49 @@ paths:
           description: Campaign created
   /leads:
     post:
-      summary: Ingest lead
+      summary: Ingest lead with marketplace scoping metadata
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadIntakeRequest'
       responses:
         '201':
           description: Lead accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadIntakeResponse'
+        '400':
+          description: Validation error
+  /leads/{leadId}:
+    get:
+      summary: Fetch a lead by identifier
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lead record
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LeadIntakeResponse'
+        '404':
+          description: Lead not found
   /routing/evaluate:
     post:
       summary: Evaluate marketplace routing decision (no dispatch)
@@ -244,3 +283,105 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    LeadAttachment:
+      type: object
+      required: [name, url]
+      properties:
+        name: { type: string }
+        url: { type: string, format: uri }
+        mimeType: { type: string }
+        sizeBytes: { type: integer, minimum: 0 }
+    LeadScope:
+      type: object
+      required: [summary]
+      properties:
+        summary: { type: string }
+        urgency:
+          type: string
+          enum: [asap, planned, researching]
+        deliverables:
+          type: array
+          items: { type: string }
+        preferredStartDate: { type: string }
+        accessibilityNeeds:
+          type: array
+          items: { type: string }
+    LeadIntakeRequest:
+      type: object
+      required: [source, contactName, contactEmail, location, serviceCategory, intentScore]
+      properties:
+        source: { type: string }
+        contactName: { type: string }
+        contactEmail: { type: string, format: email }
+        contactPhone: { type: string }
+        location: { type: string }
+        serviceCategory: { type: string }
+        intentScore: { type: number, minimum: 0, maximum: 100 }
+        budgetMin: { type: number, minimum: 0 }
+        budgetMax: { type: number, minimum: 0 }
+        timeline:
+          type: string
+          enum: [urgent, this_week, this_month, flexible]
+        requirements:
+          type: array
+          items: { type: string }
+        scope:
+          $ref: '#/components/schemas/LeadScope'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadAttachment'
+        priorityTier:
+          type: string
+          enum: [high, medium, low]
+    LeadIntakeResponse:
+      allOf:
+        - $ref: '#/components/schemas/LeadIntakeRequest'
+        - type: object
+          required:
+            - id
+            - status
+            - intakeStatus
+            - normalizedCategory
+            - normalizedLocation
+            - intakeScore
+            - missingInformation
+            - enrichmentNotes
+            - requirements
+            - attachments
+            - assignmentQueue
+            - createdAt
+            - updatedAt
+          properties:
+            id: { type: string, format: uuid }
+            status:
+              type: string
+              enum: [new, routed, accepted, rejected]
+            intakeStatus:
+              type: string
+              enum: [pending, in_review, needs_info, ready_for_routing]
+            normalizedCategory: { type: string }
+            normalizedLocation: { type: string }
+            intakeScore: { type: number }
+            missingInformation:
+              type: array
+              items:
+                type: object
+                required: [code, message, severity]
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  severity:
+                    type: string
+                    enum: [low, medium, high]
+            enrichmentNotes:
+              type: array
+              items: { type: string }
+            assignmentQueue:
+              type: array
+              items: { type: string }
+            assignedAgentId: { type: string }
+            routedAt: { type: string, format: date-time }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }

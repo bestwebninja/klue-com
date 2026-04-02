@@ -5,8 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, lazy, Suspense, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import {
   Phone, Package, Lock, BookOpen, TrendingUp, TrendingDown,
   Mic, Mail, ClipboardList, Send, BarChart3, MapPin, Calendar,
@@ -208,11 +206,8 @@ function EmptyState({ message }: { message: string }) {
 
 // ─── Main component ──────────────────────────────────────────────
 export default function GCCommandDashboard() {
-  const { user } = useAuth();
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
-  const [contractorType, setContractorType] = useState<string>('');
-  const [serviceNames, setServiceNames] = useState<string[]>([]);
   const [tickerHeight, setTickerHeight] = useState(36);
   // Collapsed state per section label; Legals starts expanded
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
@@ -220,26 +215,6 @@ export default function GCCommandDashboard() {
     Workforce: true, Finance: true, Legals: false,
   });
 
-  // Fetch contractor type from user metadata + services from DB
-  useEffect(() => {
-    if (!user) return;
-    // Contractor type from metadata
-    const ct = user.user_metadata?.contractor_type;
-    if (ct) setContractorType(ct);
-
-    // Fetch provider services
-    const fetchServices = async () => {
-      const { data } = await supabase
-        .from('provider_services')
-        .select('category_id, custom_name, service_categories:category_id(name)')
-        .eq('provider_id', user.id);
-      if (data) {
-        const names = data.map((s: any) => s.service_categories?.name || s.custom_name || '').filter(Boolean);
-        setServiceNames(names);
-      }
-    };
-    fetchServices();
-  }, [user]);
   const legalsRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -298,74 +273,28 @@ export default function GCCommandDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-blue-50/60 dark:bg-slate-950">
-      {/* ── Top Bar ── */}
-      <div className="bg-[hsl(222,47%,11%)]/95 backdrop-blur-sm border-b border-primary/20 px-4 sm:px-5 h-[40px] flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-primary-foreground">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-white flex items-center gap-2">
-              Contractors — kluje.com
-              {contractorType && (
-                <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">
-                  {contractorType === 'general' ? 'General Contractor' : 'Sub Contractor'}
-                </Badge>
-              )}
-              {isDept && (
-                <span className="text-[11px] font-normal text-muted-foreground">
-                  / {activeSidebar}
-                </span>
-              )}
-            </div>
-            <div className="text-[11px] text-white/60 flex items-center gap-1 flex-wrap leading-relaxed">
-              <span>{contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : ''} Contractor AI Agent · kluje.com</span>
-              {serviceNames.length > 0 && (
-                <span className="text-[10px] text-muted-foreground/70">
-                  — {serviceNames.slice(0, 3).join(', ')}{serviceNames.length > 3 ? ` +${serviceNames.length - 3} more` : ''}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="hidden xl:block text-[11px] text-white/70 bg-white/10 border border-white/10 rounded-md px-3 py-1">
-          {isDept
-            ? `AI monitoring — ${activeSidebar}`
-            : 'Try: "Order 500 bags of Portland cement"'}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-[11px] text-white/60">
-            <span className="w-[6px] h-[6px] rounded-full bg-emerald-500 inline-block" />
-            Online
-          </span>
-        </div>
-      </div>
-
       {/* ── AI Input Bar ── */}
-      <div className="bg-white/90 dark:bg-slate-900 border-b border-blue-200/70 dark:border-slate-700 px-4 sm:px-5 py-2 flex items-center gap-2 shrink-0">
+      <div className="bg-gradient-to-r from-primary/10 via-blue-500/10 to-transparent dark:from-primary/20 dark:via-blue-900/40 dark:to-slate-950 border-b border-blue-200/70 dark:border-slate-800 px-4 sm:px-5 py-2.5 flex items-center gap-2 shrink-0">
         <Input
           placeholder={
             isDept
               ? `Ask AI about ${activeSidebar}…`
               : 'Ask anything about your jobs, materials, subs, or finances…'
           }
-          className="flex-1 text-sm bg-blue-50 dark:bg-slate-800/80 border-blue-200/80 dark:border-slate-600"
+          className="flex-1 text-sm bg-white dark:bg-slate-900/80 border-blue-200 dark:border-slate-700"
         />
         <div className="hidden sm:flex items-center gap-2">
-          <Button variant="default" size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white">
+          <Button variant="default" size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
             <Mic className="w-3.5 h-3.5" /> Voice
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
             <Mail className="w-3.5 h-3.5" /> Email
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
             <ClipboardList className="w-3.5 h-3.5" /> Form
           </Button>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white">
+        <Button size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
           <Send className="w-3.5 h-3.5" /> Send
         </Button>
       </div>

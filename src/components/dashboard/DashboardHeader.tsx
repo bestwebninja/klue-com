@@ -65,7 +65,7 @@ export function DashboardHeader({
         
         {/* Mobile-only: User info row */}
         <div className="flex items-center justify-between mt-2 sm:hidden">
-          <span className="text-sm text-black/70 truncate max-w-[200px]">
+          <span className="text-sm text-white/70 truncate max-w-[200px]">
             {userName || userEmail}
           </span>
           <div className="flex items-center gap-2">

@@ -9,6 +9,7 @@ import {
 } from "../services/subscription-store";
 import { stripeClient } from "../services/stripe";
 import { requireAuth } from "../middleware/auth";
+import type { TenantRequest } from "../middleware/tenant";
 
 const router = Router();
 
@@ -77,6 +78,7 @@ const checkoutSchema = z.object({
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional()
 });
+const tenantIdSchema = z.string().trim().min(1).max(120);
 
 router.post("/customers", async (req, res) => {
   const parsed = createCustomerSchema.safeParse(req.body);
@@ -136,12 +138,20 @@ router.post("/checkout-session", async (req, res) => {
   return res.status(201).json({ id: session.id, url: session.url, priceId });
 });
 
-router.get("/subscriptions/:tenantId", (req, res) => {
-  const subscription = billingStore.getByTenantId(req.params.tenantId);
+router.get("/subscriptions/:tenantId", (req: TenantRequest, res) => {
+  const parsed = tenantIdSchema.safeParse(req.params.tenantId);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const pathTenantId = parsed.data;
+  if (req.tenantId !== pathTenantId) {
+    return res.status(403).json({ error: "Tenant scope mismatch" });
+  }
+
+  const subscription = billingStore.getByTenantId(pathTenantId);
   if (!subscription) {
     return res.status(404).json({
       error: "Subscription not found",
-      tenantId: req.params.tenantId,
+      tenantId: pathTenantId,
       billingStatus: "free"
     });
   }

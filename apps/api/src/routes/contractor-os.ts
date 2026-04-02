@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { fetchZipIntelligence } from "../services/zip-intelligence";
+import { requireAuth } from "../middleware/auth";
 import { hasSupabaseAdmin, supabaseAdmin } from "../services/supabase-admin";
 import { resolveSupabaseUser } from "../services/supabase-session";
 
@@ -138,6 +139,8 @@ router.post("/signup", async (req, res, next) => {
     return next(error);
   }
 });
+
+router.use(requireAuth);
 
 router.get("/profile/bootstrap", async (req, res, next) => {
   try {
@@ -288,7 +291,10 @@ router.post("/quote-intake", async (req, res, next) => {
     if (!admin) return res.status(500).json({ error: "SUPABASE admin unavailable" });
 
     const authResolution = await resolveSupabaseUser(req);
-    const requesterUserId = authResolution.user?.id ?? null;
+    if (!authResolution.user || authResolution.error) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const requesterUserId = authResolution.user.id;
 
     const { data, error } = await admin
       .from("contractor_quote_intakes")

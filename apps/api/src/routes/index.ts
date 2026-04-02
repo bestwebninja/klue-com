@@ -12,6 +12,16 @@ import { requireAuth } from "../middleware/auth";
 
 const router = Router();
 
+/**
+ * Public-by-design routes:
+ * - /health (liveness)
+ * - /auth/* (token introspection + disabled auth stubs)
+ * - /billing/webhooks/stripe (Stripe-signed webhook only)
+ * - /onboarding/zip-intelligence/:zipCode (product onboarding ZIP lookup; strict ZIP validation + global API rate limit)
+ * - /zipcodes/search (public autocomplete; query validation + global API rate limit)
+ * - /area-risk/score (public risk scoring API; request schema validation + global API rate limit)
+ * - /signup (contractor signup only; all other contractor-os routes enforce auth locally)
+ */
 router.get("/health", (_req, res) => res.json({ ok: true }));
 router.use("/auth", authRoutes);
 router.use("/billing", billingRoutes);

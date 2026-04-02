@@ -51,7 +51,16 @@ const ZipExplorer = () => {
 
         {!isValid && <ZipEmptyState title="Invalid ZIP code" description="Please enter a valid 5-digit ZIP code, such as 90210." />}
         {isValid && isLoading && <LoadingSpinner />}
-        {isValid && !isLoading && !data?.hasAnyData && <ZipEmptyState title="No data currently available" description="This ZIP may not have enough configured sources yet. Try another ZIP." />}
+        {isValid && !isLoading && !data?.hasAnyData && (
+          <ZipEmptyState
+            title={data?.hasAnyErrors ? "Data temporarily unavailable" : "No data currently available"}
+            description={
+              data?.hasAnyErrors
+                ? "One or more providers failed to respond for this ZIP. Please retry shortly."
+                : "This ZIP may not have enough configured sources yet. Try another ZIP."
+            }
+          />
+        )}
 
         {isValid && data?.hasAnyData && (
           <>

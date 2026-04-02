@@ -16,6 +16,18 @@ const toNum = (value: unknown): number | undefined => {
   return Number.isFinite(num) ? num : undefined;
 };
 
+const hasMeaningfulObjectData = (value: unknown): boolean => {
+  if (!value || typeof value !== "object") return false;
+
+  return Object.values(value as Record<string, unknown>).some((entry) => {
+    if (entry === null || entry === undefined || entry === "") return false;
+    if (typeof entry === "object") {
+      return hasMeaningfulObjectData(entry);
+    }
+    return true;
+  });
+};
+
 const skippedSource = {
   enabled: false,
   status: "unavailable" as const,
@@ -38,6 +50,43 @@ const buildModel = async (zipCode: string, includeOptional: boolean): Promise<Zi
 
   const medianIncome = toNum(profile?.DP03_0062E);
   const medianRent = toNum(profile?.DP04_0134E);
+
+  const sourceStatus = [
+    {
+      key: "census" as const,
+      label: SOURCE_LABELS.census,
+      status: censusStatus,
+      reason: census.reason,
+    },
+    {
+      key: "airnow" as const,
+      label: SOURCE_LABELS.airnow,
+      status: air.status,
+      reason: air.reason,
+    },
+    {
+      key: "walkscore" as const,
+      label: SOURCE_LABELS.walkscore,
+      status: walk.status,
+      reason: walk.reason,
+    },
+    {
+      key: "greatschools" as const,
+      label: SOURCE_LABELS.greatschools,
+      status: schools.status,
+      reason: schools.reason,
+    },
+    {
+      key: "klujeRisk" as const,
+      label: SOURCE_LABELS.klujeRisk,
+      status: risk.status,
+      reason: risk.reason,
+    },
+  ];
+
+  const hasCensusData = hasMeaningfulObjectData(profile) || hasMeaningfulObjectData(detailed);
+  const hasAnyData = hasCensusData || [air.data, walk.data, schools.data, risk.data].some(hasMeaningfulObjectData);
+  const hasAnyErrors = sourceStatus.some((source) => source.status === "error");
 
   const baseModel = {
     identity: {
@@ -70,40 +119,10 @@ const buildModel = async (zipCode: string, includeOptional: boolean): Promise<Zi
     walkability: walk.data ?? {},
     schools: schools.data ?? {},
     klujeRisk: risk.data ?? {},
-    sourceStatus: [
-      {
-        key: "census" as const,
-        label: SOURCE_LABELS.census,
-        status: censusStatus,
-        reason: census.reason,
-      },
-      {
-        key: "airnow" as const,
-        label: SOURCE_LABELS.airnow,
-        status: air.status,
-        reason: air.reason,
-      },
-      {
-        key: "walkscore" as const,
-        label: SOURCE_LABELS.walkscore,
-        status: walk.status,
-        reason: walk.reason,
-      },
-      {
-        key: "greatschools" as const,
-        label: SOURCE_LABELS.greatschools,
-        status: schools.status,
-        reason: schools.reason,
-      },
-      {
-        key: "klujeRisk" as const,
-        label: SOURCE_LABELS.klujeRisk,
-        status: risk.status,
-        reason: risk.reason,
-      },
-    ],
-    hasAnyData: Boolean(profile || detailed || air.data || walk.data || schools.data || risk.data),
-    hasPartialData: [censusStatus, air.status, walk.status, schools.status, risk.status].some((s) => s !== "available"),
+    sourceStatus,
+    hasAnyData,
+    hasPartialData: sourceStatus.some((source) => source.status !== "available"),
+    hasAnyErrors,
   };
 
   return {

@@ -14,6 +14,7 @@ import appointmentsRoutes from "./appointments";
 import providersRoutes from "./providers";
 import quoteRequestsRoutes from "./quote-requests";
 import verificationRoutes from "./verification";
+import marketplaceAgentRoutes from "./marketplace-agents";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -46,6 +47,7 @@ router.use("/messages", messagesRoutes);
 router.use("/appointments", appointmentsRoutes);
 router.use("/providers", providersRoutes);
 router.use("/quote-requests", quoteRequestsRoutes);
+router.use("/marketplace-agents", marketplaceAgentRoutes);
 router.use("/", verificationRoutes);
 
 export default router;

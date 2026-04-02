@@ -295,3 +295,74 @@ CREATE INDEX idx_providers_tenant_status ON providers (tenant_id, status);
 CREATE INDEX idx_provider_capabilities_service_category ON provider_capabilities (service_category) WHERE active = true;
 CREATE INDEX idx_quote_requests_tenant_requested_at ON quote_requests (tenant_id, requested_at DESC);
 CREATE INDEX idx_dispatches_run_status ON dispatches (run_id, status);
+
+CREATE TABLE marketplace_agent_tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  agent_code TEXT NOT NULL CHECK (
+    agent_code IN (
+      'A0_ROUTER_ORCHESTRATOR',
+      'A1_CUSTOMER_CONCIERGE',
+      'A2_JOB_INTAKE_SCOPING',
+      'A3_MATCHING_QUOTE_DISPATCH',
+      'A4_QUOTE_COMPARISON_ADVISOR',
+      'A5_SCHEDULING_MESSAGING_COORDINATOR',
+      'A6_ASK_EXPERT_MODERATOR',
+      'A7_TRUST_VERIFICATION_COMPLIANCE',
+      'A8_SUPPORT_DISPUTE_TRIAGE'
+    )
+  ),
+  status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'in_progress', 'waiting', 'completed', 'failed', 'cancelled')),
+  priority TEXT NOT NULL DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
+  source TEXT NOT NULL DEFAULT 'api' CHECK (source IN ('api', 'workflow', 'system', 'manual')),
+  dedupe_key TEXT,
+  correlation_id TEXT NOT NULL,
+  requested_by TEXT,
+  summary TEXT NOT NULL,
+  input_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  context_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  output_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  failure_code TEXT,
+  failure_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX marketplace_agent_tasks_tenant_dedupe_idx
+  ON marketplace_agent_tasks (tenant_id, dedupe_key)
+  WHERE dedupe_key IS NOT NULL;
+
+CREATE INDEX marketplace_agent_tasks_agent_status_idx
+  ON marketplace_agent_tasks (tenant_id, agent_code, status, created_at DESC);
+
+CREATE TABLE marketplace_router_decisions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  task_id UUID NOT NULL REFERENCES marketplace_agent_tasks(id) ON DELETE CASCADE,
+  selected_agent_code TEXT NOT NULL,
+  reason_codes TEXT[] NOT NULL DEFAULT '{}',
+  requires_human_review BOOLEAN NOT NULL DEFAULT false,
+  confidence NUMERIC(4,3) NOT NULL DEFAULT 0.0,
+  decision_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE marketplace_agent_workflow_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES tenants(id),
+  template_id TEXT NOT NULL,
+  agent_code TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  trigger_event TEXT NOT NULL,
+  next_agent_codes TEXT[] NOT NULL DEFAULT '{}',
+  deterministic_rules TEXT[] NOT NULL DEFAULT '{}',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  version INTEGER NOT NULL DEFAULT 1,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (tenant_id, template_id, version)
+);

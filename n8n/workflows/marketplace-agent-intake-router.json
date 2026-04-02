@@ -1,0 +1,64 @@
+{
+  "name": "Marketplace Agent Intake Router",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - marketplace.customer.requested",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-760, 220],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "marketplace-agent-intake-router",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Create A0 task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-520, 220],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/marketplace-agents/tasks",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"tenantId\":$json.tenant_id,\"agentCode\":\"A0_ROUTER_ORCHESTRATOR\",\"source\":\"workflow\",\"summary\":\"New marketplace customer request\",\"input\":$json.payload,\"context\":{\"correlationId\":$json.correlation_id}}"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Request next-agent decision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-280, 220],
+      "parameters": {
+        "method": "POST",
+        "url": "={{`http://api:4000/api/v1/marketplace-agents/tasks/${$json.data.id}/decision`}}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [-40, 220],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"accepted\",\"task\":$json}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - marketplace.customer.requested": {
+      "main": [[{ "node": "Create A0 task", "type": "main", "index": 0 }]]
+    },
+    "Create A0 task": {
+      "main": [[{ "node": "Request next-agent decision", "type": "main", "index": 0 }]]
+    },
+    "Request next-agent decision": {
+      "main": [[{ "node": "Respond accepted", "type": "main", "index": 0 }]]
+    }
+  }
+}

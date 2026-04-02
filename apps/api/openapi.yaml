@@ -340,6 +340,123 @@ paths:
       responses:
         '200':
           description: Ranked placements returned
+  /marketplace-agents/workflow-templates:
+    get:
+      summary: List deterministic workflow templates for marketplace agent backbone
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Workflow templates returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MarketplaceAgentWorkflowTemplate'
+  /marketplace-agents/tasks:
+    get:
+      summary: List marketplace agent tasks for a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: tenantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: agentCode
+          required: false
+          schema:
+            $ref: '#/components/schemas/MarketplaceAgentCode'
+      responses:
+        '200':
+          description: Task list returned
+    post:
+      summary: Create a marketplace agent task
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketplaceAgentTaskCreateRequest'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MarketplaceAgentTaskRecord'
+  /marketplace-agents/tasks/{taskId}:
+    get:
+      summary: Fetch a marketplace agent task by identifier
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Task returned
+        '404':
+          description: Task not found
+  /marketplace-agents/tasks/{taskId}/decision:
+    post:
+      summary: Determine next agent handoff based on deterministic router rules
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Decision returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MarketplaceRouterDecision'
+        '404':
+          description: Task not found
+  /marketplace-agents/tasks/transition:
+    post:
+      summary: Transition marketplace agent task state
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketplaceAgentTransitionRequest'
+      responses:
+        '200':
+          description: Task transitioned
+        '404':
+          description: Task not found
 components:
   securitySchemes:
     bearerAuth:
@@ -448,3 +565,106 @@ components:
             routedAt: { type: string, format: date-time }
             createdAt: { type: string, format: date-time }
             updatedAt: { type: string, format: date-time }
+
+    MarketplaceAgentCode:
+      type: string
+      enum:
+        - A0_ROUTER_ORCHESTRATOR
+        - A1_CUSTOMER_CONCIERGE
+        - A2_JOB_INTAKE_SCOPING
+        - A3_MATCHING_QUOTE_DISPATCH
+        - A4_QUOTE_COMPARISON_ADVISOR
+        - A5_SCHEDULING_MESSAGING_COORDINATOR
+        - A6_ASK_EXPERT_MODERATOR
+        - A7_TRUST_VERIFICATION_COMPLIANCE
+        - A8_SUPPORT_DISPUTE_TRIAGE
+    MarketplaceAgentTaskStatus:
+      type: string
+      enum: [queued, in_progress, waiting, completed, failed, cancelled]
+    MarketplaceAgentPriority:
+      type: string
+      enum: [low, normal, high, urgent]
+    MarketplaceAgentTaskCreateRequest:
+      type: object
+      required: [tenantId, agentCode, source, summary, input]
+      properties:
+        tenantId: { type: string, format: uuid }
+        agentCode:
+          $ref: '#/components/schemas/MarketplaceAgentCode'
+        source:
+          type: string
+          enum: [api, workflow, system, manual]
+        priority:
+          $ref: '#/components/schemas/MarketplaceAgentPriority'
+        dedupeKey: { type: string }
+        correlationId: { type: string }
+        requestedBy: { type: string }
+        summary: { type: string }
+        input:
+          type: object
+          additionalProperties: true
+        context:
+          type: object
+          additionalProperties: true
+    MarketplaceAgentTaskRecord:
+      allOf:
+        - $ref: '#/components/schemas/MarketplaceAgentTaskCreateRequest'
+        - type: object
+          required: [id, status, priority, correlationId, output, context, createdAt, updatedAt]
+          properties:
+            id: { type: string, format: uuid }
+            status:
+              $ref: '#/components/schemas/MarketplaceAgentTaskStatus'
+            priority:
+              $ref: '#/components/schemas/MarketplaceAgentPriority'
+            output:
+              type: object
+              additionalProperties: true
+            failureCode: { type: string }
+            failureMessage: { type: string }
+            startedAt: { type: string, format: date-time }
+            completedAt: { type: string, format: date-time }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    MarketplaceAgentTransitionRequest:
+      type: object
+      required: [taskId, status]
+      properties:
+        taskId: { type: string, format: uuid }
+        status:
+          $ref: '#/components/schemas/MarketplaceAgentTaskStatus'
+        output:
+          type: object
+          additionalProperties: true
+        failureCode: { type: string }
+        failureMessage: { type: string }
+    MarketplaceRouterDecision:
+      type: object
+      required: [tenantId, taskId, selectedAgentCode, reasonCodes, requiresHumanReview, confidence]
+      properties:
+        tenantId: { type: string, format: uuid }
+        taskId: { type: string, format: uuid }
+        selectedAgentCode:
+          $ref: '#/components/schemas/MarketplaceAgentCode'
+        reasonCodes:
+          type: array
+          items: { type: string }
+        requiresHumanReview: { type: boolean }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+    MarketplaceAgentWorkflowTemplate:
+      type: object
+      required: [templateId, agentCode, name, description, triggerEvent, nextAgentCodes, deterministicRules]
+      properties:
+        templateId: { type: string }
+        agentCode:
+          $ref: '#/components/schemas/MarketplaceAgentCode'
+        name: { type: string }
+        description: { type: string }
+        triggerEvent: { type: string }
+        nextAgentCodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketplaceAgentCode'
+        deterministicRules:
+          type: array
+          items: { type: string }

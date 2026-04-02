@@ -194,20 +194,7 @@ function DeptLoader() {
 }
 
 function AiStatusDot({ status }: { status: 'monitoring' | 'idle' }) {
-  if (status === 'monitoring') {
-    return (
-      <span className="flex items-center gap-1 ml-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-        <span className="text-[9px] text-emerald-500 font-medium">AI Active</span>
-      </span>
-    );
-  }
-  return (
-    <span className="flex items-center gap-1 ml-1">
-      <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
-      <span className="text-[9px] text-gray-400 font-medium">AI Standby</span>
-    </span>
-  );
+  return null; // Simplified — status shown in content area instead
 }
 
 function EmptyState({ message }: { message: string }) {

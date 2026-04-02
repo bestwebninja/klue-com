@@ -72,6 +72,75 @@ paths:
       responses:
         '201':
           description: Lead accepted
+  /routing/evaluate:
+    post:
+      summary: Evaluate marketplace routing decision (no dispatch)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenantId, leadSummary, serviceCategory, requester]
+              properties:
+                tenantId: { type: string, format: uuid }
+                leadId: { type: string, format: uuid }
+                leadSummary: { type: string }
+                serviceCategory: { type: string }
+                requestedTimeline: { type: string }
+                dryRun: { type: boolean, default: false }
+                requester:
+                  type: object
+                  properties:
+                    email: { type: string, format: email }
+                    orgName: { type: string }
+                    tags:
+                      type: array
+                      items: { type: string }
+                attributes:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Routing evaluation result
+  /routing/dispatch:
+    post:
+      summary: Dispatch a previously evaluated routing run
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [runId]
+              properties:
+                runId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Routing dispatch accepted
+        '404':
+          description: Routing run not found
+  /routing/runs/{runId}:
+    get:
+      summary: Fetch routing run with transparent decision and handoff details
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: runId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Routing run details
+        '404':
+          description: Routing run not found
   /billing/checkout-session:
     post:
       summary: Create Stripe Checkout session

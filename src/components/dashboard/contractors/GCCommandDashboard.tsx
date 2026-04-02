@@ -194,20 +194,7 @@ function DeptLoader() {
 }
 
 function AiStatusDot({ status }: { status: 'monitoring' | 'idle' }) {
-  if (status === 'monitoring') {
-    return (
-      <span className="flex items-center gap-1 ml-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-        <span className="text-[9px] text-emerald-500 font-medium">AI Active</span>
-      </span>
-    );
-  }
-  return (
-    <span className="flex items-center gap-1 ml-1">
-      <span className="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block" />
-      <span className="text-[9px] text-gray-400 font-medium">AI Standby</span>
-    </span>
-  );
+  return null; // Simplified — status shown in content area instead
 }
 
 function EmptyState({ message }: { message: string }) {
@@ -312,7 +299,7 @@ export default function GCCommandDashboard() {
   return (
     <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-blue-50/60 dark:bg-slate-950">
       {/* ── Top Bar ── */}
-      <div className="bg-white/95 dark:bg-slate-900/95 border-b border-blue-200/80 dark:border-slate-700 px-4 sm:px-5 h-[46px] flex items-center justify-between shrink-0 backdrop-blur-sm">
+      <div className="bg-[hsl(222,47%,11%)]/95 backdrop-blur-sm border-b border-primary/20 px-4 sm:px-5 h-[40px] flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-primary-foreground">
@@ -321,7 +308,7 @@ export default function GCCommandDashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-base font-semibold text-blue-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="text-sm font-semibold text-white flex items-center gap-2">
               Contractors — kluje.com
               {contractorType && (
                 <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">
@@ -334,7 +321,7 @@ export default function GCCommandDashboard() {
                 </span>
               )}
             </div>
-            <div className="text-xs text-blue-700/80 dark:text-slate-400 flex items-center gap-1 flex-wrap leading-relaxed">
+            <div className="text-[11px] text-white/60 flex items-center gap-1 flex-wrap leading-relaxed">
               <span>{contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : ''} Contractor AI Agent · kluje.com</span>
               {serviceNames.length > 0 && (
                 <span className="text-[10px] text-muted-foreground/70">
@@ -344,15 +331,15 @@ export default function GCCommandDashboard() {
             </div>
           </div>
         </div>
-        <div className="hidden xl:block text-xs text-blue-800 dark:text-slate-300 bg-blue-50/80 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 rounded-md px-3 py-1.5">
+        <div className="hidden xl:block text-[11px] text-white/70 bg-white/10 border border-white/10 rounded-md px-3 py-1">
           {isDept
-            ? `AI monitoring active — ${activeSidebar} department`
-            : 'Try: "Order 500 bags of Portland cement" or "How many subs are on site today?"'}
+            ? `AI monitoring — ${activeSidebar}`
+            : 'Try: "Order 500 bags of Portland cement"'}
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="w-[7px] h-[7px] rounded-full bg-emerald-500 inline-block" />
-            Agent online
+          <span className="flex items-center gap-1.5 text-[11px] text-white/60">
+            <span className="w-[6px] h-[6px] rounded-full bg-emerald-500 inline-block" />
+            Online
           </span>
         </div>
       </div>
@@ -441,33 +428,6 @@ export default function GCCommandDashboard() {
                 </div>
               );
             })}
-          </div>
-
-          {/* Quick-jump strip at bottom */}
-          <div className="border-t border-blue-100 dark:border-slate-700 px-3 py-2.5 shrink-0">
-            <p className="text-[10px] text-blue-700/80 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-semibold">Jump to</p>
-            <div className="flex flex-wrap gap-1">
-              {sidebarSections.map(s => (
-                <button
-                  key={s.label}
-                  onClick={() => {
-                    setCollapsed(prev => ({ ...prev, [s.label]: false }));
-                    setTimeout(() => {
-                      if (s.label === 'Legals' && legalsRef.current) {
-                        legalsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 50);
-                  }}
-                  className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${
-                    s.label === 'Legals'
-                      ? 'border-blue-400 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-800'
-                      : 'border-blue-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:bg-blue-50/80 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 

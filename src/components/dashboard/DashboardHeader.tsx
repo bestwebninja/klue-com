@@ -21,18 +21,18 @@ export function DashboardHeader({
   onSignOut,
 }: DashboardHeaderProps) {
   return (
-    <header className="bg-amber-100 sticky top-0 z-50 border-b border-amber-300/70">
-      <div className="px-4 py-1.5">
+    <header className="bg-[hsl(222,47%,11%)]/95 backdrop-blur-sm sticky top-0 z-50 border-b border-primary/20">
+      <div className="px-4 py-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle - desktop only */}
-            <SidebarTrigger className="hidden sm:flex text-black hover:text-black hover:bg-black/10" />
+            <SidebarTrigger className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10" />
             
             {/* Mobile: Show logo */}
-            <a href="/" className="sm:hidden text-xl font-bold text-black">Kluje</a>
+            <a href="/" className="sm:hidden text-xl font-bold text-primary">Kluje</a>
             
             {/* Desktop: Show page title */}
-            <span className="hidden sm:inline text-black font-semibold leading-none">Provider Dashboard</span>
+            <span className="hidden sm:inline text-white font-semibold leading-none text-sm">Provider Dashboard</span>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-3">
@@ -47,30 +47,30 @@ export function DashboardHeader({
               </Link>
             )}
             {isSubscribed && (
-              <span className="hidden sm:flex items-center gap-1 text-xs sm:text-sm text-black bg-black/10 px-2 sm:px-3 py-1 rounded-full">
-                <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:flex items-center gap-1 text-xs text-primary bg-primary/15 px-2 py-0.5 rounded-full">
+                <Crown className="w-3 h-3" />
                 <span className="hidden sm:inline">Pro</span>
               </span>
             )}
             <Link to="/settings/notifications" className="hidden sm:block">
-              <Button variant="ghost" size="icon" title="Notification Settings" className="text-black hover:text-black hover:bg-black/10">
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Button variant="ghost" size="icon" title="Notification Settings" className="text-white/70 hover:text-white hover:bg-white/10">
+                <Settings className="w-4 h-4" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-black hover:text-black hover:bg-black/10">
-              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-white/70 hover:text-white hover:bg-white/10">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
         
         {/* Mobile-only: User info row */}
         <div className="flex items-center justify-between mt-2 sm:hidden">
-          <span className="text-sm text-black/70 truncate max-w-[200px]">
+          <span className="text-sm text-white/70 truncate max-w-[200px]">
             {userName || userEmail}
           </span>
           <div className="flex items-center gap-2">
             {isSubscribed && (
-              <span className="flex items-center gap-1 text-xs text-black bg-black/10 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 text-xs text-primary bg-primary/15 px-2 py-0.5 rounded-full">
                 <Crown className="w-3 h-3" />
                 Pro
               </span>

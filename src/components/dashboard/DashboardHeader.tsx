@@ -21,8 +21,8 @@ export function DashboardHeader({
   onSignOut,
 }: DashboardHeaderProps) {
   return (
-    <header className="bg-amber-100 sticky top-0 z-50 border-b border-amber-300/70">
-      <div className="px-4 py-1.5">
+    <header className="bg-[hsl(222,47%,11%)]/95 backdrop-blur-sm sticky top-0 z-50 border-b border-primary/20">
+      <div className="px-4 py-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle - desktop only */}

@@ -57,8 +57,8 @@ export function DashboardHeader({
                 <Settings className="w-4 h-4" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-black hover:text-black hover:bg-black/10">
-              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Button variant="ghost" size="icon" onClick={onSignOut} className="text-white/70 hover:text-white hover:bg-white/10">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>

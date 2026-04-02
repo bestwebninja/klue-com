@@ -37,7 +37,6 @@ const VerificationDept   = lazy(() => import('./legals/VerificationOrdersDept'))
 const sidebarSections = [
   {
     label: 'Overview',
-    aiStatus: 'monitoring' as const,
     items: [
       { icon: BarChart3,    name: 'Dashboard',     badge: null },
       { icon: MapPin,       name: 'Site Map',       badge: 'Live', badgeType: 'green' },
@@ -46,7 +45,6 @@ const sidebarSections = [
   },
   {
     label: 'Communications',
-    aiStatus: 'monitoring' as const,
     items: [
       { icon: Phone,        name: 'Inbound Calls',  badge: '3',  badgeType: 'red' },
       { icon: Mail,         name: 'Email Inbox',    badge: '7',  badgeType: 'default' },
@@ -56,7 +54,6 @@ const sidebarSections = [
   },
   {
     label: 'Materials',
-    aiStatus: 'idle' as const,
     items: [
       { icon: Package,      name: 'Orders',         badge: null },
       { icon: Factory,      name: 'Suppliers',      badge: null },
@@ -67,7 +64,6 @@ const sidebarSections = [
   },
   {
     label: 'Workforce',
-    aiStatus: 'idle' as const,
     items: [
       { icon: Users,        name: 'Subcontractors', badge: null },
       { icon: Lock,         name: 'Biometric Access', badge: 'New', badgeType: 'green' },
@@ -77,7 +73,6 @@ const sidebarSections = [
   },
   {
     label: 'Finance',
-    aiStatus: 'idle' as const,
     items: [
       { icon: BookOpen,     name: 'Accounting',     badge: null },
       { icon: Receipt,      name: 'Invoices',       badge: '2', badgeType: 'red' },
@@ -87,7 +82,6 @@ const sidebarSections = [
   },
   {
     label: 'Legals',
-    aiStatus: 'idle' as const,
     items: [
       { icon: Scale,        name: 'Attorneys',          badge: null },
       { icon: Handshake,    name: 'Arbitration',        badge: null },
@@ -191,10 +185,6 @@ function DeptLoader() {
   );
 }
 
-function AiStatusDot({ status }: { status: 'monitoring' | 'idle' }) {
-  return null; // Simplified — status shown in content area instead
-}
-
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="text-center py-8 text-muted-foreground text-sm">
@@ -291,7 +281,6 @@ export default function GCCommandDashboard() {
                   >
                     <span className={`flex items-center text-[11px] font-semibold tracking-[0.14em] uppercase ${isLegals ? 'text-amber-700' : 'text-blue-700/80 dark:text-slate-300'}`}>
                       {section.label}
-                      <AiStatusDot status={section.aiStatus} />
                     </span>
                     <ChevronDown className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`} />
                   </button>

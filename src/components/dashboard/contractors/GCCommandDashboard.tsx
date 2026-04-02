@@ -429,33 +429,6 @@ export default function GCCommandDashboard() {
               );
             })}
           </div>
-
-          {/* Quick-jump strip at bottom */}
-          <div className="border-t border-blue-100 dark:border-slate-700 px-3 py-2.5 shrink-0">
-            <p className="text-[10px] text-blue-700/80 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-semibold">Jump to</p>
-            <div className="flex flex-wrap gap-1">
-              {sidebarSections.map(s => (
-                <button
-                  key={s.label}
-                  onClick={() => {
-                    setCollapsed(prev => ({ ...prev, [s.label]: false }));
-                    setTimeout(() => {
-                      if (s.label === 'Legals' && legalsRef.current) {
-                        legalsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 50);
-                  }}
-                  className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${
-                    s.label === 'Legals'
-                      ? 'border-blue-400 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-800'
-                      : 'border-blue-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:bg-blue-50/80 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* ── Content Panel ── */}

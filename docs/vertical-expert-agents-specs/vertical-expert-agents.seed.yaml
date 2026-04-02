@@ -1,0 +1,405 @@
+shared_patterns:
+  quote_evaluation_dimensions:
+    - scope_completeness
+    - exclusions
+    - assumptions
+    - timeline
+    - access_requirements
+    - materials_or_tools
+    - compliance_or_liability
+    - reporting_deliverables
+    - pricing_structure
+    - risk_flags
+  standard_outputs:
+    - intake_summary
+    - structured_scope_document
+    - provider_questions
+    - quote_summary
+    - gap_analysis
+    - next_best_action
+
+shared_codex_build:
+  purpose: >
+    Shared codex build instructions and normalization rules for all Vertical Expert Agents.
+    This section ensures every agent follows the same contract shape, output conventions,
+    guardrail model, and prompt-template structure while still allowing category-specific logic.
+  command_schema:
+    fields:
+      - command
+      - trigger
+      - required_inputs
+      - optional_inputs
+      - processing_rules
+      - outputs
+      - output_schema
+      - guardrails
+    conventions:
+      - use slash-prefixed command naming
+      - keep required_inputs to minimum viable scoping set
+      - distinguish advisory logic from workflow execution
+      - define outputs in provider-ready and platform-readable form
+      - guardrails must be explicit for regulated, hazardous, or privacy-sensitive contexts
+  input_output_contract_rules:
+    input_rules:
+      - required_inputs must be sufficient to produce a minimum safe advisory response
+      - optional_inputs should improve precision but not block output
+      - unknown or missing inputs must be surfaced in missing_information_list when applicable
+      - user-provided quote or proposal text should be preserved as source material for quote-check commands
+    output_rules:
+      - every intake command should produce intake_summary and next_best_action
+      - every scope command should produce structured_scope_document or equivalent category-specific scope artifact
+      - every quote-check command should produce quote_summary, gap_analysis, risk_flags, and vendor_questions
+      - outputs must support both human-readable summaries and later JSON schema enforcement
+  shared_standard_outputs:
+    - intake_summary
+    - missing_information_list
+    - structured_scope_document
+    - provider_questions
+    - quote_summary
+    - gap_analysis
+    - risk_flags
+    - comparison_scorecard
+    - next_best_action
+  shared_quote_evaluation_model:
+    dimensions:
+      - scope_completeness
+      - exclusions
+      - assumptions
+      - timeline
+      - commercial_clarity
+      - provider_fit
+      - compliance_or_liability
+      - reporting_deliverables
+      - operational_risk
+      - support_model
+    score_levels:
+      - low
+      - medium
+      - high
+  shared_rebundlable_module_schema:
+    fields:
+      - name
+      - can_attach_to
+      - commands
+      - value
+    conventions:
+      - modules must be attachable across at least two agents to qualify as rebundlable
+      - modules should enhance intake, scope quality, or quote comparability
+      - modules should not override workflow ownership by core_agents
+
+codex_build_commands:
+  - command: /build-shared-foundation
+    purpose: Build the shared schema, contract, output, scoring, and module conventions used by all Vertical Expert Agents.
+    expands_to:
+      - /build-shared-command-schema
+      - /build-shared-input-output-contracts
+      - /build-shared-standard-outputs
+      - /build-shared-quote-evaluation-model
+      - /build-shared-rebundlable-module-schema
+  - command: /build-shared-command-schema
+    purpose: Define the canonical command contract shape used across all agents.
+  - command: /build-shared-input-output-contracts
+    purpose: Define input rules, output rules, required field behavior, and missing-information handling across all agents.
+  - command: /build-shared-standard-outputs
+    purpose: Define universal output artifacts such as intake_summary, structured_scope_document, quote_summary, and next_best_action.
+  - command: /build-shared-quote-evaluation-model
+    purpose: Define the common score dimensions used when comparing provider quotes and proposals.
+  - command: /build-shared-rebundlable-module-schema
+    purpose: Define the schema and attachment rules for modules that can be reused across multiple agents.
+  - command: /build-v1-agent
+    purpose: Build the Home Trades Expert agent from intake through quote evaluation.
+    expands_to:
+      - /v1/build-intake-question-tree
+      - /v1/build-command-contracts
+      - /v1/build-output-json-schemas
+      - /v1/build-risk-taxonomy
+      - /v1/build-provider-type-taxonomy
+      - /v1/build-guardrails
+      - /v1/build-prompt-templates
+  - command: /build-v2-agent
+    purpose: Build the Design & Build Expert agent from vision intake through quote evaluation.
+    expands_to:
+      - /v2/build-intake-question-tree
+      - /v2/build-command-contracts
+      - /v2/build-output-json-schemas
+      - /v2/build-design-brief-schema
+      - /v2/build-portfolio-rubric
+      - /v2/build-guardrails
+      - /v2/build-prompt-templates
+  - command: /build-v3-agent
+    purpose: Build the Living Solutions Expert agent for recurring services and bundled support.
+    expands_to:
+      - /v3/build-intake-question-tree
+      - /v3/build-command-contracts
+      - /v3/build-output-json-schemas
+      - /v3/build-recurring-service-taxonomy
+      - /v3/build-bundle-logic
+      - /v3/build-guardrails
+      - /v3/build-prompt-templates
+  - command: /build-v4-agent
+    purpose: Build the Commercial & Facilities Expert agent for site operations, SOWs, and vendor comparison.
+    expands_to:
+      - /v4/build-intake-question-tree
+      - /v4/build-command-contracts
+      - /v4/build-output-json-schemas
+      - /v4/build-sla-taxonomy
+      - /v4/build-vendor-comparison-model
+      - /v4/build-guardrails
+      - /v4/build-prompt-templates
+  - command: /build-v5-agent
+    purpose: Build the Autonomous Security & Surveillance Expert agent for advanced physical-security scoping and quote evaluation.
+    expands_to:
+      - /v5/build-intake-question-tree
+      - /v5/build-command-contracts
+      - /v5/build-output-json-schemas
+      - /v5/build-risk-taxonomy
+      - /v5/build-provider-type-taxonomy
+      - /v5/build-compliance-warning-library
+      - /v5/build-prompt-variants
+  - command: /build-v6-agent
+    purpose: Build the Business Services Expert agent for deliverables, scope, reporting, and handoff design.
+    expands_to:
+      - /v6/build-intake-question-tree
+      - /v6/build-command-contracts
+      - /v6/build-output-json-schemas
+      - /v6/build-deliverable-type-taxonomy
+      - /v6/build-handoff-framework
+      - /v6/build-guardrails
+      - /v6/build-prompt-templates
+  - command: /build-v7-agent
+    purpose: Build the Legal Services Expert agent with strict non-advice boundaries.
+    expands_to:
+      - /v7/build-intake-question-tree
+      - /v7/build-command-contracts
+      - /v7/build-output-json-schemas
+      - /v7/build-matter-type-taxonomy
+      - /v7/build-lawyer-type-taxonomy
+      - /v7/build-legal-guardrail-library
+      - /v7/build-prompt-templates
+  - command: /build-v8-agent
+    purpose: Build the Property Management Expert agent for turnover, recurring operations, and vendor assessment.
+    expands_to:
+      - /v8/build-intake-question-tree
+      - /v8/build-command-contracts
+      - /v8/build-output-json-schemas
+      - /v8/build-tenancy-state-taxonomy
+      - /v8/build-turnover-workflow-taxonomy
+      - /v8/build-management-support-taxonomy
+      - /v8/build-prompt-templates
+  - command: /build-v9-agent
+    purpose: Build the Real Estate Transactions Expert agent for stage-based transaction support and readiness evaluation.
+    expands_to:
+      - /v9/build-intake-question-tree
+      - /v9/build-command-contracts
+      - /v9/build-output-json-schemas
+      - /v9/build-transaction-stage-taxonomy
+      - /v9/build-service-dependency-map
+      - /v9/build-deal-blocker-taxonomy
+      - /v9/build-prompt-templates
+  - command: /build-v10-agent
+    purpose: Build the Property Valuation & Advisory Expert agent for valuations, inspections, due diligence, and advisory scoping.
+    expands_to:
+      - /v10/build-intake-question-tree
+      - /v10/build-command-contracts
+      - /v10/build-output-json-schemas
+      - /v10/build-valuation-purpose-taxonomy
+      - /v10/build-property-risk-taxonomy
+      - /v10/build-inspection-scope-taxonomy
+      - /v10/build-prompt-templates
+
+codex_execution_order:
+  phase_1_shared_foundation:
+    - /build-shared-foundation
+  phase_2_agent_builds:
+    - /build-v1-agent
+    - /build-v2-agent
+    - /build-v3-agent
+    - /build-v4-agent
+    - /build-v5-agent
+    - /build-v6-agent
+    - /build-v7-agent
+    - /build-v8-agent
+    - /build-v9-agent
+    - /build-v10-agent
+  phase_3_validation:
+    - /validate-shared-contract-consistency
+    - /validate-agent-command-coverage
+    - /validate-output-schema-alignment
+    - /validate-guardrail-completeness
+    - /validate-rebundlable-module-attachments
+  phase_4_packaging:
+    - /build-master-agent-registry
+    - /build-cross-agent-dependency-map
+    - /build-release-ready-yaml
+
+agent_registry:
+  suite: vertical_expert_agents
+  version: 0.1
+  default_operating_model:
+    mode: advisory
+    workflow_owner: core_agents
+    output_style: structured
+  agents:
+    - id: V1
+      title: Home Trades Expert
+      vertical: Electricians, plumbers, carpenters, builders, home repairs and renovations
+      build_command: /build-v1-agent
+      primary_commands:
+        - /v1/intake
+        - /v1/scope
+        - /v1/quote-check
+        - /v1/site-checklist
+      specialist_capabilities:
+        - issue triage
+        - home repair scoping
+        - provider-type matching
+        - site-readiness preparation
+      rebundlable_modules:
+        - Home Site Readiness Module
+    - id: V2
+      title: Design & Build Expert
+      vertical: Architects, interior design, design-build, renovation planning
+      build_command: /build-v2-agent
+      primary_commands:
+        - /v2/vision-intake
+        - /v2/project-brief
+        - /v2/portfolio-check
+        - /v2/quote-check
+      specialist_capabilities:
+        - design brief creation
+        - style and constraint translation
+        - portfolio-fit evaluation
+        - proposal comparison
+      rebundlable_modules:
+        - Project Briefing Module
+    - id: V3
+      title: Living Solutions Expert
+      vertical: Home services, maintenance, recurring household and property support
+      build_command: /build-v3-agent
+      primary_commands:
+        - /v3/maintenance-intake
+        - /v3/recurring-plan
+        - /v3/service-bundle
+        - /v3/quote-check
+      specialist_capabilities:
+        - recurring-service planning
+        - cadence design
+        - service bundling
+        - recurring quote comparison
+      rebundlable_modules:
+        - Recurring Service Bundle Module
+    - id: V4
+      title: Commercial & Facilities Expert
+      vertical: Businesses, landlords, commercial properties, facilities, multi-site operations
+      build_command: /build-v4-agent
+      primary_commands:
+        - /v4/facility-intake
+        - /v4/sow
+        - /v4/sla-check
+        - /v4/vendor-compare
+      specialist_capabilities:
+        - facilities scoping
+        - statement of work design
+        - SLA evaluation
+        - vendor comparison
+      rebundlable_modules:
+        - Managed Service Comparison Module
+    - id: V5
+      title: Autonomous Security & Surveillance Expert
+      vertical: CCTV, biometric access, custom security systems, drones, remote monitoring
+      build_command: /build-v5-agent
+      primary_commands:
+        - /v5/security-intake
+        - /v5/system-scope
+        - /v5/coverage-map
+        - /v5/access-logic
+        - /v5/quote-check
+        - /v5/incident-policy
+      specialist_capabilities:
+        - advanced site-security scoping
+        - integrated surveillance design
+        - access-control logic mapping
+        - incident response requirements
+        - security quote evaluation
+      rebundlable_modules:
+        - Remote Monitoring & Incident Response Module
+    - id: V6
+      title: Business Services Expert
+      vertical: Accounting, consulting, admin support, outsourced business operations
+      build_command: /build-v6-agent
+      primary_commands:
+        - /v6/requirements-intake
+        - /v6/scope
+        - /v6/quote-check
+        - /v6/handoff-plan
+      specialist_capabilities:
+        - deliverable definition
+        - scope-of-work creation
+        - pricing-model evaluation
+        - handoff planning
+      rebundlable_modules:
+        - Deliverables & Handoff Module
+    - id: V7
+      title: Legal Services Expert
+      vertical: Legal services, lawyer matching, factual matter intake
+      build_command: /build-v7-agent
+      primary_commands:
+        - /v7/matter-intake
+        - /v7/lawyer-match
+        - /v7/brief-builder
+        - /v7/quote-check
+      specialist_capabilities:
+        - matter classification
+        - lawyer-type matching
+        - factual consultation briefs
+        - legal fee-structure comparison
+      rebundlable_modules:
+        - Regulated Intake Guardrails Module
+    - id: V8
+      title: Property Management Expert
+      vertical: Residential rentals, strata, landlords, asset operations, turnover management
+      build_command: /build-v8-agent
+      primary_commands:
+        - /v8/property-intake
+        - /v8/turnover-scope
+        - /v8/management-plan
+        - /v8/vendor-check
+      specialist_capabilities:
+        - tenancy-context scoping
+        - turnover planning
+        - management-support design
+        - property operations quote evaluation
+      rebundlable_modules:
+        - Turnover & Readiness Module
+    - id: V9
+      title: Real Estate Transactions Expert
+      vertical: Buying, selling, leasing, conveyancing support, transaction coordination
+      build_command: /build-v9-agent
+      primary_commands:
+        - /v9/transaction-intake
+        - /v9/service-map
+        - /v9/deal-readiness
+        - /v9/quote-check
+      specialist_capabilities:
+        - transaction-stage mapping
+        - professional-service coordination
+        - deal-readiness analysis
+        - transaction-support quote evaluation
+      rebundlable_modules:
+        - Transaction Readiness Module
+    - id: V10
+      title: Property Valuation & Advisory Expert
+      vertical: Valuations, appraisals, inspections, surveys, due diligence, advisory
+      build_command: /build-v10-agent
+      primary_commands:
+        - /v10/valuation-intake
+        - /v10/inspection-scope
+        - /v10/advisory-brief
+        - /v10/quote-check
+      specialist_capabilities:
+        - valuation-purpose scoping
+        - due-diligence briefing
+        - inspection requirement design
+        - advisory quote evaluation
+      rebundlable_modules:
+        - Due Diligence Scope Module

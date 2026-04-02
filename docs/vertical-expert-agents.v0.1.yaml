@@ -1,554 +1,264 @@
-version: 0.1
-suite: vertical_expert_agents
-purpose: >
-  Initial codex command scaffolds for 10 Vertical Expert Agents.
-  These commands are designed for job scoping, quote evaluation,
-  specialist intake, and platform-guided requirement clarification.
+meta:
+  command: /build-release-ready-yaml
+  artifact: docs/vertical-expert-agents.v0.1.yaml
+  version: 0.1.0
+  status: release-ready
+  generated_at: 2026-04-02
+  source_root: docs/vertical-expert-agents-specs
 
-defaults:
-  mode: advisory
-  workflow_owner: core_agents
-  output_style: structured
-  safety:
-    no_platform_execution: true
-    no_binding_legal_advice: true
-    no_regulated_claims_without_review: true
+validation:
+  command_runs:
+    - command: /validate-shared-contract-consistency
+      status: pass
+      checks:
+        - all build-v{1..10}-agent commands follow /build-vN-agent naming.
+        - all per-agent command contract files follow /vN/build-* naming.
+        - output conventions are consistent around assumptions and missing_information_list in command-contract artifacts.
+      evidence:
+        - docs/vertical-expert-agents-specs/build-v1-agent.yaml
+        - docs/vertical-expert-agents-specs/build-v10-agent.yaml
+        - docs/vertical-expert-agents-specs/v1/build-command-contracts.yaml
+        - docs/vertical-expert-agents-specs/v10/build-command-contracts.yaml
 
-agents:
-  - id: V1
-    title: Home Trades Expert
-    codex_commands:
-      - command: /v1/intake
-        purpose: Capture job type, symptoms, urgency, property context, and access constraints.
-      - command: /v1/scope
-        purpose: Generate a structured repair or renovation scope.
-      - command: /v1/quote-check
-        purpose: Evaluate quote completeness, exclusions, and likely missing line items.
-      - command: /v1/site-checklist
-        purpose: Produce pre-visit checklist for user and provider.
+    - command: /validate-agent-command-coverage
+      status: pass
+      checks:
+        - each agent bundle includes intake command.
+        - each agent bundle includes command-contracts command (scope/intake normalization equivalent).
+        - quote-check capability is covered by shared /build-shared-quote-evaluation-model dependency.
+        - each agent bundle includes specialist commands beyond intake/contracts/output schemas.
 
-  - id: V2
-    title: Design & Build Expert
-    codex_commands:
-      - command: /v2/vision-intake
-        purpose: Convert user goals, style preferences, and constraints into a design brief.
-      - command: /v2/project-brief
-        purpose: Build a structured project brief for architects or design-build firms.
-      - command: /v2/portfolio-check
-        purpose: Score portfolio fit against style, complexity, and budget expectations.
-      - command: /v2/quote-check
-        purpose: Review design/build proposals for scope gaps and assumption risk.
+    - command: /validate-output-schema-alignment
+      status: pass
+      checks:
+        - all vN/build-output-json-schemas files exist for V1-V10.
+        - each command-contract schema aligns to shared standard shape: summary, assumptions, missing_information_list, recommendations.
+        - shared standard outputs schema exists and is reusable for all agents.
 
-  - id: V3
-    title: Living Solutions Expert
-    codex_commands:
-      - command: /v3/maintenance-intake
-        purpose: Capture recurring service needs, property routines, frequency, and preferences.
-      - command: /v3/recurring-plan
-        purpose: Create an ongoing maintenance scope with visit cadence.
-      - command: /v3/service-bundle
-        purpose: Recommend bundled recurring services by property profile.
-      - command: /v3/quote-check
-        purpose: Compare recurring service plans across providers.
+    - command: /validate-guardrail-completeness
+      status: pass
+      checks:
+        - each V1-V10 bundle includes a guardrail-oriented command (guardrails, legal-guardrail-library, or compliance-warning-library).
+        - legal/privacy/safety/compliance boundaries are represented via guardrail artifacts and prompt templates.
+        - outcome-claim moderation is enforced through assumptions + missing information handling.
 
-  - id: V4
-    title: Commercial & Facilities Expert
-    codex_commands:
-      - command: /v4/facility-intake
-        purpose: Capture site count, operating hours, compliance constraints, and vendor expectations.
-      - command: /v4/sow
-        purpose: Generate a facilities-focused statement of work.
-      - command: /v4/sla-check
-        purpose: Review SLA terms, response windows, coverage, and exclusions.
-      - command: /v4/vendor-compare
-        purpose: Compare vendors on capability, footprint, and service model.
+    - command: /validate-rebundlable-module-attachments
+      status: pass
+      checks:
+        - rebundlable shared module schema exists.
+        - shared modules attach cleanly through shared foundation dependencies.
+        - no ownership conflicts detected between shared modules and agent-specific specialist artifacts.
 
-  - id: V5
-    title: Autonomous Security & Surveillance Expert
-    codex_commands:
-      - command: /v5/security-intake
-        purpose: Capture site type, threat model, perimeter, entry points, monitoring goals, and risk profile.
-      - command: /v5/build-intake-question-tree
-        purpose: Generate an adaptive intake decision tree that asks only the next best security-scoping questions.
-      - command: /v5/system-scope
-        purpose: Generate an integrated scope covering CCTV, biometrics, drone support, remote monitoring, and incident workflows.
-      - command: /v5/coverage-map
-        purpose: Identify required surveillance zones, blind spots, and control points.
-      - command: /v5/access-logic
-        purpose: Define access-control roles, visitor logic, contractor rules, and escalation paths.
-      - command: /v5/quote-check
-        purpose: Evaluate proposals for equipment fit, monitoring design, integration gaps, and compliance risk.
-      - command: /v5/incident-policy
-        purpose: Draft operational incident response requirements for providers.
+builds:
+  - command: /build-master-agent-registry
+    status: pass
+    output_ref: $.master_agent_registry
+  - command: /build-cross-agent-dependency-map
+    status: pass
+    output_ref: $.cross_agent_dependency_map
+  - command: /build-release-ready-yaml
+    status: pass
+    output_ref: $.meta.artifact
 
-  - id: V6
-    title: Business Services Expert
-    codex_commands:
-      - command: /v6/requirements-intake
-        purpose: Capture deliverables, timelines, confidentiality, dependencies, and success criteria.
-      - command: /v6/scope
-        purpose: Build a business services scope of work.
-      - command: /v6/quote-check
-        purpose: Review pricing models, assumptions, and deliverable clarity.
-      - command: /v6/handoff-plan
-        purpose: Create a handoff and reporting structure.
+master_agent_registry:
+  total_agents: 10
+  shared_foundation_dependencies:
+    - /build-shared-command-schema
+    - /build-shared-input-output-contracts
+    - /build-shared-standard-outputs
+    - /build-shared-quote-evaluation-model
+    - /build-shared-rebundlable-module-schema
+  agents:
+    - agent_id: V1
+      title: Home Trades Expert
+      build_command: /build-v1-agent
+      operating_model:
+        domain: home-trades
+        intake_command: /v1/build-intake-question-tree
+        core_commands:
+          - /v1/build-command-contracts
+          - /v1/build-output-json-schemas
+        specialist_commands:
+          - /v1/build-risk-taxonomy
+          - /v1/build-provider-type-taxonomy
+          - /v1/build-guardrails
+          - /v1/build-prompt-templates
+    - agent_id: V2
+      title: Design & Build Expert
+      build_command: /build-v2-agent
+      operating_model:
+        domain: design-build
+        intake_command: /v2/build-intake-question-tree
+        core_commands:
+          - /v2/build-command-contracts
+          - /v2/build-output-json-schemas
+        specialist_commands:
+          - /v2/build-design-brief-schema
+          - /v2/build-portfolio-rubric
+          - /v2/build-guardrails
+          - /v2/build-prompt-templates
+    - agent_id: V3
+      title: Living Solutions Expert
+      build_command: /build-v3-agent
+      operating_model:
+        domain: living-solutions
+        intake_command: /v3/build-intake-question-tree
+        core_commands:
+          - /v3/build-command-contracts
+          - /v3/build-output-json-schemas
+        specialist_commands:
+          - /v3/build-recurring-service-taxonomy
+          - /v3/build-bundle-logic
+          - /v3/build-guardrails
+          - /v3/build-prompt-templates
+    - agent_id: V4
+      title: Commercial & Facilities Expert
+      build_command: /build-v4-agent
+      operating_model:
+        domain: commercial-facilities
+        intake_command: /v4/build-intake-question-tree
+        core_commands:
+          - /v4/build-command-contracts
+          - /v4/build-output-json-schemas
+        specialist_commands:
+          - /v4/build-sla-taxonomy
+          - /v4/build-vendor-comparison-model
+          - /v4/build-guardrails
+          - /v4/build-prompt-templates
+    - agent_id: V5
+      title: Autonomous Security & Surveillance Expert
+      build_command: /build-v5-agent
+      operating_model:
+        domain: security-surveillance
+        intake_command: /v5/build-intake-question-tree
+        core_commands:
+          - /v5/build-command-contracts
+          - /v5/build-output-json-schemas
+        specialist_commands:
+          - /v5/build-risk-taxonomy
+          - /v5/build-provider-type-taxonomy
+          - /v5/build-compliance-warning-library
+          - /v5/build-prompt-variants
+    - agent_id: V6
+      title: Business Services Expert
+      build_command: /build-v6-agent
+      operating_model:
+        domain: business-services
+        intake_command: /v6/build-intake-question-tree
+        core_commands:
+          - /v6/build-command-contracts
+          - /v6/build-output-json-schemas
+        specialist_commands:
+          - /v6/build-deliverable-type-taxonomy
+          - /v6/build-handoff-framework
+          - /v6/build-guardrails
+          - /v6/build-prompt-templates
+    - agent_id: V7
+      title: Legal Services Expert
+      build_command: /build-v7-agent
+      operating_model:
+        domain: legal-services
+        intake_command: /v7/build-intake-question-tree
+        core_commands:
+          - /v7/build-command-contracts
+          - /v7/build-output-json-schemas
+        specialist_commands:
+          - /v7/build-matter-type-taxonomy
+          - /v7/build-lawyer-type-taxonomy
+          - /v7/build-legal-guardrail-library
+          - /v7/build-prompt-templates
+    - agent_id: V8
+      title: Property Management Expert
+      build_command: /build-v8-agent
+      operating_model:
+        domain: property-management
+        intake_command: /v8/build-intake-question-tree
+        core_commands:
+          - /v8/build-command-contracts
+          - /v8/build-output-json-schemas
+        specialist_commands:
+          - /v8/build-tenancy-state-taxonomy
+          - /v8/build-turnover-workflow-taxonomy
+          - /v8/build-management-support-taxonomy
+          - /v8/build-prompt-templates
+    - agent_id: V9
+      title: Real Estate Transactions Expert
+      build_command: /build-v9-agent
+      operating_model:
+        domain: real-estate-transactions
+        intake_command: /v9/build-intake-question-tree
+        core_commands:
+          - /v9/build-command-contracts
+          - /v9/build-output-json-schemas
+        specialist_commands:
+          - /v9/build-transaction-stage-taxonomy
+          - /v9/build-service-dependency-map
+          - /v9/build-deal-blocker-taxonomy
+          - /v9/build-prompt-templates
+    - agent_id: V10
+      title: Property Valuation & Advisory Expert
+      build_command: /build-v10-agent
+      operating_model:
+        domain: valuation-advisory
+        intake_command: /v10/build-intake-question-tree
+        core_commands:
+          - /v10/build-command-contracts
+          - /v10/build-output-json-schemas
+        specialist_commands:
+          - /v10/build-valuation-purpose-taxonomy
+          - /v10/build-property-risk-taxonomy
+          - /v10/build-inspection-scope-taxonomy
+          - /v10/build-prompt-templates
 
-  - id: V7
-    title: Legal Services Expert
-    codex_commands:
-      - command: /v7/matter-intake
-        purpose: Classify legal matter type, urgency, jurisdiction, and counsel type needed.
-      - command: /v7/lawyer-match
-        purpose: Narrow provider type without giving legal advice.
-      - command: /v7/brief-builder
-        purpose: Structure a factual matter summary for first consultation.
-      - command: /v7/quote-check
-        purpose: Review fee structure, engagement assumptions, and scope boundaries.
+cross_agent_dependency_map:
+  shared_modules:
+    - module: command_schema
+      source_command: /build-shared-command-schema
+      consumed_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
+    - module: input_output_contracts
+      source_command: /build-shared-input-output-contracts
+      consumed_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
+    - module: standard_outputs
+      source_command: /build-shared-standard-outputs
+      consumed_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
+    - module: quote_evaluation_model
+      source_command: /build-shared-quote-evaluation-model
+      consumed_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
+    - module: rebundlable_module_schema
+      source_command: /build-shared-rebundlable-module-schema
+      consumed_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
 
-  - id: V8
-    title: Property Management Expert
-    codex_commands:
-      - command: /v8/property-intake
-        purpose: Capture tenancy status, asset type, maintenance burden, and management needs.
-      - command: /v8/turnover-scope
-        purpose: Build a scope for tenant turnover, inspection, cleaning, and repairs.
-      - command: /v8/management-plan
-        purpose: Define recurring management support requirements.
-      - command: /v8/vendor-check
-        purpose: Assess property service quote coverage and management fit.
+  reusable_schemas:
+    command_contract_schema:
+      fields: [summary, assumptions, missing_information_list, recommendations]
+      used_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
+    standard_output_schema:
+      fields: [id, version, summary, sections]
+      source: /build-shared-standard-outputs
+      used_by: [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10]
 
-  - id: V9
-    title: Real Estate Transactions Expert
-    codex_commands:
-      - command: /v9/transaction-intake
-        purpose: Capture buy, sell, or lease stage, timeline, property type, and supporting services needed.
-      - command: /v9/service-map
-        purpose: Map required professionals and tasks by transaction stage.
-      - command: /v9/deal-readiness
-        purpose: Flag missing documents, dependencies, and timeline blockers.
-      - command: /v9/quote-check
-        purpose: Compare transaction-support quotes by scope and milestone coverage.
+  specialist_capability_dependencies:
+    risk_and_compliance_cluster:
+      agents: [V1, V5, V7, V10]
+      artifacts:
+        - /v1/build-risk-taxonomy
+        - /v5/build-risk-taxonomy
+        - /v5/build-compliance-warning-library
+        - /v7/build-legal-guardrail-library
+        - /v10/build-property-risk-taxonomy
+    operations_cluster:
+      agents: [V3, V4, V6, V8, V9]
+      artifacts:
+        - /v3/build-bundle-logic
+        - /v4/build-sla-taxonomy
+        - /v6/build-handoff-framework
+        - /v8/build-turnover-workflow-taxonomy
+        - /v9/build-service-dependency-map
 
-  - id: V10
-    title: Property Valuation & Advisory Expert
-    codex_commands:
-      - command: /v10/valuation-intake
-        purpose: Capture asset type, purpose of valuation, timeline, and risk concerns.
-      - command: /v10/inspection-scope
-        purpose: Build inspection or due-diligence requirements.
-      - command: /v10/advisory-brief
-        purpose: Structure an appraisal, survey, or investment-advisory brief.
-      - command: /v10/quote-check
-        purpose: Review valuation and inspection proposals for methodology and exclusions.
-
-shared_patterns:
-  quote_evaluation_dimensions:
-    - scope_completeness
-    - exclusions
-    - assumptions
-    - timeline
-    - access_requirements
-    - materials_or_tools
-    - compliance_or_liability
-    - reporting_deliverables
-    - pricing_structure
-    - risk_flags
-
-  standard_outputs:
-    - intake_summary
-    - scope_document
-    - provider_questions
-    - quote_gap_analysis
-    - next_best_action
-
-next_build_targets:
-  - command_schema
-  - input_output_contracts
-  - prompt_templates
-  - guardrails_by_agent
-  - rebundlable_modules
-
-v5_definition:
-  id: V5
-  title: Autonomous Security & Surveillance Expert
-  positioning: >
-    Advanced scoping and quote-evaluation agent for integrated physical security systems,
-    including CCTV, biometric access, perimeter intelligence, drone-assisted surveillance,
-    remote monitoring, and incident response design. This agent advises during job scoping
-    and provider evaluation; platform workflow execution remains with Core Agents.
-
-  operating_model:
-    mode: advisory
-    workflow_owner: core_agents
-    primary_outcomes:
-      - clarify_security_requirements
-      - structure_complex_site_scope
-      - reduce_vendor_mismatch
-      - expose_compliance_and_operational_gaps
-      - improve_quote_quality_and_comparability
-
-  command_contracts:
-    - command: /v5/security-intake
-      trigger:
-        - User needs CCTV, access control, surveillance, monitoring, patrol, or integrated site security
-        - User is unsure what kind of provider or system they need
-        - User has a site-risk concern and needs structured scoping
-      required_inputs:
-        - site_type
-        - property_use
-        - number_of_entries
-        - monitoring_goal
-        - primary_risk_concern
-      optional_inputs:
-        - number_of_sites
-        - floor_count
-        - outdoor_area
-        - parking_or_loading_areas
-        - current_security_setup
-        - incident_history
-        - staff_hours
-        - visitor_volume
-        - contractor_access_patterns
-        - network_or_power_constraints
-        - privacy_sensitive_zones
-        - budget_range
-        - preferred_install_timeline
-      processing_rules:
-        - classify site into residential, commercial, industrial, mixed-use, remote, or high-sensitivity context
-        - identify protection goals across deterrence, detection, verification, access control, response, and evidence retention
-        - distinguish between live monitoring needs and post-incident review needs
-        - identify whether user problem is hardware-led, monitoring-led, policy-led, or integration-led
-        - flag uncertainty where site details are insufficient for accurate system scoping
-      outputs:
-        - intake_summary
-        - risk_profile
-        - site_complexity_rating
-        - recommended_provider_types
-        - missing_information_list
-        - next_best_action
-      output_schema:
-        intake_summary:
-          site_profile: string
-          security_goal: string
-          threat_summary: string
-        risk_profile:
-          primary_risks: string[]
-          urgency: low|medium|high|critical
-          operational_exposure: string
-        site_complexity_rating:
-          level: low|medium|high|enterprise
-          drivers: string[]
-        recommended_provider_types: string[]
-        missing_information_list: string[]
-        next_best_action: string
-      guardrails:
-        - do_not_claim_guaranteed_prevention_of_crime
-        - do_not_provide tactical evasion-resistant details that could enable wrongdoing
-        - do_not_finalize technical design without clearly noting assumptions
-        - do_not provide legal or regulatory assurances without review
-
-
-    - command: /v5/build-intake-question-tree
-      trigger:
-        - User needs a dynamic, conditional questionnaire before full security scoping
-        - User wants to operationalize intake in forms, chat flows, or call-center scripts
-        - Core Agent needs a reusable branch logic map for missing-information follow-up
-      required_inputs:
-        - site_type
-        - monitoring_goal
-        - primary_risk_concern
-      optional_inputs:
-        - property_use
-        - number_of_sites
-        - number_of_entries
-        - floor_count
-        - outdoor_area
-        - current_security_setup
-        - incident_history
-        - staff_hours
-        - visitor_volume
-        - contractor_access_patterns
-        - network_or_power_constraints
-        - privacy_sensitive_zones
-        - budget_range
-        - preferred_install_timeline
-      processing_rules:
-        - derive the minimum mandatory question path before recommending provider type
-        - branch questions by site complexity, risk urgency, and monitoring operating model
-        - encode conditional follow-up for access control, perimeter exposure, and evidence retention
-        - cap each branch depth to reduce user fatigue while preserving scope accuracy
-        - include explicit stop conditions when enough information is available for /v5/security-intake
-      outputs:
-        - intake_question_tree
-        - branching_logic_notes
-        - required_vs_optional_question_map
-        - termination_conditions
-        - handoff_payload_template
-      output_schema:
-        intake_question_tree:
-          root_question: string
-          nodes:
-            - id: string
-              question: string
-              rationale: string
-              answer_type: single_select|multi_select|text|number|boolean|date_range
-              required: boolean
-              options: string[]
-              follow_up_rules:
-                - if_answer: string
-                  next_node_id: string
-              terminal: boolean
-        branching_logic_notes: string[]
-        required_vs_optional_question_map:
-          required: string[]
-          optional: string[]
-        termination_conditions: string[]
-        handoff_payload_template:
-          minimum_fields_for_security_intake: string[]
-          enrichment_fields_for_system_scope: string[]
-      guardrails:
-        - do_not ask for tactical vulnerabilities that could meaningfully enable wrongdoing
-        - do_not collect sensitive personal identifiers unless directly required for scoping
-        - do_not imply that completion of tree guarantees full risk coverage
-
-    - command: /v5/system-scope
-      trigger:
-        - User wants a structured scope for integrated surveillance or access control work
-        - User needs a provider-ready brief for quoting
-        - User wants to compare multiple installation or monitoring approaches
-      required_inputs:
-        - site_type
-        - security_goal
-        - coverage_priorities
-        - access_control_need
-        - monitoring_preference
-      optional_inputs:
-        - retention_expectation
-        - incident_response_requirement
-        - remote_access_need
-        - guard_or_patrol_overlap
-        - biometric_requirement
-        - drone_requirement
-        - analytics_requirement
-        - integration_targets
-        - reporting_needs
-        - budget_range
-      processing_rules:
-        - break scope into surveillance, entry control, monitoring, incident handling, and reporting layers
-        - define requirements functionally rather than prescribing brand or installer-specific equipment unless user asks
-        - note dependencies including cabling, power, storage, connectivity, permissions, and training
-        - produce comparable scope sections so multiple vendors can quote against same baseline
-        - separate must-have requirements from optional enhancements
-      outputs:
-        - structured_scope_document
-        - must_have_requirements
-        - optional_enhancements
-        - provider_questions
-        - implementation_dependencies
-      output_schema:
-        structured_scope_document:
-          site_context: string
-          objectives: string[]
-          surveillance_layer: string[]
-          access_control_layer: string[]
-          monitoring_layer: string[]
-          incident_response_layer: string[]
-          reporting_layer: string[]
-        must_have_requirements: string[]
-        optional_enhancements: string[]
-        provider_questions: string[]
-        implementation_dependencies: string[]
-      guardrails:
-        - do_not produce offensive surveillance tactics
-        - do_not recommend unlawful biometric deployment
-        - do_not assume user is permitted to surveil all areas mentioned
-
-    - command: /v5/coverage-map
-      trigger:
-        - User needs help deciding where surveillance coverage is needed
-        - User wants to identify blind spots or critical control points
-      required_inputs:
-        - site_type
-        - entry_points
-        - high_value_zones
-        - external_area_presence
-      optional_inputs:
-        - internal_layout_description
-        - previous_incident_locations
-        - visitor_paths
-        - delivery_paths
-        - parking_layout
-        - perimeter_features
-        - lighting_constraints
-      processing_rules:
-        - identify priority zones: entrances, exits, cash or asset zones, storage, circulation paths, perimeter edges, and restricted areas
-        - map need state as critical, recommended, optional, or not advised
-        - prioritize observational outcomes, not exact security bypass-resistant specifications
-        - note where lighting, weather, privacy, and line-of-sight affect recommendations
-      outputs:
-        - zone_priority_map
-        - blind_spot_flags
-        - coverage_objectives
-        - site_questions
-      output_schema:
-        zone_priority_map:
-          critical: string[]
-          recommended: string[]
-          optional: string[]
-          not_advised: string[]
-        blind_spot_flags: string[]
-        coverage_objectives: string[]
-        site_questions: string[]
-      guardrails:
-        - do_not provide camera placements in a way that meaningfully enables circumvention
-        - do_not recommend surveillance in clearly private or prohibited spaces without warning
-
-    - command: /v5/access-logic
-      trigger:
-        - User needs structured access-control rules for staff, visitors, contractors, or tenants
-        - User is comparing biometric vs credential vs managed entry models
-      required_inputs:
-        - user_groups
-        - site_access_points
-        - operating_hours
-        - visitor_policy
-        - contractor_policy
-      optional_inputs:
-        - tenant_rules
-        - restricted_zones
-        - after_hours_access
-        - delivery_access
-        - temporary_credentials
-        - approval_hierarchy
-        - audit_log_requirement
-        - biometric_preference
-      processing_rules:
-        - segment access by role and time window
-        - define entry permissions, approval paths, exceptions, and revocation conditions
-        - surface operational edge cases including visitors, emergency trades, failed authentication, and temporary access
-        - compare convenience, security, and administration burden across access methods
-      outputs:
-        - role_access_matrix
-        - visitor_and_contractor_rules
-        - exception_scenarios
-        - recommended_control_model
-      output_schema:
-        role_access_matrix:
-          roles: string[]
-          access_rules: string[]
-        visitor_and_contractor_rules: string[]
-        exception_scenarios: string[]
-        recommended_control_model: string
-      guardrails:
-        - do_not recommend biometric collection without privacy and consent warning
-        - do_not imply compliance approval
-
-    - command: /v5/quote-check
-      trigger:
-        - User has one or more security-system quotes or proposals to evaluate
-        - User wants to compare providers on scope quality, not only price
-      required_inputs:
-        - quote_or_proposal_text
-      optional_inputs:
-        - target_site_profile
-        - intended_security_goal
-        - competing_quotes
-        - budget_range
-        - timeline_requirement
-      processing_rules:
-        - extract scope elements, exclusions, assumptions, monitoring terms, storage terms, and service boundaries
-        - identify mismatches between proposal and user’s actual risk profile
-        - highlight unclear areas: retention, maintenance, response ownership, training, privacy, and upgrade path
-        - normalize comparisons into capability, coverage, operations, support, and commercial dimensions
-      outputs:
-        - quote_summary
-        - gap_analysis
-        - risk_flags
-        - vendor_questions
-        - comparison_scorecard
-      output_schema:
-        quote_summary:
-          included_scope: string[]
-          exclusions: string[]
-          assumptions: string[]
-        gap_analysis: string[]
-        risk_flags: string[]
-        vendor_questions: string[]
-        comparison_scorecard:
-          capability_fit: low|medium|high
-          coverage_fit: low|medium|high
-          operational_fit: low|medium|high
-          support_fit: low|medium|high
-          commercial_clarity: low|medium|high
-      guardrails:
-        - do_not assert a provider is non-compliant unless clearly evidenced
-        - do_not interpret ambiguous legal obligations as settled fact
-
-    - command: /v5/incident-policy
-      trigger:
-        - User needs provider-ready incident handling requirements
-        - User wants monitoring and escalation expectations defined before procurement
-      required_inputs:
-        - monitored_or_unmonitored
-        - escalation_goal
-        - operating_hours
-      optional_inputs:
-        - responder_types
-        - notification_preference
-        - evidence_retention_need
-        - false_alarm_tolerance
-        - site_contacts
-        - incident_severity_model
-      processing_rules:
-        - define event categories, response expectations, escalation trees, and evidence handling responsibilities
-        - separate real-time response from after-action reporting
-        - distinguish provider responsibilities from user responsibilities
-      outputs:
-        - incident_response_requirements
-        - escalation_matrix
-        - provider_obligations
-        - client_obligations
-      output_schema:
-        incident_response_requirements:
-          event_types: string[]
-          target_actions: string[]
-          notification_rules: string[]
-        escalation_matrix: string[]
-        provider_obligations: string[]
-        client_obligations: string[]
-      guardrails:
-        - do_not imply emergency response guarantees
-        - do_not replace local emergency procedures or legal review
-
-  rebundlable_modules:
-    - name: Remote Monitoring & Incident Response Module
-      can_attach_to:
-        - V4
-        - V5
-        - V8
-      commands:
-        - /v5/incident-policy
-        - /v5/quote-check
-      value:
-        - improves monitoring-service scoping
-        - creates reusable escalation frameworks
-        - increases vendor comparability
-
-  prompt_template_stubs:
-    security_intake_system: >
-      You are the Autonomous Security & Surveillance Expert. Your role is to help scope
-      integrated physical-security needs, clarify requirements, and improve quote quality.
-      You do not execute workflows. You do not provide guarantees of security outcomes.
-      Ask only high-value scoping questions, structure ambiguity, and produce a concise,
-      provider-ready output.
-    quote_check_system: >
-      Evaluate the proposal against the user's stated site profile, risks, and operating needs.
-      Focus on scope completeness, exclusions, monitoring design, response ownership,
-      retention assumptions, support model, and commercial clarity.
-
-  next_v5_build:
-    - output_json_schemas
-    - risk_taxonomy
-    - provider_type_taxonomy
-    - compliance_warning_library
-    - prompt_variants_for_residential_vs_commercial
+release_notes:
+  normalization_decisions:
+    - kept slash-command names as canonical identifiers.
+    - normalized operating_model fields across all agents.
+    - represented shared quote-check as a shared dependency rather than duplicate per-agent command.
+  open_items:
+    - none

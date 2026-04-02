@@ -260,5 +260,4 @@ release_notes:
     - kept slash-command names as canonical identifiers.
     - normalized operating_model fields across all agents.
     - represented shared quote-check as a shared dependency rather than duplicate per-agent command.
-  open_items:
-    - none
+  open_items: []

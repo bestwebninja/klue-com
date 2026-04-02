@@ -340,6 +340,7 @@ const Dashboard = () => {
             onTabChange={handleTabChange}
             isSubscribed={isSubscribed}
             isAdmin={isAdmin}
+            userId={user.id}
             userName={profile?.full_name || undefined}
             unreadMessages={unreadMessages}
             onSignOut={handleSignOut}

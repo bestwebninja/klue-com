@@ -133,7 +133,7 @@ export function Navbar() {
                   <MenuLink to="/jobs" icon={<MapPin className="h-5 w-5" />}>
                     Browse Jobs
                   </MenuLink>
-                  <MenuLink to="/browse" icon={<Users className="h-5 w-5" />}>
+                  <MenuLink to="/browse-providers" icon={<Users className="h-5 w-5" />}>
                     Find Providers
                   </MenuLink>
                   <MenuLink to="/ask-expert" icon={<HelpCircle className="h-5 w-5" />}>

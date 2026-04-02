@@ -256,7 +256,7 @@ export function ServiceProvidersSection() {
             With Kluje you can request a quote from a specific service provider{" "}
             <span className="text-primary font-semibold">or</span> post a job for everyone to see!
           </p>
-          <Link to="/browse">
+          <Link to="/browse-providers">
             <Button size="lg" className="gap-2">
               Discover All Service Providers
               <ArrowRight className="w-4 h-4" />
@@ -267,4 +267,3 @@ export function ServiceProvidersSection() {
     </section>
   );
 }
-

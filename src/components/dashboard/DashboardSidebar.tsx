@@ -28,6 +28,7 @@ interface DashboardSidebarProps {
   onTabChange: (tab: string) => void;
   isSubscribed: boolean;
   isAdmin: boolean;
+  userId: string;
   userName?: string;
   unreadMessages: number;
   onSignOut: () => void;
@@ -39,6 +40,7 @@ export function DashboardSidebar({
   onTabChange,
   isSubscribed,
   isAdmin,
+  userId,
   userName,
   unreadMessages,
   onSignOut,
@@ -193,7 +195,7 @@ export function DashboardSidebar({
           )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={isCollapsed ? 'View Profile' : undefined}>
-              <Link to={`/provider/${userName?.toLowerCase().replace(/\s+/g, '-')}`} className="text-muted-foreground hover:text-foreground">
+              <Link to={`/service-provider/${userId}`} className="text-muted-foreground hover:text-foreground">
                 <ExternalLink className="h-4 w-4" />
                 {!isCollapsed && <span>View Public Profile</span>}
               </Link>

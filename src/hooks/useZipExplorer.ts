@@ -50,6 +50,7 @@ const buildModel = async (zipCode: string, includeOptional: boolean): Promise<Zi
 
   const medianIncome = toNum(profile?.DP03_0062E);
   const medianRent = toNum(profile?.DP04_0134E);
+  const medianHomeValue = toNum(detailed?.B25077_001E);
 
   const sourceStatus = [
     {
@@ -104,13 +105,13 @@ const buildModel = async (zipCode: string, includeOptional: boolean): Promise<Zi
     housing: {
       ownerOccupiedRate: toNum(profile?.DP04_0046E),
       medianGrossRent: medianRent,
-      medianHomeValue: toNum(detailed?.B25077_001E),
+      medianHomeValue,
       housingUnits: toNum(detailed?.B25001_001E),
     },
     affordability: {
       incomeToHomeValueRatio:
-        medianIncome && toNum(detailed?.B25077_001E)
-          ? medianIncome / (toNum(detailed?.B25077_001E) ?? 1)
+        medianIncome && medianHomeValue
+          ? medianIncome / medianHomeValue
           : undefined,
       incomeToRentRatio: medianIncome && medianRent ? medianIncome / (medianRent * 12) : undefined,
       rentBurdenRate: toNum(detailed?.B25070_007E),

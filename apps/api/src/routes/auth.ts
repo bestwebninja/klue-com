@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { authRateLimit } from "../middleware/rate-limit";
 import { resolveSupabaseUser } from "../services/supabase-session";
@@ -16,19 +16,15 @@ const AUTH_DISABLED_RESPONSE = {
     "Email/password auth is disabled on this API. Use the configured Supabase auth flow to obtain a bearer token."
 } as const;
 
-router.post("/register", (req, res) => {
+const handleDisabledAuthRoute = (req: Request, res: Response) => {
   const parsed = authSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   return res.status(503).json(AUTH_DISABLED_RESPONSE);
-});
+};
 
-router.post("/login", (req, res) => {
-  const parsed = authSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-
-  return res.status(503).json(AUTH_DISABLED_RESPONSE);
-});
+router.post("/register", handleDisabledAuthRoute);
+router.post("/login", handleDisabledAuthRoute);
 
 router.post("/refresh", (req, res) => {
   const parsed = refreshSchema.safeParse(req.body);

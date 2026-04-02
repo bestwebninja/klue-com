@@ -17,7 +17,7 @@ const PROFILE_VARIABLES = [
   "DP02_0012PE",
 ] as const;
 
-const DETAILED_VARIABLES = ["NAME", "B25077_001E", "B25064_001E", "B25001_001E", "B25070_007E"] as const;
+const DETAILED_VARIABLES = ["NAME", "B25077_001E", "B25001_001E", "B25070_007E"] as const;
 
 type CensusRow = Record<string, string>;
 

@@ -12,7 +12,7 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2, BrainCircuit,
+  Loader2, BrainCircuit, House,
 } from 'lucide-react';
 
 // ─── Lazy-load each department to keep initial bundle small ───
@@ -208,7 +208,6 @@ function EmptyState({ message }: { message: string }) {
 export default function GCCommandDashboard() {
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
-  const [tickerHeight, setTickerHeight] = useState(36);
   // Collapsed state per section label; Legals starts expanded
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
     Overview: false, Communications: false, Materials: true,
@@ -243,45 +242,20 @@ export default function GCCommandDashboard() {
   };
 
   const allKpisEmpty = kpis.every(k => k.value === '—');
-  const isTickerResizing = useRef(false);
-
-  const handleTickerResizeStart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    isTickerResizing.current = true;
-    const startY = e.clientY;
-    const startHeight = tickerHeight;
-    document.body.style.cursor = 'row-resize';
-    document.body.style.userSelect = 'none';
-
-    const onMove = (ev: MouseEvent) => {
-      if (!isTickerResizing.current) return;
-      const delta = startY - ev.clientY;
-      setTickerHeight(Math.min(140, Math.max(36, startHeight + delta)));
-    };
-
-    const onUp = () => {
-      isTickerResizing.current = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  };
+  const serviceNames = ['Materials', 'Workforce', 'Finance', 'Legals'];
+  const serviceSummary = serviceNames.join(' · ');
 
   return (
-    <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-blue-50/60 dark:bg-slate-950">
+    <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-gradient-to-b from-blue-100/70 via-blue-50/80 to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
       {/* ── AI Input Bar ── */}
-      <div className="bg-gradient-to-r from-primary/10 via-blue-500/10 to-transparent dark:from-primary/20 dark:via-blue-900/40 dark:to-slate-950 border-b border-blue-200/70 dark:border-slate-800 px-4 sm:px-5 py-2.5 flex items-center gap-2 shrink-0">
+      <div className="bg-white/85 dark:bg-slate-950/70 backdrop-blur border-b border-blue-200/80 dark:border-slate-800 px-3 sm:px-5 py-3 flex items-center gap-2 shrink-0">
         <Input
           placeholder={
             isDept
               ? `Ask AI about ${activeSidebar}…`
               : 'Ask anything about your jobs, materials, subs, or finances…'
           }
-          className="flex-1 text-sm bg-white dark:bg-slate-900/80 border-blue-200 dark:border-slate-700"
+          className="flex-1 text-sm bg-white dark:bg-slate-900/80 border-blue-300/80 dark:border-slate-700 focus-visible:ring-blue-400/70"
         />
         <div className="hidden sm:flex items-center gap-2">
           <Button variant="default" size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
@@ -361,7 +335,7 @@ export default function GCCommandDashboard() {
         </div>
 
         {/* ── Content Panel ── */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-5 bg-gradient-to-b from-blue-100/30 to-white dark:from-slate-950 dark:to-slate-900">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-5">
           {isDept ? (
             /* Department view */
             <Suspense fallback={<DeptLoader />}>
@@ -558,22 +532,31 @@ export default function GCCommandDashboard() {
         </div>
       </div>
 
-      {/* ── Resizable ticker ── */}
-      <div className="shrink-0">
-        <button
-          type="button"
-          aria-label="Resize agent activity panel"
-          title="Drag to resize agent activity panel"
-          onMouseDown={handleTickerResizeStart}
-          className="w-full h-2 border-t border-border bg-muted/70 hover:bg-muted cursor-row-resize"
-        />
-        <div
-          className="bg-white/90 dark:bg-slate-900 border-t border-blue-200 dark:border-slate-700 px-4 py-1.5 text-[11px] text-slate-600 dark:text-slate-300 overflow-y-auto"
-          style={{ height: `${tickerHeight}px` }}
-        >
-          🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
-          Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-          <span className="cursor-pointer underline text-blue-600 dark:text-blue-300">See full log ↗</span>
+      {/* ── Persistent contractor identity / status banner ── */}
+      <div className="shrink-0 border-t border-blue-200/90 dark:border-slate-700 bg-gradient-to-r from-blue-100/85 via-white to-blue-50/80 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 px-3 sm:px-5 py-3">
+        <div className="flex flex-col gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            <div className="inline-flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
+              <House className="h-3.5 w-3.5 text-blue-600 dark:text-blue-300" />
+              <span>Contractors — kluje.com</span>
+            </div>
+            <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">General Contractor</Badge>
+            <span className="text-slate-600 dark:text-slate-300">Contractor AI Agent · kluje.com</span>
+            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              Online
+            </span>
+            {serviceSummary && (
+              <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">{serviceSummary}</span>
+            )}
+          </div>
+          <div className="text-[11px] sm:text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+            🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
+            Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
+            <button type="button" className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200">
+              See full log ↗
+            </button>
+          </div>
         </div>
       </div>
     </div>

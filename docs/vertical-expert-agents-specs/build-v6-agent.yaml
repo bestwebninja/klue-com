@@ -21,7 +21,7 @@ outputs:
     - /v6/build-intake-question-tree
     - /v6/build-command-contracts
     - /v6/build-output-json-schemas
-    - /v6/build-deliverables-taxonomy
+    - /v6/build-deliverable-type-taxonomy
     - /v6/build-handoff-framework
     - /v6/build-guardrails
     - /v6/build-prompt-templates

@@ -1,10 +1,10 @@
 meta:
-  command: /v7/build-guardrails
+  command: /v7/build-legal-guardrail-library
   agent_id: V7
   agent_title: Legal Services Expert
   version: 1
   status: draft
-intent: Generate `build-guardrails` artifact for Legal Services Expert.
+intent: Generate `build-legal-guardrail-library` artifact for Legal Services Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: guardrails
+  primary_artifact: legal-guardrail-library
   schema:
     summary: string
     assumptions: string[]

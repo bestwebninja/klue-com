@@ -22,6 +22,6 @@ outputs:
     - /v9/build-command-contracts
     - /v9/build-output-json-schemas
     - /v9/build-transaction-stage-taxonomy
-    - /v9/build-service-map-schema
-    - /v9/build-guardrails
+    - /v9/build-service-dependency-map
+    - /v9/build-deal-blocker-taxonomy
     - /v9/build-prompt-templates

@@ -1,10 +1,10 @@
 meta:
-  command: /v6/build-deliverables-taxonomy
-  agent_id: V6
-  agent_title: Business Services Expert
+  command: /v8/build-turnover-workflow-taxonomy
+  agent_id: V8
+  agent_title: Property Management Expert
   version: 1
   status: draft
-intent: Generate `build-deliverables-taxonomy` artifact for Business Services Expert.
+intent: Generate `build-turnover-workflow-taxonomy` artifact for Property Management Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: deliverables-taxonomy
+  primary_artifact: turnover-workflow-taxonomy
   schema:
     summary: string
     assumptions: string[]

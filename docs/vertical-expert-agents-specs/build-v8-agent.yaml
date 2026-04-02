@@ -21,7 +21,7 @@ outputs:
     - /v8/build-intake-question-tree
     - /v8/build-command-contracts
     - /v8/build-output-json-schemas
-    - /v8/build-property-ops-taxonomy
-    - /v8/build-turnover-scope-schema
-    - /v8/build-guardrails
+    - /v8/build-tenancy-state-taxonomy
+    - /v8/build-turnover-workflow-taxonomy
+    - /v8/build-management-support-taxonomy
     - /v8/build-prompt-templates

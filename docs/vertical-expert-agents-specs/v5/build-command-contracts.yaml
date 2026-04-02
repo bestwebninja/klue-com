@@ -1,10 +1,10 @@
 meta:
-  command: /v8/build-turnover-scope-schema
-  agent_id: V8
-  agent_title: Property Management Expert
+  command: /v5/build-command-contracts
+  agent_id: V5
+  agent_title: Autonomous Security & Surveillance Expert
   version: 1
   status: draft
-intent: Generate `build-turnover-scope-schema` artifact for Property Management Expert.
+intent: Generate `build-command-contracts` artifact for Autonomous Security & Surveillance Expert.
 inputs:
   required:
     - user_goal
@@ -18,7 +18,7 @@ processing_rules:
   - return actionable and provider-ready structure
   - include missing_information_list when assumptions are used
 outputs:
-  primary_artifact: turnover-scope-schema
+  primary_artifact: command-contracts
   schema:
     summary: string
     assumptions: string[]

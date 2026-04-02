@@ -1,0 +1,27 @@
+meta:
+  command: /build-v8-agent
+  agent_id: V8
+  agent_title: Property Management Expert
+  version: 1
+  status: draft
+intent: Build the full V8 agent specification bundle.
+inputs:
+  required:
+    - property_type
+    - operating_context
+  optional:
+    - occupancy_profile
+    - service_level_targets
+processing_rules:
+  - run shared foundation dependency checks first
+  - include turnover assumptions when context is incomplete
+outputs:
+  primary_artifact: v8-agent-bundle
+  includes:
+    - /v8/build-intake-question-tree
+    - /v8/build-command-contracts
+    - /v8/build-output-json-schemas
+    - /v8/build-property-ops-taxonomy
+    - /v8/build-turnover-scope-schema
+    - /v8/build-guardrails
+    - /v8/build-prompt-templates

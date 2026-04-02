@@ -1,0 +1,27 @@
+meta:
+  command: /build-v3-agent
+  agent_id: V3
+  agent_title: Living Solutions Expert
+  version: 1
+  status: draft
+intent: Build the full V3 agent specification bundle.
+inputs:
+  required:
+    - service_need
+    - property_context
+  optional:
+    - household_preferences
+    - budget_range
+processing_rules:
+  - run shared foundation dependency checks first
+  - surface recurring-service assumptions explicitly
+outputs:
+  primary_artifact: v3-agent-bundle
+  includes:
+    - /v3/build-intake-question-tree
+    - /v3/build-command-contracts
+    - /v3/build-output-json-schemas
+    - /v3/build-recurring-service-taxonomy
+    - /v3/build-bundle-logic
+    - /v3/build-guardrails
+    - /v3/build-prompt-templates

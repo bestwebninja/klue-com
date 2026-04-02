@@ -1,0 +1,27 @@
+meta:
+  command: /build-v9-agent
+  agent_id: V9
+  agent_title: Real Estate Transactions Expert
+  version: 1
+  status: draft
+intent: Build the full V9 agent specification bundle.
+inputs:
+  required:
+    - transaction_type
+    - market_context
+  optional:
+    - stage
+    - timeline
+processing_rules:
+  - run shared foundation dependency checks first
+  - maintain stage-aware recommendations in artifacts
+outputs:
+  primary_artifact: v9-agent-bundle
+  includes:
+    - /v9/build-intake-question-tree
+    - /v9/build-command-contracts
+    - /v9/build-output-json-schemas
+    - /v9/build-transaction-stage-taxonomy
+    - /v9/build-service-map-schema
+    - /v9/build-guardrails
+    - /v9/build-prompt-templates

@@ -1,0 +1,27 @@
+meta:
+  command: /build-v4-agent
+  agent_id: V4
+  agent_title: Commercial & Facilities Expert
+  version: 1
+  status: draft
+intent: Build the full V4 agent specification bundle.
+inputs:
+  required:
+    - facility_type
+    - operating_context
+  optional:
+    - sla_targets
+    - vendor_preferences
+processing_rules:
+  - run shared foundation dependency checks first
+  - include service-level assumptions for missing data
+outputs:
+  primary_artifact: v4-agent-bundle
+  includes:
+    - /v4/build-intake-question-tree
+    - /v4/build-command-contracts
+    - /v4/build-output-json-schemas
+    - /v4/build-sla-taxonomy
+    - /v4/build-vendor-comparison-model
+    - /v4/build-guardrails
+    - /v4/build-prompt-templates

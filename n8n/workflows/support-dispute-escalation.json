@@ -1,0 +1,122 @@
+{
+  "name": "Support Dispute Escalation",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - support.dispute.escalated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-860, 220],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "support-dispute-escalation",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Validate escalation envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-620, 220],
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "for (const item of items) {\n  const payload = item.json.payload || {};\n  if (!item.json.event_id) throw new Error('schema_validation_error: missing event_id');\n  if (!payload.disputeId) throw new Error('schema_validation_error: missing disputeId');\n  if (!payload.tenantId) throw new Error('schema_validation_error: missing tenantId');\n}\nreturn items;"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Open internal ops incident",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-380, 220],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/internal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"channel\":\"ops-support\",\"severity\":\"high\",\"event\":$json}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Classify urgent escalation?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-140, 220],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.payload?.classification || '' }}",
+              "operation": "contains",
+              "value2": "safety"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "name": "Page trust & safety",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [100, 120],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/internal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"channel\":\"trust-safety\",\"severity\":\"critical\",\"event\":$json}"
+      }
+    },
+    {
+      "id": "6",
+      "name": "Notify support leadership",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [100, 320],
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:4000/api/v1/notifications/internal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"channel\":\"support-leadership\",\"severity\":\"high\",\"event\":$json}"
+      }
+    },
+    {
+      "id": "7",
+      "name": "Respond processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [360, 220],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"status\":\"processed\",\"workflow\":\"support_dispute_escalation\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - support.dispute.escalated": {
+      "main": [[{ "node": "Validate escalation envelope", "type": "main", "index": 0 }]]
+    },
+    "Validate escalation envelope": {
+      "main": [[{ "node": "Open internal ops incident", "type": "main", "index": 0 }]]
+    },
+    "Open internal ops incident": {
+      "main": [[{ "node": "Classify urgent escalation?", "type": "main", "index": 0 }]]
+    },
+    "Classify urgent escalation?": {
+      "main": [
+        [{ "node": "Page trust & safety", "type": "main", "index": 0 }],
+        [{ "node": "Notify support leadership", "type": "main", "index": 0 }]
+      ]
+    },
+    "Page trust & safety": {
+      "main": [[{ "node": "Respond processed", "type": "main", "index": 0 }]]
+    },
+    "Notify support leadership": {
+      "main": [[{ "node": "Respond processed", "type": "main", "index": 0 }]]
+    }
+  }
+}

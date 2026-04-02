@@ -248,6 +248,60 @@ CREATE TABLE dispatches (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+
+CREATE TABLE support_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  requester_user_id UUID REFERENCES users(id),
+  requester_email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  description TEXT NOT NULL,
+  issue_classification TEXT NOT NULL CHECK (issue_classification IN ('account_access', 'billing_payment', 'service_quality', 'provider_conduct', 'technical_issue', 'safety_incident', 'other')),
+  priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'triaged', 'waiting_on_customer', 'resolved', 'closed')),
+  escalation_state TEXT NOT NULL DEFAULT 'none' CHECK (escalation_state IN ('none', 'pending_review', 'escalated_internal', 'escalated_external', 'resolved')),
+  related_lead_id UUID REFERENCES leads(id),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE ticket_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticket_id UUID NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
+  actor_user_id UUID REFERENCES users(id),
+  event_type TEXT NOT NULL CHECK (event_type IN ('created', 'classified', 'status_changed', 'dispute_linked', 'note_added')),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE disputes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id),
+  ticket_id UUID REFERENCES support_tickets(id) ON DELETE SET NULL,
+  initiated_by_user_id UUID REFERENCES users(id),
+  issue_classification TEXT NOT NULL CHECK (issue_classification IN ('account_access', 'billing_payment', 'service_quality', 'provider_conduct', 'technical_issue', 'safety_incident', 'other')),
+  reason TEXT NOT NULL,
+  amount_cents BIGINT,
+  currency TEXT,
+  status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted', 'under_review', 'needs_evidence', 'resolved', 'closed')),
+  escalation_state TEXT NOT NULL DEFAULT 'pending_review' CHECK (escalation_state IN ('none', 'pending_review', 'escalated_internal', 'escalated_external', 'resolved')),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  escalated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE dispute_evidence (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dispute_id UUID NOT NULL REFERENCES disputes(id) ON DELETE CASCADE,
+  submitted_by_user_id UUID REFERENCES users(id),
+  evidence_type TEXT NOT NULL CHECK (evidence_type IN ('document', 'image', 'video', 'chat_transcript', 'other')),
+  uri TEXT NOT NULL,
+  note TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id),

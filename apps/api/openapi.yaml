@@ -321,6 +321,100 @@ paths:
       responses:
         '200':
           description: Area risk score or safe suppression
+
+  /support/tickets:
+    post:
+      summary: Create a support ticket for triage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportTicketCreateRequest'
+      responses:
+        '201':
+          description: Support ticket created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SupportTicket'
+  /support/tickets/{ticketId}:
+    get:
+      summary: Fetch support ticket with event timeline
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: ticketId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Support ticket and event history
+        '404':
+          description: Ticket not found
+  /support/disputes:
+    post:
+      summary: Submit a dispute linked to support triage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisputeCreateRequest'
+      responses:
+        '201':
+          description: Dispute submitted
+  /support/disputes/{disputeId}/evidence:
+    post:
+      summary: Attach dispute evidence artifacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: disputeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisputeEvidenceCreateRequest'
+      responses:
+        '201':
+          description: Evidence attached
+        '404':
+          description: Dispute not found
+  /support/disputes/{disputeId}/escalate:
+    post:
+      summary: Escalate dispute to internal operations
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: disputeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dispute escalated
+        '404':
+          description: Dispute not found
   /ads/placements/recommendations:
     post:
       summary: Generate AI placement recommendations for a campaign brief
@@ -448,3 +542,76 @@ components:
             routedAt: { type: string, format: date-time }
             createdAt: { type: string, format: date-time }
             updatedAt: { type: string, format: date-time }
+
+
+    IssueClassification:
+      type: string
+      enum: [account_access, billing_payment, service_quality, provider_conduct, technical_issue, safety_incident, other]
+    EscalationState:
+      type: string
+      enum: [none, pending_review, escalated_internal, escalated_external, resolved]
+    SupportTicketCreateRequest:
+      type: object
+      required: [tenantId, requesterEmail, subject, description, classification]
+      properties:
+        tenantId: { type: string, format: uuid }
+        requesterUserId: { type: string, format: uuid }
+        requesterEmail: { type: string, format: email }
+        subject: { type: string }
+        description: { type: string }
+        classification:
+          $ref: '#/components/schemas/IssueClassification'
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        relatedLeadId: { type: string, format: uuid }
+        metadata:
+          type: object
+          additionalProperties: true
+    SupportTicket:
+      allOf:
+        - $ref: '#/components/schemas/SupportTicketCreateRequest'
+        - type: object
+          required: [id, priority, status, escalationState, metadata, createdAt, updatedAt]
+          properties:
+            id: { type: string, format: uuid }
+            priority:
+              type: string
+              enum: [low, medium, high, critical]
+            status:
+              type: string
+              enum: [open, triaged, waiting_on_customer, resolved, closed]
+            escalationState:
+              $ref: '#/components/schemas/EscalationState'
+            metadata:
+              type: object
+              additionalProperties: true
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    DisputeCreateRequest:
+      type: object
+      required: [tenantId, issueClassification, reason]
+      properties:
+        tenantId: { type: string, format: uuid }
+        ticketId: { type: string, format: uuid }
+        initiatedByUserId: { type: string, format: uuid }
+        issueClassification:
+          $ref: '#/components/schemas/IssueClassification'
+        reason: { type: string }
+        amountCents: { type: integer, minimum: 0 }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        escalationState:
+          $ref: '#/components/schemas/EscalationState'
+        metadata:
+          type: object
+          additionalProperties: true
+    DisputeEvidenceCreateRequest:
+      type: object
+      required: [evidenceType, uri]
+      properties:
+        evidenceType:
+          type: string
+          enum: [document, image, video, chat_transcript, other]
+        uri: { type: string, format: uri }
+        note: { type: string }
+        submittedByUserId: { type: string, format: uuid }

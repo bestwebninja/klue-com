@@ -3,6 +3,7 @@ import { detectUserTypeStub, type UserTypeInput } from "./user-type-detector";
 import { evaluateDeterministicRules } from "./deterministic-rule-evaluator";
 import { orchestrateDispatch } from "./dispatch-orchestrator";
 import { routingStore } from "./routing-store";
+import { searchProviders } from "./provider-routing-service";
 
 export type EvaluateRoutingInput = {
   tenantId: string;
@@ -14,6 +15,9 @@ export type EvaluateRoutingInput = {
   requester: UserTypeInput;
   requestedTimeline?: string;
   attributes?: Record<string, unknown>;
+  budget?: number;
+  zipCode?: string;
+  topN?: number;
 };
 
 export const evaluateRouting = async (input: EvaluateRoutingInput) => {
@@ -34,15 +38,31 @@ export const evaluateRouting = async (input: EvaluateRoutingInput) => {
     dryRun: input.dryRun
   });
 
+  const providerSearch = await searchProviders({
+    tenantId: input.tenantId,
+    serviceCategory: input.serviceCategory,
+    budget: input.budget ?? null,
+    zipCode: input.zipCode ?? null,
+    intent: intent.label,
+    topN: input.topN ?? (intent.label === "urgent_service" ? 3 : 1)
+  });
+
+  const selectedProviderIds = providerSearch.selected.map((candidate) => candidate.providerId);
+
   const evaluationPayload = {
     runId,
     intent,
     userType,
     matchedRule: deterministic.matchedRule,
-    providerQueue: deterministic.providerQueue,
+    providerQueue: selectedProviderIds.length > 0 ? selectedProviderIds : deterministic.providerQueue,
+    providerCandidates: providerSearch.selected,
     dispatchMode: deterministic.dispatchMode,
     metadata: {
       ...deterministic.metadata,
+      hardConstraintFiltering: {
+        totalProviders: providerSearch.totalProviders,
+        filteredProviders: providerSearch.filteredCount
+      },
       attributes: input.attributes ?? {}
     }
   };
@@ -58,6 +78,8 @@ export const evaluateRouting = async (input: EvaluateRoutingInput) => {
       leadSummary: input.leadSummary,
       serviceCategory: input.serviceCategory,
       requestedTimeline: input.requestedTimeline,
+      budget: input.budget,
+      zipCode: input.zipCode,
       requester: input.requester,
       attributes: input.attributes
     },
@@ -84,7 +106,8 @@ export const evaluateRouting = async (input: EvaluateRoutingInput) => {
       outcome: deterministic.providerQueue.join(","),
       score: deterministic.dispatchMode === "fanout" ? 100 : 80,
       metadata: {
-        providerQueue: deterministic.providerQueue,
+        providerQueue: evaluationPayload.providerQueue,
+        selectedProviders: providerSearch.selected,
         intent: intent.label,
         userType: userType.userType
       },
@@ -101,9 +124,32 @@ export const dispatchRoutingRun = async (runId: string, correlationId: string) =
 
   const responsePayload = run.responsePayload as {
     providerQueue: string[];
+    providerCandidates?: Array<{ providerId: string; score: number; reasoning: string[]; endpointUrl: string | null }>;
     dispatchMode: "single" | "fanout";
     metadata: Record<string, unknown>;
   };
+
+  const quoteRequestId = crypto.randomUUID();
+  const quoteRequestedAt = new Date().toISOString();
+  await routingStore.saveQuoteRequest({
+    id: quoteRequestId,
+    tenantId: run.tenantId,
+    runId,
+    leadId: run.leadId,
+    serviceCategory: String((run.requestPayload as Record<string, unknown>).serviceCategory ?? "unknown"),
+    status: "evaluated",
+    requestedAt: quoteRequestedAt,
+    quoteByAt: null,
+    reasoning: {
+      decisionMetadata: run.decisionMetadata,
+      providerCandidates: responsePayload.providerCandidates ?? []
+    },
+    outcomes: {
+      dispatches: []
+    },
+    createdAt: quoteRequestedAt,
+    updatedAt: quoteRequestedAt
+  });
 
   const orchestration = orchestrateDispatch({
     runId,
@@ -111,15 +157,37 @@ export const dispatchRoutingRun = async (runId: string, correlationId: string) =
     correlationId,
     providerQueue: responsePayload.providerQueue,
     dispatchMode: responsePayload.dispatchMode,
-    metadata: responsePayload.metadata
+    metadata: {
+      ...responsePayload.metadata,
+      quoteRequestId,
+      providerCandidates: responsePayload.providerCandidates ?? []
+    }
   });
 
   await routingStore.appendHandoffs(runId, orchestration.handoffs);
+  await routingStore.appendDispatches(runId, orchestration.dispatches);
+
+  const failedDispatches = orchestration.dispatches.filter((item) => item.status === "failed").length;
+  const quoteRequestStatus =
+    failedDispatches === orchestration.dispatches.length
+      ? "partially_failed"
+      : failedDispatches > 0
+        ? "partially_failed"
+        : "dispatched";
+
+  await routingStore.updateQuoteRequest(quoteRequestId, {
+    status: quoteRequestStatus,
+    outcomes: {
+      dispatches: orchestration.dispatches,
+      summary: orchestration.summary
+    }
+  });
 
   const updatedRun = await routingStore.updateRun(runId, {
     status: "dispatched",
     responsePayload: {
       ...run.responsePayload,
+      quoteRequestId,
       dispatch: orchestration.summary
     },
     decisionMetadata: {
@@ -142,6 +210,9 @@ export const getRoutingRun = (runId: string) => {
   return {
     run,
     decisions: routingStore.getDecisions(runId),
-    handoffs: routingStore.getHandoffs(runId)
+    handoffs: routingStore.getHandoffs(runId),
+    dispatches: routingStore.getDispatches(runId)
   };
 };
+
+export const getQuoteRequest = (id: string) => routingStore.getQuoteRequest(id);

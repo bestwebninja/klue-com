@@ -39,6 +39,66 @@ export type RoutingRunRecord = {
   updatedAt: string;
 };
 
+export type ProviderCapabilityRecord = {
+  providerId: string;
+  serviceCategory: string;
+  minBudget: number | null;
+  maxBudget: number | null;
+  coverageZipPrefixes: string[];
+  slaHours: number | null;
+  active: boolean;
+};
+
+export type ProviderRecord = {
+  id: string;
+  tenantId: string;
+  externalRef: string;
+  legalName: string;
+  displayName: string;
+  status: "active" | "paused" | "offboarded";
+  endpointUrl: string | null;
+  rankingWeight: number;
+  capabilities: ProviderCapabilityRecord[];
+};
+
+export type ProviderRoutingCandidate = {
+  providerId: string;
+  displayName: string;
+  score: number;
+  reasoning: string[];
+  endpointUrl: string | null;
+};
+
+export type DispatchRecord = {
+  id: string;
+  runId: string;
+  quoteRequestId: string;
+  tenantId: string;
+  providerId: string;
+  correlationId: string;
+  status: "queued" | "sent" | "acknowledged" | "failed";
+  attemptCount: number;
+  lastError: string | null;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QuoteRequestRecord = {
+  id: string;
+  tenantId: string;
+  runId: string;
+  leadId: string | null;
+  serviceCategory: string;
+  status: "evaluated" | "dispatched" | "partially_failed" | "completed";
+  requestedAt: string;
+  quoteByAt: string | null;
+  reasoning: Record<string, unknown>;
+  outcomes: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type HandoffRecord = {
   id: string;
   runId: string;

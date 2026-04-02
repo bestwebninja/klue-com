@@ -9,6 +9,8 @@ import zipCodesRoutes from "./zipcodes";
 import contractorOsRoutes from "./contractor-os";
 import areaRiskRoutes from "./area-risk";
 import routingRoutes from "./routing";
+import providersRoutes from "./providers";
+import quoteRequestsRoutes from "./quote-requests";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -36,5 +38,7 @@ router.use("/campaigns", campaignRoutes);
 router.use("/leads", leadRoutes);
 router.use("/ads", adsRoutes);
 router.use("/routing", routingRoutes);
+router.use("/providers", providersRoutes);
+router.use("/quote-requests", quoteRequestsRoutes);
 
 export default router;

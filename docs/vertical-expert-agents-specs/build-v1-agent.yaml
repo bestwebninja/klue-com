@@ -1,27 +1,35 @@
 meta:
   command: /build-v1-agent
   agent_id: V1
-  agent_title: Home Trades Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 1
+  version: 2
   status: draft
-intent: Build the full V1 agent specification bundle.
+intent: >-
+  Build and operate the Vertical 1 specialist workspace while preserving full
+  interoperability with Kluje cross-vertical project, execution, reporting,
+  planning, and approval systems.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_type
+    - request_payload
   optional:
-    - budget_range
-    - timeline
+    - project_context
+    - task_context
+    - client_context
+    - operations_context
+    - resource_context
+    - portfolio_context
+    - strategy_context
+    - approvals_context
 processing_rules:
-  - run shared foundation dependency checks first
-  - include assumptions and missing information lists
+  - classify whether the request maps to existing work or requires new work creation
+  - preserve linked traceability across project, task, client, ops, resources, portfolio, strategy, and approvals
+  - use the decision frame for substantial responses and keep compact cross-layer coverage for small responses
+  - when creating new work, route through request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
 outputs:
-  primary_artifact: v1-agent-bundle
+  primary_artifact: v1-agent-operating-response
   includes:
-    - /v1/build-intake-question-tree
-    - /v1/build-command-contracts
-    - /v1/build-output-json-schemas
-    - /v1/build-risk-taxonomy
-    - /v1/build-provider-type-taxonomy
-    - /v1/build-guardrails
-    - /v1/build-prompt-templates
+    - vertical-context-summary
+    - cross-layer-impact-map
+    - approval-readiness-state
+    - next-action-plan

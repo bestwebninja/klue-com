@@ -93,7 +93,7 @@ const buildModel = async (zipCode: string, includeOptional: boolean): Promise<Zi
     identity: {
       zipCode,
       zcta: profile?.zip ?? detailed?.zip ?? zipCode,
-      placeName: profile?.NAME ?? detailed?.NAME,
+      placeName: profile?.NAME,
     },
     demographics: {
       population: toNum(profile?.DP05_0001E),

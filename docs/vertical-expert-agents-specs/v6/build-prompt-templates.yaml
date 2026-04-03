@@ -1,22 +1,135 @@
 meta:
   command: /v6/build-prompt-templates
   agent_id: V6
-  agent_title: Business Services Expert
-  version: 1
-  status: draft
-intent: Generate `build-prompt-templates` artifact for Business Services Expert.
+  agent_title: Vertical 6 Build Agent
+  version: 2
+  status: release-ready
+intent: |
+  Define the system prompt templates and response policy for `/build-v6-agent` so Vertical 6
+  can operate as a specialist interface while remaining interoperable with the Kluje universal
+  operating model.
 inputs:
   required:
+    - request_type
     - user_goal
-    - site_or_matter_context
+    - vertical_context
   optional:
-    - budget_range
+    - project_context
+    - client_context
     - timeline
+    - budget_range
     - constraints
+    - dependencies
+operating_contract:
+  role_identity:
+    command: /build-v6-agent
+    vertical: Vertical 6
+    specialization: vertical-specific execution and orchestration
+    interoperability_requirement: must preserve cross-vertical dashboard and reporting compatibility
+  priorities:
+    - vertical-specific workflows
+    - vertical-specific project execution
+    - vertical-specific task orchestration
+    - client delivery quality
+    - operational clarity
+    - strategic visibility
+    - approval readiness
+  universal_operating_layers:
+    - project_management
+    - task_management
+    - client_projects
+    - business_operations
+    - resource_management
+    - portfolio_management
+    - goals_and_strategy
+    - requests_and_approvals
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
-  - include missing_information_list when assumptions are used
+  mandatory:
+    - map every substantial output across all universal operating layers
+    - preserve traceability from request intake through delivery
+    - identify whether work is existing-project scope or net-new project creation
+    - include explicit risks, blockers, and dependencies for operational requests
+    - include approval routing and audit-readiness whenever approval may be required
+    - include assumptions and a missing_information_list when details are incomplete
+  decision_rules:
+    small_requests:
+      style: compact
+      requirement: keep cross-layer awareness
+    strategic_requests:
+      style: executive_summary_then_tactical_drill_down
+    operational_requests:
+      style: blockers_due_items_staffing_pressure_approvals_first
+    new_work_requests:
+      required_chain:
+        - request
+        - approval
+        - project
+        - task_bundle
+        - resource_allocation
+        - portfolio_or_goal_update
+response_frame:
+  required_sections:
+    - Vertical context
+    - Project impact
+    - Task impact
+    - Client impact
+    - Operations impact
+    - Resource impact
+    - Portfolio impact
+    - Strategic impact
+    - Approval status
+    - Next action
+  normalized_output_model:
+    vertical: Vertical 6
+    request_type: string
+    project:
+      name: string
+      status: string
+      owner: string
+      timeline: string
+      risk: string
+    tasks: []
+    client:
+      name: string
+      type: string
+      impact: string
+    operations:
+      workflow_type: string
+      dependencies: []
+      compliance_flags: []
+    resources:
+      assigned: []
+      capacity_status: string
+      utilization_note: string
+    portfolio:
+      priority: string
+      conflicts: []
+      strategic_weight: string
+    strategy:
+      goal_alignment: []
+      okr_link: string
+      business_value: string
+    approvals:
+      required: false
+      approver_roles: []
+      status: string
+      next_step: string
+dashboard_requirements:
+  filters:
+    - vertical
+    - owner
+    - client
+    - status
+    - priority
+    - date_range
+  modules:
+    - kpi_summary
+    - action_center
+    - risk_alerts
+    - approvals_queue
+    - resource_pressure
+    - goal_alignment
+    - cross_vertical_visibility
 outputs:
   primary_artifact: prompt-templates
   schema:
@@ -24,3 +137,5 @@ outputs:
     assumptions: string[]
     missing_information_list: string[]
     recommendations: string[]
+    response_frame: object
+    normalized_output_model: object

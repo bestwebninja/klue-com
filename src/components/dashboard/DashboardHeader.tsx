@@ -81,7 +81,7 @@ export function DashboardHeader({
               <Link to="/admin" className="hidden sm:block">
                 <Button variant="outline" size="sm" className="text-red-400 border-red-400/30 hover:bg-red-400/10">
                   <Shield className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden md:inline">Admin</span>
+                  <span className="hidden md:inline">AD-Dashboard</span>
                 </Button>
               </Link>
             )}
@@ -156,7 +156,7 @@ export function DashboardHeader({
               <Link to="/admin">
                 <Button variant="outline" size="sm" className="text-red-400 border-red-400/30 hover:bg-red-400/10 h-7 px-2 text-xs">
                   <Shield className="w-3 h-3 mr-1" />
-                  Admin
+                  AD-Dashboard
                 </Button>
               </Link>
             )}

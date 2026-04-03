@@ -58,7 +58,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Admin Panel | Kluje" description="Manage users, jobs, blog posts, categories, and verification requests. Administration dashboard for the Kluje platform." noIndex={true} />
+      <SEOHead title="AD-Dashboard | Kluje" description="Manage users, jobs, blog posts, categories, and verification requests. Administration dashboard for the Kluje platform." noIndex={true} />
       {/* Header - Dark theme matching Kluje design */}
       <header className="bg-[hsl(220,13%,18%)]">
         <div className="container mx-auto px-4 py-3 sm:py-4">
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
               <span className="text-white/50 hidden sm:inline">|</span>
               <span className="text-white font-medium items-center gap-2 hidden sm:flex">
                 <Shield className="w-5 h-5 text-red-400" />
-                Admin Dashboard
+                AD-Dashboard
               </span>
             </div>
             
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-4 sm:py-8">
         <div className="mb-4 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Admin Dashboard</h1>
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">AD-Dashboard</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Manage users, jobs, categories, and system settings
           </p>

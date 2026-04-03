@@ -16,7 +16,7 @@ const navItems = [
   { label: "Placements", path: "/placements" },
   { label: "Billing", path: "/billing" },
   { label: "Quote Intake", path: "/contractor/quote-intake" },
-  { label: "Admin", path: "/admin" }
+  { label: "AD-Dashboard", path: "/admin" }
 ];
 
 export function AdvertiserDashboardPage() {

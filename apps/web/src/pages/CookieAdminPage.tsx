@@ -3,7 +3,7 @@ import { Footer } from "../components/Footer";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard" },
-  { label: "Admin", path: "/admin-dashboard" },
+  { label: "AD-Dashboard", path: "/admin-dashboard" },
   { label: "Cookie Admin", path: "/cookie-admin" },
 ];
 

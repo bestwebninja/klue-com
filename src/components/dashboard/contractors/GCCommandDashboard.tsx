@@ -13,7 +13,11 @@ import {
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
   Loader2, BrainCircuit, House,
+  GitBranch, Bell, Plug2, AlertTriangle, Activity, ShieldCheck,
+  Settings, Zap, Play, Plus, Navigation,
 } from 'lucide-react';
+import { getTemplateByAudience } from '@/features/command-center/templates/dashboardTemplates';
+import type { TradeKey } from '@/features/command-center/templates/types';
 
 // ─── Lazy-load each department to keep initial bundle small ───
 const AttorneysDept      = lazy(() => import('./legals/AttorneysDept'));
@@ -35,6 +39,18 @@ const VerificationDept   = lazy(() => import('./legals/VerificationOrdersDept'))
 
 // ─── Sidebar data ───────────────────────────────────────────────
 const sidebarSections = [
+  {
+    label: 'Command Center',
+    items: [
+      { icon: GitBranch,   name: 'Pipeline',      badge: null },
+      { icon: Activity,    name: 'Analytics',      badge: null },
+      { icon: BrainCircuit,name: 'AI Agents',      badge: null },
+      { icon: Bell,        name: 'Alerts',         badge: '1', badgeType: 'red' },
+      { icon: ShieldCheck, name: 'Compliance',     badge: null },
+      { icon: Plug2,       name: 'Integrations',   badge: null },
+      { icon: Settings,    name: 'CC Settings',    badge: null },
+    ],
+  },
   {
     label: 'Overview',
     items: [
@@ -123,8 +139,31 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
   'Verification Orders': VerificationDept,
 };
 
+// ─── CC sidebar item → tab index ────────────────────────────────
+const CC_TAB_MAP: Record<string, number> = {
+  'Pipeline': 1, 'Analytics': 2, 'AI Agents': 3,
+  'Alerts': 4, 'Compliance': 5, 'Integrations': 6, 'CC Settings': 7,
+};
+const TAB_TO_SIDEBAR: Record<number, string> = {
+  1: 'Pipeline', 2: 'Analytics', 3: 'AI Agents',
+  4: 'Alerts', 5: 'Compliance', 6: 'Integrations', 7: 'CC Settings',
+};
+
+// ─── Alerts feed data ────────────────────────────────────────────
+const alertItems = [
+  { id: 'a1', icon: AlertTriangle, color: 'text-red-400',    bg: 'bg-red-500/10 border-red-500/20',      title: 'Urgent service call',       desc: 'Emergency request — AC unit down, commercial property', time: '2 min ago', action: 'Dispatch' as const },
+  { id: 'a2', icon: Package,       color: 'text-primary',    bg: 'bg-primary/10 border-primary/20',       title: 'Material order shipped',    desc: 'Lumber order #4821 from Home Depot · ETA Thursday',     time: '1 hr ago',  action: null },
+  { id: 'a3', icon: Receipt,       color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/20',   title: 'Invoice due in 3 days',     desc: 'Invoice #1043 ($4,200) — Riverside remodeling project',  time: '3 hr ago',  action: null },
+  { id: 'a4', icon: Umbrella,      color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/20',   title: 'Insurance renewal due',     desc: 'GL policy expires in 14 days — action required',         time: '5 hr ago',  action: null },
+  { id: 'a5', icon: Lock,          color: 'text-emerald-400',bg: 'bg-emerald-500/10 border-emerald-500/20',title: 'Biometric access alert',   desc: 'Zone C — Ray Gomez · Site access at 06:42 AM (unscheduled)', time: '8 hr ago', action: null },
+];
+
 // ─── Summary dashboard data ──────────────────────────────────────
-const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
+const tabs = [
+  "Today's Snapshot", 'Pipeline', 'Analytics', 'AI Agents',
+  'Alerts', 'Compliance', 'Integrations', 'Settings',
+  'Active Jobs (4)', 'Materials Queue', 'AI Activity',
+];
 
 const kpis = [
  { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
@@ -198,11 +237,15 @@ function EmptyState({ message }: { message: string }) {
 export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) {
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
-  // Collapsed state per section label; Legals starts expanded
+  // Collapsed state per section label
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    'Command Center': false,
     Overview: false, Communications: false, Materials: true,
     Workforce: true, Finance: true, Legals: false,
   });
+
+  // Trade template from Command Center
+  const template = getTemplateByAudience('trade', tradeKey as TradeKey);
 
   const legalsRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -228,7 +271,21 @@ export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) 
       nav('/contractor/quote-intake');
       return;
     }
+    if (name in CC_TAB_MAP) {
+      setActiveTab(CC_TAB_MAP[name]);
+      setActiveSidebar(name); // not in deptComponentMap → isDept stays false; highlights sidebar
+      return;
+    }
     setActiveSidebar(name);
+  };
+
+  const handleTabClick = (i: number) => {
+    setActiveTab(i);
+    if (i in TAB_TO_SIDEBAR) {
+      setActiveSidebar(TAB_TO_SIDEBAR[i]);
+    } else {
+      setActiveSidebar('Dashboard');
+    }
   };
 
   const allKpisEmpty = kpis.every(k => k.value === '—');
@@ -262,6 +319,32 @@ export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) 
           <Send className="w-3.5 h-3.5" /> Send
         </Button>
       </div>
+
+      {/* ── Command Center Banner ── */}
+      {template && (
+        <div className="shrink-0 border-b border-border bg-muted/30 px-3 sm:px-5 py-1.5 flex items-center gap-3">
+          <Zap className="w-3.5 h-3.5 text-primary shrink-0" />
+          <span className="text-xs font-semibold text-foreground">{template.name}</span>
+          {template.config.kpis.slice(0, 1).map(kpi => (
+            <span key={kpi.key} className="hidden sm:inline text-xs text-muted-foreground">
+              {kpi.label}: <span className="font-bold text-foreground">{kpi.value}</span>
+            </span>
+          ))}
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1.5 text-xs border-border text-foreground hover:bg-primary hover:text-primary-foreground"
+              onClick={() => { setActiveTab(1); setActiveSidebar('Pipeline'); }}
+            >
+              <GitBranch className="w-3 h-3" /> Pipeline
+            </Button>
+            <Button size="sm" className="h-7 gap-1.5 text-xs bg-primary text-primary-foreground">
+              <Navigation className="w-3 h-3" /> Dispatch
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ── Main Layout ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -338,8 +421,8 @@ export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) 
                 {tabs.map((tab, i) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(i)}
-                    className={`px-3.5 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
+                    onClick={() => handleTabClick(i)}
+                    className={`whitespace-nowrap px-3.5 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
                       i === activeTab
                         ? 'text-foreground border-primary font-semibold'
                         : 'text-muted-foreground border-transparent hover:text-foreground'
@@ -350,7 +433,236 @@ export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) 
                 ))}
               </div>
 
-              {/* KPI Cards */}
+              {/* ── Pipeline tab (1) ── */}
+              {activeTab === 1 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-foreground">{template?.name ?? 'Pipeline'}</h2>
+                      <p className="text-xs text-muted-foreground">Project pipeline · drag to update stage</p>
+                    </div>
+                    <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground">
+                      <Plus className="w-3.5 h-3.5" /> New Job
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {['Lead', 'Quoted', 'Active', 'Punch List', 'Complete'].map(stage => (
+                      <Card key={stage} className="border-border bg-card">
+                        <CardHeader className="p-3 pb-1">
+                          <CardTitle className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{stage}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-3 pt-0">
+                          <p className="text-xs text-muted-foreground text-center py-4">No jobs</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  {template && template.config.quickActions.length > 0 && (
+                    <Card className="border-border bg-card">
+                      <CardContent className="p-3.5">
+                        <div className="text-xs font-semibold text-primary mb-2 uppercase tracking-wide">Quick Actions</div>
+                        <div className="flex flex-wrap gap-2">
+                          {template.config.quickActions.map(action => (
+                            <Button key={action.key} size="sm" variant="outline" className="gap-1.5 text-xs border-border text-foreground hover:bg-primary hover:text-primary-foreground">
+                              <Zap className="w-3 h-3" /> {action.label}
+                            </Button>
+                          ))}
+                          <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground">
+                            <Navigation className="w-3 h-3" /> Dispatch
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {/* ── Analytics tab (2) ── */}
+              {activeTab === 2 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-foreground">Analytics</h2>
+                  {template ? (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                        {template.config.kpis.map(kpi => (
+                          <Card key={kpi.key} className="border-border bg-card">
+                            <CardContent className="p-4">
+                              <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+                              <div className="text-3xl font-bold text-foreground leading-tight">{kpi.value}</div>
+                              {kpi.delta && <div className="text-xs text-muted-foreground mt-1">{kpi.delta}</div>}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                      {template.config.insights.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {template.config.insights.map(insight => (
+                            <Card key={insight.key} className="border-border bg-card">
+                              <CardHeader className="p-3.5 pb-1.5">
+                                <CardTitle className="text-sm font-semibold">{insight.title}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="p-3.5 pt-0">
+                                <p className="text-sm text-muted-foreground">{insight.description}</p>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <EmptyState message="Analytics will populate as your team uses the platform." />
+                  )}
+                </div>
+              )}
+
+              {/* ── AI Agents tab (3) ── */}
+              {activeTab === 3 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-foreground">AI Agents</h2>
+                    <Badge className="bg-emerald-500/15 text-emerald-400 text-xs">Active</Badge>
+                  </div>
+                  {template && template.config.agents.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {template.config.agents.map(agent => (
+                        <Card key={agent.key} className="border-border bg-card">
+                          <CardHeader className="p-4 pb-2">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <BrainCircuit className="w-4 h-4 text-primary" />
+                                {agent.label}
+                              </CardTitle>
+                              <Badge className="text-[10px] bg-emerald-500/15 text-emerald-400">Ready</Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-0">
+                            <p className="text-sm text-muted-foreground mb-3">{agent.description}</p>
+                            <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground">
+                              <Play className="w-3 h-3" /> Run Agent
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState message="No AI agents configured for this trade yet." />
+                  )}
+                  <Card className="border-border bg-card">
+                    <CardHeader className="p-3.5 pb-1.5">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                        <Bot className="w-4 h-4 text-muted-foreground" /> Agent Activity Log
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3.5 pt-0">
+                      <EmptyState message="Agent activity will stream here once integrated with live data." />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* ── Alerts tab (4) ── */}
+              {activeTab === 4 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-foreground">Alerts Feed</h2>
+                    <Badge variant="destructive" className="text-xs">1 urgent</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground -mt-1">Ordering · Finance / Insurance · Biometric</p>
+                  {alertItems.map(alert => {
+                    const Icon = alert.icon;
+                    return (
+                      <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg border ${alert.bg}`}>
+                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${alert.color}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground">{alert.title}</span>
+                            <span className="text-[10px] text-muted-foreground shrink-0">{alert.time}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{alert.desc}</p>
+                        </div>
+                        {alert.action && (
+                          <Button size="sm" className="shrink-0 h-7 gap-1.5 text-xs bg-primary text-primary-foreground">
+                            <Navigation className="w-3 h-3" /> {alert.action}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ── Compliance tab (5) ── */}
+              {activeTab === 5 && (
+                <div className="space-y-3">
+                  <h2 className="text-lg font-semibold text-foreground">Compliance</h2>
+                  {[
+                    { label: 'License verification',   ok: false },
+                    { label: 'Insurance certificate',  ok: false },
+                    { label: 'OSHA safety training',   ok: false },
+                    { label: 'Site inspection report', ok: false },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className={`w-4 h-4 ${item.ok ? 'text-emerald-400' : 'text-muted-foreground'}`} />
+                        <span className="text-sm text-foreground">{item.label}</span>
+                      </div>
+                      <Badge variant="secondary">{item.ok ? 'Verified' : 'Pending'}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ── Integrations tab (6) ── */}
+              {activeTab === 6 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-foreground">Integrations</h2>
+                  {template && template.config.integrations.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {template.config.integrations.map(intg => (
+                        <Card key={intg.key} className="border-border bg-card">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <Plug2 className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-medium text-foreground capitalize">{intg.provider}</span>
+                              </div>
+                              <Badge variant="secondary" className="capitalize">{intg.status}</Badge>
+                            </div>
+                            <Button size="sm" variant="outline" className="text-xs border-border text-foreground hover:bg-primary hover:text-primary-foreground">
+                              Configure
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState message="No integrations configured for this trade yet." />
+                  )}
+                </div>
+              )}
+
+              {/* ── Settings tab (7) ── */}
+              {activeTab === 7 && (
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold text-foreground">Command Center Settings</h2>
+                  {template && (
+                    <Card className="border-border bg-card">
+                      <CardContent className="p-4">
+                        <div className="text-xs text-muted-foreground mb-1">Active Template</div>
+                        <div className="text-sm font-semibold text-foreground">{template.name}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {template.version} · Trade: <span className="capitalize">{template.trade?.replace('_', ' ')}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  <EmptyState message="Settings panel in development. Trade-specific configuration will appear here." />
+                </div>
+              )}
+
+              {/* ── Today / legacy tabs content ── */}
+              {(activeTab === 0 || activeTab >= 8) && (
+              <>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
                 {kpis.map((kpi) => (
                   <Card key={kpi.label} className="shadow-none border-border bg-card">
@@ -516,6 +828,8 @@ export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) 
                   </div>
                 </CardContent>
               </Card>
+              </>
+              )}
             </>
           )}
         </div>

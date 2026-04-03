@@ -1,20 +1,25 @@
 meta:
   command: /build-v2-agent
   agent_id: V2
-  agent_title: Design & Build Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 2
+  version: 2
   status: draft
-intent: Build the full V2 agent specification bundle.
+intent: Build the full Vertical 2 agent specification bundle with universal operating layer interoperability.
 inputs:
   required:
-    - project_type
-    - site_or_matter_context
+    - request_text
+    - vertical_context
   optional:
-    - design_preferences
-    - budget_range
+    - project_context
+    - client_context
+    - portfolio_context
+    - resource_context
+    - approval_context
 processing_rules:
   - run shared foundation dependency checks first
-  - preserve deterministic artifact references
+  - enforce Vertical 2 specialization while preserving Kluje cross-vertical interoperability
+  - map outputs across project, task, client, operations, resources, portfolio, strategy, and approvals
+  - apply the request-to-delivery chain when new work is created: request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
 outputs:
   primary_artifact: v2-agent-bundle
   includes:

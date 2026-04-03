@@ -1,22 +1,30 @@
 meta:
   command: /v2/build-prompt-templates
   agent_id: V2
-  agent_title: Design & Build Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 2
+  version: 2
   status: draft
-intent: Generate `build-prompt-templates` artifact for Design & Build Expert.
+intent: Generate prompt templates that enforce Vertical 2 execution with Kluje universal operating layer linkage.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_text
+    - vertical_context
   optional:
-    - budget_range
-    - timeline
-    - constraints
+    - project_context
+    - task_context
+    - client_context
+    - operations_context
+    - resource_context
+    - portfolio_context
+    - strategy_context
+    - approvals_context
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
-  - include missing_information_list when assumptions are used
+  - classify whether the request is strategic, operational, or compact-response scope
+  - preserve end-to-end linkage across project, task, client, operations, resources, portfolio, strategy, and approvals
+  - emit the decision frame for substantial outputs: vertical context, project impact, task impact, client impact, operations impact, resource impact, portfolio impact, strategic impact, approval status, next action
+  - when new work is created, enforce workflow chain: request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
+  - keep all outputs dashboard-compatible with filters: vertical, owner, client, status, priority, and date range
+  - require dashboard modules: KPI summary, action center, risk alerts, approvals queue, resource pressure, goal alignment, and cross-vertical visibility when appropriate
 outputs:
   primary_artifact: prompt-templates
   schema:
@@ -24,3 +32,49 @@ outputs:
     assumptions: string[]
     missing_information_list: string[]
     recommendations: string[]
+    decision_frame:
+      vertical_context: string
+      project_impact: string
+      task_impact: string
+      client_impact: string
+      operations_impact: string
+      resource_impact: string
+      portfolio_impact: string
+      strategic_impact: string
+      approval_status: string
+      next_action: string
+    normalized_output_model:
+      vertical: "Vertical 2"
+      request_type: string
+      project:
+        name: string
+        status: string
+        owner: string
+        timeline: string
+        risk: string
+      tasks: object[]
+      client:
+        name: string
+        type: string
+        impact: string
+      operations:
+        workflow_type: string
+        dependencies: string[]
+        compliance_flags: string[]
+      resources:
+        assigned: string[]
+        capacity_status: string
+        utilization_note: string
+      portfolio:
+        priority: string
+        conflicts: string[]
+        strategic_weight: string
+      strategy:
+        goal_alignment: string[]
+        okr_link: string
+        business_value: string
+      approvals:
+        required: boolean
+        approver_roles: string[]
+        status: string
+        next_step: string

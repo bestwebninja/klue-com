@@ -2,9 +2,9 @@ meta:
   command: /v5/build-prompt-variants
   agent_id: V5
   agent_title: Vertical 5 Command Center Operations Expert
-  version: 2
+  version: 3
   status: draft
-intent: Generate `build-prompt-variants` artifact for Vertical 5 operations routing and dashboard orchestration.
+intent: Generate `build-prompt-variants` artifacts that enforce Vertical 5 specialization while preserving Kluje cross-vertical interoperability.
 inputs:
   required:
     - request_text
@@ -14,10 +14,48 @@ inputs:
     - timeline
     - constraints
     - policy_context
+    - project_context
+    - task_context
+    - client_context
 processing_rules:
   - classify request against the Vertical 5 domain map before producing outputs
-  - require Kluje universal operating layer metadata in routing and dashboard responses
+  - always map relevant work across all 8 layers in the Kluje universal operating layer
+  - determine if work maps to existing project or requires new project creation
+  - when new work is created, route as request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
   - include missing_information_list when assumptions are used
+  - preserve compatibility with executive rollups, approvals queues, resource planning, and client delivery reporting
+output_rules:
+  decision_frame:
+    - vertical_context
+    - project_impact
+    - task_impact
+    - client_impact
+    - operations_impact
+    - resource_impact
+    - portfolio_impact
+    - strategic_impact
+    - approval_status
+    - next_action
+  response_modes:
+    small_request: compact response with cross-layer linkage preserved
+    strategic_request: executive summary first, then tactical drill-down
+    operational_request: surface blockers, due items, staffing pressure, approvals first
+ui_dashboard_requirements:
+  required_filters:
+    - vertical
+    - owner
+    - client
+    - status
+    - priority
+    - date_range
+  required_blocks:
+    - kpi_summary
+    - action_center
+    - risk_alerts
+    - approvals_queue
+    - resource_pressure
+    - goal_alignment
+    - cross_vertical_visibility
 outputs:
   primary_artifact: prompt-variants
   schema:
@@ -36,6 +74,64 @@ outputs:
       approvals_queue: object
       resource_pressure: object
       goal_alignment: object
+      cross_vertical_visibility: object
+    normalized_output_model:
+      vertical: string
+      request_type: string
+      project:
+        name: string
+        status: string
+        owner: string
+        timeline: string
+        risk: string
+      tasks: object[]
+      client:
+        name: string
+        type: string
+        impact: string
+      operations:
+        workflow_type: string
+        dependencies: string[]
+        compliance_flags: string[]
+      resources:
+        assigned: string[]
+        capacity_status: string
+        utilization_note: string
+      portfolio:
+        priority: string
+        conflicts: string[]
+        strategic_weight: string
+      strategy:
+        goal_alignment: string[]
+        okr_link: string
+        business_value: string
+      approvals:
+        required: boolean
+        approver_roles: string[]
+        status: string
+        next_step: string
     rollup_compatibility:
       rollup_schema_version: string
       cross_vertical_dimensions: string[]
+prompt_variants:
+  system_primary: |
+    You are /build-v5-agent, the Kluje Build Agent for Vertical 5.
+    Operate as the specialist interface for Vertical 5 while remaining fully interoperable with Kluje cross-vertical workflows.
+    Prioritize vertical-specific execution quality, operational clarity, strategic visibility, and approval readiness.
+
+    For substantial actions and recommendations, always produce the decision frame fields in this order:
+    Vertical context, Project impact, Task impact, Client impact, Operations impact, Resource impact,
+    Portfolio impact, Strategic impact, Approval status, Next action.
+
+    Always preserve linkage across: project management, task management, client projects, business operations,
+    resource management, portfolio management, goals & strategy, requests & approvals.
+
+  system_operational: |
+    Focus on operational flow control for Vertical 5.
+    Surface blockers, due items, staffing pressure, process breakdowns, and pending approvals first.
+    Keep output compact when the request is small, but never drop cross-layer traceability.
+
+  system_strategic: |
+    Focus on strategic planning for Vertical 5.
+    Provide executive summary first, then tactical drill-down.
+    Link recommendations to OKRs, quarterly priorities, roadmap effects, and portfolio trade-offs.

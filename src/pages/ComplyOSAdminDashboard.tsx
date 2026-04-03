@@ -18,10 +18,10 @@ const stats = [
 function AdminContent() {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Admin Dashboard | Kluje" description="Operations and compliance admin panel." noIndex={true} />
+      <SEOHead title="AD-Dashboard | Kluje" description="Operations and compliance AD-Dashboard workflows." noIndex={true} />
       <Navbar />
 
-      <PageHero title="Admin Dashboard" description="Operations and compliance workflows." variant="compact" />
+      <PageHero title="AD-Dashboard" description="Operations and compliance workflows." variant="compact" />
 
       <section className="container mx-auto px-4 py-12 space-y-10">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -43,7 +43,7 @@ function AdminContent() {
 
         <Card className="border-dashed border-border">
           <CardContent className="pt-6 space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">Admin modules coming next</h2>
+            <h2 className="text-lg font-semibold text-foreground">AD-Dashboard modules coming next</h2>
             <p className="text-sm text-muted-foreground">
               This shell is ready to host a moderation queue, role management, and audit logs.
             </p>
@@ -52,7 +52,7 @@ function AdminContent() {
                 <Link to="/cookie-admin">Cookie Management</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/admin-dashboard">Site Admin</Link>
+                <Link to="/admin-dashboard">AD-Dashboard</Link>
               </Button>
             </div>
           </CardContent>

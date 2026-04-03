@@ -8,7 +8,7 @@ const navItems = [
   { label: "New Campaign", path: "/campaigns/new" },
   { label: "Placements", path: "/placements" },
   { label: "Billing", path: "/billing" },
-  { label: "Admin", path: "/admin" }
+  { label: "AD-Dashboard", path: "/admin" }
 ];
 
 export function BillingPage() {

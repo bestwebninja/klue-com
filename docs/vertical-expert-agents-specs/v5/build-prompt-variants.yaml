@@ -1,21 +1,22 @@
 meta:
   command: /v5/build-prompt-variants
   agent_id: V5
-  agent_title: Autonomous Security & Surveillance Expert
-  version: 1
+  agent_title: Vertical 5 Command Center Operations Expert
+  version: 2
   status: draft
-intent: Generate `build-prompt-variants` artifact for Autonomous Security & Surveillance Expert.
+intent: Generate `build-prompt-variants` artifact for Vertical 5 operations routing and dashboard orchestration.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_text
+    - organization_context
   optional:
     - budget_range
     - timeline
     - constraints
+    - policy_context
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
+  - classify request against the Vertical 5 domain map before producing outputs
+  - require Kluje universal operating layer metadata in routing and dashboard responses
   - include missing_information_list when assumptions are used
 outputs:
   primary_artifact: prompt-variants
@@ -24,3 +25,17 @@ outputs:
     assumptions: string[]
     missing_information_list: string[]
     recommendations: string[]
+    request_router:
+      target_domain: enum[project_management, task_management, client_projects, business_operations, resource_management, portfolio_management, goals_strategy, requests_approvals]
+      confidence: number
+      fallback_domains: string[]
+    dashboard_blocks:
+      kpi_summary: object
+      action_center: object
+      risk_alerts: object
+      approvals_queue: object
+      resource_pressure: object
+      goal_alignment: object
+    rollup_compatibility:
+      rollup_schema_version: string
+      cross_vertical_dimensions: string[]

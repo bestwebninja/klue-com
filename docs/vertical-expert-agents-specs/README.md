@@ -79,7 +79,7 @@ Command phases:
 - `/v4/build-guardrails` → `v4/build-guardrails.yaml`
 - `/v4/build-prompt-templates` → `v4/build-prompt-templates.yaml`
 
-## V5 — Autonomous Security & Surveillance Expert
+## V5 — Vertical 5 Command Center Operations Expert
 - `/v5/build-intake-question-tree` → `v5/build-intake-question-tree.yaml`
 - `/v5/build-command-contracts` → `v5/build-command-contracts.yaml`
 - `/v5/build-output-json-schemas` → `v5/build-output-json-schemas.yaml`
@@ -87,6 +87,7 @@ Command phases:
 - `/v5/build-provider-type-taxonomy` → `v5/build-provider-type-taxonomy.yaml`
 - `/v5/build-compliance-warning-library` → `v5/build-compliance-warning-library.yaml`
 - `/v5/build-prompt-variants` → `v5/build-prompt-variants.yaml`
+- `/v5/build-universal-operating-layer` → `v5/build-universal-operating-layer.yaml`
 
 ## V6 — Business Services Expert
 - `/v6/build-intake-question-tree` → `v6/build-intake-question-tree.yaml`

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2 } from 'lucide-react';
 import { lazy, Suspense } from 'react';
-import GCCommandDashboard from '@/components/dashboard/GCCommandDashboard';
 const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
 const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
 const AdminSiteSettingsInline = lazy(() => import('@/components/admin/AdminSiteSettings'));
@@ -32,8 +31,42 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useProfileComplete } from '@/hooks/useProfileComplete';
 import type { Database } from '@/integrations/supabase/types';
+import type { TradeKey as CommandCenterTradeKey } from '@/features/command-center/templates/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
+
+const resolveCommandCenterTrade = (profile: Profile | null): CommandCenterTradeKey => {
+  const normalizedServices = (profile?.services_offered ?? []).map((service) => service.toLowerCase());
+  const serviceText = normalizedServices.join(' ');
+
+  if (serviceText.includes('hvac') || serviceText.includes('heating') || serviceText.includes('airconditioning') || serviceText.includes('air conditioning')) {
+    return 'hvac';
+  }
+  if (serviceText.includes('plumb')) return 'plumbing';
+  if (serviceText.includes('electr')) return 'electrical';
+  if (serviceText.includes('roof')) return 'roofing';
+  if (serviceText.includes('window') || serviceText.includes('door')) return 'windows_doors';
+  if (serviceText.includes('landscap') || serviceText.includes('garden') || serviceText.includes('paving')) return 'landscaping';
+  if (
+    serviceText.includes('paint') ||
+    serviceText.includes('floor') ||
+    serviceText.includes('tile') ||
+    serviceText.includes('tiling') ||
+    serviceText.includes('carpent') ||
+    serviceText.includes('plaster') ||
+    serviceText.includes('render') ||
+    serviceText.includes('finish')
+  ) {
+    return 'finishing';
+  }
+
+  return 'remodeling';
+};
+
+const getCommandCenterPath = (userId: string, profile: Profile | null) => {
+  const trade = resolveCommandCenterTrade(profile);
+  return `/command-center/${userId}/trade/${trade}`;
+};
 
 const providerNavItems = [
   { value: 'home', label: 'Home', icon: Home },
@@ -281,7 +314,7 @@ const Dashboard = () => {
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
       case 'gc-command':
-        return <GCCommandDashboard />;
+        return <Navigate to={getCommandCenterPath(user.id, profile)} replace />;
       case 'admin-users':
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>

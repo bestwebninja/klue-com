@@ -22,6 +22,7 @@ Each command has a YAML artifact with an explicit `command`, `owner`, `inputs`, 
 - `/build-shared-standard-outputs` → `shared/build-shared-standard-outputs.yaml`
 - `/build-shared-quote-evaluation-model` → `shared/build-shared-quote-evaluation-model.yaml`
 - `/build-shared-rebundlable-module-schema` → `shared/build-shared-rebundlable-module-schema.yaml`
+- `/build-kluje-build-agent-core` → `shared/build-kluje-build-agent-core.yaml`
 
 
 ## Codex execution order

@@ -1,20 +1,22 @@
 meta:
   command: /build-v5-agent
   agent_id: V5
-  agent_title: Autonomous Security & Surveillance Expert
-  version: 1
+  agent_title: Vertical 5 Command Center Operations Expert
+  version: 2
   status: draft
-intent: Build the full V5 agent specification bundle.
+intent: Build the full V5 agent specification bundle for cross-functional operations orchestration.
 inputs:
   required:
-    - risk_context
-    - site_or_asset_context
+    - request_text
+    - organization_context
   optional:
-    - regulatory_scope
-    - incident_history
+    - portfolio_context
+    - policy_context
+    - historical_performance
 processing_rules:
   - run shared foundation dependency checks first
-  - prioritize safety and compliance assumptions
+  - enforce Vertical 5 instruction set routing before response generation
+  - apply Kluje universal operating layer overlays for normalization and governance
 outputs:
   primary_artifact: v5-agent-bundle
   includes:
@@ -25,3 +27,4 @@ outputs:
     - /v5/build-provider-type-taxonomy
     - /v5/build-compliance-warning-library
     - /v5/build-prompt-variants
+    - /v5/build-universal-operating-layer

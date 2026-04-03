@@ -147,7 +147,7 @@ codex_build_commands:
       - /v4/build-guardrails
       - /v4/build-prompt-templates
   - command: /build-v5-agent
-    purpose: Build the Autonomous Security & Surveillance Expert agent for advanced physical-security scoping and quote evaluation.
+    purpose: Build the Vertical 5 Command Center Operations Expert agent for cross-functional request routing, approvals, and dashboard orchestration.
     expands_to:
       - /v5/build-intake-question-tree
       - /v5/build-command-contracts
@@ -156,6 +156,7 @@ codex_build_commands:
       - /v5/build-provider-type-taxonomy
       - /v5/build-compliance-warning-library
       - /v5/build-prompt-variants
+      - /v5/build-universal-operating-layer
   - command: /build-v6-agent
     purpose: Build the Business Services Expert agent for deliverables, scope, reporting, and handoff design.
     expands_to:
@@ -305,22 +306,22 @@ agent_registry:
       rebundlable_modules:
         - Managed Service Comparison Module
     - id: V5
-      title: Autonomous Security & Surveillance Expert
-      vertical: CCTV, biometric access, custom security systems, drones, remote monitoring
+      title: Vertical 5 Command Center Operations Expert
+      vertical: project operations, approvals, business operations, resource planning, portfolio and strategy execution
       build_command: /build-v5-agent
       primary_commands:
-        - /v5/security-intake
-        - /v5/system-scope
-        - /v5/coverage-map
-        - /v5/access-logic
-        - /v5/quote-check
-        - /v5/incident-policy
+        - /v5/project-request
+        - /v5/task-request
+        - /v5/approval-routing
+        - /v5/resource-allocation
+        - /v5/portfolio-rollup
+        - /v5/dashboard-summary
       specialist_capabilities:
-        - advanced site-security scoping
-        - integrated surveillance design
-        - access-control logic mapping
-        - incident response requirements
-        - security quote evaluation
+        - cross-domain request routing
+        - universal operating layer normalization
+        - approval and policy enforcement
+        - dashboard synthesis with risk and goal alignment
+        - cross-vertical rollup compatibility
       rebundlable_modules:
         - Remote Monitoring & Incident Response Module
     - id: V6

@@ -126,10 +126,10 @@ master_agent_registry:
           - /v4/build-guardrails
           - /v4/build-prompt-templates
     - agent_id: V5
-      title: Autonomous Security & Surveillance Expert
+      title: Vertical 5 Command Center Operations Expert
       build_command: /build-v5-agent
       operating_model:
-        domain: security-surveillance
+        domain: command-center-operations
         intake_command: /v5/build-intake-question-tree
         core_commands:
           - /v5/build-command-contracts
@@ -139,6 +139,7 @@ master_agent_registry:
           - /v5/build-provider-type-taxonomy
           - /v5/build-compliance-warning-library
           - /v5/build-prompt-variants
+          - /v5/build-universal-operating-layer
     - agent_id: V6
       title: Business Services Expert
       build_command: /build-v6-agent

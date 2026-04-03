@@ -1,0 +1,25 @@
+meta:
+  command: /v10/build-dashboard-view-contracts
+  agent_id: V10
+  agent_title: Kluje Build Agent for Vertical 10
+  version: 1
+  status: draft
+intent: Define the required dashboard contract for Vertical 10 views to remain interoperable with Kluje rollups.
+inputs:
+  required:
+    - dashboard_name
+    - user_role
+  optional:
+    - client_scope
+    - date_window
+processing_rules:
+  - every dashboard view must support filters: vertical, owner, client, status, priority, and date range
+  - every dashboard view must expose KPI summary, action center, risk alerts, approvals queue, resource pressure, goal alignment, and cross-vertical visibility when applicable
+  - preserve compatibility with executive rollups, resource planning, client delivery tracking, and approval routing
+outputs:
+  primary_artifact: dashboard-view-contracts
+  schema:
+    required_filters: string[]
+    required_panels: string[]
+    interoperability_targets: string[]
+    access_notes: string[]

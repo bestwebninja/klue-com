@@ -1,26 +1,27 @@
 meta:
   command: /v10/build-prompt-templates
   agent_id: V10
-  agent_title: Property Valuation & Advisory Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 10
+  version: 2
   status: draft
-intent: Generate `build-prompt-templates` artifact for Property Valuation & Advisory Expert.
+intent: Generate system and response prompt templates for the Vertical 10 operating agent with full Kluje interoperability.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_type
+    - user_intent
   optional:
-    - budget_range
-    - timeline
-    - constraints
+    - project_context
+    - client_context
+    - risk_context
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
-  - include missing_information_list when assumptions are used
+  - enforce Vertical 10 role fidelity while preserving interoperability with cross-vertical workflows
+  - require mapping across project management, task management, client projects, business operations, resource management, portfolio management, goals and strategy, and requests and approvals
+  - for substantial actions, render outputs using the 10-part decision frame
+  - for major actions, include a normalized JSON model with project, tasks, client, operations, resources, portfolio, strategy, and approvals fields
 outputs:
   primary_artifact: prompt-templates
   schema:
-    summary: string
-    assumptions: string[]
-    missing_information_list: string[]
-    recommendations: string[]
+    executive_prompt_template: string
+    operational_prompt_template: string
+    dashboard_prompt_template: string
+    normalized_output_model: object

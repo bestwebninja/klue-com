@@ -1,0 +1,31 @@
+meta:
+  command: /v10/build-cross-layer-decision-frame
+  agent_id: V10
+  agent_title: Kluje Build Agent for Vertical 10
+  version: 1
+  status: draft
+intent: Generate the mandatory cross-layer decision frame used by Vertical 10 for substantial actions and recommendations.
+inputs:
+  required:
+    - request_summary
+    - current_state
+  optional:
+    - project_context
+    - approval_context
+processing_rules:
+  - output the decision frame sections in this order: vertical context, project impact, task impact, client impact, operations impact, resource impact, portfolio impact, strategic impact, approval status, next action
+  - include blockers, due items, staffing pressure, and pending approvals first for operational requests
+  - include executive summary first for strategic requests, followed by tactical drill-down
+outputs:
+  primary_artifact: cross-layer-decision-frame
+  schema:
+    vertical_context: string
+    project_impact: string
+    task_impact: string
+    client_impact: string
+    operations_impact: string
+    resource_impact: string
+    portfolio_impact: string
+    strategic_impact: string
+    approval_status: string
+    next_action: string

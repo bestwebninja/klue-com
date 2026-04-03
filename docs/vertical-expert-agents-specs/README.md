@@ -126,11 +126,10 @@ Command phases:
 - `/v9/build-deal-blocker-taxonomy` → `v9/build-deal-blocker-taxonomy.yaml`
 - `/v9/build-prompt-templates` → `v9/build-prompt-templates.yaml`
 
-## V10 — Property Valuation & Advisory Expert
+## V10 — Kluje Build Agent for Vertical 10
 - `/v10/build-intake-question-tree` → `v10/build-intake-question-tree.yaml`
 - `/v10/build-command-contracts` → `v10/build-command-contracts.yaml`
 - `/v10/build-output-json-schemas` → `v10/build-output-json-schemas.yaml`
-- `/v10/build-valuation-purpose-taxonomy` → `v10/build-valuation-purpose-taxonomy.yaml`
-- `/v10/build-property-risk-taxonomy` → `v10/build-property-risk-taxonomy.yaml`
-- `/v10/build-inspection-scope-taxonomy` → `v10/build-inspection-scope-taxonomy.yaml`
+- `/v10/build-cross-layer-decision-frame` → `v10/build-cross-layer-decision-frame.yaml`
+- `/v10/build-dashboard-view-contracts` → `v10/build-dashboard-view-contracts.yaml`
 - `/v10/build-prompt-templates` → `v10/build-prompt-templates.yaml`

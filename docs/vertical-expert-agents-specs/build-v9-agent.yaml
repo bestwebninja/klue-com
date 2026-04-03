@@ -1,20 +1,26 @@
 meta:
   command: /build-v9-agent
   agent_id: V9
-  agent_title: Real Estate Transactions Expert
-  version: 1
+  agent_title: Vertical 9 Build Agent
+  version: 2
   status: draft
-intent: Build the full V9 agent specification bundle.
+intent: Build the full V9 agent specification bundle for Vertical 9 execution with Kluje universal operating layer interoperability.
 inputs:
   required:
-    - transaction_type
-    - market_context
+    - request_text
+    - vertical_context
   optional:
-    - stage
-    - timeline
+    - project_context
+    - client_context
+    - resource_context
+    - portfolio_context
+    - strategy_context
+    - approvals_context
 processing_rules:
   - run shared foundation dependency checks first
-  - maintain stage-aware recommendations in artifacts
+  - enforce Vertical 9 instruction set for cross-layer mapping before response generation
+  - preserve interoperability with Kluje dashboards, approvals, portfolio, and resource workflows
+  - require linked chain generation for net-new work: request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
 outputs:
   primary_artifact: v9-agent-bundle
   includes:
@@ -25,3 +31,4 @@ outputs:
     - /v9/build-service-dependency-map
     - /v9/build-deal-blocker-taxonomy
     - /v9/build-prompt-templates
+    - /v9/build-universal-operating-layer-mapping

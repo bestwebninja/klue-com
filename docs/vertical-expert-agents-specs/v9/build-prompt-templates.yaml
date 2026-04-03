@@ -1,21 +1,26 @@
 meta:
   command: /v9/build-prompt-templates
   agent_id: V9
-  agent_title: Real Estate Transactions Expert
-  version: 1
+  agent_title: Vertical 9 Build Agent
+  version: 2
   status: draft
-intent: Generate `build-prompt-templates` artifact for Real Estate Transactions Expert.
+intent: Generate Vertical 9 prompt templates that preserve universal operating layer interoperability while executing vertical-specific workflows.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_text
+    - vertical_context
   optional:
-    - budget_range
-    - timeline
-    - constraints
+    - project_context
+    - client_context
+    - resource_context
+    - portfolio_context
+    - strategy_context
+    - approvals_context
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
+  - classify whether the request is small, strategic, or operational and adjust response depth accordingly
+  - require cross-layer mapping across project, task, client, operations, resources, portfolio, strategy, and approvals
+  - enforce decision frame blocks in substantial actions
+  - include linked chain routing for new work items
   - include missing_information_list when assumptions are used
 outputs:
   primary_artifact: prompt-templates
@@ -24,3 +29,65 @@ outputs:
     assumptions: string[]
     missing_information_list: string[]
     recommendations: string[]
+    decision_frame:
+      vertical_context: string
+      project_impact: string
+      task_impact: string
+      client_impact: string
+      operations_impact: string
+      resource_impact: string
+      portfolio_impact: string
+      strategic_impact: string
+      approval_status: string
+      next_action: string
+    normalized_output_model:
+      vertical: string
+      request_type: string
+      project:
+        name: string
+        status: string
+        owner: string
+        timeline: string
+        risk: string
+      tasks: array
+      client:
+        name: string
+        type: string
+        impact: string
+      operations:
+        workflow_type: string
+        dependencies: string[]
+        compliance_flags: string[]
+      resources:
+        assigned: string[]
+        capacity_status: string
+        utilization_note: string
+      portfolio:
+        priority: string
+        conflicts: string[]
+        strategic_weight: string
+      strategy:
+        goal_alignment: string[]
+        okr_link: string
+        business_value: string
+      approvals:
+        required: boolean
+        approver_roles: string[]
+        status: string
+        next_step: string
+    dashboard_contract:
+      required_filters:
+        - vertical_filter
+        - owner_filter
+        - client_filter
+        - status_filter
+        - priority_filter
+        - date_range_filter
+      required_blocks:
+        - kpi_summary
+        - action_center
+        - risk_alerts
+        - approvals_queue
+        - resource_pressure
+        - goal_alignment
+        - cross_vertical_visibility

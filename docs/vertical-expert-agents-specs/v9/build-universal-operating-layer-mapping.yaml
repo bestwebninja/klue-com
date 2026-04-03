@@ -1,0 +1,44 @@
+meta:
+  command: /v9/build-universal-operating-layer-mapping
+  agent_id: V9
+  agent_title: Vertical 9 Build Agent
+  version: 1
+  status: draft
+intent: Define mandatory Vertical 9 mappings to the Kluje universal operating layer for execution, dashboarding, and approvals.
+inputs:
+  required:
+    - request_text
+    - vertical_context
+  optional:
+    - organizational_policy
+    - portfolio_context
+processing_rules:
+  - map every substantial request to project_management, task_management, client_projects, business_operations, resource_management, portfolio_management, goals_strategy, and requests_approvals
+  - preserve linkage when uncertainty exists instead of omitting connected layers
+  - ensure generated dashboard specifications include required filter and summary blocks
+outputs:
+  primary_artifact: universal-operating-layer-mapping
+  schema:
+    operating_layers:
+      project_management: object
+      task_management: object
+      client_projects: object
+      business_operations: object
+      resource_management: object
+      portfolio_management: object
+      goals_strategy: object
+      requests_approvals: object
+    dashboard_contract:
+      required_filters: string[]
+      required_blocks: string[]
+    normalized_output_model:
+      vertical: string
+      request_type: string
+      project: object
+      tasks: array
+      client: object
+      operations: object
+      resources: object
+      portfolio: object
+      strategy: object
+      approvals: object

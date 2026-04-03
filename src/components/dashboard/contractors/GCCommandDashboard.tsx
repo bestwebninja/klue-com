@@ -165,9 +165,9 @@ const accounting = [
 
 function StatusPill({ status, color }: { status: string; color: string }) {
   const colorMap: Record<string, string> = {
-    green: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400',
-    amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-    blue:  'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
+    green: 'bg-emerald-500/15 text-emerald-400',
+    amber: 'bg-amber-500/15 text-amber-400',
+    blue:  'bg-primary/10 text-primary',
   };
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${colorMap[color] ?? ''}`}>
@@ -195,7 +195,7 @@ function EmptyState({ message }: { message: string }) {
 }
 
 // ─── Main component ──────────────────────────────────────────────
-export default function GCCommandDashboard() {
+export default function GCCommandDashboard({ tradeKey }: { tradeKey?: string }) {
   const [activeTab, setActiveTab]         = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
   // Collapsed state per section label; Legals starts expanded
@@ -236,29 +236,29 @@ export default function GCCommandDashboard() {
   const serviceSummary = serviceNames.join(' · ');
 
   return (
-    <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-gradient-to-b from-blue-100/70 via-blue-50/80 to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
+    <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-background">
       {/* ── AI Input Bar ── */}
-      <div className="bg-white/85 dark:bg-slate-950/70 backdrop-blur border-b border-blue-200/80 dark:border-slate-800 px-3 sm:px-5 py-3 flex items-center gap-2 shrink-0">
+      <div className="bg-card/80 backdrop-blur border-b border-border px-3 sm:px-5 py-3 flex items-center gap-2 shrink-0">
         <Input
           placeholder={
             isDept
               ? `Ask AI about ${activeSidebar}…`
               : 'Ask anything about your jobs, materials, subs, or finances…'
           }
-          className="flex-1 text-sm bg-white dark:bg-slate-900/80 border-blue-300/80 dark:border-slate-700 focus-visible:ring-blue-400/70"
+          className="flex-1 text-sm bg-background border-border focus-visible:ring-primary/50"
         />
         <div className="hidden sm:flex items-center gap-2">
-          <Button variant="default" size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
+          <Button variant="default" size="sm" className="gap-1.5 text-xs bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/80 shadow-sm shadow-primary/20">
             <Mic className="w-3.5 h-3.5" /> Voice
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-border text-foreground hover:bg-primary hover:text-primary-foreground">
             <Mail className="w-3.5 h-3.5" /> Email
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-border text-foreground hover:bg-primary hover:text-primary-foreground">
             <ClipboardList className="w-3.5 h-3.5" /> Form
           </Button>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
+        <Button size="sm" className="gap-1.5 text-xs bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/80 shadow-sm shadow-primary/20">
           <Send className="w-3.5 h-3.5" /> Send
         </Button>
       </div>
@@ -266,7 +266,7 @@ export default function GCCommandDashboard() {
       {/* ── Main Layout ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ── Sidebar ── */}
-        <div ref={sidebarRef} className="hidden md:flex w-[220px] xl:w-[250px] border-r border-blue-100 dark:border-slate-700 shrink-0 flex-col overflow-hidden bg-transparent">
+        <div ref={sidebarRef} className="hidden md:flex w-[220px] xl:w-[250px] border-r border-border shrink-0 flex-col overflow-hidden bg-transparent">
           {/* Scrollable section list */}
           <div className="flex-1 overflow-y-auto py-3 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
             {sidebarSections.map((section) => {
@@ -277,9 +277,9 @@ export default function GCCommandDashboard() {
                   {/* Section header — clickable to collapse */}
                   <button
                     onClick={() => toggleSection(section.label)}
-                    className="w-full flex items-center justify-between py-1 rounded hover:bg-blue-100/60 dark:hover:bg-slate-800 transition-colors group"
+                    className="w-full flex items-center justify-between py-1 rounded hover:bg-muted/60 transition-colors group"
                   >
-                    <span className={`flex items-center text-[11px] font-semibold tracking-[0.14em] uppercase ${isLegals ? 'text-amber-700' : 'text-blue-700/80 dark:text-slate-300'}`}>
+                    <span className={`flex items-center text-[11px] font-semibold tracking-[0.14em] uppercase ${isLegals ? 'text-primary' : 'text-muted-foreground'}`}>
                       {section.label}
                     </span>
                     <ChevronDown className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`} />
@@ -295,8 +295,8 @@ export default function GCCommandDashboard() {
                         onClick={() => handleSidebarClick(item.name)}
                         className={`w-full flex items-center justify-between py-1.5 rounded text-[12.5px] text-left leading-relaxed transition-colors ${
                           isActive
-                            ? 'bg-blue-500/12 text-blue-700 dark:text-blue-300 font-semibold'
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-blue-100/60 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                            ? 'bg-primary/15 text-primary font-semibold'
+                            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                         }`}
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
@@ -334,15 +334,15 @@ export default function GCCommandDashboard() {
             /* Main dashboard view */
             <>
               {/* Tabs */}
-              <div className="flex gap-0 border-b border-blue-200 dark:border-slate-700 bg-transparent px-1 sm:px-2 mb-5 overflow-x-auto">
+              <div className="flex gap-0 border-b border-border bg-transparent px-1 sm:px-2 mb-5 overflow-x-auto">
                 {tabs.map((tab, i) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(i)}
                     className={`px-3.5 py-2.5 text-sm border-b-2 -mb-px transition-colors ${
                       i === activeTab
-                        ? 'text-slate-900 dark:text-white border-blue-500 font-semibold'
-                        : 'text-slate-500 dark:text-slate-300 border-transparent hover:text-slate-900 dark:hover:text-white'
+                        ? 'text-foreground border-primary font-semibold'
+                        : 'text-muted-foreground border-transparent hover:text-foreground'
                     }`}
                   >
                     {tab}
@@ -353,7 +353,7 @@ export default function GCCommandDashboard() {
               {/* KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
                 {kpis.map((kpi) => (
-                  <Card key={kpi.label} className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <Card key={kpi.label} className="shadow-none border-border bg-card">
                     <CardContent className="p-3.5">
                       <div className="text-xs text-muted-foreground mb-1 leading-relaxed">{kpi.label}</div>
                       {/* AI Watched badge */}
@@ -384,7 +384,7 @@ export default function GCCommandDashboard() {
 
               {/* Row 1 */}
               <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4">
-                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <Card className="shadow-none border-border bg-card">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
@@ -413,7 +413,7 @@ export default function GCCommandDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <Card className="shadow-none border-border bg-card">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
@@ -442,7 +442,7 @@ export default function GCCommandDashboard() {
 
               {/* Row 2 */}
               <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4">
-                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <Card className="shadow-none border-border bg-card">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
@@ -471,7 +471,7 @@ export default function GCCommandDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <Card className="shadow-none border-border bg-card">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
@@ -494,9 +494,9 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* Legals quick-access strip */}
-              <Card className="shadow-none border-blue-200/70 dark:border-slate-700 bg-blue-50/70 dark:bg-slate-900">
+              <Card className="shadow-none border-border bg-muted/20">
                 <CardContent className="p-3.5">
-                  <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2.5 uppercase tracking-wide">
+                  <div className="text-xs font-semibold text-primary mb-2.5 uppercase tracking-wide">
                     Legals — Quick Access
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -506,7 +506,7 @@ export default function GCCommandDashboard() {
                         <button
                           key={item.name}
                           onClick={() => handleSidebarClick(item.name)}
-                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-blue-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300 hover:border-blue-400/60 transition-colors"
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border bg-card text-[11px] text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
                         >
                           <Icon className="w-3 h-3" />
                           {item.name}
@@ -522,27 +522,30 @@ export default function GCCommandDashboard() {
       </div>
 
       {/* ── Persistent contractor identity / status banner ── */}
-      <div className="shrink-0 border-t border-blue-200/90 dark:border-slate-700 bg-gradient-to-r from-blue-100/85 via-white to-blue-50/80 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 px-3 sm:px-5 py-3">
+      <div className="shrink-0 border-t border-border bg-card px-3 sm:px-5 py-3">
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <div className="inline-flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
-              <House className="h-3.5 w-3.5 text-blue-600 dark:text-blue-300" />
+            <div className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+              <House className="h-3.5 w-3.5 text-primary" />
               <span>Contractors — kluje.com</span>
             </div>
-            <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">General Contractor</Badge>
-            <span className="text-slate-600 dark:text-slate-300">Contractor AI Agent · kluje.com</span>
-            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
+            <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/80">General Contractor</Badge>
+            {tradeKey && (
+              <Badge variant="secondary" className="text-[10px] capitalize">{tradeKey.replace('_', ' ')}</Badge>
+            )}
+            <span className="text-muted-foreground">Contractor AI Agent · kluje.com</span>
+            <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Online
             </span>
             {serviceSummary && (
-              <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">{serviceSummary}</span>
+              <span className="text-muted-foreground truncate max-w-full">{serviceSummary}</span>
             )}
           </div>
-          <div className="text-[11px] sm:text-xs leading-relaxed text-slate-700 dark:text-slate-300">
-            🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
+          <div className="text-[11px] sm:text-xs leading-relaxed text-muted-foreground">
+            🤖 <span className="text-primary font-medium">Agent activity — last hour:</span>{' '}
             Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-            <button type="button" className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200">
+            <button type="button" className="underline text-primary hover:text-primary/80">
               See full log ↗
             </button>
           </div>

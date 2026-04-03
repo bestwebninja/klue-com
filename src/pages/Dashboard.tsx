@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import GCCommandDashboard from '@/components/dashboard/contractors/GCCommandDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -63,10 +64,6 @@ const resolveCommandCenterTrade = (profile: Profile | null): CommandCenterTradeK
   return 'remodeling';
 };
 
-const getCommandCenterPath = (userId: string, profile: Profile | null) => {
-  const trade = resolveCommandCenterTrade(profile);
-  return `/command-center/${userId}/trade/${trade}`;
-};
 
 const providerNavItems = [
   { value: 'home', label: 'Home', icon: Home },
@@ -314,7 +311,7 @@ const Dashboard = () => {
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
       case 'gc-command':
-        return <Navigate to={getCommandCenterPath(user.id, profile)} replace />;
+        return <GCCommandDashboard tradeKey={resolveCommandCenterTrade(profile)} />;
       case 'admin-users':
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>

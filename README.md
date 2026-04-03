@@ -24,23 +24,25 @@ Production-ready scaffold aligned with `docs/enterprise-build-spec.md`.
 npm install
 ```
 
-2. Create env files:
+2. Start the Vite development server:
 
 ```bash
-cp .env.example .env
-cp apps/api/.env.example apps/api/.env
-```
-
-3. Start API and web in separate terminals:
-
-```bash
-npm run dev:api
-npm run dev:web
+npm run dev
 ```
 
 - Web: `http://localhost:5173`
-- API: `http://localhost:4000/api/v1`
-- Health check: `http://localhost:4000/api/v1/health`
+
+## Command Reference
+
+```bash
+npm run dev          # start local web development server
+npm run build        # production build
+npm run build:dev    # development-mode build
+npm run build:verify # alias for build verification
+npm run typecheck    # TypeScript no-emit check
+npm run lint         # ESLint on JS/CJS/MJS files
+npm run preview      # preview built output
+```
 
 ## Local Setup (Docker Compose)
 

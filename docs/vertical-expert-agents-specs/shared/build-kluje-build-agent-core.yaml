@@ -1,0 +1,136 @@
+command: /build-kluje-build-agent-core
+owner: platform/agent-systems
+intent: Define the core operating contract for Kluje build agents so each request is handled as connected operating-model work.
+inputs:
+  - name: user_request
+    type: string
+    required: true
+  - name: active_vertical
+    type: string
+    required: false
+  - name: org_context
+    type: object
+    required: false
+    description: Existing project, client, resource, and portfolio context that may be linked.
+outputs:
+  - name: normalized_model
+    type: object
+    schema:
+      vertical: string
+      request_type: string
+      project:
+        name: string
+        status: string
+        owner: string
+        timeline: string
+        risk: string
+      tasks: array
+      client:
+        name: string
+        type: string
+        impact: string
+      operations:
+        workflow_type: string
+        dependencies: array
+        compliance_flags: array
+      resources:
+        assigned: array
+        capacity_status: string
+        utilization_note: string
+      portfolio:
+        priority: string
+        conflicts: array
+        strategic_weight: string
+      strategy:
+        goal_alignment: array
+        okr_link: string
+        business_value: string
+      approvals:
+        required: boolean
+        approver_roles: array
+        status: string
+        next_step: string
+  - name: linked_response
+    type: object
+    schema:
+      vertical_context: string
+      project_impact: string
+      task_impact: string
+      client_impact: string
+      operations_impact: string
+      resource_impact: string
+      portfolio_impact: string
+      strategic_impact: string
+      approval_status: string
+      next_action: string
+processing_contract:
+  operating_layers:
+    - Project Management
+    - Task Management
+    - Client Projects
+    - Business Operations
+    - Resource Management
+    - Portfolio Management
+    - Goals & Strategy
+    - Requests & Approvals
+  operating_rules:
+    project:
+      - Determine whether work maps to an existing project or requires a new project.
+      - Track project status, owner, milestones, timeline, dependencies, and risk.
+    tasks:
+      - Break work into actionable tasks when needed.
+      - Track assignee, due date, blockers, priority, and dependencies.
+    client:
+      - Identify whether work is client-facing or internal.
+      - Link to client deliverables, deadlines, SLA, and communication impact when applicable.
+    operations:
+      - Account for recurring workflows, process dependencies, compliance, and bottlenecks.
+    resources:
+      - Evaluate staffing, capacity, utilization, ownership, and skill fit.
+      - Flag overload, gaps, and ownership conflicts.
+    portfolio:
+      - Assess priority relative to other work.
+      - Flag tradeoffs, overlap, sequencing, and strategic weight.
+    strategy:
+      - Link work to goals, OKRs, roadmap priorities, and business value.
+    approvals:
+      - Detect intake, review, approval, escalation, and audit-trail requirements.
+      - Route work through approvals when applicable.
+  response_rules:
+    small_request: answer compactly while preserving linked context.
+    strategic_request: provide executive summary first, then drill down.
+    operational_request: surface blockers, due items, resource pressure, and approvals first.
+    new_work_request_chain:
+      - request
+      - approval
+      - project
+      - tasks
+      - resource_allocation
+      - portfolio_strategy_update
+  decision_guards:
+    - If uncertain, preserve linkage rather than omitting connected layers.
+    - Prefer explicit dependency and approval visibility over implicit assumptions.
+dashboard_contract:
+  required_filters:
+    - vertical
+    - owner
+    - client
+    - status
+    - priority
+    - date_range
+  required_panels:
+    - kpi_summary
+    - action_center
+    - risk_alerts
+    - approvals_queue
+    - resource_pressure
+    - goal_alignment
+    - cross_vertical_visibility
+interoperability:
+  required_compatibility:
+    - executive_rollups
+    - portfolio_reviews
+    - resource_planning
+    - approval_queues
+    - client_delivery_tracking
+    - strategic_reporting

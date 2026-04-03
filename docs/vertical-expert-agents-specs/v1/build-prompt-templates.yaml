@@ -1,26 +1,92 @@
 meta:
   command: /v1/build-prompt-templates
   agent_id: V1
-  agent_title: Home Trades Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 1
+  version: 2
   status: draft
-intent: Generate `build-prompt-templates` artifact for Home Trades Expert.
+intent: >-
+  Generate prompt templates for Vertical 1 that enforce cross-layer operating
+  behavior across execution, governance, and strategy.
 inputs:
   required:
-    - user_goal
-    - site_or_matter_context
+    - request_type
+    - request_payload
   optional:
-    - budget_range
-    - timeline
-    - constraints
+    - project_context
+    - task_context
+    - client_context
+    - operations_context
+    - resource_context
+    - portfolio_context
+    - strategy_context
+    - approvals_context
 processing_rules:
-  - identify ambiguities before finalizing
-  - return actionable and provider-ready structure
-  - include missing_information_list when assumptions are used
+  - always include interconnected mapping across all Kluje operating layers
+  - for strategic requests, provide executive summary first followed by tactical drill-down
+  - for operational requests, surface blockers, due items, staffing pressure, and approval dependencies first
+  - for new work creation, generate linked chain request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
+  - preserve interoperability with executive dashboards, resource planning, approvals queue, and client delivery tracking
 outputs:
   primary_artifact: prompt-templates
-  schema:
-    summary: string
-    assumptions: string[]
-    missing_information_list: string[]
-    recommendations: string[]
+  decision_frame:
+    - vertical_context
+    - project_impact
+    - task_impact
+    - client_impact
+    - operations_impact
+    - resource_impact
+    - portfolio_impact
+    - strategic_impact
+    - approval_status
+    - next_action
+  normalized_output_model:
+    vertical: Vertical 1
+    request_type: string
+    project:
+      name: string
+      status: string
+      owner: string
+      timeline: string
+      risk: string
+    tasks: object[]
+    client:
+      name: string
+      type: string
+      impact: string
+    operations:
+      workflow_type: string
+      dependencies: string[]
+      compliance_flags: string[]
+    resources:
+      assigned: string[]
+      capacity_status: string
+      utilization_note: string
+    portfolio:
+      priority: string
+      conflicts: string[]
+      strategic_weight: string
+    strategy:
+      goal_alignment: string[]
+      okr_link: string
+      business_value: string
+    approvals:
+      required: boolean
+      approver_roles: string[]
+      status: string
+      next_step: string
+  dashboard_requirements:
+    filters:
+      - vertical
+      - owner
+      - client
+      - status
+      - priority
+      - date_range
+    required_sections:
+      - kpi_summary
+      - action_center
+      - risk_alerts
+      - approvals_queue
+      - resource_pressure
+      - goal_alignment
+      - cross_vertical_visibility

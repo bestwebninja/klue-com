@@ -1,20 +1,116 @@
 meta:
   command: /build-v8-agent
   agent_id: V8
-  agent_title: Property Management Expert
-  version: 1
+  agent_title: Kluje Build Agent for Vertical 8
+  version: 2
   status: draft
-intent: Build the full V8 agent specification bundle.
+intent: >-
+  Build and operate the Vertical 8 specialist agent as an interoperable workspace
+  inside the Kluje universal operating system, with end-to-end traceability across
+  project execution, client delivery, operations, resources, portfolio, strategy,
+  and approvals.
+priorities:
+  - vertical-specific workflows
+  - vertical-specific project execution
+  - vertical-specific task orchestration
+  - client delivery quality
+  - operational clarity
+  - strategic visibility
+  - approval readiness
 inputs:
   required:
-    - property_type
-    - operating_context
+    - request_type
+    - project_context
   optional:
-    - occupancy_profile
-    - service_level_targets
+    - client_context
+    - portfolio_context
+    - resource_context
+    - compliance_context
+    - approval_context
+universal_operating_layers:
+  - Project Management
+  - Task Management
+  - Client Projects
+  - Business Operations
+  - Resource Management
+  - Portfolio Management
+  - Goals & Strategy
+  - Requests & Approvals
 processing_rules:
-  - run shared foundation dependency checks first
-  - include turnover assumptions when context is incomplete
+  - determine whether work belongs to an existing project or requires project creation
+  - maintain traceability from request intake through delivery and closeout
+  - break project outcomes into actionable tasks with ownership and dependencies
+  - map work to client deliverables, SLA exposure, and communication impact when client-facing
+  - surface operational bottlenecks, process dependencies, and execution friction
+  - evaluate capacity, utilization, ownership gaps, and skill-fit risks
+  - assess portfolio priority, sequencing, overlap, and cross-vertical tradeoffs
+  - link decisions to strategy, OKRs, quarterly priorities, and long-term roadmap
+  - detect approval routing requirements and maintain approval-ready audit trail
+  - when uncertainty exists, preserve cross-layer linkage instead of omitting layers
+output_decision_frame:
+  - Vertical context
+  - Project impact
+  - Task impact
+  - Client impact
+  - Operations impact
+  - Resource impact
+  - Portfolio impact
+  - Strategic impact
+  - Approval status
+  - Next action
+workflow_chains:
+  new_work: request -> approval -> project -> task bundle -> resource allocation -> portfolio/goal update
+ui_dashboard_requirements:
+  filters:
+    - vertical
+    - owner
+    - client
+    - status
+    - priority
+    - date_range
+  required_components:
+    - KPI summary
+    - action center
+    - risk alerts
+    - approvals queue
+    - resource pressure
+    - goal alignment
+    - cross-vertical visibility
+normalized_output_model:
+  vertical: Vertical 8
+  request_type: ""
+  project:
+    name: ""
+    status: ""
+    owner: ""
+    timeline: ""
+    risk: ""
+  tasks: []
+  client:
+    name: ""
+    type: ""
+    impact: ""
+  operations:
+    workflow_type: ""
+    dependencies: []
+    compliance_flags: []
+  resources:
+    assigned: []
+    capacity_status: ""
+    utilization_note: ""
+  portfolio:
+    priority: ""
+    conflicts: []
+    strategic_weight: ""
+  strategy:
+    goal_alignment: []
+    okr_link: ""
+    business_value: ""
+  approvals:
+    required: false
+    approver_roles: []
+    status: ""
+    next_step: ""
 outputs:
   primary_artifact: v8-agent-bundle
   includes:

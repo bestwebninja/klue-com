@@ -333,8 +333,22 @@ export default function GCCommandDashboard() {
           ) : (
             /* Main dashboard view */
             <>
+              {/* Clean workspace header */}
+              <div className="mb-4 sm:mb-5 rounded-xl border border-blue-200/80 dark:border-slate-700 bg-white/75 dark:bg-slate-900/70 px-3.5 sm:px-4.5 py-3 backdrop-blur-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2.5">
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-700/80 dark:text-blue-300/80">Contractor workspace</p>
+                    <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100">Today&apos;s command dashboard</h2>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/70 dark:border-emerald-700/60 bg-emerald-100/70 dark:bg-emerald-900/30 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    AI systems online
+                  </div>
+                </div>
+              </div>
+
               {/* Tabs */}
-              <div className="flex gap-0 border-b border-blue-200 dark:border-slate-700 bg-transparent px-1 sm:px-2 mb-5 overflow-x-auto">
+              <div className="flex gap-0 border-b border-blue-200 dark:border-slate-700 bg-transparent px-1 sm:px-2 mb-5 sm:mb-6 overflow-x-auto">
                 {tabs.map((tab, i) => (
                   <button
                     key={tab}
@@ -351,7 +365,7 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5 sm:mb-6">
                 {kpis.map((kpi) => (
                   <Card key={kpi.label} className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                     <CardContent className="p-3.5">
@@ -383,7 +397,7 @@ export default function GCCommandDashboard() {
               )}
 
               {/* Row 1 */}
-              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4 sm:mb-5">
                 <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
@@ -441,7 +455,7 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* Row 2 */}
-              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4 sm:mb-5">
                 <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
@@ -516,36 +530,38 @@ export default function GCCommandDashboard() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Lower status / identity rail */}
+              <Card className="mt-4 sm:mt-5 shadow-none border-blue-200/90 dark:border-slate-700 bg-gradient-to-r from-blue-100/85 via-white to-blue-50/80 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
+                <CardContent className="p-3.5 sm:p-4">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                      <div className="inline-flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
+                        <House className="h-3.5 w-3.5 text-blue-600 dark:text-blue-300" />
+                        <span>Contractors — kluje.com</span>
+                      </div>
+                      <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">General Contractor</Badge>
+                      <span className="text-slate-600 dark:text-slate-300">Contractor AI Agent · kluje.com</span>
+                      <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        Online
+                      </span>
+                      {serviceSummary && (
+                        <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">{serviceSummary}</span>
+                      )}
+                    </div>
+                    <div className="text-[11px] sm:text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+                      🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
+                      Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
+                      <button type="button" className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200">
+                        See full log ↗
+                      </button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </>
           )}
-        </div>
-      </div>
-
-      {/* ── Persistent contractor identity / status banner ── */}
-      <div className="shrink-0 border-t border-blue-200/90 dark:border-slate-700 bg-gradient-to-r from-blue-100/85 via-white to-blue-50/80 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 px-3 sm:px-5 py-3">
-        <div className="flex flex-col gap-2.5">
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <div className="inline-flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
-              <House className="h-3.5 w-3.5 text-blue-600 dark:text-blue-300" />
-              <span>Contractors — kluje.com</span>
-            </div>
-            <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">General Contractor</Badge>
-            <span className="text-slate-600 dark:text-slate-300">Contractor AI Agent · kluje.com</span>
-            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Online
-            </span>
-            {serviceSummary && (
-              <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">{serviceSummary}</span>
-            )}
-          </div>
-          <div className="text-[11px] sm:text-xs leading-relaxed text-slate-700 dark:text-slate-300">
-            🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
-            Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-            <button type="button" className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200">
-              See full log ↗
-            </button>
-          </div>
         </div>
       </div>
     </div>

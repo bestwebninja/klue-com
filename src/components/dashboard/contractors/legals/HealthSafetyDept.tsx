@@ -190,7 +190,7 @@ export default function HealthSafetyDept({ onBack }: { onBack: () => void }) {
 
           {/* Upload Incident Photos / Forms */}
           <Field label="Upload Incident Photos / Forms" fullWidth>
-            <div className="contractor-upload-zone border-red-500/70 dark:border-red-400/60 bg-white/95 dark:bg-slate-900 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/60 dark:hover:bg-red-950/20">
+            <div className="contractor-upload-zone border-red-400/70 dark:border-red-400/60 bg-slate-900/95 dark:bg-slate-950/90 hover:border-red-300 dark:hover:border-red-300 hover:bg-slate-900 dark:hover:bg-slate-950">
               <Upload className="w-6 h-6 text-red-400" />
               <p className="text-xs text-muted-foreground text-center">
                 Drag &amp; drop photos or OSHA forms here, or <span className="text-orange-500 font-medium">browse</span>

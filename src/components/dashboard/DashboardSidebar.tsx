@@ -50,7 +50,7 @@ export function DashboardSidebar({
 
   // Group items for better organization
   const mainItems = items.filter(item =>
-    ['home', 'gc-command', 'quotes', 'messages'].includes(item.value)
+    ['home', 'command-center', 'gc-command', 'quotes', 'messages'].includes(item.value)
   );
   const profileItems = items.filter(item => 
     ['profile', 'services', 'locations', 'portfolio'].includes(item.value)

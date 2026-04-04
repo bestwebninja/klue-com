@@ -7,13 +7,14 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2 } from 'lucide-react';
+import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2, LayoutDashboard } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
 const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
 const AdminSiteSettingsInline = lazy(() => import('@/components/admin/AdminSiteSettings'));
 const AdminNewsletterInline = lazy(() => import('@/components/admin/AdminNewsletter'));
 import { RoleBasedDashboardHome } from '@/components/dashboard/RoleBasedDashboardHome';
+const GCCommandDashboard = lazy(() => import('@/components/dashboard/contractors/GCCommandDashboard'));
 import DashboardServices from '@/components/dashboard/DashboardServices';
 import DashboardLocations from '@/components/dashboard/DashboardLocations';
 import DashboardSubscription from '@/components/dashboard/DashboardSubscription';
@@ -277,6 +278,7 @@ const Dashboard = () => {
 
   const navItems = [
     providerNavItems[0],
+    { value: 'command-center', label: 'Command Center', icon: LayoutDashboard },
     { value: 'gc-command', label: 'Contractors', icon: HardHat },
     ...providerNavItems.slice(1),
     ...(isAdmin ? [
@@ -314,6 +316,12 @@ const Dashboard = () => {
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
       case 'gc-command':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
+            <GCCommandDashboard />
+          </Suspense>
+        );
+      case 'command-center':
         return <Navigate to={getCommandCenterPath(user.id, profile)} replace />;
       case 'admin-users':
         return (

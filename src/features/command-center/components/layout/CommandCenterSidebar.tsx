@@ -29,7 +29,7 @@ export function CommandCenterSidebar({ basePath, items }: { basePath: string; it
   const providedItems = items?.length ? items : fallbackItems;
   const navItems = providedItems.some((item) => item.key === "home")
     ? providedItems
-    : [{ key: "home", label: "HOME", section: "operations" }, ...providedItems];
+    : [{ key: "home", label: "HOME", section: "operations" as const }, ...providedItems];
 
   const grouped = {
     operations: navItems.filter((item) => (item.section ?? "operations") === "operations"),

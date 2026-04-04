@@ -3,8 +3,13 @@ import { Link } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
-export function MessageBadge() {
+interface MessageBadgeProps {
+  className?: string;
+}
+
+export function MessageBadge({ className }: MessageBadgeProps) {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -55,7 +60,7 @@ export function MessageBadge() {
   return (
     <Link
       to="/messages"
-      className="relative p-2 text-black/70 hover:text-black hover:bg-black/10 rounded"
+      className={cn("relative p-2 text-black/70 hover:text-black hover:bg-black/10 rounded", className)}
     >
       <MessageSquare className="w-5 h-5" />
       {unreadCount > 0 && (

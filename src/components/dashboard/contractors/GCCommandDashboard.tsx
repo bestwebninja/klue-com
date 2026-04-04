@@ -12,126 +12,133 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2, BrainCircuit, House,
+  Loader2, BrainCircuit, House, Download, AlertTriangle, Siren,
 } from 'lucide-react';
 
 // ─── Lazy-load each department to keep initial bundle small ───
-const AttorneysDept      = lazy(() => import('./legals/AttorneysDept'));
-const ArbitrationDept    = lazy(() => import('./legals/ArbitrationDept'));
-const ArchitectsDept     = lazy(() => import('./legals/ArchitectsDept'));
-const EngineersDept      = lazy(() => import('./legals/EngineersDept'));
-const AgreementsDept     = lazy(() => import('./legals/AgreementsDept'));
-const ESignatureDept     = lazy(() => import('./legals/ESignatureDept'));
-const FireDeptDept       = lazy(() => import('./legals/FireDeptDept'));
-const HealthSafetyDept   = lazy(() => import('./legals/HealthSafetyDept'));
-const InsuranceDept      = lazy(() => import('./legals/InsuranceDept'));
-const ProjectsDept       = lazy(() => import('./legals/ProjectsDept'));
-const QuotesDept         = lazy(() => import('./legals/QuotesDept'));
-const RealtorsDept       = lazy(() => import('./legals/RealtorsDept'));
-const SecurityDept       = lazy(() => import('./legals/SecurityDept'));
+const AttorneysDept = lazy(() => import('./legals/AttorneysDept'));
+const ArbitrationDept = lazy(() => import('./legals/ArbitrationDept'));
+const ArchitectsDept = lazy(() => import('./legals/ArchitectsDept'));
+const EngineersDept = lazy(() => import('./legals/EngineersDept'));
+const AgreementsDept = lazy(() => import('./legals/AgreementsDept'));
+const ESignatureDept = lazy(() => import('./legals/ESignatureDept'));
+const FireDeptDept = lazy(() => import('./legals/FireDeptDept'));
+const HealthSafetyDept = lazy(() => import('./legals/HealthSafetyDept'));
+const InsuranceDept = lazy(() => import('./legals/InsuranceDept'));
+const ProjectsDept = lazy(() => import('./legals/ProjectsDept'));
+const QuotesDept = lazy(() => import('./legals/QuotesDept'));
+const RealtorsDept = lazy(() => import('./legals/RealtorsDept'));
+const SecurityDept = lazy(() => import('./legals/SecurityDept'));
 const TitleCompaniesDept = lazy(() => import('./legals/TitleCompaniesDept'));
-const TownPlanningDept   = lazy(() => import('./legals/TownPlanningDept'));
-const VerificationDept   = lazy(() => import('./legals/VerificationOrdersDept'));
+const TownPlanningDept = lazy(() => import('./legals/TownPlanningDept'));
+const VerificationDept = lazy(() => import('./legals/VerificationOrdersDept'));
 
 // ─── Sidebar data ───────────────────────────────────────────────
 const sidebarSections = [
   {
     label: 'Overview',
     items: [
-      { icon: BarChart3,    name: 'Dashboard',     badge: null },
-      { icon: MapPin,       name: 'Site Map',       badge: 'Live', badgeType: 'green' },
-      { icon: Calendar,     name: 'Schedule',       badge: null },
+      { icon: BarChart3, name: 'Dashboard', badge: null },
+      { icon: MapPin, name: 'Site Map', badge: 'Live', badgeType: 'green' },
+      { icon: Calendar, name: 'Schedule', badge: null },
     ],
   },
   {
     label: 'Communications',
     items: [
-      { icon: Phone,        name: 'Inbound Calls',  badge: '3',  badgeType: 'red' },
-      { icon: Mail,         name: 'Email Inbox',    badge: '7',  badgeType: 'default' },
-      { icon: MessageSquare,name: 'Sub Messaging',  badge: null },
-      { icon: Bot,          name: 'Agent Log',      badge: null },
+      { icon: Phone, name: 'Inbound Calls', badge: '3', badgeType: 'red' },
+      { icon: Mail, name: 'Email Inbox', badge: '7', badgeType: 'default' },
+      { icon: MessageSquare, name: 'Sub Messaging', badge: null },
+      { icon: Bot, name: 'Agent Log', badge: null },
     ],
   },
   {
     label: 'Materials',
     items: [
-      { icon: Package,      name: 'Orders',         badge: null },
-      { icon: Factory,      name: 'Suppliers',      badge: null },
-      { icon: Archive,      name: 'Inventory',      badge: null },
-      { icon: DollarSign,   name: 'Quote Builder',  badge: null },
+      { icon: Package, name: 'Orders', badge: null },
+      { icon: Factory, name: 'Suppliers', badge: null },
+      { icon: Archive, name: 'Inventory', badge: null },
+      { icon: DollarSign, name: 'Quote Builder', badge: null },
       { icon: ClipboardList, name: 'Design Checklist', badge: 'New', badgeType: 'green' },
     ],
   },
   {
     label: 'Workforce',
     items: [
-      { icon: Users,        name: 'Subcontractors', badge: null },
-      { icon: Lock,         name: 'Biometric Access', badge: 'New', badgeType: 'green' },
-      { icon: MapPin,       name: 'Site Tracking',  badge: null },
-      { icon: Clock,        name: 'Timesheets',     badge: null },
+      { icon: Users, name: 'Subcontractors', badge: null },
+      { icon: Lock, name: 'Biometric Access', badge: 'New', badgeType: 'green' },
+      { icon: MapPin, name: 'Site Tracking', badge: null },
+      { icon: Clock, name: 'Timesheets', badge: null },
     ],
   },
   {
     label: 'Finance',
     items: [
-      { icon: BookOpen,     name: 'Accounting',     badge: null },
-      { icon: Receipt,      name: 'Invoices',       badge: '2', badgeType: 'red' },
-      { icon: Ruler,        name: 'Job Costing',    badge: null },
-      { icon: FileText,     name: 'Lien Waivers',   badge: null },
+      { icon: BookOpen, name: 'Accounting', badge: null },
+      { icon: Receipt, name: 'Invoices', badge: '2', badgeType: 'red' },
+      { icon: Ruler, name: 'Job Costing', badge: null },
+      { icon: FileText, name: 'Lien Waivers', badge: null },
     ],
   },
   {
     label: 'Legals',
     items: [
-      { icon: Scale,        name: 'Attorneys',          badge: null },
-      { icon: Handshake,    name: 'Arbitration',        badge: null },
-      { icon: Compass,      name: 'Architects',         badge: null },
-      { icon: Wrench,       name: 'Engineers',          badge: null },
-      { icon: FileCheck,    name: 'Agreements',         badge: null },
-      { icon: PenLine,      name: 'E-Signature',        badge: null },
-      { icon: Flame,        name: 'Fire Dept',          badge: null },
-      { icon: HeartPulse,   name: 'Health & Safety',    badge: null },
-      { icon: Umbrella,     name: 'Insurance',          badge: null },
-      { icon: FolderOpen,   name: 'Projects',           badge: null },
-      { icon: Quote,        name: 'Quotes',             badge: null },
-      { icon: Building2,    name: 'Realtors',           badge: null },
-      { icon: ShieldAlert,  name: 'Security',           badge: null },
-      { icon: Landmark,     name: 'Title Companies',    badge: null },
-      { icon: Map,          name: 'Town Planning',      badge: null },
-      { icon: BadgeCheck,   name: 'Verification Orders', badge: null },
+      { icon: Scale, name: 'Attorneys', badge: null },
+      { icon: Handshake, name: 'Arbitration', badge: null },
+      { icon: Compass, name: 'Architects', badge: null },
+      { icon: Wrench, name: 'Engineers', badge: null },
+      { icon: FileCheck, name: 'Agreements', badge: null },
+      { icon: PenLine, name: 'E-Signature', badge: null },
+      { icon: Flame, name: 'Fire Dept', badge: null },
+      { icon: HeartPulse, name: 'Health & Safety', badge: null },
+      { icon: Umbrella, name: 'Insurance', badge: null },
+      { icon: FolderOpen, name: 'Projects', badge: null },
+      { icon: Quote, name: 'Quotes', badge: null },
+      { icon: Building2, name: 'Realtors', badge: null },
+      { icon: ShieldAlert, name: 'Security', badge: null },
+      { icon: Landmark, name: 'Title Companies', badge: null },
+      { icon: Map, name: 'Town Planning', badge: null },
+      { icon: BadgeCheck, name: 'Verification Orders', badge: null },
     ],
   },
 ];
 
 // ─── Map sidebar item name → lazy component ──────────────────────
 const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: () => void }) => JSX.Element>> = {
-  'Attorneys':           AttorneysDept,
-  'Arbitration':         ArbitrationDept,
-  'Architects':          ArchitectsDept,
-  'Engineers':           EngineersDept,
-  'Agreements':          AgreementsDept,
-  'E-Signature':         ESignatureDept,
-  'Fire Dept':           FireDeptDept,
-  'Health & Safety':     HealthSafetyDept,
-  'Insurance':           InsuranceDept,
-  'Projects':            ProjectsDept,
-  'Quotes':              QuotesDept,
-  'Realtors':            RealtorsDept,
-  'Security':            SecurityDept,
-  'Title Companies':     TitleCompaniesDept,
-  'Town Planning':       TownPlanningDept,
+  Attorneys: AttorneysDept,
+  Arbitration: ArbitrationDept,
+  Architects: ArchitectsDept,
+  Engineers: EngineersDept,
+  Agreements: AgreementsDept,
+  'E-Signature': ESignatureDept,
+  'Fire Dept': FireDeptDept,
+  'Health & Safety': HealthSafetyDept,
+  Insurance: InsuranceDept,
+  Projects: ProjectsDept,
+  Quotes: QuotesDept,
+  Realtors: RealtorsDept,
+  Security: SecurityDept,
+  'Title Companies': TitleCompaniesDept,
+  'Town Planning': TownPlanningDept,
   'Verification Orders': VerificationDept,
 };
 
 // ─── Summary dashboard data ──────────────────────────────────────
-const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
+const tabs = ["Today's Snapshot", 'Active Jobs', 'Materials Queue', 'AI Activity'];
 
 const kpis = [
- { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
- { label: 'Open orders',       value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
- { label: 'Pending invoices',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
- { label: 'AI actions today',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+  { label: 'On-site today', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+  { label: 'Open orders', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+  { label: 'Pending invoices', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
+  { label: 'AI actions today', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
 ];
+
+const commandCenterAdds = {
+  weeklyThroughput: '24 jobs',
+  urgentDispatch: 'Urgent service call · Dispatch now',
+  rebateMaximizer: 'Potential rebates detected in 2 open estimates.',
+  alerts: ['Permit review needed', 'Supplier delay: tile delivery'],
+};
 
 const calls: {
   initials: string;
@@ -156,19 +163,20 @@ const biometrics: {
 }[] = [];
 
 const accounting = [
-  { label: 'Revenue this month',   value: '$0' },
-  { label: 'Materials spent',      value: '$0' },
-  { label: 'Labor / sub costs',    value: '$0' },
-  { label: 'Net margin',           value: '$0', positive: true  },
-  { label: 'Outstanding A/R',      value: '$0', negative: true  },
+  { label: 'Revenue this month', value: '$0' },
+  { label: 'Materials spent', value: '$0' },
+  { label: 'Labor / sub costs', value: '$0' },
+  { label: 'Net margin', value: '$0', positive: true },
+  { label: 'Outstanding A/R', value: '$0', negative: true },
 ];
 
 function StatusPill({ status, color }: { status: string; color: string }) {
   const colorMap: Record<string, string> = {
     green: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400',
     amber: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-    blue:  'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
+    blue: 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
   };
+
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${colorMap[color] ?? ''}`}>
       {status}
@@ -196,27 +204,29 @@ function EmptyState({ message }: { message: string }) {
 
 // ─── Main component ──────────────────────────────────────────────
 export default function GCCommandDashboard() {
-  const [activeTab, setActiveTab]         = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
-  // Collapsed state per section label; Legals starts expanded
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
-    Overview: false, Communications: false, Materials: true,
-    Workforce: true, Finance: true, Legals: false,
+    Overview: false,
+    Communications: false,
+    Materials: true,
+    Workforce: true,
+    Finance: true,
+    Legals: false,
   });
 
   const legalsRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = (label: string) => {
-    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }));
+    setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  // Scroll Legals into view when it becomes uncollapsed
   useEffect(() => {
-    if (!collapsed['Legals'] && legalsRef.current && sidebarRef.current) {
+    if (!collapsed.Legals && legalsRef.current && sidebarRef.current) {
       legalsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [collapsed['Legals']]);
+  }, [collapsed.Legals]);
 
   const ActiveDept = deptComponentMap[activeSidebar] ?? null;
   const isDept = ActiveDept !== null;
@@ -231,7 +241,7 @@ export default function GCCommandDashboard() {
     setActiveSidebar(name);
   };
 
-  const allKpisEmpty = kpis.every(k => k.value === '—');
+  const allKpisEmpty = kpis.every((k) => k.value === '—');
   const serviceNames = ['Materials', 'Workforce', 'Finance', 'Legals'];
   const serviceSummary = serviceNames.join(' · ');
 
@@ -248,75 +258,112 @@ export default function GCCommandDashboard() {
           className="flex-1 text-sm bg-white dark:bg-slate-900/80 border-blue-300/80 dark:border-slate-700 focus-visible:ring-blue-400/70"
         />
         <div className="hidden sm:flex items-center gap-2">
-          <Button variant="default" size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
+          <Button
+            variant="default"
+            size="sm"
+            className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20"
+          >
             <Mic className="w-3.5 h-3.5" /> Voice
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700"
+          >
             <Mail className="w-3.5 h-3.5" /> Email
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs border-blue-300/90 text-blue-700 hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:text-blue-200 dark:hover:bg-blue-700"
+          >
             <ClipboardList className="w-3.5 h-3.5" /> Form
           </Button>
         </div>
-        <Button size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
+        <Button
+          size="sm"
+          className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20"
+        >
           <Send className="w-3.5 h-3.5" /> Send
         </Button>
+        <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-blue-200 dark:border-slate-700">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> Export CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> Export PDF
+          </Button>
+        </div>
       </div>
 
       {/* ── Main Layout ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ── Sidebar ── */}
-        <div ref={sidebarRef} className="hidden md:flex w-[220px] xl:w-[250px] border-r border-blue-100 dark:border-slate-700 shrink-0 flex-col overflow-hidden bg-transparent">
-          {/* Scrollable section list */}
+        <div
+          ref={sidebarRef}
+          className="hidden md:flex w-[220px] xl:w-[250px] border-r border-blue-100 dark:border-slate-700 shrink-0 flex-col overflow-hidden bg-transparent"
+        >
           <div className="flex-1 overflow-y-auto py-3 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
             {sidebarSections.map((section) => {
               const isLegals = section.label === 'Legals';
               const isCollapsed = collapsed[section.label];
+
               return (
                 <div key={section.label} ref={isLegals ? legalsRef : undefined} className="px-3 mb-3">
-                  {/* Section header — clickable to collapse */}
                   <button
                     onClick={() => toggleSection(section.label)}
                     className="w-full flex items-center justify-between py-1 rounded hover:bg-blue-100/60 dark:hover:bg-slate-800 transition-colors group"
                   >
-                    <span className={`flex items-center text-[11px] font-semibold tracking-[0.14em] uppercase ${isLegals ? 'text-amber-700' : 'text-blue-700/80 dark:text-slate-300'}`}>
+                    <span
+                      className={`flex items-center text-[11px] font-semibold tracking-[0.14em] uppercase ${
+                        isLegals ? 'text-amber-700' : 'text-blue-700/80 dark:text-slate-300'
+                      }`}
+                    >
                       {section.label}
                     </span>
-                    <ChevronDown className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}`} />
+                    <ChevronDown
+                      className={`w-3 h-3 text-muted-foreground/60 transition-transform duration-200 ${
+                        isCollapsed ? '-rotate-90' : ''
+                      }`}
+                    />
                   </button>
 
-                  {/* Section items */}
-                  {!isCollapsed && section.items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeSidebar === item.name;
-                    return (
-                      <button
-                        key={item.name}
-                        onClick={() => handleSidebarClick(item.name)}
-                        className={`w-full flex items-center justify-between py-1.5 rounded text-[12.5px] text-left leading-relaxed transition-colors ${
-                          isActive
-                            ? 'bg-blue-500/12 text-blue-700 dark:text-blue-300 font-semibold'
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-blue-100/60 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Icon className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <Badge
-                            variant={
-                              item.badgeType === 'red'   ? 'destructive' :
-                              item.badgeType === 'green' ? 'default'     : 'secondary'
-                            }
-                            className="text-[9px] px-1 py-0 h-3.5 shrink-0 ml-1"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {!isCollapsed &&
+                    section.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeSidebar === item.name;
+
+                      return (
+                        <button
+                          key={item.name}
+                          onClick={() => handleSidebarClick(item.name)}
+                          className={`w-full flex items-center justify-between py-1.5 rounded text-[12.5px] text-left leading-relaxed transition-colors ${
+                            isActive
+                              ? 'bg-blue-500/12 text-blue-700 dark:text-blue-300 font-semibold'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-blue-100/60 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <Icon className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <Badge
+                              variant={
+                                item.badgeType === 'red'
+                                  ? 'destructive'
+                                  : item.badgeType === 'green'
+                                    ? 'default'
+                                    : 'secondary'
+                              }
+                              className="text-[9px] px-1 py-0 h-3.5 shrink-0 ml-1"
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </button>
+                      );
+                    })}
                 </div>
               );
             })}
@@ -326,19 +373,20 @@ export default function GCCommandDashboard() {
         {/* ── Content Panel ── */}
         <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-5">
           {isDept ? (
-            /* Department view */
             <Suspense fallback={<DeptLoader />}>
               <ActiveDept onBack={() => setActiveSidebar('Dashboard')} />
             </Suspense>
           ) : (
-            /* Main dashboard view */
             <>
-              {/* Clean workspace header */}
               <div className="mb-4 sm:mb-5 rounded-xl border border-blue-200/80 dark:border-slate-700 bg-white/75 dark:bg-slate-900/70 px-3.5 sm:px-4.5 py-3 backdrop-blur-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2.5">
                   <div className="space-y-1">
-                    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-700/80 dark:text-blue-300/80">Contractor workspace</p>
-                    <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100">Today&apos;s command dashboard</h2>
+                    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-700/80 dark:text-blue-300/80">
+                      Contractor workspace
+                    </p>
+                    <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100">
+                      Today&apos;s command dashboard
+                    </h2>
                   </div>
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/70 dark:border-emerald-700/60 bg-emerald-100/70 dark:bg-emerald-900/30 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -347,7 +395,6 @@ export default function GCCommandDashboard() {
                 </div>
               </div>
 
-              {/* Tabs */}
               <div className="flex gap-0 border-b border-blue-200 dark:border-slate-700 bg-transparent px-1 sm:px-2 mb-5 sm:mb-6 overflow-x-auto">
                 {tabs.map((tab, i) => (
                   <button
@@ -364,24 +411,52 @@ export default function GCCommandDashboard() {
                 ))}
               </div>
 
-              {/* KPI Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <CardContent className="p-3.5">
+                    <div className="text-xs text-muted-foreground mb-1">Weekly Throughput</div>
+                    <div className="text-xl font-semibold text-foreground">
+                      {commandCenterAdds.weeklyThroughput}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-none border-amber-200/80 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-950/20">
+                  <CardContent className="p-3.5">
+                    <div className="flex items-start gap-2">
+                      <Siren className="h-4 w-4 mt-0.5 text-amber-600" />
+                      <div>
+                        <div className="text-xs text-muted-foreground">Priority Dispatch</div>
+                        <div className="text-sm font-medium">{commandCenterAdds.urgentDispatch}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5 sm:mb-6">
                 {kpis.map((kpi) => (
-                  <Card key={kpi.label} className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <Card
+                    key={kpi.label}
+                    className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900"
+                  >
                     <CardContent className="p-3.5">
                       <div className="text-xs text-muted-foreground mb-1 leading-relaxed">{kpi.label}</div>
-                      {/* AI Watched badge */}
                       <div className="flex items-center gap-1 mb-1">
                         <BrainCircuit className="h-3 w-3 text-muted-foreground/50" />
                         <span className="text-[9px] text-muted-foreground/50 font-medium">AI Watched</span>
                       </div>
                       <div className="text-[1.65rem] font-semibold text-foreground leading-tight">{kpi.value}</div>
-                      <div className={`text-[11px] mt-1 flex items-center gap-1 ${
-                        kpi.trend === 'up'   ? 'text-emerald-600' :
-                        kpi.trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
-                      }`}>
-                        {kpi.trend === 'up'   && <TrendingUp   className="w-3 h-3" />}
-                        {kpi.trend === 'down' && <TrendingDown  className="w-3 h-3" />}
+                      <div
+                        className={`text-[11px] mt-1 flex items-center gap-1 ${
+                          kpi.trend === 'up'
+                            ? 'text-emerald-600'
+                            : kpi.trend === 'down'
+                              ? 'text-destructive'
+                              : 'text-muted-foreground'
+                        }`}
+                      >
+                        {kpi.trend === 'up' && <TrendingUp className="w-3 h-3" />}
+                        {kpi.trend === 'down' && <TrendingDown className="w-3 h-3" />}
                         {kpi.sub}
                       </div>
                     </CardContent>
@@ -389,22 +464,22 @@ export default function GCCommandDashboard() {
                 ))}
               </div>
 
-              {/* Today's Snapshot empty state */}
               {activeTab === 0 && allKpisEmpty && (
                 <div className="mb-4">
                   <EmptyState message="No activity data yet. KPI intelligence activates as your team uses the platform." />
                 </div>
               )}
 
-              {/* Row 1 */}
-              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4 sm:mb-5">
+              <div className="grid grid-cols-1 2xl:grid-cols-3 gap-3 mb-4 sm:mb-5">
                 <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
                         <Phone className="w-4 h-4" /> Recent inbound calls
                       </CardTitle>
-                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">View all ↗</span>
+                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">
+                        View all ↗
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
@@ -412,7 +487,10 @@ export default function GCCommandDashboard() {
                       <EmptyState message="No calls yet. The AI agent will log handled calls here." />
                     ) : (
                       calls.map((call) => (
-                        <div key={call.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                        <div
+                          key={call.name}
+                          className="flex items-center justify-between py-2 border-b border-border last:border-b-0"
+                        >
                           <div className="w-[26px] h-[26px] rounded bg-muted text-[10px] font-semibold flex items-center justify-center text-muted-foreground shrink-0">
                             {call.initials}
                           </div>
@@ -433,7 +511,9 @@ export default function GCCommandDashboard() {
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
                         <Package className="w-4 h-4" /> Material orders
                       </CardTitle>
-                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">View all ↗</span>
+                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">
+                        View all ↗
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
@@ -441,7 +521,10 @@ export default function GCCommandDashboard() {
                       <EmptyState message="No material orders yet. Orders placed via AI will appear here." />
                     ) : (
                       materials.map((mat) => (
-                        <div key={mat.name} className="flex justify-between items-center py-2 border-b border-border last:border-b-0">
+                        <div
+                          key={mat.name}
+                          className="flex justify-between items-center py-2 border-b border-border last:border-b-0"
+                        >
                           <div>
                             <div className="text-xs font-medium text-foreground">{mat.name}</div>
                             <div className="text-[11px] text-muted-foreground">{mat.sub}</div>
@@ -452,9 +535,23 @@ export default function GCCommandDashboard() {
                     )}
                   </CardContent>
                 </Card>
+
+                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <CardHeader className="p-3.5 pb-2">
+                    <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Alerts
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3.5 pt-0 space-y-2">
+                    {commandCenterAdds.alerts.map((alert) => (
+                      <div key={alert} className="text-xs border rounded-md px-2 py-1.5 bg-muted/30">
+                        {alert}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Row 2 */}
               <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4 sm:mb-5">
                 <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
@@ -462,7 +559,9 @@ export default function GCCommandDashboard() {
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
                         <Lock className="w-4 h-4" /> Biometric site access — live
                       </CardTitle>
-                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">Movement log ↗</span>
+                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">
+                        Movement log ↗
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
@@ -470,7 +569,10 @@ export default function GCCommandDashboard() {
                       <EmptyState message="No access events recorded yet. Site biometric data will appear here." />
                     ) : (
                       biometrics.map((bio) => (
-                        <div key={bio.name} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                        <div
+                          key={bio.name}
+                          className="flex items-center justify-between py-2 border-b border-border last:border-b-0"
+                        >
                           <div className={`w-2 h-2 rounded-full shrink-0 ${bio.ok ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                           <div className="flex-1 ml-2">
                             <div className="text-xs font-medium text-foreground">{bio.name}</div>
@@ -491,14 +593,29 @@ export default function GCCommandDashboard() {
                       <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
                         <BookOpen className="w-4 h-4" /> Accounting snapshot
                       </CardTitle>
-                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">Full report ↗</span>
+                      <span className="text-[11px] text-muted-foreground cursor-pointer hover:text-primary">
+                        Full report ↗
+                      </span>
                     </div>
                   </CardHeader>
                   <CardContent className="p-3.5 pt-0">
                     {accounting.map((row, i) => (
-                      <div key={row.label} className={`flex justify-between py-1.5 text-xs ${i < accounting.length - 1 ? 'border-b border-border' : ''} ${i === accounting.length - 2 ? 'font-semibold' : ''}`}>
+                      <div
+                        key={row.label}
+                        className={`flex justify-between py-1.5 text-xs ${
+                          i < accounting.length - 1 ? 'border-b border-border' : ''
+                        } ${i === accounting.length - 2 ? 'font-semibold' : ''}`}
+                      >
                         <span className="text-muted-foreground">{row.label}</span>
-                        <span className={`font-medium ${row.positive ? 'text-emerald-600' : row.negative ? 'text-destructive' : 'text-foreground'}`}>
+                        <span
+                          className={`font-medium ${
+                            row.positive
+                              ? 'text-emerald-600'
+                              : row.negative
+                                ? 'text-destructive'
+                                : 'text-foreground'
+                          }`}
+                        >
                           {row.value}
                         </span>
                       </div>
@@ -507,31 +624,40 @@ export default function GCCommandDashboard() {
                 </Card>
               </div>
 
-              {/* Legals quick-access strip */}
               <Card className="shadow-none border-blue-200/70 dark:border-slate-700 bg-blue-50/70 dark:bg-slate-900">
                 <CardContent className="p-3.5">
                   <div className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2.5 uppercase tracking-wide">
                     Legals — Quick Access
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {sidebarSections.find(s => s.label === 'Legals')!.items.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <button
-                          key={item.name}
-                          onClick={() => handleSidebarClick(item.name)}
-                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-blue-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300 hover:border-blue-400/60 transition-colors"
-                        >
-                          <Icon className="w-3 h-3" />
-                          {item.name}
-                        </button>
-                      );
-                    })}
+                    {sidebarSections
+                      .find((s) => s.label === 'Legals')!
+                      .items.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <button
+                            key={item.name}
+                            onClick={() => handleSidebarClick(item.name)}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-blue-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300 hover:border-blue-400/60 transition-colors"
+                          >
+                            <Icon className="w-3 h-3" />
+                            {item.name}
+                          </button>
+                        );
+                      })}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Lower status / identity rail */}
+              <Card className="mt-4 shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <CardHeader className="p-3.5 pb-2">
+                  <CardTitle className="text-[14px] font-semibold">Rebate Maximizer</CardTitle>
+                </CardHeader>
+                <CardContent className="p-3.5 pt-0 text-xs text-muted-foreground">
+                  {commandCenterAdds.rebateMaximizer}
+                </CardContent>
+              </Card>
+
               <Card className="mt-4 sm:mt-5 shadow-none border-blue-200/90 dark:border-slate-700 bg-gradient-to-r from-blue-100/85 via-white to-blue-50/80 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
                 <CardContent className="p-3.5 sm:p-4">
                   <div className="flex flex-col gap-3">
@@ -540,20 +666,32 @@ export default function GCCommandDashboard() {
                         <House className="h-3.5 w-3.5 text-blue-600 dark:text-blue-300" />
                         <span>Contractors — kluje.com</span>
                       </div>
-                      <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">General Contractor</Badge>
+                      <Badge className="bg-blue-600/90 hover:bg-blue-600 text-white border border-blue-500/80">
+                        General Contractor
+                      </Badge>
                       <span className="text-slate-600 dark:text-slate-300">Contractor AI Agent · kluje.com</span>
                       <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
                         <span className="h-2 w-2 rounded-full bg-emerald-500" />
                         Online
                       </span>
                       {serviceSummary && (
-                        <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">{serviceSummary}</span>
+                        <span className="text-slate-600 dark:text-slate-300 truncate max-w-full">
+                          {serviceSummary}
+                        </span>
                       )}
                     </div>
                     <div className="text-[11px] sm:text-xs leading-relaxed text-slate-700 dark:text-slate-300">
-                      🤖 <span className="text-blue-600 dark:text-blue-300 font-medium">Agent activity — last hour:</span>{' '}
-                      Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry · Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent to your phone ·{' '}
-                      <button type="button" className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200">
+                      🤖{' '}
+                      <span className="text-blue-600 dark:text-blue-300 font-medium">
+                        Agent activity — last hour:
+                      </span>{' '}
+                      Auto-responded to Home Depot order confirmation call · Drafted quote #1047 from email inquiry ·
+                      Flagged rebar delivery delay &amp; sourced alternate supplier · Ray Gomez Zone C access alert sent
+                      to your phone ·{' '}
+                      <button
+                        type="button"
+                        className="underline text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200"
+                      >
                         See full log ↗
                       </button>
                     </div>

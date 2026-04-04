@@ -12,7 +12,7 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2, BrainCircuit, House,
+  Loader2, BrainCircuit, House, Download, AlertTriangle, Siren,
 } from 'lucide-react';
 
 // ─── Lazy-load each department to keep initial bundle small ───
@@ -124,7 +124,7 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
 };
 
 // ─── Summary dashboard data ──────────────────────────────────────
-const tabs = ["Today's Snapshot", 'Active Jobs (4)', 'Materials Queue', 'AI Activity'];
+const tabs = ["Today's Snapshot", 'Active Jobs', 'Materials Queue', 'AI Activity'];
 
 const kpis = [
  { label: 'On-site today',     value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
@@ -132,6 +132,13 @@ const kpis = [
  { label: 'Pending invoices',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
  { label: 'AI actions today',  value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
 ];
+
+const commandCenterAdds = {
+  weeklyThroughput: '24 jobs',
+  urgentDispatch: 'Urgent service call · Dispatch now',
+  rebateMaximizer: 'Potential rebates detected in 2 open estimates.',
+  alerts: ['Permit review needed', 'Supplier delay: tile delivery'],
+};
 
 const calls: {
   initials: string;
@@ -261,6 +268,14 @@ export default function GCCommandDashboard() {
         <Button size="sm" className="gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white border border-blue-500/80 shadow-sm shadow-blue-500/20">
           <Send className="w-3.5 h-3.5" /> Send
         </Button>
+        <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-blue-200 dark:border-slate-700">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> Export CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Download className="w-3.5 h-3.5" /> Export PDF
+          </Button>
+        </div>
       </div>
 
       {/* ── Main Layout ── */}
@@ -351,6 +366,25 @@ export default function GCCommandDashboard() {
               </div>
 
               {/* KPI Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <CardContent className="p-3.5">
+                    <div className="text-xs text-muted-foreground mb-1">Weekly Throughput</div>
+                    <div className="text-xl font-semibold text-foreground">{commandCenterAdds.weeklyThroughput}</div>
+                  </CardContent>
+                </Card>
+                <Card className="shadow-none border-amber-200/80 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-950/20">
+                  <CardContent className="p-3.5">
+                    <div className="flex items-start gap-2">
+                      <Siren className="h-4 w-4 mt-0.5 text-amber-600" />
+                      <div>
+                        <div className="text-xs text-muted-foreground">Priority Dispatch</div>
+                        <div className="text-sm font-medium">{commandCenterAdds.urgentDispatch}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
                 {kpis.map((kpi) => (
                   <Card key={kpi.label} className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
@@ -383,7 +417,7 @@ export default function GCCommandDashboard() {
               )}
 
               {/* Row 1 */}
-              <div className="grid grid-cols-1 2xl:grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-1 2xl:grid-cols-3 gap-3 mb-4">
                 <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
                   <CardHeader className="p-3.5 pb-2">
                     <div className="flex justify-between items-center">
@@ -436,6 +470,20 @@ export default function GCCommandDashboard() {
                         </div>
                       ))
                     )}
+                  </CardContent>
+                </Card>
+                <Card className="shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                  <CardHeader className="p-3.5 pb-2">
+                    <CardTitle className="text-[14px] font-semibold flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Alerts
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-3.5 pt-0 space-y-2">
+                    {commandCenterAdds.alerts.map((alert) => (
+                      <div key={alert} className="text-xs border rounded-md px-2 py-1.5 bg-muted/30">
+                        {alert}
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
@@ -514,6 +562,15 @@ export default function GCCommandDashboard() {
                       );
                     })}
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="mt-4 shadow-none border-blue-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900">
+                <CardHeader className="p-3.5 pb-2">
+                  <CardTitle className="text-[14px] font-semibold">Rebate Maximizer</CardTitle>
+                </CardHeader>
+                <CardContent className="p-3.5 pt-0 text-xs text-muted-foreground">
+                  {commandCenterAdds.rebateMaximizer}
                 </CardContent>
               </Card>
             </>

@@ -12,7 +12,7 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2, BrainCircuit, House, Download, AlertTriangle, Siren,
+  Loader2, BrainCircuit, Download, AlertTriangle, Siren,
 } from 'lucide-react';
 
 // ─── Lazy-load each department to keep initial bundle small ───
@@ -242,8 +242,6 @@ export default function GCCommandDashboard() {
   };
 
   const allKpisEmpty = kpis.every((k) => k.value === '—');
-  const serviceNames = ['Materials', 'Workforce', 'Finance', 'Legals'];
-  const serviceSummary = serviceNames.join(' · ');
 
   return (
     <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-gradient-to-b from-[#07182f] via-[#081f38] to-[#07182f] text-slate-100">
@@ -378,28 +376,6 @@ export default function GCCommandDashboard() {
             </Suspense>
           ) : (
             <>
-              <div className="mb-4 sm:mb-5 rounded-xl border border-amber-300/25 bg-gradient-to-r from-[#0a2344] via-[#0d294f] to-[#0a2344] px-4 sm:px-5 py-4 backdrop-blur-sm shadow-[0_18px_38px_-26px_rgba(251,191,36,0.6)]">
-                <div className="flex flex-wrap items-center justify-between gap-2.5">
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-amber-200">
-                      Provider Dashboard
-                    </p>
-                    <h2 className="text-sm sm:text-base font-semibold text-amber-100">
-                      Contractors — kluje.com
-                    </h2>
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/35 bg-emerald-400/15 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Online
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
-                  <Badge className="bg-amber-300/20 hover:bg-amber-300/30 text-amber-100 border border-amber-300/45">General Contractor</Badge>
-                  <span>Contractor AI Agent · kluje.com</span>
-                  <span className="text-amber-100/90">{serviceSummary}</span>
-                </div>
-              </div>
-
               <div className="flex gap-0 border-b border-amber-300/20 bg-transparent px-1 sm:px-2 mb-5 sm:mb-6 overflow-x-auto">
                 {tabs.map((tab, i) => (
                   <button
@@ -666,25 +642,6 @@ export default function GCCommandDashboard() {
               <Card className="mt-4 sm:mt-5 shadow-none border-amber-300/30 bg-gradient-to-r from-[#0a2344] via-[#0d294f] to-[#0a2344]">
                 <CardContent className="p-3.5 sm:p-4">
                   <div className="flex flex-col gap-3.5">
-                    <div className="flex flex-wrap items-center gap-2.5 text-xs">
-                      <div className="inline-flex items-center gap-1.5 font-semibold text-amber-100">
-                        <House className="h-3.5 w-3.5 text-amber-200" />
-                        <span>Contractors — kluje.com</span>
-                      </div>
-                      <Badge className="bg-amber-300/20 hover:bg-amber-300/30 text-amber-100 border border-amber-300/45">
-                        General Contractor
-                      </Badge>
-                      <span className="text-slate-300">Contractor AI Agent · kluje.com</span>
-                      <span className="inline-flex items-center gap-1 text-emerald-300 font-medium">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        Online
-                      </span>
-                      {serviceSummary && (
-                        <span className="text-slate-300 truncate max-w-full">
-                          {serviceSummary}
-                        </span>
-                      )}
-                    </div>
                     <div className="text-[11px] sm:text-xs leading-relaxed text-slate-200 rounded-lg border border-amber-300/20 bg-[#071c35]/60 px-3 py-2.5">
                       🤖{' '}
                       <span className="text-amber-200 font-semibold">

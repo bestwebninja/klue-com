@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 type Notification = {
   id: string;
@@ -22,7 +23,11 @@ type Notification = {
 
 const LAST_CHECKED_KEY = 'notifications_last_checked';
 
-export function NotificationBell() {
+interface NotificationBellProps {
+  className?: string;
+}
+
+export function NotificationBell({ className }: NotificationBellProps) {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -126,7 +131,7 @@ export function NotificationBell() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="relative text-black/70 hover:text-black hover:bg-black/10"
+          className={cn('relative text-black/70 hover:text-black hover:bg-black/10', className)}
         >
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (

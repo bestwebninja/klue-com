@@ -57,11 +57,11 @@ export function DashboardHeader({
     <header
       className={`sticky top-0 z-50 border-b border-primary/20 backdrop-blur-sm ${
         showContractorIdentity
-          ? 'bg-gradient-to-r from-primary/20 via-blue-500/10 to-transparent dark:from-primary/25 dark:via-blue-600/10 dark:to-slate-900/30'
+          ? 'bg-gradient-to-r from-[#0a2344]/95 via-[#0d294f]/95 to-[#0a2344]/95'
           : 'bg-[hsl(222,47%,11%)]/95'
       }`}
     >
-      <div className={`px-4 ${showContractorIdentity ? 'py-2.5' : 'py-1'}`}>
+      <div className={`px-4 ${showContractorIdentity ? 'py-2' : 'py-1'}`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             {/* Sidebar toggle - desktop only */}
@@ -75,8 +75,8 @@ export function DashboardHeader({
           </div>
           
           <div className="flex items-center gap-1 sm:gap-3">
-            <NotificationBell />
-            <MessageBadge />
+            <NotificationBell className="text-white hover:text-white/80 hover:bg-white/10" />
+            <MessageBadge className="text-white hover:text-white/80 hover:bg-white/10" />
             {isAdmin && (
               <Link to="/admin" className="hidden sm:block">
                 <Button variant="outline" size="sm" className="text-red-400 border-red-400/30 hover:bg-red-400/10">
@@ -103,40 +103,40 @@ export function DashboardHeader({
         </div>
 
         {showContractorIdentity && (
-          <div className="mt-2.5 rounded-xl border border-primary/25 bg-slate-950/55 px-3 py-2.5 sm:px-4 sm:py-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-2.5 min-w-0">
+          <div className="mt-2 rounded-xl border border-primary/25 bg-slate-950/55 px-3 py-2 sm:px-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-sm shadow-primary/30">
                   <HomeIcon className="w-4 h-4" />
                 </div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-white">
-                    <span>Contractors — kluje.com</span>
-                    {contractorType && (
-                      <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4">
-                        {contractorType === 'general' ? 'General Contractor' : 'Sub Contractor'}
-                      </Badge>
-                    )}
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      Online
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-200/80 leading-relaxed">
-                    {contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : 'Contractor'} Contractor AI Agent · kluje.com
-                  </div>
-                  {serviceNames.length > 0 && (
-                    <div className="text-[10px] text-slate-300/65 mt-0.5 truncate">
-                      Services: {serviceNames.slice(0, 3).join(', ')}{serviceNames.length > 3 ? ` +${serviceNames.length - 3} more` : ''}
-                    </div>
-                  )}
-                </div>
+                <div className="min-w-0 text-sm font-semibold text-white">Contractors — kluje.com</div>
               </div>
-              <div className="hidden xl:flex items-center gap-1.5 text-xs rounded-md border border-blue-300/20 bg-blue-400/10 text-blue-100 px-2.5 py-1.5 shrink-0">
-                <Radio className="w-3.5 h-3.5" />
-                AI monitoring active
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-200/90 min-w-0">
+                {contractorType && (
+                  <Badge variant={contractorType === 'general' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+                    {contractorType === 'general' ? 'General Contractor' : 'Sub Contractor'}
+                  </Badge>
+                )}
+                <span className="truncate">
+                    {contractorType === 'general' ? 'General' : contractorType === 'sub' ? 'Sub' : 'Contractor'} Contractor AI Agent · kluje.com
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] sm:text-xs shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Online
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md border border-blue-300/20 bg-blue-400/10 text-blue-100 px-2 py-1">
+                  <Radio className="w-3.5 h-3.5" />
+                  AI monitoring active
+                </span>
               </div>
             </div>
+            {serviceNames.length > 0 && (
+              <div className="mt-1 text-[10px] text-slate-300/65 truncate">
+                Services: {serviceNames.slice(0, 3).join(', ')}{serviceNames.length > 3 ? ` +${serviceNames.length - 3} more` : ''}
+              </div>
+            )}
           </div>
         )}
 

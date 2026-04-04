@@ -144,7 +144,6 @@ export default function ArbitrationDept({ onBack }: { onBack: () => void }) {
       icon={Gavel}
       kpis={kpis}
       aiTips={aiTips}
-      weatherWarning="Severe thunderstorms forecast for project zip 33101 (Mon–Wed). If active disputes involve schedule penalties or force majeure clauses, document conditions now for your arbitration record."
       onBack={onBack}
     >
       {/* ── Section 1: File Arbitration Case ── */}

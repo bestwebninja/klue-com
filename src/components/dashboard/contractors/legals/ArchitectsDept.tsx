@@ -158,10 +158,10 @@ export default function ArchitectsDept({ onBack }: { onBack: () => void }) {
           </Field>
 
           {/* Copyright info box */}
-          <div className="flex items-start gap-2.5 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/60 rounded-lg px-3.5 py-2.5">
-            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground">Copyright Notice:</span> All drawings shared via Kluje are watermarked with the architect's firm name and license number. Internal view only.
+          <div className="flex items-start gap-2.5 rounded-lg border border-blue-300/40 bg-slate-900/90 px-3.5 py-2.5">
+            <Info className="w-4 h-4 text-sky-300 shrink-0 mt-0.5" />
+            <p className="text-[11px] text-slate-200 leading-relaxed">
+              <span className="font-medium text-slate-100">Copyright Notice:</span> All drawings shared via Kluje are watermarked with the architect's firm name and license number. Internal view only.
             </p>
           </div>
 

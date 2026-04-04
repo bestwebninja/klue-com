@@ -274,9 +274,9 @@ export function SectionCard({
   action?: { label: string; onClick: () => void };
 }) {
   return (
-    <Card className="shadow-none border-border/60">
+    <Card className="shadow-none border-amber-300/25 bg-[#0b2748]/95 text-slate-100">
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h3 className="text-[13px] font-semibold text-foreground">{title}</h3>
+        <h3 className="text-[13px] font-semibold text-slate-100">{title}</h3>
         {action && (
           <button
             onClick={action.onClick}
@@ -306,10 +306,10 @@ export function StatusBadge({ status, color }: { status: string; color: 'green' 
 
 export function OcrBanner() {
   return (
-    <div className="flex items-start gap-2.5 bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-800/40 rounded-lg px-3.5 py-2.5 text-[11px]">
-      <span className="text-blue-500 font-bold shrink-0 mt-0.5">OCR</span>
-      <span className="text-muted-foreground leading-relaxed">
-        <span className="font-medium text-foreground">AI Document Scan active.</span>{' '}
+    <div className="flex items-start gap-2.5 rounded-lg border border-blue-300/40 bg-slate-900/90 px-3.5 py-2.5 text-[11px] text-slate-200">
+      <span className="text-sky-300 font-bold shrink-0 mt-0.5">OCR</span>
+      <span className="leading-relaxed">
+        <span className="font-semibold text-slate-100">AI Document Scan active.</span>{' '}
         Uploads are checked for signature authenticity, duplicate submissions, spelling anomalies, and data format integrity. Suspicious documents trigger a review prompt with highlighted fields.
       </span>
     </div>

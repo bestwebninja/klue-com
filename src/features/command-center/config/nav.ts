@@ -1,1 +1,1 @@
-export const commandCenterNav = ["Today", "Pipeline", "Analytics", "AI Agents", "Compliance", "Integrations", "Settings"];
+export const commandCenterNav = ["HOME", "Today", "Pipeline", "Analytics", "AI Agents", "Compliance", "Integrations", "Settings"];

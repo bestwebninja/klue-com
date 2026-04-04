@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { CommandCenterLayout } from "../components/layout/CommandCenterLayout";
 import { KPIInsightCard } from "../components/cards/KPIInsightCard";
 import { PipelineBoard } from "../components/pipeline/PipelineBoard";
 import { AgentPanel } from "../components/agents/AgentPanel";
 import { useDashboardTemplate } from "../hooks/useDashboardTemplate";
 import type { PipelineCardConfig } from "../templates/types";
+import { MyDashboardView } from "../components/dashboard/MyDashboardView";
 
 const fallbackPipeline: PipelineCardConfig[] = [
   { id: "f1", label: "Emergency water heater estimate", stage: "New", priority: "high", owner: "T. Lewis", eta: "Today" },
@@ -15,7 +17,25 @@ const fallbackPipeline: PipelineCardConfig[] = [
 
 export default function TradeCommandCenterPage() {
   const { workspaceId = "default-workspace", tradeKey = "plumbing" } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const template = useDashboardTemplate("trade", tradeKey as any);
+  const section = searchParams.get("section") ?? "home";
+
+  useEffect(() => {
+    if (!searchParams.get("section")) {
+      navigate(`${location.pathname}?section=home`, { replace: true });
+    }
+  }, [location.pathname, navigate, searchParams]);
+
+  if (section === "home") {
+    return (
+      <CommandCenterLayout workspaceId={workspaceId} config={template?.config}>
+        <MyDashboardView />
+      </CommandCenterLayout>
+    );
+  }
 
   return (
     <CommandCenterLayout workspaceId={workspaceId} config={template?.config}>

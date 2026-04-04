@@ -20,10 +20,10 @@ export default function CommandCenterHomePage() {
     return <div className="max-w-xl mx-auto py-10"><CommandCenterSetupWizard onComplete={async (values) => {
       const workspaceId = user.id;
       await saveOnboarding(workspaceId, user.id, values);
-      navigate(`/command-center/${workspaceId}/trade/${values.trade}`);
+      navigate(`/command-center/${workspaceId}/trade/${values.trade}?section=home`);
     }} /></div>;
   }
 
-  navigate(`/command-center/${instance.business_unit_id}`);
+  navigate(`/command-center/${instance.business_unit_id}?section=home`);
   return <LoadingState />;
 }

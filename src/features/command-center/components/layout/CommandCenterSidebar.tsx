@@ -1,8 +1,9 @@
-import { BarChart3, CalendarDays, Cpu, Link2, PanelLeftClose, Settings, ShieldAlert } from "lucide-react";
+import { BarChart3, CalendarDays, Cpu, Home, Link2, PanelLeftClose, Settings, ShieldAlert } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { NavItemConfig } from "../../templates/types";
 
 const fallbackItems: NavItemConfig[] = [
+  { key: "home", label: "HOME", section: "operations" },
   { key: "today", label: "Today", section: "operations" },
   { key: "pipeline", label: "Pipeline", section: "operations" },
   { key: "analytics", label: "Analytics", section: "operations" },
@@ -13,6 +14,7 @@ const fallbackItems: NavItemConfig[] = [
 ];
 
 const iconMap: Record<string, typeof CalendarDays> = {
+  home: Home,
   today: CalendarDays,
   pipeline: PanelLeftClose,
   analytics: BarChart3,
@@ -24,7 +26,10 @@ const iconMap: Record<string, typeof CalendarDays> = {
 
 export function CommandCenterSidebar({ basePath, items }: { basePath: string; items?: NavItemConfig[] }) {
   const location = useLocation();
-  const navItems = items?.length ? items : fallbackItems;
+  const providedItems = items?.length ? items : fallbackItems;
+  const navItems = providedItems.some((item) => item.key === "home")
+    ? providedItems
+    : [{ key: "home", label: "HOME", section: "operations" }, ...providedItems];
 
   const grouped = {
     operations: navItems.filter((item) => (item.section ?? "operations") === "operations"),
@@ -36,7 +41,7 @@ export function CommandCenterSidebar({ basePath, items }: { basePath: string; it
       <p className="px-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
       {groupItems.map((item) => {
         const Icon = item.icon ?? iconMap[item.key] ?? CalendarDays;
-        const activeSection = new URLSearchParams(location.search).get("section") ?? "today"
+        const activeSection = new URLSearchParams(location.search).get("section") ?? "home";
         const active = activeSection === item.key;
         return (
           <Link

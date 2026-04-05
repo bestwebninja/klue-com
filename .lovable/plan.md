@@ -1,42 +1,53 @@
 
 
-## Problem
+# Command Center Dashboard — Current State Review
 
-The preview and published site show a blank/white page. The root `package.json` is configured as a monorepo workspace root with **no dependencies** listed. Lovable's dev server and build system run from the project root and expect dependencies (react, vite, tailwind, etc.) to be declared there. Since they're missing, nothing loads.
+## What's Working
 
-The `apps/web` and `apps/api` directories contain a separate enterprise advertiser dashboard -- these are independent from the main Kluje platform app (which lives in `src/`, `index.html`, `vite.config.ts` at the root).
+The **Remodeling Command Center** at `/command-center/remodeling` renders a polished, navy/gold themed dashboard with:
 
-## Plan
+- **Header**: Kluje branding, workspace switcher, voice mic button, search bar, notification badge (4), user profile
+- **Sidebar**: Two grouped sections (Operations: Today, Pipeline, Analytics, AI Agents; Systems: Compliance, Integrations, Settings) with active state highlighting and icons
+- **KPI Cards (4)**: Emergency Mix (38%), Average Ticket ($12.4k), Material Variance (-1.8%), Leak Detection ROI (4.6x) — each with delta badges and bar-chart sparklines
+- **Pipeline Board**: 4-column Kanban (New, Dispatch, In Progress, Complete) with priority badges, owners, and ETAs
+- **AI Agents (3)**: Leak Hunter (active), Document Whisperer (idle), Rebate Maximizer (active) — each with Run/Configure buttons
+- **Footer**: Online status indicator, last sync time, Export CSV/PDF buttons
 
-### Step 1: Fix root package.json
+## Issues Found
 
-Remove the `workspaces` field and add all required dependencies and scripts so Lovable can build and serve the main app. This means:
+### 1. The `/command-center/:workspaceId/trade/:tradeKey` route shows a blank white page
+The `TradeCommandCenterPage` route fails with a **502 error** loading `dashboardTemplateService.ts`. This is likely a Vite module resolution issue in the dev server — the generic template-driven page cannot load while the standalone `RemodelingCommandCenterPage` works fine because it has no external service imports.
 
-- Add `"type": "module"` and proper `"dev"` / `"build"` scripts
-- Add all dependencies the root app actually uses (react, react-dom, react-router-dom, @tanstack/react-query, @supabase/supabase-js, date-fns, lucide-react, tailwindcss, vite, shadcn/ui packages, etc.)
-- Remove `"workspaces"` -- the `apps/` code can remain in the repo but shouldn't interfere with the root build
+**Fix**: Investigate the 502 on `dashboardTemplateService.ts`. This may be caused by a circular import or a large import chain. The simplest fix is to inline the template lookup in `TradeCommandCenterPage` or verify all template files compile cleanly.
 
-I will scan imports across `src/` to compile the full dependency list, then write the corrected `package.json`.
+### 2. Duplicate implementations
+There are now **two** remodeling dashboards:
+- `RemodelingCommandCenterPage.tsx` — standalone, hardcoded, navy/gold themed (works)
+- `TradeCommandCenterPage.tsx` — template-driven, uses shared layout components (broken)
 
-### Step 2: Verify lockfile compatibility
+**Recommendation**: Keep the standalone `RemodelingCommandCenterPage` as the production version since it works and looks polished. Fix the template-driven route separately, then migrate to it once stable.
 
-Remove `bun.lock` and `bun.lockb` if they conflict with npm/Lovable's package manager, so a clean install occurs.
+### 3. The `?section=home` default on TradeCommandCenterPage
+When the generic trade route works, it defaults to `?section=home` which renders `MyDashboardView` (a generic "My Dashboard" with `RoleBasedDashboardHome`), not the trade-specific KPIs/pipeline. Users have to manually click "Today" to see the actual command center content.
 
-### What stays the same
+**Fix**: Default to `?section=today` instead, or render the trade dashboard content directly on the home section.
 
-- All source code in `src/`, `index.html`, `vite.config.ts`, `supabase/` -- untouched
-- The `apps/` directory files remain but are no longer referenced by workspace config
+### 4. Cookie banner overlap
+The cookie consent banner overlaps the bottom of the AI Agents section and footer. This is cosmetic but worth noting.
 
-### Technical details
+## Recommended Next Steps
 
-The root `package.json` currently:
-```json
-{
-  "workspaces": ["apps/*", "packages/*"],
-  "scripts": { "dev:web": "...", "build": "..." }
-  // NO dependencies or devDependencies
-}
-```
+1. **Fix the 502 error** on `dashboardTemplateService.ts` to restore the template-driven trade routes
+2. **Consolidate** the two remodeling page implementations into one
+3. **Default section** to "today" instead of "home" so users land on the operational dashboard
+4. **Add a right rail** to `RemodelingCommandCenterPage` (alerts, weather, compliance, quick actions) — the template data exists but the standalone page doesn't render it
 
-This will be replaced with a standard single-app package.json containing all dependencies imported by the `src/` codebase, with standard `"dev": "vite"` and `"build": "vite build"` scripts that Lovable expects.
+## Files Involved
+
+| File | Status | Issue |
+|------|--------|-------|
+| `RemodelingCommandCenterPage.tsx` | Working | Standalone, no right rail |
+| `TradeCommandCenterPage.tsx` | Broken (502) | Template service import fails |
+| `dashboardTemplateService.ts` | 502 in dev | Module resolution error |
+| `CommandCenterSidebar.tsx` | Working | TypeScript `as const` fix already applied |
 

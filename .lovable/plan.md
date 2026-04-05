@@ -1,53 +1,64 @@
 
 
-# Command Center Dashboard — Current State Review
+# Command Center Repo Review — Current State and Issues
 
 ## What's Working
 
-The **Remodeling Command Center** at `/command-center/remodeling` renders a polished, navy/gold themed dashboard with:
+- **Standalone Remodeling Dashboard** (`/command-center/remodeling`): Fully rendered with navy/gold theme, header with Kluje branding, sidebar, 4 KPI cards with sparklines, 4-column Kanban pipeline, 3 AI agents, right rail (alerts, weather, compliance, quick actions), and footer with export buttons.
+- **Shared Layout Components**: `CommandCenterLayout`, `CommandCenterHeader`, `CommandCenterSidebar`, `CommandCenterRightRail`, `CommandCenterFooter` — all functional and well-structured.
+- **Template System**: 10 trade/audience templates (plumbing, electrical, HVAC, roofing, remodeling, finishing, landscaping, windows/doors, finance, title) with rich config data including KPIs, pipeline items, agents, right rail, and sidebar nav.
+- **Reusable Components**: `KPIInsightCard`, `PipelineBoard`, `AgentPanel`, `SimulatorPanel`, `RiskHeatMap`, `DocumentDrawer` — all exist and are importable.
+- **Finance & Title Pages**: Render via `CommandCenterLayout` with KPI cards, though minimal content.
 
-- **Header**: Kluje branding, workspace switcher, voice mic button, search bar, notification badge (4), user profile
-- **Sidebar**: Two grouped sections (Operations: Today, Pipeline, Analytics, AI Agents; Systems: Compliance, Integrations, Settings) with active state highlighting and icons
-- **KPI Cards (4)**: Emergency Mix (38%), Average Ticket ($12.4k), Material Variance (-1.8%), Leak Detection ROI (4.6x) — each with delta badges and bar-chart sparklines
-- **Pipeline Board**: 4-column Kanban (New, Dispatch, In Progress, Complete) with priority badges, owners, and ETAs
-- **AI Agents (3)**: Leak Hunter (active), Document Whisperer (idle), Rebate Maximizer (active) — each with Run/Configure buttons
-- **Footer**: Online status indicator, last sync time, Export CSV/PDF buttons
+## Critical Issue: Template Key Mismatch
 
-## Issues Found
+`TradeCommandCenterPage` calls `getTemplateByKey(tradeKey)` where `tradeKey` comes from the URL param (e.g. `"plumbing"`). But template keys are prefixed: `"trade_plumbing_v1"`, `"trade_hvac_v1"`, etc. **No template will ever match**, so every non-remodeling trade route shows the error fallback: "Command Center template failed to load."
 
-### 1. The `/command-center/:workspaceId/trade/:tradeKey` route shows a blank white page
-The `TradeCommandCenterPage` route fails with a **502 error** loading `dashboardTemplateService.ts`. This is likely a Vite module resolution issue in the dev server — the generic template-driven page cannot load while the standalone `RemodelingCommandCenterPage` works fine because it has no external service imports.
+### Fix Options (pick one)
+1. Change `getTemplateByKey` call to use `getTemplateByAudience("trade", tradeKey as TradeKey)` — this already exists and matches on the `trade` field
+2. Add a new lookup function that matches by trade field directly
+3. Change all template keys to match URL params (breaking change, not recommended)
 
-**Fix**: Investigate the 502 on `dashboardTemplateService.ts`. This may be caused by a circular import or a large import chain. The simplest fix is to inline the template lookup in `TradeCommandCenterPage` or verify all template files compile cleanly.
+**Recommendation**: Option 1 — replace `getTemplateByKey(tradeKey)` with `getTemplateByAudience("trade", tradeKey as TradeKey)` in `TradeCommandCenterPage.tsx`. This is a one-line fix.
 
-### 2. Duplicate implementations
-There are now **two** remodeling dashboards:
-- `RemodelingCommandCenterPage.tsx` — standalone, hardcoded, navy/gold themed (works)
-- `TradeCommandCenterPage.tsx` — template-driven, uses shared layout components (broken)
+## Secondary Issue: Empty Trade Page Content
 
-**Recommendation**: Keep the standalone `RemodelingCommandCenterPage` as the production version since it works and looks polished. Fix the template-driven route separately, then migrate to it once stable.
+Even after the template loads, `TradeCommandCenterPage` only renders `Section: {section}` as its children. It doesn't use the template's KPIs, pipeline, or agents. The page needs to render actual dashboard content using the template config.
 
-### 3. The `?section=home` default on TradeCommandCenterPage
-When the generic trade route works, it defaults to `?section=home` which renders `MyDashboardView` (a generic "My Dashboard" with `RoleBasedDashboardHome`), not the trade-specific KPIs/pipeline. Users have to manually click "Today" to see the actual command center content.
+### Fix
+Render KPI cards, pipeline board, and agent panels inside `CommandCenterLayout` using the template's config data, similar to how `FinanceCommandCenterPage` renders KPIs.
 
-**Fix**: Default to `?section=today` instead, or render the trade dashboard content directly on the home section.
+## Other Issues Carried Forward
 
-### 4. Cookie banner overlap
-The cookie consent banner overlaps the bottom of the AI Agents section and footer. This is cosmetic but worth noting.
+| Issue | Status | Priority |
+|-------|--------|----------|
+| Duplicate remodeling implementations | Still exists | Medium |
+| Cookie banner overlap on footer | Still present | Low |
 
-## Recommended Next Steps
+## Implementation Plan
 
-1. **Fix the 502 error** on `dashboardTemplateService.ts` to restore the template-driven trade routes
-2. **Consolidate** the two remodeling page implementations into one
-3. **Default section** to "today" instead of "home" so users land on the operational dashboard
-4. **Add a right rail** to `RemodelingCommandCenterPage` (alerts, weather, compliance, quick actions) — the template data exists but the standalone page doesn't render it
+### Step 1 — Fix template lookup in TradeCommandCenterPage
+In `TradeCommandCenterPage.tsx`, replace:
+```ts
+const template = dashboardTemplateService.getTemplateByKey(tradeKey || '');
+```
+with:
+```ts
+const template = dashboardTemplateService.getTemplateByAudience('trade', tradeKey as TradeKey);
+```
+Add `TradeKey` to imports from types.
 
-## Files Involved
+### Step 2 — Render trade dashboard content
+Replace the placeholder `Section: {section}` with actual dashboard content using template config:
+- KPI cards grid using `KPIInsightCard`
+- `PipelineBoard` with `template.config.pipelineItems`
+- Agent cards using `AgentPanel`
 
-| File | Status | Issue |
-|------|--------|-------|
-| `RemodelingCommandCenterPage.tsx` | Working | Standalone, no right rail |
-| `TradeCommandCenterPage.tsx` | Broken (502) | Template service import fails |
-| `dashboardTemplateService.ts` | 502 in dev | Module resolution error |
-| `CommandCenterSidebar.tsx` | Working | TypeScript `as const` fix already applied |
+Pass `config={template.config}` to `CommandCenterLayout` (already done) so sidebar and right rail populate automatically.
+
+### Step 3 — Pass right rail config
+Ensure `config` prop flows through to `CommandCenterRightRail` — this is already wired in `CommandCenterLayout`.
+
+### Files to Change
+- `src/features/command-center/pages/TradeCommandCenterPage.tsx` — fix lookup + add content rendering
 

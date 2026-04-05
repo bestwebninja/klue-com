@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Cookie } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -19,6 +19,7 @@ export const resetCookieConsent = () => {
 
 export const CookieConsent = () => {
   const [showBanner, setShowBanner] = useState(false);
+  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const consent = localStorage.getItem(CONSENT_KEY) as ConsentStatus;
@@ -67,10 +68,32 @@ export const CookieConsent = () => {
     setShowBanner(false);
   };
 
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (!showBanner) {
+      root.style.setProperty('--cookie-consent-offset', '0px');
+      return () => undefined;
+    }
+
+    const syncBannerOffset = () => {
+      const nextOffset = bannerRef.current?.offsetHeight ?? 0;
+      root.style.setProperty('--cookie-consent-offset', `${nextOffset}px`);
+    };
+
+    syncBannerOffset();
+    window.addEventListener('resize', syncBannerOffset);
+
+    return () => {
+      window.removeEventListener('resize', syncBannerOffset);
+      root.style.setProperty('--cookie-consent-offset', '0px');
+    };
+  }, [showBanner]);
+
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg animate-in slide-in-from-bottom duration-300">
+    <div ref={bannerRef} className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg animate-in slide-in-from-bottom duration-300">
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-start gap-3 flex-1">

@@ -5,8 +5,9 @@ import { KPIInsightCard } from "../components/cards/KPIInsightCard";
 import { PipelineBoard } from "../components/pipeline/PipelineBoard";
 import { AgentPanel } from "../components/agents/AgentPanel";
 import { useDashboardTemplate } from "../hooks/useDashboardTemplate";
-import type { PipelineCardConfig } from "../templates/types";
+import type { PipelineCardConfig, TradeKey } from "../templates/types";
 import { MyDashboardView } from "../components/dashboard/MyDashboardView";
+import RemodelingCommandCenterPage from "./RemodelingCommandCenterPage";
 
 const fallbackPipeline: PipelineCardConfig[] = [
   { id: "f1", label: "Emergency water heater estimate", stage: "New", priority: "high", owner: "T. Lewis", eta: "Today" },
@@ -20,14 +21,19 @@ export default function TradeCommandCenterPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const template = useDashboardTemplate("trade", tradeKey as any);
-  const section = searchParams.get("section") ?? "home";
+  const normalizedTradeKey = tradeKey.replace("-", "_") as TradeKey;
+  const template = useDashboardTemplate("trade", normalizedTradeKey);
+  const section = searchParams.get("section") ?? "today";
 
   useEffect(() => {
     if (!searchParams.get("section")) {
-      navigate(`${location.pathname}?section=home`, { replace: true });
+      navigate(`${location.pathname}?section=today`, { replace: true });
     }
   }, [location.pathname, navigate, searchParams]);
+
+  if (normalizedTradeKey === "remodeling") {
+    return <RemodelingCommandCenterPage />;
+  }
 
   if (section === "home") {
     return (

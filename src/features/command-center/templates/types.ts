@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export type Audience = "trade" | "finance" | "title";
 export type TradeKey = "plumbing" | "electrical" | "hvac" | "roofing" | "remodeling" | "finishing" | "landscaping" | "windows_doors";

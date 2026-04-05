@@ -38,6 +38,16 @@ const agents = [
   { name: "Rebate Maximizer", description: "Surfaces utility rebates for upgrade scenarios.", status: "active" },
 ];
 
+const rightRail = {
+  alerts: [
+    { id: "alert-1", title: "Permit window narrows", detail: "2 projects need submission before 4 PM.", tone: "warning" },
+    { id: "alert-2", title: "Change order risk", detail: "Maple Ave scope variance crossed threshold.", tone: "critical" },
+  ],
+  weather: { location: "Scottsdale, AZ", condition: "Clear", temperature: "72°F" },
+  compliance: { score: "96", status: "Permit compliance in healthy range", nextAudit: "Mon 9:30 AM" },
+  quickActions: ["Generate Schedule", "Escalate Change Order", "Run Rebate Scan"],
+};
+
 const navSections = {
   OPERATIONS: ["Today", "Pipeline", "Analytics", "AI Agents"],
   SYSTEMS: ["Compliance", "Integrations", "Settings"],
@@ -105,7 +115,7 @@ export default function RemodelingCommandCenterPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 px-4 py-4 md:grid-cols-[220px_1fr] md:px-6">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 px-4 py-4 pb-[calc(var(--cookie-consent-offset,0px)+1rem)] md:grid-cols-[220px_1fr] xl:grid-cols-[220px_1fr_320px] md:px-6">
         <aside className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-3">
           {Object.entries(navSections).map(([section, items]) => (
             <div key={section} className="mb-5 space-y-2">
@@ -186,6 +196,52 @@ export default function RemodelingCommandCenterPage() {
             </div>
           </section>
         </main>
+
+        <aside className="hidden xl:block">
+          <div className="sticky top-4 space-y-4">
+            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Alerts</h2>
+              <div className="space-y-2">
+                {rightRail.alerts.map((alert) => (
+                  <article
+                    key={alert.id}
+                    className={`rounded-lg border p-3 ${
+                      alert.tone === "critical" ? "border-rose-300/35 bg-rose-500/10" : "border-amber-300/25 bg-amber-300/10"
+                    }`}
+                  >
+                    <p className="text-sm font-medium text-amber-100">{alert.title}</p>
+                    <p className="mt-1 text-xs text-slate-300">{alert.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Weather</h2>
+              <p className="text-xl font-semibold text-amber-100">{rightRail.weather.temperature}</p>
+              <p className="text-sm text-slate-200">{rightRail.weather.condition}</p>
+              <p className="mt-1 text-xs text-slate-300">{rightRail.weather.location}</p>
+            </section>
+
+            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Compliance</h2>
+              <p className="text-2xl font-semibold text-emerald-300">{rightRail.compliance.score}</p>
+              <p className="mt-1 text-sm text-slate-200">{rightRail.compliance.status}</p>
+              <p className="mt-2 text-xs text-slate-300">Next audit: {rightRail.compliance.nextAudit}</p>
+            </section>
+
+            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Quick Actions</h2>
+              <div className="space-y-2">
+                {rightRail.quickActions.map((action) => (
+                  <Button key={action} variant="outline" className="w-full justify-start border-amber-300/40 text-amber-100 hover:bg-amber-300/10">
+                    {action}
+                  </Button>
+                ))}
+              </div>
+            </section>
+          </div>
+        </aside>
       </div>
 
       <footer className="border-t border-amber-300/20 bg-[#081f3b] px-4 py-3 md:px-6">

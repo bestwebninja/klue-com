@@ -1,63 +1,44 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CommandCenterLayout } from "../components/layout/CommandCenterLayout";
-import { KPIInsightCard } from "../components/cards/KPIInsightCard";
-import { PipelineBoard } from "../components/pipeline/PipelineBoard";
-import { AgentPanel } from "../components/agents/AgentPanel";
-import { useDashboardTemplate } from "../hooks/useDashboardTemplate";
-import type { PipelineCardConfig, TradeKey } from "../templates/types";
-import { MyDashboardView } from "../components/dashboard/MyDashboardView";
-import RemodelingCommandCenterPage from "./RemodelingCommandCenterPage";
+import { useParams, useSearchParams } from 'react-router-dom';
+import RemodelingCommandCenterPage from './RemodelingCommandCenterPage';
 
-const fallbackPipeline: PipelineCardConfig[] = [
-  { id: "f1", label: "Emergency water heater estimate", stage: "New", priority: "high", owner: "T. Lewis", eta: "Today" },
-  { id: "f2", label: "Dispatch permit runner", stage: "Dispatch", priority: "medium", owner: "M. Khan", eta: "11:30 AM" },
-  { id: "f3", label: "Install crew onsite", stage: "In Progress", priority: "medium", owner: "Crew B", eta: "2:15 PM" },
-  { id: "f4", label: "Invoice + closeout package", stage: "Complete", priority: "low", owner: "Ops", eta: "Done" },
-];
+// (keep this import ONLY if template system is fixed)
+import { getDashboardTemplate } from '../services/dashboardTemplateService';
+
+// fallback layout components (if used)
+import CommandCenterLayout from '../components/layout/CommandCenterLayout';
 
 export default function TradeCommandCenterPage() {
-  const { workspaceId = "default-workspace", tradeKey = "plumbing" } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { workspaceId, tradeKey } = useParams();
   const [searchParams] = useSearchParams();
-  const normalizedTradeKey = tradeKey.replace("-", "_") as TradeKey;
-  const template = useDashboardTemplate("trade", normalizedTradeKey);
-  const section = searchParams.get("section") ?? "today";
 
-  useEffect(() => {
-    if (!searchParams.get("section")) {
-      navigate(`${location.pathname}?section=today`, { replace: true });
-    }
-  }, [location.pathname, navigate, searchParams]);
+  // ✅ FIX 1: default to "today"
+  const section = searchParams.get('section') || 'today';
 
-  if (normalizedTradeKey === "remodeling") {
+  // ✅ FIX 2: route remodeling to working page
+  if (tradeKey === 'remodeling') {
     return <RemodelingCommandCenterPage />;
   }
 
-  if (section === "home") {
+  // ✅ FIX 3: safe template loading (prevents crash)
+  let template = null;
+
+  try {
+    template = getDashboardTemplate(tradeKey || '');
+  } catch (err) {
+    console.error('Template load failed:', err);
+  }
+
+  // ✅ FAILSAFE (prevents white screen)
+  if (!template) {
     return (
-      <CommandCenterLayout workspaceId={workspaceId} config={template?.config}>
-        <MyDashboardView />
-      </CommandCenterLayout>
+      <div className="p-6 text-sm text-red-500">
+        Command Center template failed to load.
+      </div>
     );
   }
 
+  // ✅ Normal template rendering
   return (
-    <CommandCenterLayout workspaceId={workspaceId} config={template?.config}>
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{template?.name ?? "Trade Command Center"}</h1>
-        <p className="text-sm text-muted-foreground">Live operations, pipeline execution, and AI agent controls.</p>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {template?.config.kpis.map((kpi) => (
-          <KPIInsightCard key={kpi.key} {...kpi} />
-        ))}
-      </div>
-
-      <PipelineBoard items={template?.config.pipelineItems ?? fallbackPipeline} />
-      <AgentPanel agents={template?.config.agents ?? []} />
-    </CommandCenterLayout>
+    <CommandCenterLayout template={template} section={section} />
   );
 }

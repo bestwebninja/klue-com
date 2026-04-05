@@ -21,11 +21,11 @@ export default function TradeCommandCenterPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const template = useDashboardTemplate("trade", tradeKey as any);
-  const section = searchParams.get("section") ?? "home";
+  const section = searchParams.get("section") ?? "today";
 
   useEffect(() => {
     if (!searchParams.get("section")) {
-      navigate(`${location.pathname}?section=home`, { replace: true });
+      navigate(`${location.pathname}?section=today`, { replace: true });
     }
   }, [location.pathname, navigate, searchParams]);
 

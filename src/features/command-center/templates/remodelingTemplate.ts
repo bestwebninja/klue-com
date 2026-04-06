@@ -8,6 +8,7 @@ export const remodelingTemplate: DashboardTemplate = {
   name: "Remodeling Command Center",
   config: {
     sidebarNav: [
+      { key: "home", label: "Home", section: "operations" },
       { key: "today", label: "Today", section: "operations" },
       { key: "pipeline", label: "Pipeline", section: "operations" },
       { key: "analytics", label: "Analytics", section: "operations" },

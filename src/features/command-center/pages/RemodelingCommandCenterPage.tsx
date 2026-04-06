@@ -73,6 +73,7 @@ function Sparkline({ trend }: { trend: number[] }) {
 }
 
 export default function RemodelingCommandCenterPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#07182f] text-slate-100">
       <header className="border-b border-amber-300/20 bg-[#081f3b] px-4 py-3 md:px-6">

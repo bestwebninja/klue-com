@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { navigate } from "../App";
 import { Footer } from "../components/Footer";
 
@@ -6,7 +6,7 @@ export function CookieAdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Placeholder — would validate admin credentials via API
     navigate("/cookie-admin");

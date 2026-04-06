@@ -55,13 +55,18 @@ serve(async (req: Request) => {
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Store in database with 10-minute expiry
+    // Hash the code with SHA-256 before persisting (never store plaintext OTPs)
+    const codeHash = Array.from(
+      new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code)))
+    ).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Store hashed code in database with 10-minute expiry
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
     const { error: insertError } = await supabase
       .from('phone_verifications')
       .insert({
         phone: cleanPhone,
-        code,
+        code_hash: codeHash,
         expires_at: expiresAt,
       });
 

@@ -34,7 +34,12 @@ serve(async (req: Request) => {
       );
     }
 
-    // Look up the code in the database
+    // Hash the submitted code before comparing (codes are stored as SHA-256 hashes)
+    const codeHash = Array.from(
+      new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code)))
+    ).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Look up the hashed code in the database
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -45,7 +50,7 @@ serve(async (req: Request) => {
       .from('phone_verifications')
       .select('*')
       .eq('phone', cleanPhone)
-      .eq('code', code)
+      .eq('code_hash', codeHash)
       .eq('verified', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })

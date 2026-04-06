@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { isAllowlistedAdminEmail } from '@/constants/adminAllowlist';
 import { SEOHead } from '@/components/SEOHead';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -202,8 +203,8 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // If signups are restricted, log the attempt and notify admin
-    if (signupsRestricted) {
+    // If signups are restricted, allow allowlisted admin emails to bypass
+    if (signupsRestricted && !isAllowlistedAdminEmail(email)) {
       supabase.functions.invoke('notify-signup-attempt', {
         body: { email, userType },
       }).catch(() => {
@@ -304,8 +305,8 @@ const Auth = () => {
           } as any) as any);
           syncZipIntelligence(zipCode).catch(() => null);
 
-          // Assign provider role
-          await supabase.from('user_roles').insert({ user_id: data.user.id, role: 'provider' as any });
+          // Assign provider role via controlled server-side function
+          await supabase.rpc('assign_provider_role');
 
           // Send welcome email
           supabase.functions.invoke('send-provider-welcome-notification', {

@@ -52,15 +52,17 @@ export const getSession = (): AuthSession | null => {
     const parsed = JSON.parse(raw) as AuthSession;
     const payload = decodeTokenPayload(parsed.token);
 
-    if (!payload || payload.type !== "access" || payload.exp <= Math.floor(Date.now() / 1000)) {
+    // Check expiry only — Supabase JWTs don't have a custom `type` field
+    if (!payload || payload.exp <= Math.floor(Date.now() / 1000)) {
       clearSession();
       return null;
     }
 
+    // Use stored role/email from the session (Supabase JWT `role` is "authenticated", not the app role)
     return {
       ...parsed,
-      role: payload.role,
-      email: payload.email
+      role: parsed.role,
+      email: parsed.email
     };
   } catch {
     clearSession();
@@ -70,6 +72,5 @@ export const getSession = (): AuthSession | null => {
 
 export const isAdminSession = (session: AuthSession | null) => {
   if (!session) return false;
-  const payload = decodeTokenPayload(session.token);
-  return payload?.type === "access" && payload.role === "admin";
+  return session.role === "admin";
 };

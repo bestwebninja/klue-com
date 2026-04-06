@@ -50,7 +50,7 @@ const rightRail = {
 };
 
 const navSections = {
-  OPERATIONS: ["Today", "Pipeline", "Analytics", "AI Agents"],
+  OPERATIONS: ["Home", "Today", "Pipeline", "Analytics", "AI Agents"],
   SYSTEMS: ["Compliance", "Integrations", "Settings"],
 };
 

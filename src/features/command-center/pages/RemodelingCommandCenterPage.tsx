@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Command,
   FileText,
+  Home,
   Link2,
   Megaphone,
   Mic,

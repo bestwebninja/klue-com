@@ -126,9 +126,10 @@ export default function RemodelingCommandCenterPage() {
               {items.map((item, idx) => (
                 <button
                   key={item}
-                  className={`flex w-full items-center gap-2 rounded-md border px-2.5 py-2 text-sm text-left transition ${section === "OPERATIONS" && idx === 0 ? "border-amber-300/60 bg-amber-300/15 text-amber-100" : "border-transparent text-slate-300 hover:border-amber-300/20 hover:bg-[#0f315e]"}`}
+                  onClick={item === "Home" ? () => navigate("/dashboard") : undefined}
+                  className={`flex w-full items-center gap-2 rounded-md border px-2.5 py-2 text-sm text-left transition ${section === "OPERATIONS" && idx === 1 ? "border-amber-300/60 bg-amber-300/15 text-amber-100" : "border-transparent text-slate-300 hover:border-amber-300/20 hover:bg-[#0f315e]"}`}
                 >
-                  {item === "AI Agents" ? <BrainCircuit className="h-4 w-4" /> : item === "Integrations" ? <Link2 className="h-4 w-4" /> : item === "Settings" ? <Settings className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                  {item === "Home" ? <Home className="h-4 w-4" /> : item === "AI Agents" ? <BrainCircuit className="h-4 w-4" /> : item === "Integrations" ? <Link2 className="h-4 w-4" /> : item === "Settings" ? <Settings className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                   {item}
                 </button>
               ))}

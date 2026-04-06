@@ -34,7 +34,11 @@ export default function CookieAdminLoginPage() {
     }
     setLoading(true);
     try {
-      await signIn(email, password);
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({ title: "Login failed", description: error.message || "Invalid credentials.", variant: "destructive" });
+        return;
+      }
       navigate("/cookie-admin", { replace: true });
     } catch {
       toast({ title: "Login failed", description: "Invalid credentials.", variant: "destructive" });

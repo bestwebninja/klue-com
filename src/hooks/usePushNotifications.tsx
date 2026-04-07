@@ -51,7 +51,7 @@ export function usePushNotifications() {
 
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey,
+      applicationServerKey: applicationServerKey as BufferSource,
     });
 
     setSubscription(sub);
@@ -84,14 +84,14 @@ export function usePushNotifications() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase
-      .from('push_subscriptions')
+    await (supabase
+      .from('push_subscriptions' as any)
       .delete()
-      .eq('user_id', user.id);
+      .eq('user_id', user.id) as any);
 
     await supabase
       .from('profiles')
-      .update({ push_enabled: false })
+      .update({ push_enabled: false } as any)
       .eq('id', user.id);
   }, [subscription]);
 

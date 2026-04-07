@@ -307,7 +307,7 @@ const Auth = () => {
           syncZipIntelligence(zipCode).catch(() => null);
 
           // Assign provider role via controlled server-side function
-          await supabase.rpc('assign_provider_role');
+          await supabase.rpc('assign_provider_role' as any);
 
           // Send welcome email
           supabase.functions.invoke('send-provider-welcome-notification', {

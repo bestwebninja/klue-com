@@ -33,7 +33,7 @@ export default function PostOAuthConsentScreen({ userId, email, provider, onComp
           push_consent_at:       pushEnabled ? now : null,
           newsletter_enabled:    newsletterEnabled,
           newsletter_consent_at: newsletterEnabled ? now : null,
-        })
+        } as any)
         .eq('id', userId);
 
       // 2. Subscribe to Web Push if user consented

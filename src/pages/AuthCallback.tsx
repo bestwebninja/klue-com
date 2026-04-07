@@ -43,7 +43,7 @@ export default function AuthCallback() {
     // Record auth method in profile
     await supabase
       .from('profiles')
-      .update({ last_auth_method: provider === 'linkedin_oidc' ? 'linkedin' : provider })
+      .update({ last_auth_method: provider === 'linkedin_oidc' ? 'linkedin' : provider } as any)
       .eq('id', user.id);
 
     // ---------- LinkedIn enrichment & age gate ----------

@@ -18,7 +18,7 @@ import { PrivacyPreferencesPage } from "./pages/PrivacyPreferencesPage";
 import { PrivacyRequestPage } from "./pages/PrivacyRequestPage";
 import { SignupPage } from "./pages/SignupPage";
 import { ContractorQuoteFormPage } from "./pages/ContractorQuoteFormPage";
-import { getSession, isAdminSession } from "./lib/auth";
+import { AuthSession, getSession, initSessionAutoRefresh, isAdminSession } from "./lib/auth";
 
 function usePathname() {
   const [pathname, setPathname] = useState(window.location.pathname);
@@ -46,8 +46,12 @@ const PUBLIC_ROUTES = new Set([
 
 export function App() {
   const pathname = usePathname();
-  const session = getSession();
+  const [session, setSession] = useState<AuthSession | null>(getSession);
   const requiresAuth = !PUBLIC_ROUTES.has(pathname);
+
+  // Keep session alive: Supabase auto-refreshes the access token and we
+  // sync the new token back into our session storage.
+  useEffect(() => initSessionAutoRefresh(setSession), []);
 
   const page = useMemo(() => {
     // Auth gate

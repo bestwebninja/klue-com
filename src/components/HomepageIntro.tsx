@@ -61,7 +61,7 @@ export function HomepageIntro() {
           {/* ── 1. Opening ── */}
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-              The AI Platform Powering America's Built Economy
+              The OS Powering America's Built Economy
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               Kluje is not a directory. It is a self-learning, self-predicting neural command platform —

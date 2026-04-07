@@ -9,12 +9,11 @@ import { formatDistanceToNow } from "date-fns";
 
 interface EmailNotification {
   id: string;
-  recipient_email: string;
   email_type: string;
   subject: string;
   status: string;
   sent_at: string;
-  error_message: string | null;
+  delivery_failed: boolean;
 }
 
 const emailTypeLabels: Record<string, string> = {
@@ -33,9 +32,8 @@ export const DashboardEmailHistory = () => {
     queryKey: ["email-notifications", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("email_notifications")
-        .select("*")
-        .eq("recipient_id", user?.id)
+        .from("user_email_notifications" as any)
+        .select("id, email_type, subject, status, sent_at, delivery_failed")
         .order("sent_at", { ascending: false })
         .limit(20);
 
@@ -130,14 +128,13 @@ export const DashboardEmailHistory = () => {
                   {notification.subject}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Sent to {notification.recipient_email} •{" "}
                   {formatDistanceToNow(new Date(notification.sent_at), {
                     addSuffix: true,
                   })}
                 </p>
-                {notification.error_message && (
+                {notification.delivery_failed && (
                   <p className="text-xs text-destructive mt-1">
-                    Error: {notification.error_message}
+                    Delivery failed — please check your spam folder or contact support.
                   </p>
                 )}
               </div>

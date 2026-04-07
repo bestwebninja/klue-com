@@ -287,7 +287,7 @@ const Auth = () => {
             service_type_key: selectedServices[0] ? selectedServices[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null,
             dashboard_template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
           };
-          const dashboardProfileSnapshot = {
+          const safeProfileSnapshot = {
             first_name: normalizedProfile.first_name,
             last_name: normalizedProfile.last_name,
             full_name: normalizedProfile.full_name,
@@ -299,8 +299,6 @@ const Auth = () => {
             county: normalizedProfile.county,
             latitude: normalizedProfile.latitude,
             longitude: normalizedProfile.longitude,
-            lat: normalizedProfile.lat,
-            lng: normalizedProfile.lng,
             service_type_label: normalizedProfile.service_type_label,
             service_type_key: normalizedProfile.service_type_key,
             dashboard_template_key: normalizedProfile.dashboard_template_key,
@@ -314,7 +312,7 @@ const Auth = () => {
             user_id: data.user.id,
             role_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor',
             template_key: selectedServices[0]?.toLowerCase() || 'general-contractor',
-            profile_snapshot: dashboardProfileSnapshot,
+            profile_snapshot: safeProfileSnapshot,
             widget_config: [],
           } as any);
           await (supabase.from('user_dashboard_preferences' as any).upsert({

@@ -39,6 +39,42 @@ type UserType = 'provider' | 'homeowner';
 type AuthView = 'login' | 'signup' | 'forgot-password' | 'reset-sent' | 'verification-pending' | 'email-not-verified';
 type SignupStep = 'select-type' | 'details' | 'create-account';
 
+const buildSafeProfileSnapshot = (normalizedProfile: {
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  company_name: string;
+  services_offered: string[];
+  zip_code: string;
+  city: string | null;
+  state: string | null;
+  county: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  lat: number | null;
+  lng: number | null;
+  service_type_label: string | null;
+  service_type_key: string | null;
+  dashboard_template_key: string;
+}) => ({
+  first_name: normalizedProfile.first_name,
+  last_name: normalizedProfile.last_name,
+  full_name: normalizedProfile.full_name,
+  company_name: normalizedProfile.company_name,
+  services_offered: normalizedProfile.services_offered,
+  zip_code: normalizedProfile.zip_code,
+  city: normalizedProfile.city,
+  state: normalizedProfile.state,
+  county: normalizedProfile.county,
+  latitude: normalizedProfile.latitude,
+  longitude: normalizedProfile.longitude,
+  lat: normalizedProfile.lat,
+  lng: normalizedProfile.lng,
+  service_type_label: normalizedProfile.service_type_label,
+  service_type_key: normalizedProfile.service_type_key,
+  dashboard_template_key: normalizedProfile.dashboard_template_key,
+});
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialType = searchParams.get('type') as UserType | null;
@@ -287,24 +323,7 @@ const Auth = () => {
             service_type_key: selectedServices[0] ? selectedServices[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null,
             dashboard_template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
           };
-          const dashboardProfileSnapshot = {
-            first_name: normalizedProfile.first_name,
-            last_name: normalizedProfile.last_name,
-            full_name: normalizedProfile.full_name,
-            company_name: normalizedProfile.company_name,
-            services_offered: normalizedProfile.services_offered,
-            zip_code: normalizedProfile.zip_code,
-            city: normalizedProfile.city,
-            state: normalizedProfile.state,
-            county: normalizedProfile.county,
-            latitude: normalizedProfile.latitude,
-            longitude: normalizedProfile.longitude,
-            lat: normalizedProfile.lat,
-            lng: normalizedProfile.lng,
-            service_type_label: normalizedProfile.service_type_label,
-            service_type_key: normalizedProfile.service_type_key,
-            dashboard_template_key: normalizedProfile.dashboard_template_key,
-          };
+          const safeProfileSnapshot = buildSafeProfileSnapshot(normalizedProfile);
 
           await supabase.from('profiles').update(normalizedProfile as any).eq('id', data.user.id);
           await supabase.from('provider_services').insert(
@@ -314,7 +333,7 @@ const Auth = () => {
             user_id: data.user.id,
             role_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor',
             template_key: selectedServices[0]?.toLowerCase() || 'general-contractor',
-            profile_snapshot: dashboardProfileSnapshot,
+            profile_snapshot: safeProfileSnapshot,
             widget_config: [],
           } as any);
           await (supabase.from('user_dashboard_preferences' as any).upsert({

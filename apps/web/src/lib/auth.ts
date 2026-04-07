@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 const STORAGE_KEY = "kluje_auth";
 
 export type AuthRole = "admin" | "user";
@@ -42,6 +44,7 @@ export const saveSession = (session: AuthSession) => {
 
 export const clearSession = () => {
   localStorage.removeItem(STORAGE_KEY);
+  void supabase.auth.signOut();
 };
 
 export const getSession = (): AuthSession | null => {
@@ -58,12 +61,8 @@ export const getSession = (): AuthSession | null => {
       return null;
     }
 
-    // Use stored role/email from the session (Supabase JWT `role` is "authenticated", not the app role)
-    return {
-      ...parsed,
-      role: parsed.role,
-      email: parsed.email
-    };
+    // Use stored role/email (Supabase JWT `role` is "authenticated", not the app role)
+    return { ...parsed };
   } catch {
     clearSession();
     return null;
@@ -73,4 +72,31 @@ export const getSession = (): AuthSession | null => {
 export const isAdminSession = (session: AuthSession | null) => {
   if (!session) return false;
   return session.role === "admin";
+};
+
+/**
+ * Call once at app startup. Supabase will silently refresh the access token
+ * before it expires; we sync the new token back into our session storage so
+ * the app never sees an expired token.
+ */
+export const initSessionAutoRefresh = (onSessionChange: (session: AuthSession | null) => void) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, supabaseSession) => {
+    if (supabaseSession && (event === "TOKEN_REFRESHED" || event === "SIGNED_IN")) {
+      const stored = getSession();
+      if (stored) {
+        const updated: AuthSession = {
+          ...stored,
+          token: supabaseSession.access_token,
+          refreshToken: supabaseSession.refresh_token
+        };
+        saveSession(updated);
+        onSessionChange(updated);
+      }
+    } else if (event === "SIGNED_OUT") {
+      localStorage.removeItem(STORAGE_KEY);
+      onSessionChange(null);
+    }
+  });
+
+  return () => subscription.unsubscribe();
 };

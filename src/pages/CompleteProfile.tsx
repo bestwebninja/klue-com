@@ -211,11 +211,6 @@ const CompleteProfile = () => {
         .eq('id', user.id);
 
       if (userType === 'provider') {
-        // Assign provider role
-        await supabase
-          .from('user_roles')
-          .insert({ user_id: user.id, role: 'provider' as any });
-
         // Add services
         const { categoryIds, missingServices } = mapServicesToCategoryIds(selectedSubcategories, serviceCategories);
 
@@ -253,8 +248,8 @@ const CompleteProfile = () => {
           body: { userId: user.id },
         }).catch(err => console.error('Welcome email error:', err));
 
-        toast({ title: 'Profile complete!', description: 'Redirecting to your provider dashboard...' });
-        navigate('/dashboard');
+        toast({ title: 'Profile submitted', description: 'Your provider profile is pending review. Redirecting to your dashboard...' });
+        navigate('/user-dashboard');
       } else {
         // Homeowner — no role needed (default user)
         supabase.functions.invoke('send-homeowner-welcome-notification', {

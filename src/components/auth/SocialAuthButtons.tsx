@@ -90,7 +90,7 @@ export default function SocialAuthButtons({ mode = 'login' }: Props) {
         type="button"
         variant="outline"
         className="w-full h-12 flex items-center justify-center gap-3 border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-white font-medium text-sm transition-colors"
-        onClick={() => signInWith('google')}
+        onClick={signInWithGoogle}
         disabled={loadingProvider !== null}
         aria-label="Continue with Google"
       >
@@ -105,7 +105,7 @@ export default function SocialAuthButtons({ mode = 'login' }: Props) {
         type="button"
         variant="outline"
         className="w-full h-12 flex items-center justify-center gap-3 border-[#0A66C2]/60 bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 text-white font-medium text-sm transition-colors"
-        onClick={() => signInWith('linkedin_oidc')}
+        onClick={signInWithLinkedIn}
         disabled={loadingProvider !== null}
         aria-label="Continue with LinkedIn"
       >

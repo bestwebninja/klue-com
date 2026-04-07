@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { lovable } from '@/integrations/lovable/index';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -33,22 +34,40 @@ export default function SocialAuthButtons({ mode = 'login' }: Props) {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'linkedin' | null>(null);
   const { toast } = useToast();
 
-  const callbackUrl = `${window.location.origin}/auth/callback`;
+  const signInWithGoogle = async () => {
+    setLoadingProvider('google');
 
-  const signInWith = async (provider: 'google' | 'linkedin_oidc') => {
-    const key = provider === 'google' ? 'google' : 'linkedin';
-    setLoadingProvider(key);
+    const result = await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: window.location.origin,
+    });
+
+    if (result.error) {
+      toast({
+        title: 'Sign-in failed',
+        description: result.error instanceof Error ? result.error.message : 'Google sign-in failed',
+        variant: 'destructive',
+      });
+      setLoadingProvider(null);
+      return;
+    }
+
+    if (result.redirected) {
+      return; // browser navigates away
+    }
+
+    // Session already set — redirect
+    window.location.href = '/auth/callback';
+  };
+
+  const signInWithLinkedIn = async () => {
+    setLoadingProvider('linkedin');
 
     const { error } = await supabase.auth.signInWithOAuth({
-      provider,
+      provider: 'linkedin_oidc',
       options: {
-        redirectTo: callbackUrl,
-        scopes: provider === 'google'
-          ? 'openid email profile'
-          : 'openid profile email',
-        queryParams: provider === 'linkedin_oidc'
-          ? { prompt: 'select_account' }
-          : undefined,
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'openid profile email',
+        queryParams: { prompt: 'select_account' },
       },
     });
 
@@ -60,7 +79,6 @@ export default function SocialAuthButtons({ mode = 'login' }: Props) {
       });
       setLoadingProvider(null);
     }
-    // On success the browser navigates away – no need to reset loading state
   };
 
   const label = mode === 'signup' ? 'Sign up' : 'Continue';

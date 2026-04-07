@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:4000/api/v1";
 
 export type LoginResponse = {
@@ -17,18 +19,24 @@ export type AuthenticatedUser = {
 };
 
 export async function login(input: { email: string; password: string }): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input)
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: input.email,
+    password: input.password
   });
 
-  if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as { message?: string; error?: string } | null;
-    throw new Error(payload?.message ?? payload?.error ?? "Invalid email or password");
+  if (error || !data.session) {
+    throw new Error(error?.message ?? "Invalid email or password");
   }
 
-  return response.json() as Promise<LoginResponse>;
+  return {
+    token: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+    expiresIn: String(data.session.expires_in ?? 3600),
+    user: {
+      email: data.user.email ?? "",
+      role: "user"
+    }
+  };
 }
 
 export async function fetchAuthenticatedUser(token: string): Promise<AuthenticatedUser> {

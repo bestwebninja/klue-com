@@ -1,6 +1,7 @@
 export const ADMIN_ALLOWLIST_EMAILS = [
   "divitiae.terrae.llc@gmail.com",
   "marcus@kluje.com",
+  "marcusmommsen@gmail.com",
 ] as const;
 
 export const isAllowlistedAdminEmail = (email?: string | null): boolean => {

@@ -21,6 +21,7 @@ const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
 const PostJob = lazy(() => import("./pages/PostJob"));
 const JobDetail = lazy(() => import("./pages/JobDetail"));
 const Auth = lazy(() => import("./pages/Auth"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/post-job" element={<PostJob />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/my-dashboard" element={<UserDashboard />} />

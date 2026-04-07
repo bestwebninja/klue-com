@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { providerServiceTaxonomy } from '@/lib/providerServiceTaxonomy';
+import { buildSafeProfileSnapshot } from '@/lib/profileSnapshot';
 import { ZipCodeAutocomplete } from '@/components/auth/ZipCodeAutocomplete';
 import { resolveZipLocation, syncZipIntelligence } from '@/lib/onboardingIntelligence';
 import { z } from 'zod';
@@ -287,24 +288,7 @@ const Auth = () => {
             service_type_key: selectedServices[0] ? selectedServices[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null,
             dashboard_template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
           };
-          const dashboardProfileSnapshot = {
-            first_name: normalizedProfile.first_name,
-            last_name: normalizedProfile.last_name,
-            full_name: normalizedProfile.full_name,
-            company_name: normalizedProfile.company_name,
-            services_offered: normalizedProfile.services_offered,
-            zip_code: normalizedProfile.zip_code,
-            city: normalizedProfile.city,
-            state: normalizedProfile.state,
-            county: normalizedProfile.county,
-            latitude: normalizedProfile.latitude,
-            longitude: normalizedProfile.longitude,
-            lat: normalizedProfile.lat,
-            lng: normalizedProfile.lng,
-            service_type_label: normalizedProfile.service_type_label,
-            service_type_key: normalizedProfile.service_type_key,
-            dashboard_template_key: normalizedProfile.dashboard_template_key,
-          };
+          const dashboardProfileSnapshot = buildSafeProfileSnapshot(normalizedProfile);
 
           await supabase.from('profiles').update(normalizedProfile as any).eq('id', data.user.id);
           await supabase.from('provider_services').insert(

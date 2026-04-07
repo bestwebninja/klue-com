@@ -23,6 +23,7 @@ import { resolveZipLocation, syncZipIntelligence } from '@/lib/onboardingIntelli
 import { z } from 'zod';
 import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, EyeOff, AlertCircle, ArrowRight, User, Building2, Lock, ChevronsUpDown, X, HardHat, Wrench } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
+import { buildSafeProfileSnapshot } from '@/lib/profileSnapshot';
 
 
 const passwordSchema = z.string()
@@ -287,22 +288,8 @@ const Auth = () => {
             service_type_key: selectedServices[0] ? selectedServices[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : null,
             dashboard_template_key: contractorType === 'general' ? 'general-contractor' : 'subcontractor-default',
           };
-          const safeProfileSnapshot = {
-            first_name: normalizedProfile.first_name,
-            last_name: normalizedProfile.last_name,
-            full_name: normalizedProfile.full_name,
-            company_name: normalizedProfile.company_name,
-            services_offered: normalizedProfile.services_offered,
-            zip_code: normalizedProfile.zip_code,
-            city: normalizedProfile.city,
-            state: normalizedProfile.state,
-            county: normalizedProfile.county,
-            latitude: normalizedProfile.latitude,
-            longitude: normalizedProfile.longitude,
-            service_type_label: normalizedProfile.service_type_label,
-            service_type_key: normalizedProfile.service_type_key,
-            dashboard_template_key: normalizedProfile.dashboard_template_key,
-          };
+
+          const safeProfileSnapshot = buildSafeProfileSnapshot(normalizedProfile);
 
           await supabase.from('profiles').update(normalizedProfile as any).eq('id', data.user.id);
           await supabase.from('provider_services').insert(

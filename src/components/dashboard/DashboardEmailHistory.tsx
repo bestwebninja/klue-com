@@ -38,7 +38,7 @@ export const DashboardEmailHistory = () => {
         .limit(20);
 
       if (error) throw error;
-      return data as EmailNotification[];
+      return data as unknown as EmailNotification[];
     },
     enabled: !!user,
   });

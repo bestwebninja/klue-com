@@ -24,7 +24,6 @@ import { Briefcase, Home, Loader2, Mail, CheckCircle, ArrowLeft, KeyRound, Eye, 
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { buildSafeProfileSnapshot } from '@/lib/profileSnapshot';
 
-
 const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')

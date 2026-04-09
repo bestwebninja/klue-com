@@ -4,7 +4,13 @@ import { RoleBasedWidgets } from './widgets/RoleBasedWidgets';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
-export const RoleBasedDashboardHome = ({ profile }: { profile: Profile | null }) => {
+export const RoleBasedDashboardHome = ({
+  profile,
+  isAdmin = false,
+}: {
+  profile: Profile | null;
+  isAdmin?: boolean;
+}) => {
   const template = resolveDashboardTemplate(profile);
 
   return (
@@ -15,7 +21,13 @@ export const RoleBasedDashboardHome = ({ profile }: { profile: Profile | null })
           {template.description || 'Template-driven dashboard shell with role-aware widgets, nav defaults, and permissions.'}
         </p>
       </div>
-      <RoleBasedWidgets widgets={template.widgetKeys} profile={profile} />
+      <RoleBasedWidgets
+        widgets={template.widgetKeys}
+        profile={profile}
+        dashboardCategory={template.userCategory}
+        layout={template.defaultLayout}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 };

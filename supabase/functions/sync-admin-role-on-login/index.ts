@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 const ADMIN_ALLOWLIST = [
@@ -13,19 +14,23 @@ const ADMIN_ALLOWLIST = [
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return json({ error: 'Missing Authorization header' }, 401);
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+  if (!supabaseUrl || !serviceRoleKey) {
+    return json({ error: 'Missing Supabase environment configuration' }, 500);
+  }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-  const anonClient = createClient(supabaseUrl, anonKey);
-
-  const token = authHeader.replace('Bearer ', '');
-  const { data: { user }, error: authError } = await anonClient.auth.getUser(token);
+  const token = authHeader.replace(/^Bearer\s+/i, '');
+  const {
+    data: { user },
+    error: authError,
+  } = await adminClient.auth.getUser(token);
 
   if (authError || !user) {
     return json({ error: 'Unauthorized' }, 401);

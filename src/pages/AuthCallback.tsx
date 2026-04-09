@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PostOAuthConsentScreen from '@/components/auth/PostOAuthConsentScreen';
 
@@ -40,7 +40,9 @@ export default function AuthCallback() {
     const provider = user.app_metadata?.provider ?? 'email';
     const isNew = isNewUser(user.created_at);
 
-    if (provider !== 'email') {
+    const isOAuthProvider = provider !== 'email' && provider !== 'phone';
+
+    if (isOAuthProvider) {
       try {
         const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
         if (syncAdminError) {

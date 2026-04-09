@@ -55,6 +55,11 @@ const navSections = {
   SYSTEMS: ["Compliance", "Integrations", "Settings"],
 };
 
+const shellCardClass = "rounded-xl border border-amber-300/20 bg-[#0a2344] p-4 md:p-5";
+const nestedCardClass = "rounded-lg border border-amber-300/20 bg-[#0d294f] p-3.5";
+const fieldClass =
+  "border-amber-300/25 bg-[#0d294f] text-slate-100 placeholder:text-slate-300/60 focus-visible:ring-amber-300/40";
+
 function Sparkline({ trend }: { trend: number[] }) {
   const max = Math.max(...trend);
   const min = Math.min(...trend);
@@ -78,7 +83,7 @@ export default function RemodelingCommandCenterPage() {
   return (
     <div className="min-h-screen bg-[#07182f] text-slate-100">
       <header className="border-b border-amber-300/20 bg-[#081f3b] px-4 py-3 md:px-6">
-        <div className="mx-auto flex max-w-[1600px] items-center gap-3">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 md:flex-nowrap">
           <div className="hidden items-center gap-2 rounded-lg border border-amber-300/40 bg-amber-200/10 px-3 py-2 md:flex">
             <Command className="h-4 w-4 text-amber-300" />
             <div>
@@ -96,9 +101,9 @@ export default function RemodelingCommandCenterPage() {
             <Mic className="h-4 w-4" />
           </button>
 
-          <div className="relative min-w-[170px] flex-1">
+          <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-200/70" />
-            <Input className="border-amber-300/25 bg-[#0d294f] pl-9 text-slate-100 placeholder:text-slate-300/70" placeholder="Search jobs, docs, agents..." />
+            <Input className={`${fieldClass} pl-9`} placeholder="Search jobs, docs, agents..." />
           </div>
 
           <button className="relative rounded-md border border-amber-300/30 bg-[#0c284d] p-2" aria-label="Notifications">
@@ -118,8 +123,8 @@ export default function RemodelingCommandCenterPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 px-4 py-4 pb-[calc(var(--cookie-consent-offset,0px)+1rem)] md:grid-cols-[220px_1fr] xl:grid-cols-[220px_1fr_320px] md:px-6">
-        <aside className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-3">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 px-4 py-4 pb-[calc(var(--cookie-consent-offset,0px)+1rem)] md:gap-5 md:px-6 xl:grid-cols-[220px_minmax(0,1fr)_320px]">
+        <aside className={`${shellCardClass} p-3.5`}>
           {Object.entries(navSections).map(([section, items]) => (
             <div key={section} className="mb-5 space-y-2">
               <p className="px-2 text-[11px] uppercase tracking-[0.16em] text-slate-300">{section}</p>
@@ -137,15 +142,15 @@ export default function RemodelingCommandCenterPage() {
           ))}
         </aside>
 
-        <main className="space-y-4">
-          <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+        <main className="space-y-4 md:space-y-5">
+          <section className={shellCardClass}>
             <h1 className="text-2xl font-semibold tracking-tight text-amber-100">Remodeling Command Center</h1>
             <p className="text-sm text-slate-300">live operations, pipeline execution, and AI agent controls</p>
           </section>
 
           <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {kpis.map((kpi) => (
-              <article key={kpi.title} className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+              <article key={kpi.title} className={`${shellCardClass} h-full min-h-[168px]`}>
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-slate-300">{kpi.title}</p>
                   <kpi.icon className="h-4 w-4 text-amber-200" />
@@ -157,17 +162,47 @@ export default function RemodelingCommandCenterPage() {
             ))}
           </section>
 
-          <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+          <section className={shellCardClass}>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-amber-100">Site Manager</h2>
+                <p className="mt-1 text-xs text-slate-300">
+                  This section will connect to the General Contractor Dashboard so the Main Project Manager can manage site-level inputs.
+                </p>
+              </div>
+              <Badge variant="outline" className="border-amber-300/50 text-amber-100">
+                Future Integration
+              </Badge>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <Input className={fieldClass} placeholder="Site Manager Name" />
+              <Input className={fieldClass} placeholder="Assigned Project" />
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <textarea
+                rows={4}
+                className={`w-full resize-y rounded-md border px-3 py-2 text-sm shadow-sm ${fieldClass}`}
+                placeholder="Daily Notes"
+              />
+              <textarea
+                rows={4}
+                className={`w-full resize-y rounded-md border px-3 py-2 text-sm shadow-sm ${fieldClass}`}
+                placeholder="Escalations / Requests"
+              />
+            </div>
+          </section>
+
+          <section className={shellCardClass}>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-amber-100">Pipeline Board</h2>
               <span className="text-xs text-slate-300">Drag-ready lanes</span>
             </div>
             <div className="grid gap-3 lg:grid-cols-4">
               {Object.entries(pipeline).map(([stage, cards]) => (
-                <div key={stage} className="rounded-lg border border-amber-300/15 bg-[#0d294f] p-3">
+                <div key={stage} className={nestedCardClass}>
                   <h3 className="mb-2 text-sm font-semibold text-amber-100">{stage}</h3>
                   {cards.map((card) => (
-                    <article key={card.id} className="mb-2 rounded-md border border-amber-300/25 bg-[#12335d] p-3">
+                    <article key={card.id} className="mb-2 rounded-md border border-amber-300/25 bg-[#12335d] p-3 last:mb-0">
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-xs font-semibold text-amber-100">{card.id}</p>
                         <Badge variant="outline" className="border-amber-300/50 text-amber-200">{card.priority}</Badge>
@@ -181,11 +216,11 @@ export default function RemodelingCommandCenterPage() {
             </div>
           </section>
 
-          <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+          <section className={shellCardClass}>
             <h2 className="mb-3 text-lg font-semibold text-amber-100">AI Agents</h2>
             <div className="grid gap-3 lg:grid-cols-3">
               {agents.map((agent) => (
-                <article key={agent.name} className="rounded-lg border border-amber-300/20 bg-[#0d294f] p-3">
+                <article key={agent.name} className={`${nestedCardClass} h-full`}>
                   <div className="mb-2 flex items-center justify-between">
                     <p className="font-medium text-amber-100">{agent.name}</p>
                     <Badge className={agent.status === "active" ? "bg-emerald-400/15 text-emerald-300" : "bg-slate-400/20 text-slate-200"}>{agent.status}</Badge>
@@ -203,7 +238,7 @@ export default function RemodelingCommandCenterPage() {
 
         <aside className="hidden xl:block">
           <div className="sticky top-4 space-y-4">
-            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+            <section className={shellCardClass}>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Alerts</h2>
               <div className="space-y-2">
                 {rightRail.alerts.map((alert) => (
@@ -220,21 +255,21 @@ export default function RemodelingCommandCenterPage() {
               </div>
             </section>
 
-            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+            <section className={shellCardClass}>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Weather</h2>
               <p className="text-xl font-semibold text-amber-100">{rightRail.weather.temperature}</p>
               <p className="text-sm text-slate-200">{rightRail.weather.condition}</p>
               <p className="mt-1 text-xs text-slate-300">{rightRail.weather.location}</p>
             </section>
 
-            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+            <section className={shellCardClass}>
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Compliance</h2>
               <p className="text-2xl font-semibold text-emerald-300">{rightRail.compliance.score}</p>
               <p className="mt-1 text-sm text-slate-200">{rightRail.compliance.status}</p>
               <p className="mt-2 text-xs text-slate-300">Next audit: {rightRail.compliance.nextAudit}</p>
             </section>
 
-            <section className="rounded-xl border border-amber-300/20 bg-[#0a2344] p-4">
+            <section className={shellCardClass}>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">Quick Actions</h2>
               <div className="space-y-2">
                 {rightRail.quickActions.map((action) => (

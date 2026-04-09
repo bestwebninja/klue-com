@@ -319,18 +319,19 @@ const UserDashboard = () => {
       .order('created_at', { ascending: false });
 
     if (!error && data) {
-      // Fetch profiles for providers
+      // Fetch provider profiles via security-definer RPC (profiles table is RLS-restricted;
+      // this function verifies the caller owns the relevant job listings before returning data).
       const providerIds = [...new Set(data.map(q => q.provider_id))];
       let profilesMap: Record<string, Profile> = {};
-      
+
       if (providerIds.length > 0) {
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', providerIds);
-        
+        const { data: profilesData } = await (supabase as any)
+          .rpc('get_quote_provider_profiles', { provider_ids: providerIds });
+
         if (profilesData) {
-          profilesMap = Object.fromEntries(profilesData.map(p => [p.id, p]));
+          profilesMap = Object.fromEntries(
+            (profilesData as any[]).map((p) => [p.id, p as Profile]),
+          );
         }
       }
       

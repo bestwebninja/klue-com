@@ -1173,6 +1173,17 @@ export type Database = {
       }
     }
     Functions: {
+      assign_provider_role: {
+        Args: { target_user_id: string }
+        Returns: void
+      }
+      assign_user_role: {
+        Args: {
+          target_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: void
+      }
       count_public_job_listings: {
         Args: { p_category_id?: string }
         Returns: number

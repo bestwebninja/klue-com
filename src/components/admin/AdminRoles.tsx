@@ -72,31 +72,34 @@ const AdminRoles = () => {
       return;
     }
 
-    const { data, error } = await supabase.from('user_roles').insert({
-      user_id: selectedUserId,
-      role: selectedRole as 'admin' | 'moderator' | 'user',
-    }).select().single();
+    const { error } = await supabase.functions.invoke('assign-user-role', {
+      body: {
+        userId: selectedUserId,
+        role: selectedRole as 'admin' | 'moderator' | 'user',
+      },
+    });
 
     if (error) {
-      if (error.code === '23505') {
+      const message = error.message || 'Failed to add role';
+      if (message.toLowerCase().includes('duplicate') || message.toLowerCase().includes('already')) {
         toast({ title: 'Error', description: 'User already has this role', variant: 'destructive' });
       } else {
-        toast({ title: 'Error', description: 'Failed to add role', variant: 'destructive' });
+        toast({ title: 'Error', description: message, variant: 'destructive' });
       }
-    } else {
-      const user = users.find((u) => u.id === selectedUserId);
-      await logAction({
-        action: 'assign_role',
-        entityType: 'role',
-        entityId: data?.id,
-        details: { user_id: selectedUserId, role: selectedRole, user_name: user?.full_name },
-      });
-      toast({ title: 'Success', description: 'Role assigned successfully' });
-      fetchRoles();
-      setIsAdding(false);
-      setSelectedUserId('');
-      setSelectedRole('');
+      return;
     }
+
+    const user = users.find((u) => u.id === selectedUserId);
+    await logAction({
+      action: 'assign_role',
+      entityType: 'role',
+      details: { user_id: selectedUserId, role: selectedRole, user_name: user?.full_name },
+    });
+    toast({ title: 'Success', description: 'Role assigned successfully' });
+    fetchRoles();
+    setIsAdding(false);
+    setSelectedUserId('');
+    setSelectedRole('');
   };
 
   const handleDeleteRole = async (roleId: string) => {

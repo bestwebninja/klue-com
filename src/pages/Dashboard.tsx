@@ -258,7 +258,7 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <RoleBasedDashboardHome profile={profile} />;
+        return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
       case 'profile':
         return <DashboardProfile profile={profile} onProfileUpdate={fetchProfile} />;
       case 'services':
@@ -322,7 +322,7 @@ const Dashboard = () => {
           </Suspense>
         );
       default:
-        return <RoleBasedDashboardHome profile={profile} />;
+        return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
     }
   };
 

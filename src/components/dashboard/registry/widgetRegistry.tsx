@@ -10,9 +10,9 @@ interface WidgetContext {
 }
 
 const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
-  <Card>
+  <Card className="flex h-full flex-col">
     <CardHeader><CardTitle>Profile Summary</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">
+    <CardContent className="space-y-2 text-sm text-muted-foreground">
       <p>{profile?.full_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Name pending'}</p>
       <p>{profile?.company_name || 'Company pending'} · {profile?.services_offered?.[0] || 'Service pending'}</p>
       <p>{profile?.city || 'City'}{profile?.state ? `, ${profile.state}` : ''} {profile?.zip_code || ''}</p>
@@ -21,21 +21,21 @@ const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
 );
 
 const WeatherWidget = ({ profile }: WidgetContext) => (
-  <Card>
+  <Card className="flex h-full flex-col">
     <CardHeader><CardTitle>Weather</CardTitle></CardHeader>
     <CardContent className="text-sm text-muted-foreground">Location-aware weather snapshot for {profile?.zip_code || 'your ZIP'} (cached + refreshable).</CardContent>
   </Card>
 );
 
 const AreaRiskWidget = ({ profile }: WidgetContext) => (
-  <Card>
+  <Card className="flex h-full flex-col">
     <CardHeader><CardTitle>Area Risk</CardTitle></CardHeader>
     <CardContent className="text-sm text-muted-foreground">Crime/public safety trend summary for {profile?.zip_code || 'your market'} with cache-first fallback.</CardContent>
   </Card>
 );
 
 const NextBestActionWidget = ({ profile }: WidgetContext) => (
-  <Card>
+  <Card className="flex h-full flex-col">
     <CardHeader>
       <CardTitle className="flex items-center justify-between">AI Next Best Action <Badge>Scaffold</Badge></CardTitle>
     </CardHeader>
@@ -46,9 +46,40 @@ const NextBestActionWidget = ({ profile }: WidgetContext) => (
 );
 
 const PlaceholderWidget = ({ title }: { title: string }) => (
-  <Card>
+  <Card className="flex h-full flex-col">
     <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
     <CardContent className="text-sm text-muted-foreground">Widget scaffold ready. Data source wiring is intentionally deferred.</CardContent>
+  </Card>
+);
+
+const SiteManagerWidget = () => (
+  <Card className="flex h-full flex-col">
+    <CardHeader>
+      <CardTitle>Site Manager</CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-4 text-sm text-muted-foreground">
+      <dl className="space-y-3">
+        <div className="space-y-1">
+          <dt className="font-medium text-foreground">Site Manager Name</dt>
+          <dd className="rounded-md border border-dashed p-2">Pending assignment</dd>
+        </div>
+        <div className="space-y-1">
+          <dt className="font-medium text-foreground">Assigned Project</dt>
+          <dd className="rounded-md border border-dashed p-2">Project not connected yet</dd>
+        </div>
+        <div className="space-y-1">
+          <dt className="font-medium text-foreground">Daily Notes</dt>
+          <dd className="rounded-md border border-dashed p-2">No notes submitted</dd>
+        </div>
+        <div className="space-y-1">
+          <dt className="font-medium text-foreground">Escalations / Requests</dt>
+          <dd className="rounded-md border border-dashed p-2">No active escalations</dd>
+        </div>
+      </dl>
+      <p>
+        This box will connect to the General Contractor Dashboard so the Main Project Manager can input and sync details.
+      </p>
+    </CardContent>
   </Card>
 );
 
@@ -73,4 +104,5 @@ export const WIDGET_REGISTRY: Record<WidgetKey, WidgetDefinition> = {
   ai_next_action: { key: 'ai_next_action', title: 'AI Next Action', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['profile', 'geo_intelligence', 'jobs', 'suppliers'], refreshStrategy: 'cache_first', priority: 8, render: (context) => <NextBestActionWidget {...context} /> },
   project_alerts: { key: 'project_alerts', title: 'Project Alerts', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'realtime', priority: 9, render: () => <PlaceholderWidget title="Project Alerts" /> },
   compliance: { key: 'compliance', title: 'Compliance', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 10, render: () => <PlaceholderWidget title="Compliance" /> },
+  site_manager: { key: 'site_manager', title: 'Site Manager', allowedRoles: ['subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'on_demand', priority: 11, render: () => <SiteManagerWidget /> },
 };

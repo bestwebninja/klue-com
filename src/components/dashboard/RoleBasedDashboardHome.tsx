@@ -13,7 +13,7 @@ export const RoleBasedDashboardHome = ({ profile }: { profile: Profile | null })
         <h2 className="text-2xl font-semibold">{template.label}</h2>
         <p className="text-sm text-muted-foreground">{template.description || 'Template-driven dashboard shell with role-aware widgets, nav defaults, and permissions.'}</p>
       </div>
-      <RoleBasedWidgets widgets={template.widgetKeys} profile={profile} />
+      <RoleBasedWidgets widgets={template.widgetKeys} layout={template.defaultLayout} profile={profile} />
     </div>
   );
 };

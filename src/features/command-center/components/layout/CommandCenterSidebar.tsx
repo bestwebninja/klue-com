@@ -2,16 +2,16 @@ import { BarChart3, CalendarDays, Cpu, Home, Link2, PanelLeftClose, Settings, Sh
 import { Link, useLocation } from "react-router-dom";
 import type { NavItemConfig } from "../../templates/types";
 
-const fallbackItems: NavItemConfig[] = [
-  { key: "home", label: "Home", section: "operations" },
-  { key: "today", label: "Today", section: "operations" },
-  { key: "pipeline", label: "Pipeline", section: "operations" },
-  { key: "analytics", label: "Analytics", section: "operations" },
-  { key: "ai-agents", label: "AI Agents", section: "operations" },
-  { key: "compliance", label: "Compliance", section: "systems" },
-  { key: "integrations", label: "Integrations", section: "systems" },
-  { key: "settings", label: "Settings", section: "systems" },
-];
+const fallbackItems = [
+  { key: "home", label: "Home", section: "operations" as const },
+  { key: "today", label: "Today", section: "operations" as const },
+  { key: "pipeline", label: "Pipeline", section: "operations" as const },
+  { key: "analytics", label: "Analytics", section: "operations" as const },
+  { key: "ai-agents", label: "AI Agents", section: "operations" as const },
+  { key: "compliance", label: "Compliance", section: "systems" as const },
+  { key: "integrations", label: "Integrations", section: "systems" as const },
+  { key: "settings", label: "Settings", section: "systems" as const },
+] satisfies NavItemConfig[];
 
 const iconMap: Record<string, typeof CalendarDays> = {
   home: Home,
@@ -26,8 +26,7 @@ const iconMap: Record<string, typeof CalendarDays> = {
 
 export function CommandCenterSidebar({ basePath, items }: { basePath: string; items?: NavItemConfig[] }) {
   const location = useLocation();
-  const providedItems = items?.length ? items : fallbackItems;
-  const navItems = providedItems;
+  const navItems = items?.length ? items : fallbackItems;
 
   const grouped = {
     operations: navItems.filter((item) => (item.section ?? "operations") === "operations"),

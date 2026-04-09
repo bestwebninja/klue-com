@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import RemodelingCommandCenterPage from './RemodelingCommandCenterPage';
 import { dashboardTemplateService } from '../services/dashboardTemplateService';
 import { CommandCenterLayout } from '../components/layout/CommandCenterLayout';
@@ -10,9 +10,16 @@ import type { TradeKey } from '../templates/types';
 export default function TradeCommandCenterPage() {
   const { workspaceId, tradeKey } = useParams();
   const [searchParams] = useSearchParams();
+  const section = searchParams.get('section');
 
   if (tradeKey === 'remodeling') {
     return <RemodelingCommandCenterPage />;
+  }
+
+  if (!section) {
+    const params = new URLSearchParams(searchParams);
+    params.set('section', 'today');
+    return <Navigate to={`?${params.toString()}`} replace />;
   }
 
   const template = dashboardTemplateService.getTemplateByAudience('trade', tradeKey as TradeKey);

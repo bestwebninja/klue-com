@@ -31,7 +31,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   const authHeader = req.headers.get('Authorization');
-  if (!authHeader) return json({ error: 'Missing Authorization header' }, 401);
+  if (!authHeader?.toLowerCase().startsWith('bearer ')) {
+    return json({ error: 'Missing Authorization bearer token' }, 401);
+  }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -40,7 +42,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-  const token = authHeader.replace(/^Bearer\s+/i, '');
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
   const {
     data: { user },
     error: authError,
@@ -52,7 +54,7 @@ Deno.serve(async (req: Request) => {
 
   const email = user.email?.toLowerCase() ?? '';
   if (!ADMIN_ALLOWLIST.includes(email)) {
-    return json({ ok: true, synced: false });
+    return json({ ok: true, synced: false, reason: 'email_not_allowlisted' });
   }
 
   const { error: upsertError } = await adminClient

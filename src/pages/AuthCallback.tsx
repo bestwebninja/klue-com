@@ -26,6 +26,18 @@ export default function AuthCallback() {
     handleCallback();
   }, []);
 
+
+  const syncAdminRoleOnOAuth = async () => {
+    try {
+      const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
+      if (syncAdminError) {
+        console.error('Admin role sync error (non-fatal):', syncAdminError);
+      }
+    } catch (syncError) {
+      console.error('Admin role sync exception (non-fatal):', syncError);
+    }
+  };
+
   const handleCallback = async () => {
     // Supabase automatically exchanges the ?code param or hash fragment
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -47,14 +59,7 @@ export default function AuthCallback() {
     const isOAuthProvider = Boolean(session.provider_token) || hasOAuthProvider || (provider !== 'email' && provider !== 'phone');
 
     if (isOAuthProvider) {
-      try {
-        const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
-        if (syncAdminError) {
-          console.error('Admin role sync error (non-fatal):', syncAdminError);
-        }
-      } catch (syncError) {
-        console.error('Admin role sync exception (non-fatal):', syncError);
-      }
+      await syncAdminRoleOnOAuth();
     }
 
     // Record auth method in profile

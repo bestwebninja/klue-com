@@ -40,6 +40,17 @@ export default function AuthCallback() {
     const provider = user.app_metadata?.provider ?? 'email';
     const isNew = isNewUser(user.created_at);
 
+    if (provider !== 'email') {
+      try {
+        const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
+        if (syncAdminError) {
+          console.error('Admin role sync error (non-fatal):', syncAdminError);
+        }
+      } catch (syncError) {
+        console.error('Admin role sync exception (non-fatal):', syncError);
+      }
+    }
+
     // Record auth method in profile
     await supabase
       .from('profiles')

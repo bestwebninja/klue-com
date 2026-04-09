@@ -8,6 +8,7 @@ const baseLayout = {
   weather: { colSpan: 1 },
   area_risk: { colSpan: 1 },
   ai_next_action: { colSpan: 2 },
+  site_manager: { colSpan: 1 },
 };
 
 const createTemplate = (config: DashboardTemplateConfig): DashboardTemplateConfig => config;
@@ -42,7 +43,7 @@ export const DASHBOARD_TEMPLATE_REGISTRY: Record<string, DashboardTemplateConfig
   roofing: createTemplate({ key: 'roofing', label: 'Roofing Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'claims', label: 'Claims' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'project_alerts', 'ai_next_action'], defaultLayout: baseLayout }),
   painting: createTemplate({ key: 'painting', label: 'Painting Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'schedule', label: 'Schedule' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'], defaultLayout: baseLayout }),
   carpentry: createTemplate({ key: 'carpentry', label: 'Carpentry Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'materials', label: 'Materials' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'jobs', 'suppliers', 'ai_next_action'], defaultLayout: baseLayout }),
-  'subcontractor-default': createTemplate({ key: 'subcontractor-default', label: 'Subcontractor Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'messages', label: 'Messages' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'ai_next_action'], defaultLayout: baseLayout }),
+  'subcontractor-default': createTemplate({ key: 'subcontractor-default', label: 'Subcontractor Dashboard', userCategory: 'subcontractor', version: 1, navItems: [{ key: 'home', label: 'Home' }, { key: 'jobs', label: 'Jobs' }, { key: 'messages', label: 'Messages' }, { key: 'ai', label: 'AI' }], widgetKeys: ['profile_summary', 'weather', 'area_risk', 'jobs', 'site_manager', 'ai_next_action'], defaultLayout: baseLayout }),
 };
 
 export const resolveDashboardTemplate = (profile: Profile | null): DashboardTemplateConfig => {

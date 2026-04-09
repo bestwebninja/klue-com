@@ -10,9 +10,9 @@ interface WidgetContext {
 }
 
 const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Profile Summary</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">
+  <Card className="h-full">
+    <CardHeader className="p-5 pb-2"><CardTitle className="text-base">Profile Summary</CardTitle></CardHeader>
+    <CardContent className="space-y-1.5 p-5 pt-2 text-sm text-muted-foreground">
       <p>{profile?.full_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Name pending'}</p>
       <p>{profile?.company_name || 'Company pending'} · {profile?.services_offered?.[0] || 'Service pending'}</p>
       <p>{profile?.city || 'City'}{profile?.state ? `, ${profile.state}` : ''} {profile?.zip_code || ''}</p>
@@ -21,34 +21,34 @@ const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
 );
 
 const WeatherWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Weather</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Location-aware weather snapshot for {profile?.zip_code || 'your ZIP'} (cached + refreshable).</CardContent>
+  <Card className="h-full">
+    <CardHeader className="p-5 pb-2"><CardTitle className="text-base">Weather</CardTitle></CardHeader>
+    <CardContent className="p-5 pt-2 text-sm text-muted-foreground">Location-aware weather snapshot for {profile?.zip_code || 'your ZIP'} (cached + refreshable).</CardContent>
   </Card>
 );
 
 const AreaRiskWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Area Risk</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Crime/public safety trend summary for {profile?.zip_code || 'your market'} with cache-first fallback.</CardContent>
+  <Card className="h-full">
+    <CardHeader className="p-5 pb-2"><CardTitle className="text-base">Area Risk</CardTitle></CardHeader>
+    <CardContent className="p-5 pt-2 text-sm text-muted-foreground">Crime/public safety trend summary for {profile?.zip_code || 'your market'} with cache-first fallback.</CardContent>
   </Card>
 );
 
 const NextBestActionWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="flex items-center justify-between">AI Next Best Action <Badge>Scaffold</Badge></CardTitle>
+  <Card className="h-full">
+    <CardHeader className="p-5 pb-2">
+      <CardTitle className="flex items-center justify-between gap-2 text-base">AI Next Best Action <Badge>Scaffold</Badge></CardTitle>
     </CardHeader>
-    <CardContent className="text-sm text-muted-foreground">
+    <CardContent className="p-5 pt-2 text-sm text-muted-foreground">
       Prioritize profile completion, local weather risk, and {profile?.services_offered?.[0] || 'service'} pipeline opportunities.
     </CardContent>
   </Card>
 );
 
 const PlaceholderWidget = ({ title }: { title: string }) => (
-  <Card>
-    <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Widget scaffold ready. Data source wiring is intentionally deferred.</CardContent>
+  <Card className="h-full">
+    <CardHeader className="p-5 pb-2"><CardTitle className="text-base">{title}</CardTitle></CardHeader>
+    <CardContent className="p-5 pt-2 text-sm text-muted-foreground">Widget scaffold ready. Data source wiring is intentionally deferred.</CardContent>
   </Card>
 );
 

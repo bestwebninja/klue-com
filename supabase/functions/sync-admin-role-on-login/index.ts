@@ -6,11 +6,25 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const ADMIN_ALLOWLIST = [
+const DEFAULT_ADMIN_ALLOWLIST = [
   'divitiae.terrae.llc@gmail.com',
   'marcus@kluje.com',
   'marcusmommsen@gmail.com',
 ] as const;
+
+const resolveAllowlist = (): string[] => {
+  const configured = Deno.env.get('ADMIN_ALLOWLIST_EMAILS');
+  if (!configured) return [...DEFAULT_ADMIN_ALLOWLIST];
+
+  const emails = configured
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+  return emails.length > 0 ? emails : [...DEFAULT_ADMIN_ALLOWLIST];
+};
+
+const ADMIN_ALLOWLIST = resolveAllowlist();
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -37,9 +51,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const email = user.email?.toLowerCase() ?? '';
-  const isAllowlisted = ADMIN_ALLOWLIST.includes(email as (typeof ADMIN_ALLOWLIST)[number]);
-
-  if (!isAllowlisted) {
+  if (!ADMIN_ALLOWLIST.includes(email)) {
     return json({ ok: true, synced: false });
   }
 

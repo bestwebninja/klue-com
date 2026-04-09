@@ -40,7 +40,7 @@ export default function AuthCallback() {
     const provider = user.app_metadata?.provider ?? 'email';
     const isNew = isNewUser(user.created_at);
 
-    const isOAuthProvider = provider !== 'email' && provider !== 'phone';
+    const isOAuthProvider = Boolean(session.provider_token) || (provider !== 'email' && provider !== 'phone');
 
     if (isOAuthProvider) {
       try {

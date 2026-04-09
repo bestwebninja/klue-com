@@ -245,7 +245,7 @@ const Dashboard = () => {
 
   const navItems = [
     providerNavItems[0],
-    { value: 'gc-command', label: 'Contractors', icon: HardHat },
+    { value: 'gc-command', label: 'GC-Dashboard', icon: HardHat },
     ...providerNavItems.slice(1),
     ...(isAdmin ? [
       { value: 'admin-users',      label: 'Users',         icon: Users     },

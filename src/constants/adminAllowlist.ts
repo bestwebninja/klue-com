@@ -6,5 +6,6 @@ export const ADMIN_ALLOWLIST_EMAILS = [
 
 export const isAllowlistedAdminEmail = (email?: string | null): boolean => {
   if (!email) return false;
-  return ADMIN_ALLOWLIST_EMAILS.includes(email.toLowerCase() as (typeof ADMIN_ALLOWLIST_EMAILS)[number]);
+  const normalizedEmail = email.trim().toLowerCase();
+  return ADMIN_ALLOWLIST_EMAILS.includes(normalizedEmail as (typeof ADMIN_ALLOWLIST_EMAILS)[number]);
 };

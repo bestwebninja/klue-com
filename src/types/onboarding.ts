@@ -8,7 +8,8 @@ export type WidgetKey =
   | 'legal_logistics'
   | 'ai_next_action'
   | 'project_alerts'
-  | 'compliance';
+  | 'compliance'
+  | 'site_manager';
 
 export interface Profile {
   user_id: string;

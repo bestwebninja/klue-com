@@ -82,6 +82,8 @@ const Auth = () => {
       });
   }, []);
 
+  const adminAllowlistSignupMode = searchParams.get('signupMode') === 'admin-allowlist';
+
   const { signIn, signUp, user } = useAuth();
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();
   const { isComplete: profileComplete, loading: profileLoading } = useProfileComplete();
@@ -152,6 +154,33 @@ const Auth = () => {
     setSelectedServices(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
   };
 
+  const ensureProfileExists = async ({
+    userId,
+    profileEmail,
+    displayName,
+    profileExtras = {},
+  }: {
+    userId: string;
+    profileEmail: string;
+    displayName?: string | null;
+    profileExtras?: Record<string, unknown>;
+  }) => {
+    const payload = {
+      id: userId,
+      email: profileEmail.trim().toLowerCase(),
+      full_name: displayName?.trim() || null,
+      ...profileExtras,
+    };
+
+    const { error } = await (supabase
+      .from('profiles')
+      .upsert(payload as any, { onConflict: 'id' } as any) as any);
+
+    if (error) {
+      console.warn('Profile upsert fallback failed:', error);
+    }
+  };
+
   const handleSelectType = (type: UserType) => {
     setUserType(type);
     setSignupStep('details');
@@ -205,8 +234,9 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // If signups are restricted, allow allowlisted admin emails to bypass
-    if (signupsRestricted && !isAllowlistedAdminEmail(email)) {
+    // Restriction gate is only enforced in dedicated admin allowlist mode.
+    // Normal production signups should continue even if signups_restricted is set.
+    if (adminAllowlistSignupMode && signupsRestricted && !isAllowlistedAdminEmail(email)) {
       supabase.functions.invoke('notify-signup-attempt', {
         body: { email, userType },
       }).catch(() => {
@@ -258,6 +288,30 @@ const Auth = () => {
           toast({ title: 'Signup failed', description: error.message, variant: 'destructive' });
         }
       } else {
+        if (data?.user) {
+          const providerFallbackProfile = userType === 'provider' ? {
+            first_name: firstName.trim() || null,
+            last_name: lastName.trim() || null,
+            company_name: companyName.trim() || null,
+            zip_code: zipCode || null,
+            city: city || null,
+            state: state || null,
+            county: county || null,
+            latitude,
+            longitude,
+            lat: latitude,
+            lng: longitude,
+            services_offered: selectedServices,
+            service_type_label: selectedServices[0] || null,
+          } : {};
+
+          await ensureProfileExists({
+            userId: data.user.id,
+            profileEmail: email,
+            displayName,
+            profileExtras: providerFallbackProfile,
+          });
+        }
 
         // Newsletter consent — subscribe silently
         if (newsletterConsent && data?.user) {
@@ -346,6 +400,21 @@ const Auth = () => {
           setAuthView('email-not-verified');
         } else {
           toast({ title: 'Login failed', description: error.message, variant: 'destructive' });
+        }
+      } else {
+        const { data: authData } = await supabase.auth.getUser();
+        if (authData.user) {
+          const metadata = (authData.user.user_metadata || {}) as Record<string, unknown>;
+          const displayName = typeof metadata.full_name === 'string'
+            ? metadata.full_name
+            : (typeof metadata.company_name === 'string'
+              ? metadata.company_name
+              : email.split('@')[0]);
+          await ensureProfileExists({
+            userId: authData.user.id,
+            profileEmail: authData.user.email || email,
+            displayName,
+          });
         }
       }
     } catch (error) {

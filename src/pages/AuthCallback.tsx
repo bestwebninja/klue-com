@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PostOAuthConsentScreen from '@/components/auth/PostOAuthConsentScreen';
+
+const NON_OAUTH_PROVIDERS = new Set(['email', 'phone']);
 
 type Stage =
   | 'exchanging'       // exchanging OAuth code for session
@@ -26,6 +28,17 @@ export default function AuthCallback() {
     handleCallback();
   }, []);
 
+  const syncAdminRoleOnOAuth = async () => {
+    try {
+      const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
+      if (syncAdminError) {
+        console.error('Admin role sync error (non-fatal):', syncAdminError);
+      }
+    } catch (syncError) {
+      console.error('Admin role sync exception (non-fatal):', syncError);
+    }
+  };
+
   const handleCallback = async () => {
     // Supabase automatically exchanges the ?code param or hash fragment
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -38,7 +51,17 @@ export default function AuthCallback() {
 
     const user = session.user;
     const provider = user.app_metadata?.provider ?? 'email';
+    const providers = Array.isArray(user.app_metadata?.providers)
+      ? (user.app_metadata.providers as string[])
+      : [];
     const isNew = isNewUser(user.created_at);
+
+    const hasOAuthProvider = providers.some((p) => !NON_OAUTH_PROVIDERS.has(p));
+    const isOAuthProvider = Boolean(session.provider_token) || hasOAuthProvider || !NON_OAUTH_PROVIDERS.has(provider);
+
+    if (isOAuthProvider) {
+      await syncAdminRoleOnOAuth();
+    }
 
     // Record auth method in profile
     await supabase

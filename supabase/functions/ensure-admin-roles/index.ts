@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEFAULT_ADMIN_ALLOWLIST = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com"];
+const DEFAULT_ADMIN_ALLOWLIST = ["divitiae.terrae.llc@gmail.com", "marcus@kluje.com", "marcusmommsen@gmail.com"];
 
 const resolveAdminAllowlist = (): string[] => {
   const configured = Deno.env.get("ADMIN_ALLOWLIST_EMAILS");

@@ -7,31 +7,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { isAllowlistedAdminEmail } from "@/constants/adminAllowlist";
 
 export default function CookieAdminLoginPage() {
   const { user, signIn } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Already authenticated — redirect if allowed
-  if (user && isAllowlistedAdminEmail(user.email)) {
+  if (!roleLoading && user && isAdmin) {
     navigate("/cookie-admin", { replace: true });
     return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAllowlistedAdminEmail(email)) {
-      toast({ title: "Access denied", description: "This email is not authorised.", variant: "destructive" });
-      return;
-    }
     setLoading(true);
     try {
       const { error } = await signIn(email, password);
@@ -39,6 +36,32 @@ export default function CookieAdminLoginPage() {
         toast({ title: "Login failed", description: error.message || "Invalid credentials.", variant: "destructive" });
         return;
       }
+
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+
+      if (!currentUser) {
+        toast({ title: "Login failed", description: "No authenticated user.", variant: "destructive" });
+        return;
+      }
+
+      const { data: adminRole, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", currentUser.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (roleError || !adminRole) {
+        toast({
+          title: "Access denied",
+          description: "Your account does not have the admin role.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       navigate("/cookie-admin", { replace: true });
     } catch {
       toast({ title: "Login failed", description: "Invalid credentials.", variant: "destructive" });
@@ -59,7 +82,7 @@ export default function CookieAdminLoginPage() {
               <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
             <CardTitle>Cookie Admin Login</CardTitle>
-            <p className="text-sm text-muted-foreground">Authorised personnel only</p>
+            <p className="text-sm text-muted-foreground">Admin role required</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

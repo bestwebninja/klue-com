@@ -45,6 +45,30 @@ const NextBestActionWidget = ({ profile }: WidgetContext) => (
   </Card>
 );
 
+const SiteManagerWidget = () => (
+  <Card>
+    <CardHeader><CardTitle>Site Manager</CardTitle></CardHeader>
+    <CardContent className="space-y-3 text-sm text-muted-foreground">
+      <div>
+        <p className="font-medium text-foreground">Site Manager Name</p>
+        <p>Placeholder for main project manager assignment.</p>
+      </div>
+      <div>
+        <p className="font-medium text-foreground">Assigned Project</p>
+        <p>Placeholder for linked General Contractor project details.</p>
+      </div>
+      <div>
+        <p className="font-medium text-foreground">Daily Notes</p>
+        <p>Placeholder for day-to-day status updates and handoff notes.</p>
+      </div>
+      <div>
+        <p className="font-medium text-foreground">Escalations / Requests</p>
+        <p>Placeholder for open issues, blockers, and escalation requests.</p>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const PlaceholderWidget = ({ title }: { title: string }) => (
   <Card>
     <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
@@ -68,9 +92,10 @@ export const WIDGET_REGISTRY: Record<WidgetKey, WidgetDefinition> = {
   weather: { key: 'weather', title: 'Weather', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['geo_intelligence.weather'], refreshStrategy: 'cache_first', priority: 3, render: (context) => <WeatherWidget {...context} /> },
   area_risk: { key: 'area_risk', title: 'Area Risk', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['geo_intelligence.crime'], refreshStrategy: 'cache_first', priority: 4, render: (context) => <AreaRiskWidget {...context} /> },
   jobs: { key: 'jobs', title: 'Jobs', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['jobs'], refreshStrategy: 'realtime', priority: 5, render: () => <PlaceholderWidget title="Jobs" /> },
-  suppliers: { key: 'suppliers', title: 'Suppliers', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['suppliers', 'geo_intelligence.suppliers'], refreshStrategy: 'cache_first', priority: 6, render: () => <PlaceholderWidget title="Suppliers" /> },
-  legal_logistics: { key: 'legal_logistics', title: 'Legal Logistics', allowedRoles: ['general_contractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 7, render: () => <PlaceholderWidget title="Legal Logistics" /> },
-  ai_next_action: { key: 'ai_next_action', title: 'AI Next Action', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['profile', 'geo_intelligence', 'jobs', 'suppliers'], refreshStrategy: 'cache_first', priority: 8, render: (context) => <NextBestActionWidget {...context} /> },
-  project_alerts: { key: 'project_alerts', title: 'Project Alerts', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'realtime', priority: 9, render: () => <PlaceholderWidget title="Project Alerts" /> },
-  compliance: { key: 'compliance', title: 'Compliance', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 10, render: () => <PlaceholderWidget title="Compliance" /> },
+  site_manager: { key: 'site_manager', title: 'Site Manager', allowedRoles: ['subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'on_demand', priority: 6, render: () => <SiteManagerWidget /> },
+  suppliers: { key: 'suppliers', title: 'Suppliers', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['suppliers', 'geo_intelligence.suppliers'], refreshStrategy: 'cache_first', priority: 7, render: () => <PlaceholderWidget title="Suppliers" /> },
+  legal_logistics: { key: 'legal_logistics', title: 'Legal Logistics', allowedRoles: ['general_contractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 8, render: () => <PlaceholderWidget title="Legal Logistics" /> },
+  ai_next_action: { key: 'ai_next_action', title: 'AI Next Action', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['profile', 'geo_intelligence', 'jobs', 'suppliers'], refreshStrategy: 'cache_first', priority: 9, render: (context) => <NextBestActionWidget {...context} /> },
+  project_alerts: { key: 'project_alerts', title: 'Project Alerts', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'realtime', priority: 10, render: () => <PlaceholderWidget title="Project Alerts" /> },
+  compliance: { key: 'compliance', title: 'Compliance', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 11, render: () => <PlaceholderWidget title="Compliance" /> },
 };

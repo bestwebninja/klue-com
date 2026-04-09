@@ -4,6 +4,7 @@ export type WidgetKey =
   | 'weather'
   | 'area_risk'
   | 'jobs'
+  | 'site_manager'
   | 'suppliers'
   | 'legal_logistics'
   | 'ai_next_action'

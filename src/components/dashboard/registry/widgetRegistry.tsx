@@ -1,6 +1,6 @@
 import type { Database } from '@/integrations/supabase/types';
 import type { WidgetKey } from '@/types/onboarding';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -9,10 +9,16 @@ interface WidgetContext {
   profile: Profile | null;
 }
 
+const standardCardClassName = 'h-full';
+const headerClassName = 'space-y-1.5 p-5 pb-2';
+const contentClassName = 'p-5 pt-0 text-sm text-muted-foreground space-y-1.5';
+
 const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Profile Summary</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle>Profile Summary</CardTitle>
+    </CardHeader>
+    <CardContent className={contentClassName}>
       <p>{profile?.full_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Name pending'}</p>
       <p>{profile?.company_name || 'Company pending'} · {profile?.services_offered?.[0] || 'Service pending'}</p>
       <p>{profile?.city || 'City'}{profile?.state ? `, ${profile.state}` : ''} {profile?.zip_code || ''}</p>
@@ -21,34 +27,66 @@ const ProfileSummaryWidget = ({ profile }: WidgetContext) => (
 );
 
 const WeatherWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Weather</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Location-aware weather snapshot for {profile?.zip_code || 'your ZIP'} (cached + refreshable).</CardContent>
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle>Weather</CardTitle>
+    </CardHeader>
+    <CardContent className={contentClassName}>
+      Location-aware weather snapshot for {profile?.zip_code || 'your ZIP'} (cached + refreshable).
+    </CardContent>
   </Card>
 );
 
 const AreaRiskWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader><CardTitle>Area Risk</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Crime/public safety trend summary for {profile?.zip_code || 'your market'} with cache-first fallback.</CardContent>
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle>Area Risk</CardTitle>
+    </CardHeader>
+    <CardContent className={contentClassName}>
+      Crime/public safety trend summary for {profile?.zip_code || 'your market'} with cache-first fallback.
+    </CardContent>
+  </Card>
+);
+
+const SiteManagerWidget = () => (
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle className="flex items-center justify-between gap-2">
+        Site Manager
+        <Badge variant="secondary">Planned</Badge>
+      </CardTitle>
+      <CardDescription>
+        Future bridge to the General Contractor Dashboard for site-level coordination.
+      </CardDescription>
+    </CardHeader>
+    <CardContent className={contentClassName}>
+      Reserved for Main Project Manager inputs like site notes, constraints, and handoff metadata.
+    </CardContent>
   </Card>
 );
 
 const NextBestActionWidget = ({ profile }: WidgetContext) => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="flex items-center justify-between">AI Next Best Action <Badge>Scaffold</Badge></CardTitle>
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle className="flex items-center justify-between gap-2">
+        AI Next Best Action
+        <Badge>Scaffold</Badge>
+      </CardTitle>
     </CardHeader>
-    <CardContent className="text-sm text-muted-foreground">
+    <CardContent className={contentClassName}>
       Prioritize profile completion, local weather risk, and {profile?.services_offered?.[0] || 'service'} pipeline opportunities.
     </CardContent>
   </Card>
 );
 
 const PlaceholderWidget = ({ title }: { title: string }) => (
-  <Card>
-    <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
-    <CardContent className="text-sm text-muted-foreground">Widget scaffold ready. Data source wiring is intentionally deferred.</CardContent>
+  <Card className={standardCardClassName}>
+    <CardHeader className={headerClassName}>
+      <CardTitle>{title}</CardTitle>
+    </CardHeader>
+    <CardContent className={contentClassName}>
+      Widget scaffold ready. Data source wiring is intentionally deferred.
+    </CardContent>
   </Card>
 );
 
@@ -73,4 +111,5 @@ export const WIDGET_REGISTRY: Record<WidgetKey, WidgetDefinition> = {
   ai_next_action: { key: 'ai_next_action', title: 'AI Next Action', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['profile', 'geo_intelligence', 'jobs', 'suppliers'], refreshStrategy: 'cache_first', priority: 8, render: (context) => <NextBestActionWidget {...context} /> },
   project_alerts: { key: 'project_alerts', title: 'Project Alerts', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['projects'], refreshStrategy: 'realtime', priority: 9, render: () => <PlaceholderWidget title="Project Alerts" /> },
   compliance: { key: 'compliance', title: 'Compliance', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['compliance'], refreshStrategy: 'on_demand', priority: 10, render: () => <PlaceholderWidget title="Compliance" /> },
+  site_manager: { key: 'site_manager', title: 'Site Manager', allowedRoles: ['general_contractor', 'subcontractor'], requiredDataSources: ['projects', 'profile'], refreshStrategy: 'on_demand', priority: 11, render: () => <SiteManagerWidget /> },
 };

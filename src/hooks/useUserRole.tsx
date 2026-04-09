@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import type { Database } from '@/integrations/supabase/types';
+import { isAllowlistedAdminEmail } from '@/constants/adminAllowlist';
 
 type AppRole = Database['public']['Enums']['app_role'];
 
@@ -26,9 +27,14 @@ export function useUserRole() {
 
       if (error) {
         console.error('Error fetching user roles:', error);
-        setRoles([]);
+        setRoles(isAllowlistedAdminEmail(user.email) ? ['admin'] : []);
       } else {
-        setRoles(data?.map(r => r.role) || []);
+        const fetchedRoles = data?.map((r) => r.role) || [];
+        const resolvedRoles = isAllowlistedAdminEmail(user.email) && !fetchedRoles.includes('admin')
+          ? [...fetchedRoles, 'admin']
+          : fetchedRoles;
+
+        setRoles(resolvedRoles);
       }
       setLoading(false);
     };

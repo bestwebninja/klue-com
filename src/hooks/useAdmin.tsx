@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { isAllowlistedAdminEmail } from '@/constants/adminAllowlist';
 
 export const useAdmin = () => {
   const { user } = useAuth();
@@ -11,6 +12,12 @@ export const useAdmin = () => {
     const checkAdminStatus = async () => {
       if (!user) {
         setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      if (isAllowlistedAdminEmail(user.email)) {
+        setIsAdmin(true);
         setLoading(false);
         return;
       }

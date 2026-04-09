@@ -51,6 +51,8 @@ const providerNavItems = [
   { value: 'subscription', label: 'Subscription', icon: FileText },
 ];
 
+const ADMIN_TABS = new Set(['admin-users', 'admin-roles', 'admin-newsletter', 'admin-settings']);
+
 const Dashboard = () => {
   const { user, loading, signOut } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
@@ -59,7 +61,8 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'home');
+  const initialTab = searchParams.get('tab') || 'home';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [setupChecked, setSetupChecked] = useState(false);
@@ -122,12 +125,30 @@ const Dashboard = () => {
   // Sync URL params with tab
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl);
+    if (!tabFromUrl) return;
+
+    const normalizedTab = !isAdmin && ADMIN_TABS.has(tabFromUrl) ? 'home' : tabFromUrl;
+
+    if (normalizedTab !== tabFromUrl) {
+      setSearchParams({ tab: normalizedTab });
+      return;
     }
-  }, [searchParams]);
+
+    if (normalizedTab !== activeTab) {
+      setActiveTab(normalizedTab);
+    }
+  }, [searchParams, activeTab, isAdmin, setSearchParams]);
 
   const handleTabChange = (tab: string) => {
+    if (!isAdmin && ADMIN_TABS.has(tab)) {
+      toast({
+        title: 'Access denied',
+        description: 'You do not have permission to view admin pages.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setActiveTab(tab);
     setSearchParams({ tab });
     // Scroll to top and re-evaluate arrows when switching tabs
@@ -286,6 +307,7 @@ const Dashboard = () => {
       case 'command-center':
         return <Navigate to="/command-center/remodeling" replace />;
       case 'admin-users':
+        if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
             <div className="space-y-4">
@@ -295,6 +317,7 @@ const Dashboard = () => {
           </Suspense>
         );
       case 'admin-roles':
+        if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
             <div className="space-y-4">
@@ -304,6 +327,7 @@ const Dashboard = () => {
           </Suspense>
         );
       case 'admin-newsletter':
+        if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
             <div className="space-y-4">
@@ -313,6 +337,7 @@ const Dashboard = () => {
           </Suspense>
         );
       case 'admin-settings':
+        if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (
           <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading…</div>}>
             <div className="space-y-4">

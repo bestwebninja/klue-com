@@ -26,7 +26,6 @@ export default function AuthCallback() {
     handleCallback();
   }, []);
 
-
   const syncAdminRoleOnOAuth = async () => {
     try {
       const { error: syncAdminError } = await supabase.functions.invoke('sync-admin-role-on-login');
@@ -55,8 +54,9 @@ export default function AuthCallback() {
       : [];
     const isNew = isNewUser(user.created_at);
 
-    const hasOAuthProvider = providers.some((p) => p !== 'email' && p !== 'phone');
-    const isOAuthProvider = Boolean(session.provider_token) || hasOAuthProvider || (provider !== 'email' && provider !== 'phone');
+    const nonOAuthProviders = new Set(['email', 'phone']);
+    const hasOAuthProvider = providers.some((p) => !nonOAuthProviders.has(p));
+    const isOAuthProvider = Boolean(session.provider_token) || hasOAuthProvider || !nonOAuthProviders.has(provider);
 
     if (isOAuthProvider) {
       await syncAdminRoleOnOAuth();

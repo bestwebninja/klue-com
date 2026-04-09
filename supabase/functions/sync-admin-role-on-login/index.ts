@@ -24,7 +24,7 @@ const resolveAllowlist = (): string[] => {
   return emails.length > 0 ? emails : [...DEFAULT_ADMIN_ALLOWLIST];
 };
 
-const ADMIN_ALLOWLIST = resolveAllowlist();
+const ADMIN_ALLOWLIST = new Set(resolveAllowlist());
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const email = user.email?.toLowerCase() ?? '';
-  if (!ADMIN_ALLOWLIST.includes(email)) {
+  if (!ADMIN_ALLOWLIST.has(email)) {
     return json({ ok: true, synced: false, reason: 'email_not_allowlisted' });
   }
 

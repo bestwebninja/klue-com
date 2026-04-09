@@ -213,18 +213,20 @@ const ServiceProviderProfile = () => {
 
       if (reviewsError) throw reviewsError;
       
-      // Fetch reviewer profiles
+      // Fetch reviewer display names via security-definer RPC.
+      // Direct profiles reads are restricted by RLS; this function returns only
+      // non-sensitive display fields (id, full_name, avatar_url).
       const reviewerIds = [...new Set((reviewsData || []).map(r => r.reviewer_id))];
       let reviewerProfilesMap: Record<string, any> = {};
-      
+
       if (reviewerIds.length > 0) {
-        const { data: reviewerProfilesData } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', reviewerIds);
-        
+        const { data: reviewerProfilesData } = await (supabase as any)
+          .rpc('get_reviewer_display_names', { reviewer_ids: reviewerIds });
+
         if (reviewerProfilesData) {
-          reviewerProfilesMap = Object.fromEntries(reviewerProfilesData.map(p => [p.id, p]));
+          reviewerProfilesMap = Object.fromEntries(
+            (reviewerProfilesData as any[]).map((p) => [p.id, p]),
+          );
         }
       }
       

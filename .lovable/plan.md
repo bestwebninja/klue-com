@@ -1,64 +1,36 @@
 
+# Kluje Platform — Current State (as of 2026-04-09)
 
-# Command Center Repo Review — Current State and Issues
+## All Previously Noted Issues: RESOLVED
 
-## What's Working
+### Command Center — Fixed in PR #121
 
-- **Standalone Remodeling Dashboard** (`/command-center/remodeling`): Fully rendered with navy/gold theme, header with Kluje branding, sidebar, 4 KPI cards with sparklines, 4-column Kanban pipeline, 3 AI agents, right rail (alerts, weather, compliance, quick actions), and footer with export buttons.
-- **Shared Layout Components**: `CommandCenterLayout`, `CommandCenterHeader`, `CommandCenterSidebar`, `CommandCenterRightRail`, `CommandCenterFooter` — all functional and well-structured.
-- **Template System**: 10 trade/audience templates (plumbing, electrical, HVAC, roofing, remodeling, finishing, landscaping, windows/doors, finance, title) with rich config data including KPIs, pipeline items, agents, right rail, and sidebar nav.
-- **Reusable Components**: `KPIInsightCard`, `PipelineBoard`, `AgentPanel`, `SimulatorPanel`, `RiskHeatMap`, `DocumentDrawer` — all exist and are importable.
-- **Finance & Title Pages**: Render via `CommandCenterLayout` with KPI cards, though minimal content.
+| Issue | Resolution |
+|-------|------------|
+| `TradeCommandCenterPage` template key mismatch (`getTemplateByKey` → `getTemplateByAudience`) | Fixed — now uses `getTemplateByAudience('trade', tradeKey)` |
+| Trade page rendered `Section: {section}` placeholder instead of real content | Fixed — now renders KPI grid, `PipelineBoard`, and `AgentPanel` from template config |
+| `CommandCenterHomePage` navigated to `instance.business_unit_id` (undefined) | Fixed — derives trade route from `template_key`; navigates to `/command-center/:userId/trade/:trade` |
+| `useCommandCenter` accessed non-existent `business_unit_id` column | Fixed — uses `user_id` from `dashboard_bootstraps` |
+| `onboardingService` inserted non-existent columns (`business_unit_id`, `primary_trade`, etc.) | Fixed — inserts correct columns: `user_id`, `role_key`, `template_key`, `widget_config` |
+| `createDashboardInstance` did plain insert causing unique constraint crash | Fixed — consolidated into `upsertDashboardBootstrap` |
+| `MyDashboardView` hardcoded `profile={null}` causing blank widget state | Fixed — fetches real user profile before rendering `RoleBasedDashboardHome` |
+| Profiles RLS blocked provider info on quote cards (`UserDashboard`) | Fixed — uses `get_quote_provider_profiles` RPC |
+| Profiles RLS blocked reviewer names on review cards (`ServiceProviderProfile`) | Fixed — uses `get_reviewer_display_names` RPC |
+| New migration `20260409140000` adds two security-definer functions | Added |
 
-## Critical Issue: Template Key Mismatch
+## Current State — All Systems Go
 
-`TradeCommandCenterPage` calls `getTemplateByKey(tradeKey)` where `tradeKey` comes from the URL param (e.g. `"plumbing"`). But template keys are prefixed: `"trade_plumbing_v1"`, `"trade_hvac_v1"`, etc. **No template will ever match**, so every non-remodeling trade route shows the error fallback: "Command Center template failed to load."
+- **`/command-center/remodeling`**: Fully rendered (navy/gold theme, KPIs, pipeline, agents, right rail)
+- **`/command-center/:workspaceId/trade/:tradeKey`**: Template lookup works; renders KPIs, pipeline, agents from template config
+- **`CommandCenterHomePage`**: Resolves existing bootstrap → navigates to correct trade route; no bootstrap → shows setup wizard
+- **Dashboard (`/dashboard`)**: Provider and admin roles render correctly; profile data loads
+- **UserDashboard (`/my-dashboard`)**: Quote cards show provider info via secure RPC
+- **ServiceProviderProfile**: Reviewer names show via secure RPC
+- **Shared layout components**: `CommandCenterLayout`, sidebar, right rail, footer — all functional
 
-### Fix Options (pick one)
-1. Change `getTemplateByKey` call to use `getTemplateByAudience("trade", tradeKey as TradeKey)` — this already exists and matches on the `trade` field
-2. Add a new lookup function that matches by trade field directly
-3. Change all template keys to match URL params (breaking change, not recommended)
+## Remaining Low-Priority Items
 
-**Recommendation**: Option 1 — replace `getTemplateByKey(tradeKey)` with `getTemplateByAudience("trade", tradeKey as TradeKey)` in `TradeCommandCenterPage.tsx`. This is a one-line fix.
-
-## Secondary Issue: Empty Trade Page Content
-
-Even after the template loads, `TradeCommandCenterPage` only renders `Section: {section}` as its children. It doesn't use the template's KPIs, pipeline, or agents. The page needs to render actual dashboard content using the template config.
-
-### Fix
-Render KPI cards, pipeline board, and agent panels inside `CommandCenterLayout` using the template's config data, similar to how `FinanceCommandCenterPage` renders KPIs.
-
-## Other Issues Carried Forward
-
-| Issue | Status | Priority |
-|-------|--------|----------|
-| Duplicate remodeling implementations | Still exists | Medium |
-| Cookie banner overlap on footer | Still present | Low |
-
-## Implementation Plan
-
-### Step 1 — Fix template lookup in TradeCommandCenterPage
-In `TradeCommandCenterPage.tsx`, replace:
-```ts
-const template = dashboardTemplateService.getTemplateByKey(tradeKey || '');
-```
-with:
-```ts
-const template = dashboardTemplateService.getTemplateByAudience('trade', tradeKey as TradeKey);
-```
-Add `TradeKey` to imports from types.
-
-### Step 2 — Render trade dashboard content
-Replace the placeholder `Section: {section}` with actual dashboard content using template config:
-- KPI cards grid using `KPIInsightCard`
-- `PipelineBoard` with `template.config.pipelineItems`
-- Agent cards using `AgentPanel`
-
-Pass `config={template.config}` to `CommandCenterLayout` (already done) so sidebar and right rail populate automatically.
-
-### Step 3 — Pass right rail config
-Ensure `config` prop flows through to `CommandCenterRightRail` — this is already wired in `CommandCenterLayout`.
-
-### Files to Change
-- `src/features/command-center/pages/TradeCommandCenterPage.tsx` — fix lookup + add content rendering
-
+| Issue | Priority |
+|-------|----------|
+| Duplicate remodeling implementations (standalone page + template) | Low |
+| Cookie banner overlap on footer | Low |

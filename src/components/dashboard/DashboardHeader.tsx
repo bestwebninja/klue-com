@@ -109,7 +109,7 @@ export function DashboardHeader({
                 <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-sm shadow-primary/30">
                   <HomeIcon className="w-4 h-4" />
                 </div>
-                <div className="min-w-0 text-sm font-semibold text-white">Contractors — kluje.com</div>
+                <div className="min-w-0 text-sm font-semibold text-white">GC-Dashboard</div>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-200/90 min-w-0">
                 {contractorType && (

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { isAllowlistedAdminEmail } from '@/constants/adminAllowlist';
 import SocialAuthButtons from '@/components/auth/SocialAuthButtons';
 import { SEOHead } from '@/components/SEOHead';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -64,23 +63,9 @@ const Auth = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [newsletterConsent, setNewsletterConsent] = useState(false);
   const [verifiedEmail, setVerifiedEmail] = useState('');
-  const [signupsRestricted, setSignupsRestricted] = useState(false);
   const [contractorType, setContractorType] = useState<'general' | 'sub' | ''>('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
-  
-  
-  // Check signup restriction on mount
-  useEffect(() => {
-    (supabase
-      .from('site_settings' as any)
-      .select('value')
-      .eq('key', 'signups_restricted')
-      .single() as any)
-      .then(({ data }: any) => {
-        if (data?.value === true) setSignupsRestricted(true);
-      });
-  }, []);
 
   const { signIn, signUp, user } = useAuth();
   const { isProvider, isAdmin, loading: roleLoading } = useUserRole();
@@ -204,22 +189,6 @@ const Auth = () => {
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // If signups are restricted, allow allowlisted admin emails to bypass
-    if (signupsRestricted && !isAllowlistedAdminEmail(email)) {
-      supabase.functions.invoke('notify-signup-attempt', {
-        body: { email, userType },
-      }).catch(() => {
-        // Fire-and-forget; also insert directly as fallback
-        (supabase.from('signup_attempts' as any).insert({ email, user_type: userType } as any) as any).catch(() => {});
-      });
-      toast({
-        title: 'Signups temporarily paused',
-        description: 'We\'re finalising the platform. We\'ve noted your interest and will be in touch!',
-      });
-      setIsLoading(false);
-      return;
-    }
 
     try {
       // Validate password

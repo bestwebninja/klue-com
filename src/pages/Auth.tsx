@@ -101,7 +101,12 @@ const Auth = () => {
   const { toast } = useToast();
 
   // Role-based redirect after login
+  // IMPORTANT: skip entirely when the user is in the signup flow — otherwise a
+  // cached session (e.g. an admin already logged in on this browser) would
+  // hijack the page and redirect to /dashboard before signup completes, and
+  // new signups would never reach the verification-pending screen.
   useEffect(() => {
+    if (authView === 'signup') return;
     if (user && !roleLoading && !profileLoading) {
       if (profileComplete === false) {
         navigate('/complete-profile');
@@ -109,7 +114,7 @@ const Auth = () => {
       }
 
       const redirectTo = searchParams.get('redirect');
-      
+
       if (redirectTo) {
         toast({ title: 'Welcome back!', description: 'Returning you to where you left off...' });
         navigate(redirectTo);
@@ -124,7 +129,7 @@ const Auth = () => {
         checkHomeownerFirstLogin();
       }
     }
-  }, [user, roleLoading, profileLoading, profileComplete, isProvider, isAdmin, navigate, toast, searchParams]);
+  }, [authView, user, roleLoading, profileLoading, profileComplete, isProvider, isAdmin, navigate, toast, searchParams]);
 
   const checkProviderSetup = async () => {
     if (!user) return;
@@ -628,8 +633,8 @@ const Auth = () => {
     );
   }
 
-  // Loading state after login
-  if (user && (roleLoading || profileLoading)) {
+  // Loading state after login — not applicable during the signup flow
+  if (authView !== 'signup' && user && (roleLoading || profileLoading)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />

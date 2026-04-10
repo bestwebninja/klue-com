@@ -15,6 +15,7 @@ import providersRoutes from "./providers";
 import quoteRequestsRoutes from "./quote-requests";
 import verificationRoutes from "./verification";
 import marketplaceAgentRoutes from "./marketplace-agents";
+import homepageLeadsRoutes from "./homepage-leads";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
@@ -35,6 +36,7 @@ router.use("/billing", billingRoutes);
 router.use("/onboarding", onboardingRoutes);
 router.use("/zipcodes", zipCodesRoutes);
 router.use("/area-risk", areaRiskRoutes);
+router.use("/homepage-leads", homepageLeadsRoutes);
 router.use("/", contractorOsRoutes);
 
 router.use(requireAuth);

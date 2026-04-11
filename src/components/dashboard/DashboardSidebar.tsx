@@ -168,7 +168,7 @@ export function DashboardSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {isAdmin && adminItems.length > 0 && (
+        {isAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs text-red-400/70 uppercase tracking-wider">
               Admin

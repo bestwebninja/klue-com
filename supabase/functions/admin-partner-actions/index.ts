@@ -96,15 +96,25 @@ serve(async (req) => {
         break;
       case "save_internal_note": {
         const note = `${payload?.note ?? ""}`.trim();
+        const noteId = typeof payload?.note_id === "string" ? payload.note_id : null;
         if (!note) return withCorsJson({ error: "Note is required" }, 400);
 
-        const { error: noteError } = await serviceClient.from("partner_internal_notes").insert({
-          partner_id: partnerId,
-          note,
-          created_by: user.id,
-          updated_by: user.id,
-        });
-        if (noteError) return withCorsJson({ error: noteError.message }, 400);
+        if (noteId) {
+          const { error: noteUpdateError } = await serviceClient
+            .from("partner_internal_notes")
+            .update({ note, updated_by: user.id })
+            .eq("id", noteId)
+            .eq("partner_id", partnerId);
+          if (noteUpdateError) return withCorsJson({ error: noteUpdateError.message }, 400);
+        } else {
+          const { error: noteInsertError } = await serviceClient.from("partner_internal_notes").insert({
+            partner_id: partnerId,
+            note,
+            created_by: user.id,
+            updated_by: user.id,
+          });
+          if (noteInsertError) return withCorsJson({ error: noteInsertError.message }, 400);
+        }
         break;
       }
       case "refresh_contractor_links": {

@@ -23,6 +23,7 @@ export type PartnerRecord = {
   feed_type: string | null;
   partner_categories: { category: string }[];
   contractor_partner_links: { id: string }[];
+  partner_documents?: { expires_at: string | null }[];
 };
 
 export type PartnerAdminAction =

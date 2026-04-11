@@ -57,6 +57,7 @@ const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake")
 const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
+const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartnersDashboardPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="/trademark" element={<Trademark />} />
               <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
               <Route path="/partners/signup" element={<PartnerSignup />} />
+              <Route path="/admin/partners" element={<AdminPartnersDashboardPage />} />
               <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               {getCommandCenterRoutes()}

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight, CheckCircle2, Handshake } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import heroBusiness from '@/assets/hero-business.jpg';
 
 type StepKey = 'organization' | 'campaign' | 'review';
@@ -115,7 +116,30 @@ const PartnerSignup = () => {
     }
 
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const { error } = await supabase.functions.invoke('submit-partner-signup', {
+      body: {
+        organizationName: form.organizationName,
+        contactName: form.contactName,
+        email: form.email,
+        phone: form.phone,
+        website: form.website,
+        partnershipType: form.partnershipType,
+        budgetBand: form.budgetBand,
+        campaignGoals: form.campaignGoals,
+        targetMarkets: form.targetMarkets,
+        launchTimeline: form.launchTimeline,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: 'Unable to submit request',
+        description: error.message,
+        variant: 'destructive',
+      });
+      setSubmitting(false);
+      return;
+    }
 
     toast({
       title: 'Partnership request submitted',

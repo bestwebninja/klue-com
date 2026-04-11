@@ -54,6 +54,7 @@ const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
 const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
 const Trademark = lazy(() => import("./pages/Trademark"));
 const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake"));
+const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -127,6 +128,7 @@ const App = () => (
               <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               <Route path="/trademark" element={<Trademark />} />
               <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
+              <Route path="/partners/signup" element={<PartnerSignup />} />
               <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               {getCommandCenterRoutes()}

@@ -61,6 +61,16 @@ export function Footer() {
               <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Trademark</h3>
               <Link to="/trademark" className="hover:text-white transition-colors py-1">Official Trademark Statement</Link>
 
+              {/* Partners */}
+              <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Partners</h3>
+              <Link to="/advertise" className="hover:text-white transition-colors py-1">Partnership Programs</Link>
+              <Link
+                to="/partners/signup"
+                className="inline-block w-fit py-1 px-3 rounded-md bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+              >
+                Partner SIGNUP
+              </Link>
+
               {/* Legal & Privacy */}
               <h3 className="col-span-2 sm:col-span-3 lg:col-span-4 text-xs uppercase tracking-widest text-white/40 font-semibold mt-3 mb-1">Legal & Privacy</h3>
               <Link to="/privacy" className="hover:text-white transition-colors py-1">Privacy Policy</Link>

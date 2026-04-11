@@ -61,30 +61,20 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
   renovation_workflow: {
     stages: [
       {
-        agentKeys: ["storm_scout", "code_guardian"],
+        agentKeys: ["renovation_ai"],
         mode: "parallel",
-        rationale: "Simultaneously assess weather delay risk and code compliance for the project.",
-      },
-      {
-        agentKeys: ["leak_hunter"],
-        mode: "parallel",
-        rationale: "Scan for water/moisture risk clusters across related jobs.",
-      },
-      {
-        agentKeys: ["document_whisperer"],
-        mode: "sequential",
-        rationale: "Assemble permit packet after code issues are identified.",
+        rationale: "Route to Renovation & Construction Workflow AI for end-to-end project orchestration: timeline, cash-flow simulation, and risk assessment.",
       },
     ],
     nudges: [
       {
-        trigger: "storm_scout.stormRisk.overallRisk === 'high'",
-        suggestedAction: "High storm risk detected — consider notifying subcontractors of potential delays.",
+        trigger: "renovation_ai.lendingNudge === true",
+        suggestedAction: "Cash-flow gap detected — ask Kluje to 'find financing options' to route to Lending Capital AI.",
+        targetAgentKey: "lending_ai",
       },
       {
-        trigger: "code_guardian.violations.filter(v => v.severity === 'critical').length > 0",
-        suggestedAction: "Critical code violations found — recommend pausing permit submission until resolved.",
-        targetAgentKey: "document_whisperer",
+        trigger: "renovation_ai.cashFlow.cashFlowGapSeverity === 'high'",
+        suggestedAction: "Large cash-flow gap identified. Consider bridging with a construction draw line or HELOC.",
       },
     ],
   },
@@ -92,15 +82,19 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
   zoning_entitlement: {
     stages: [
       {
-        agentKeys: ["code_guardian", "document_whisperer"],
+        agentKeys: ["zoning_ai"],
         mode: "parallel",
-        rationale: "Check compliance and extract permit entities at the same time.",
+        rationale: "Route to Zoning & Entitlement AI for permit approval scoring, compliance checklist, and entitlement path.",
       },
     ],
     nudges: [
       {
-        trigger: "code_guardian.violations.length > 2",
-        suggestedAction: "Multiple violations may delay entitlement — consider a pre-application meeting with the jurisdiction.",
+        trigger: "zoning_ai.approvalProbabilityPercent < 55",
+        suggestedAction: "Low approval probability — schedule a pre-application meeting with the jurisdiction before submitting.",
+      },
+      {
+        trigger: "zoning_ai.complianceChecklist.some(c => c.status === 'fail')",
+        suggestedAction: "Compliance gaps found — resolve critical checklist items before filing.",
       },
     ],
   },
@@ -108,24 +102,19 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
   lending_capital: {
     stages: [
       {
-        agentKeys: ["draw_guardian"],
+        agentKeys: ["lending_ai"],
         mode: "parallel",
-        rationale: "Screen draw requests for fraud and overbilling patterns.",
-      },
-      {
-        agentKeys: ["escrow_automator"],
-        mode: "sequential",
-        rationale: "Run closing coordination after draw status is confirmed.",
+        rationale: "Route to Lending & Capital AI for real-time underwriting, lender matching, and financing readiness scoring.",
       },
     ],
     nudges: [
       {
-        trigger: "draw_guardian.recommendation === 'reject'",
-        suggestedAction: "Draw rejected — recommend requesting revised invoice and lien waiver before resubmission.",
+        trigger: "lending_ai.financingReadiness.band === 'not_ready'",
+        suggestedAction: "Financing readiness is low — address documentation and quote gaps before approaching lenders.",
       },
       {
-        trigger: "escrow_automator.handoffStatus.blockerCount > 0",
-        suggestedAction: "Closing blockers detected — prioritize clearing critical documents before funding.",
+        trigger: "lending_ai.financingReadiness.band === 'near_ready'",
+        suggestedAction: "Nearly financing-ready — close the remaining gaps and you can approach lenders within 2 weeks.",
       },
     ],
   },
@@ -215,7 +204,7 @@ Available intent labels and when to use them:
 
 If the query mentions a single agent by name or capability, set intent to "single_agent" and set
 singleAgentKey to one of: leak_hunter, code_guardian, rebate_maximizer, storm_scout, draw_guardian,
-document_whisperer, escrow_automator.
+document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai.
 
 Return ONLY this JSON object (no markdown, no extra text):
 {

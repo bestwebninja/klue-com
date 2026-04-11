@@ -18,6 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SynthesisResult } from "../../ai/client/supervisorClient";
 import type { SupervisorMessage } from "../../hooks/useSupervisor";
+import { RenovationWorkflowCard } from "./RenovationWorkflowCard";
+import { ZoningEntitlementCard } from "./ZoningEntitlementCard";
+import { LendingCapitalCard } from "./LendingCapitalCard";
 
 // ---------------------------------------------------------------------------
 // Risk level styling
@@ -43,6 +46,9 @@ const AGENT_LABELS: Record<string, string> = {
   draw_guardian: "Draw Guardian",
   document_whisperer: "Document Whisperer",
   escrow_automator: "Escrow Automator",
+  renovation_ai: "Renovation AI",
+  zoning_ai: "Zoning AI",
+  lending_ai: "Lending AI",
 };
 
 const INTENT_LABELS: Record<string, string> = {
@@ -144,6 +150,23 @@ export function SupervisorResponseCard({ message }: SupervisorResponseCardProps)
           <p className="text-sm text-muted-foreground leading-relaxed pl-8">
             {synthesis.narrative}
           </p>
+        )}
+
+        {/* Macro-agent specialized cards */}
+        {agentOutputs.renovation_ai && (
+          <div className="pl-0 pt-1">
+            <RenovationWorkflowCard output={agentOutputs.renovation_ai as any} />
+          </div>
+        )}
+        {agentOutputs.zoning_ai && (
+          <div className="pl-0 pt-1">
+            <ZoningEntitlementCard output={agentOutputs.zoning_ai as any} />
+          </div>
+        )}
+        {agentOutputs.lending_ai && (
+          <div className="pl-0 pt-1">
+            <LendingCapitalCard output={agentOutputs.lending_ai as any} />
+          </div>
         )}
 
         {/* Actions */}

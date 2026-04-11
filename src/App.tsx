@@ -72,15 +72,15 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <CommandCenterProvider>
-        <Toaster />
-        <Sonner />
-        <NotificationPermissionBanner />
-        <MessageNotificationListener />
-        <BrowserRouter>
-          <ScrollToTop />
-          <CookieConsent />
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
+          <Toaster />
+          <Sonner />
+          <NotificationPermissionBanner />
+          <MessageNotificationListener />
+          <BrowserRouter>
+            <ScrollToTop />
+            <CookieConsent />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/index.html" element={<Navigate to="/" replace />} />
               <Route path="/index.php" element={<Navigate to="/" replace />} />
@@ -134,10 +134,10 @@ const App = () => (
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-              </CommandCenterProvider>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </CommandCenterProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

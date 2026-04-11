@@ -1,0 +1,29 @@
+name: Sync from klue-com
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+
+      - name: Mirror source main into target main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add source https://x-access-token:${{ secrets.SOURCE_REPO_TOKEN }}@github.com/bestwebninja/klue-com.git
+          git fetch source main
+          git checkout main
+          git reset --hard source/main
+          git push origin main --force

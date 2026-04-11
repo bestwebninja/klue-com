@@ -4,8 +4,6 @@
  * Served from the root so its scope covers the whole app.
  */
 
-const CACHE_NAME = 'kluje-v1';
-
 // ── Install & activate ────────────────────────────────────────────────────────
 self.addEventListener('install',  () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
@@ -17,7 +15,9 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       data = { ...data, ...JSON.parse(event.data.text()) };
-    } catch (_) {}
+    } catch {
+      // Ignore malformed push payloads and fall back to defaults.
+    }
   }
 
   event.waitUntil(

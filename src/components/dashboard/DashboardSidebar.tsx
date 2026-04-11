@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Crown, Shield, LogOut, Settings, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link, useLocation } from 'react-router-dom';
+import { Crown, Shield, LogOut, Settings, ExternalLink, Building2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -27,11 +26,11 @@ interface DashboardSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   isSubscribed: boolean;
-  isAdmin: boolean;
   userId: string;
   userName?: string;
   unreadMessages: number;
   onSignOut: () => void;
+  isAdmin: boolean;
 }
 
 export function DashboardSidebar({
@@ -39,13 +38,14 @@ export function DashboardSidebar({
   activeTab,
   onTabChange,
   isSubscribed,
-  isAdmin,
   userId,
   userName,
   unreadMessages,
   onSignOut,
+  isAdmin,
 }: DashboardSidebarProps) {
   const { state } = useSidebar();
+  const location = useLocation();
   const isCollapsed = state === 'collapsed';
 
   // Group items for better organization
@@ -61,6 +61,7 @@ export function DashboardSidebar({
   const adminItems = items.filter(item =>
     ['admin-users', 'admin-roles', 'admin-newsletter', 'admin-settings'].includes(item.value)
   );
+  const isPartnersRouteActive = location.pathname === '/admin/partners';
 
   const renderMenuItem = (item: NavItem) => {
     const Icon = item.icon;
@@ -167,7 +168,7 @@ export function DashboardSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {isAdmin && adminItems.length > 0 && (
+        {isAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs text-red-400/70 uppercase tracking-wider">
               Admin
@@ -175,6 +176,23 @@ export function DashboardSidebar({
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminItems.map(renderMenuItem)}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      'w-full justify-start transition-colors',
+                      isPartnersRouteActive
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    )}
+                    tooltip={isCollapsed ? 'Partners' : undefined}
+                  >
+                    <Link to="/admin/partners">
+                      <Building2 className="h-4 w-4 shrink-0" />
+                      {!isCollapsed && <span className="flex-1">Partners</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -185,10 +203,10 @@ export function DashboardSidebar({
         <SidebarMenu>
           {isAdmin && (
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={isCollapsed ? 'AD-Dashboard' : undefined}>
+              <SidebarMenuButton asChild tooltip={isCollapsed ? 'ADMIN Dashboard' : undefined}>
                 <Link to="/admin" className="text-red-400 hover:text-red-300 hover:bg-red-400/10">
                   <Shield className="h-4 w-4" />
-                  {!isCollapsed && <span>AD-Dashboard</span>}
+                  {!isCollapsed && <span>ADMIN Dashboard</span>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

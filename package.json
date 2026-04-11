@@ -4,11 +4,16 @@
   "version": "0.1.0",
   "packageManager": "npm@11.4.2",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build",
     "build:verify": "npm run build",
+    "test": "npm run test --workspaces --if-present",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint . --ext .js,.cjs,.mjs",
     "preview": "vite preview"

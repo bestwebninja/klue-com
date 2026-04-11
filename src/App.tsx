@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getCommandCenterRoutes } from "@/app/routes/commandCenterRoutes";
 import { CommandCenterProvider } from "@/app/providers/CommandCenterProvider";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -24,6 +24,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const GeneralContractorDashboard = lazy(() => import("./pages/GeneralContractorDashboard"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AskExpert = lazy(() => import("./pages/AskExpert"));
 const QuestionDetail = lazy(() => import("./pages/QuestionDetail"));
@@ -54,13 +55,19 @@ const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
 const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
 const Trademark = lazy(() => import("./pages/Trademark"));
 const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake"));
+const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
+const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartnersDashboardPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, search, hash, key } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, search, hash, key]);
+
   return null;
 }
 
@@ -75,10 +82,9 @@ const App = () => (
         <Sonner />
         <NotificationPermissionBanner />
         <MessageNotificationListener />
-        <BrowserRouter>
-          <ScrollToTop />
-          <CookieConsent />
-          <Suspense fallback={<LoadingSpinner />}>
+        <ScrollToTop />
+        <CookieConsent />
+        <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/index.html" element={<Navigate to="/" replace />} />
@@ -93,6 +99,7 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/gc-dashboard" element={<GeneralContractorDashboard />} />
               <Route path="/my-dashboard" element={<UserDashboard />} />
               <Route path="/user-dashboard" element={<Navigate to="/my-dashboard" replace />} />
               <Route path="/ask-expert" element={<AskExpert />} />
@@ -127,14 +134,15 @@ const App = () => (
               <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
               <Route path="/trademark" element={<Trademark />} />
               <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
+              <Route path="/partners/signup" element={<PartnerSignup />} />
+              <Route path="/admin/partners" element={<AdminPartnersDashboardPage />} />
               <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </Suspense>
-        </BrowserRouter>
+        </Suspense>
               </CommandCenterProvider>
       </AuthProvider>
     </TooltipProvider>

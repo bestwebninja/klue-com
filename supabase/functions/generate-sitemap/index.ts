@@ -56,16 +56,6 @@ Deno.serve(async (req) => {
       console.error('Error fetching blog posts:', blogError);
     }
 
-    // Fetch service providers (users with provider role)
-    const { data: providers, error: providersError } = await supabase
-      .from('user_roles')
-      .select('user_id, created_at')
-      .eq('role', 'provider');
-
-    if (providersError) {
-      console.error('Error fetching providers:', providersError);
-    }
-
     // Fetch open job listings
     const { data: jobs, error: jobsError } = await supabase
       .from('job_listings')
@@ -115,20 +105,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Add service provider profiles
-    if (providers && providers.length > 0) {
-      for (const provider of providers) {
-        xml += '  <url>\n';
-        xml += `    <loc>${BASE_URL}/service-provider/${provider.user_id}</loc>\n`;
-        if (provider.created_at) {
-          xml += `    <lastmod>${new Date(provider.created_at).toISOString().split('T')[0]}</lastmod>\n`;
-        }
-        xml += '    <changefreq>weekly</changefreq>\n';
-        xml += '    <priority>0.6</priority>\n';
-        xml += '  </url>\n';
-      }
-    }
-
     // Add job listings
     if (jobs && jobs.length > 0) {
       for (const job of jobs) {
@@ -161,7 +137,7 @@ Deno.serve(async (req) => {
 
     xml += '</urlset>';
 
-    console.log(`Generated sitemap with ${staticPages.length} static pages, ${blogPosts?.length || 0} blog posts, ${providers?.length || 0} providers, ${jobs?.length || 0} jobs, ${questions?.length || 0} expert questions`);
+    console.log(`Generated sitemap with ${staticPages.length} static pages, ${blogPosts?.length || 0} blog posts, ${jobs?.length || 0} jobs, ${questions?.length || 0} expert questions`);
 
     return new Response(xml, {
       headers: corsHeaders,

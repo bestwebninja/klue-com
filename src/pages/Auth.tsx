@@ -43,11 +43,22 @@ type SignupStep = 'select-type' | 'details' | 'create-account';
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialType = searchParams.get('type') as UserType | null;
-  
-  const [userType, setUserType] = useState<UserType>(initialType || 'homeowner');
-  const [authView, setAuthView] = useState<AuthView>(initialType === 'provider' ? 'signup' : 'login');
-  const [signupStep, setSignupStep] = useState<SignupStep>(initialType ? 'details' : 'select-type');
-  const [email, setEmail] = useState('');
+
+  // Homepage lead-capture prefill: ?prefill=1&email=...
+  const isPrefill = searchParams.get('prefill') === '1';
+  const prefillEmail = isPrefill ? (searchParams.get('email') ?? '') : '';
+  const prefillServices: string[] = (() => {
+    if (!isPrefill) return [];
+    try { return JSON.parse(sessionStorage.getItem('kluje.lead.services') ?? '[]'); } catch { return []; }
+  })();
+  const [userType, setUserType] = useState<UserType>(isPrefill ? 'homeowner' : (initialType || 'homeowner'));
+  const [authView, setAuthView] = useState<AuthView>(
+    isPrefill ? 'signup' : (initialType === 'provider' ? 'signup' : 'login'),
+  );
+  const [signupStep, setSignupStep] = useState<SignupStep>(
+    isPrefill ? 'details' : (initialType ? 'details' : 'select-type'),
+  );
+  const [email, setEmail] = useState(isPrefill ? prefillEmail : '');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -66,10 +77,9 @@ const Auth = () => {
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [signupsRestricted, setSignupsRestricted] = useState(false);
   const [contractorType, setContractorType] = useState<'general' | 'sub' | ''>('');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>(prefillServices);
   const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
-  
-  
+
   // Check signup restriction on mount
   useEffect(() => {
     (supabase
@@ -91,7 +101,12 @@ const Auth = () => {
   const { toast } = useToast();
 
   // Role-based redirect after login
+  // IMPORTANT: skip entirely when the user is in the signup flow — otherwise a
+  // cached session (e.g. an admin already logged in on this browser) would
+  // hijack the page and redirect to /dashboard before signup completes, and
+  // new signups would never reach the verification-pending screen.
   useEffect(() => {
+    if (authView === 'signup') return;
     if (user && !roleLoading && !profileLoading) {
       if (profileComplete === false) {
         navigate('/complete-profile');
@@ -99,7 +114,7 @@ const Auth = () => {
       }
 
       const redirectTo = searchParams.get('redirect');
-      
+
       if (redirectTo) {
         toast({ title: 'Welcome back!', description: 'Returning you to where you left off...' });
         navigate(redirectTo);
@@ -114,7 +129,7 @@ const Auth = () => {
         checkHomeownerFirstLogin();
       }
     }
-  }, [user, roleLoading, profileLoading, profileComplete, isProvider, isAdmin, navigate, toast, searchParams]);
+  }, [authView, user, roleLoading, profileLoading, profileComplete, isProvider, isAdmin, navigate, toast, searchParams]);
 
   const checkProviderSetup = async () => {
     if (!user) return;
@@ -618,8 +633,8 @@ const Auth = () => {
     );
   }
 
-  // Loading state after login
-  if (user && (roleLoading || profileLoading)) {
+  // Loading state after login — not applicable during the signup flow
+  if (authView !== 'signup' && user && (roleLoading || profileLoading)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
@@ -728,11 +743,22 @@ const Auth = () => {
                     {userType === 'homeowner' ? <Home className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
                     {userType === 'homeowner' ? 'Homeowner' : 'Service Provider'}
                   </div>
-                  <h1 className="text-2xl font-bold text-foreground mb-1">Your Details</h1>
+                  <h1 className="text-2xl font-bold text-foreground mb-1">
+                    {isPrefill ? 'One step away — create your account' : 'Your Details'}
+                  </h1>
                   <p className="text-muted-foreground text-sm">
-                    {userType === 'homeowner' ? 'Tell us about yourself' : 'Tell us about your business'}
+                    {isPrefill
+                      ? 'Sign up to view matching service providers and track your request.'
+                      : (userType === 'homeowner' ? 'Tell us about yourself' : 'Tell us about your business')}
                   </p>
                 </div>
+
+                {/* Social sign-up options shown when arriving from homepage lead capture */}
+                {isPrefill && userType === 'homeowner' && (
+                  <div className="mb-4">
+                    <SocialAuthButtons mode="signup" />
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   {userType === 'homeowner' ? (

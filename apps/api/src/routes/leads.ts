@@ -3,6 +3,7 @@ import type { LeadIntakeResponse } from "@kluje/shared";
 import { leadIntakeSchema, type LeadIntakeInput } from "../services/leads/schema";
 import { normalizeAndEnrichIntake } from "../services/leads/intake";
 import { z } from "zod";
+import { env } from "../config/env";
 
 type PriorityTier = "high" | "medium" | "low";
 type RouteStrategy = "round_robin" | "category_based";
@@ -98,6 +99,57 @@ const dispatchWebhookPlaceholder = (lead: LeadRecord, strategy: RouteStrategy) =
   };
 };
 
+const dispatchWebhook = async (lead: LeadRecord, strategy: RouteStrategy) => {
+  if (!env.leadRoutingWebhookUrl) {
+    return dispatchWebhookPlaceholder(lead, strategy);
+  }
+
+  const dispatchedAt = new Date().toISOString();
+  const payload = {
+    event: "lead.routing.assigned",
+    strategy,
+    dispatchedAt,
+    lead,
+  };
+
+  try {
+    const response = await fetch(env.leadRoutingWebhookUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      return {
+        status: "failed",
+        webhook: env.leadRoutingWebhookUrl,
+        note: `Webhook returned ${response.status}`,
+        strategy,
+        leadId: lead.id,
+        dispatchedAt,
+      };
+    }
+
+    return {
+      status: "sent",
+      webhook: env.leadRoutingWebhookUrl,
+      note: "Webhook delivered.",
+      strategy,
+      leadId: lead.id,
+      dispatchedAt,
+    };
+  } catch (error) {
+    return {
+      status: "failed",
+      webhook: env.leadRoutingWebhookUrl,
+      note: `Webhook request failed: ${(error as Error).message}`,
+      strategy,
+      leadId: lead.id,
+      dispatchedAt,
+    };
+  }
+};
+
 const resolveIntakeStatus = (input: LeadIntakeInput, intakeScore: number, missingCount: number) => {
   if (missingCount >= 3) return "needs_info" as const;
   if (missingCount > 0) return "in_review" as const;
@@ -176,7 +228,7 @@ router.post("/", (req, res) => {
   return res.status(201).json(lead);
 });
 
-router.post("/:id/route", (req, res) => {
+router.post("/:id/route", async (req, res) => {
   const lead = leads.get(req.params.id);
   if (!lead) return res.status(404).json({ error: "Lead not found" });
 
@@ -218,7 +270,7 @@ router.post("/:id/route", (req, res) => {
     assignmentQueue,
   });
 
-  const dispatch = dispatchWebhookPlaceholder(lead, strategy);
+  const dispatch = await dispatchWebhook(lead, strategy);
   logRouteEvent(lead.id, "dispatched", strategy, dispatch);
 
   return res.json({

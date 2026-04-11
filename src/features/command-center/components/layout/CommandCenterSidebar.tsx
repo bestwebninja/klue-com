@@ -1,6 +1,7 @@
 import { BarChart3, CalendarDays, Cpu, Home, Link2, PanelLeftClose, Settings, ShieldAlert } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { NavItemConfig } from "../../templates/types";
+import type { LucideIcon } from "lucide-react";
 
 const fallbackItems = [
   { key: "home", label: "Home", section: "operations" as const },
@@ -13,7 +14,7 @@ const fallbackItems = [
   { key: "settings", label: "Settings", section: "systems" as const },
 ] satisfies NavItemConfig[];
 
-const iconMap: Record<string, typeof CalendarDays> = {
+const iconMap: Record<string, LucideIcon> = {
   home: Home,
   today: CalendarDays,
   pipeline: PanelLeftClose,
@@ -24,9 +25,15 @@ const iconMap: Record<string, typeof CalendarDays> = {
   settings: Settings,
 };
 
-export function CommandCenterSidebar({ basePath, items }: { basePath: string; items?: NavItemConfig[] }) {
+interface CommandCenterSidebarProps {
+  basePath: string;
+  items?: NavItemConfig[];
+}
+
+export function CommandCenterSidebar({ basePath, items }: CommandCenterSidebarProps) {
   const location = useLocation();
   const navItems = items?.length ? items : fallbackItems;
+  const activeSection = new URLSearchParams(location.search).get("section") ?? "today";
 
   const grouped = {
     operations: navItems.filter((item) => (item.section ?? "operations") === "operations"),
@@ -38,7 +45,6 @@ export function CommandCenterSidebar({ basePath, items }: { basePath: string; it
       <p className="px-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
       {groupItems.map((item) => {
         const Icon = item.icon ?? iconMap[item.key] ?? CalendarDays;
-        const activeSection = new URLSearchParams(location.search).get("section") ?? "today";
         const active = activeSection === item.key;
         return (
           <Link

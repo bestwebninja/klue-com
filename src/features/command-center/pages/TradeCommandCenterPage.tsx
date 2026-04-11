@@ -22,7 +22,9 @@ export default function TradeCommandCenterPage() {
     return <Navigate to={`?${params.toString()}`} replace />;
   }
 
-  const template = dashboardTemplateService.getTemplateByAudience('trade', tradeKey as TradeKey);
+  const template = tradeKey
+    ? dashboardTemplateService.getTemplateByAudience('trade', tradeKey as TradeKey)
+    : null;
 
   if (!template) {
     return (

@@ -24,6 +24,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const GeneralContractorDashboard = lazy(() => import("./pages/GeneralContractorDashboard"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AskExpert = lazy(() => import("./pages/AskExpert"));
 const QuestionDetail = lazy(() => import("./pages/QuestionDetail"));
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/gc-dashboard" element={<GeneralContractorDashboard />} />
               <Route path="/my-dashboard" element={<UserDashboard />} />
               <Route path="/user-dashboard" element={<Navigate to="/my-dashboard" replace />} />
               <Route path="/ask-expert" element={<AskExpert />} />

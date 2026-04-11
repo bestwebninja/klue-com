@@ -171,7 +171,7 @@ export default function ContractorQuoteIntake() {
       {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard?tab=gc-command')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/gc-dashboard')}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -275,7 +275,7 @@ export default function ContractorQuoteIntake() {
             <Send className="w-3.5 h-3.5" />
             {submitting ? 'Saving…' : 'Save Quote Intake'}
           </Button>
-          <Button type="button" variant="ghost" onClick={() => navigate('/dashboard?tab=gc-command')}>
+          <Button type="button" variant="ghost" onClick={() => navigate('/gc-dashboard')}>
             Cancel
           </Button>
         </div>

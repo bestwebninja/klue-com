@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import ProviderSetupWizard from '@/components/dashboard/ProviderSetupWizard';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -25,7 +25,6 @@ import DashboardQuotes from '@/components/dashboard/DashboardQuotes';
 import DashboardPortfolio from '@/components/dashboard/DashboardPortfolio';
 import DashboardVerification from '@/components/dashboard/DashboardVerification';
 import { DashboardBlogPosts } from '@/components/dashboard/DashboardBlogPosts';
-import GCCommandDashboard from '@/components/dashboard/GCCommandDashboard';
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -127,6 +126,16 @@ const Dashboard = () => {
     const tabFromUrl = searchParams.get('tab');
     if (!tabFromUrl) return;
 
+    if (tabFromUrl === 'gc-command') {
+      navigate('/gc-dashboard', { replace: true });
+      return;
+    }
+
+    if (tabFromUrl === 'command-center') {
+      navigate('/command-center/remodeling', { replace: true });
+      return;
+    }
+
     const normalizedTab = !isAdmin && ADMIN_TABS.has(tabFromUrl) ? 'home' : tabFromUrl;
 
     if (normalizedTab !== tabFromUrl) {
@@ -140,6 +149,16 @@ const Dashboard = () => {
   }, [searchParams, activeTab, isAdmin, setSearchParams]);
 
   const handleTabChange = (tab: string) => {
+    if (tab === 'gc-command') {
+      navigate('/gc-dashboard');
+      return;
+    }
+
+    if (tab === 'command-center') {
+      navigate('/command-center/remodeling');
+      return;
+    }
+
     if (!isAdmin && ADMIN_TABS.has(tab)) {
       toast({
         title: 'Access denied',
@@ -302,10 +321,6 @@ const Dashboard = () => {
         return <DashboardExpertAnswers userId={user.id} />;
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
-      case 'gc-command':
-        return <GCCommandDashboard />;
-      case 'command-center':
-        return <Navigate to="/command-center/remodeling" replace />;
       case 'admin-users':
         if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (
@@ -390,18 +405,14 @@ const Dashboard = () => {
             isSubscribed={isSubscribed}
             isAdmin={isAdmin}
             onSignOut={handleSignOut}
-            showContractorIdentity={activeTab === 'gc-command'}
+            showContractorIdentity={false}
           />
 
           {/* Scrollable content with up/down arrow buttons */}
           <main
             ref={contentRef}
             onScroll={updateScrollState}
-            className={`h-[calc(100vh-4rem)] scroll-smooth ${
-              activeTab === 'gc-command'
-                ? 'overflow-hidden p-0'
-                : 'overflow-y-auto p-4 sm:p-6 lg:p-8'
-            }`}
+            className="h-[calc(100vh-4rem)] overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth"
           >
             {showSetupWizard && setupChecked ? (
               <ProviderSetupWizard

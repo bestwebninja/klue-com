@@ -9,16 +9,24 @@ export const useAdmin = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkAdminStatus = async () => {
+      setLoading(true);
+
       if (!user) {
-        setIsAdmin(false);
-        setLoading(false);
+        if (!cancelled) {
+          setIsAdmin(false);
+          setLoading(false);
+        }
         return;
       }
 
       if (isAllowlistedAdminEmail(user.email)) {
-        setIsAdmin(true);
-        setLoading(false);
+        if (!cancelled) {
+          setIsAdmin(true);
+          setLoading(false);
+        }
         return;
       }
 
@@ -31,14 +39,24 @@ export const useAdmin = () => {
 
       if (error) {
         console.error('Error checking admin status:', error);
-        setIsAdmin(false);
+        if (!cancelled) {
+          setIsAdmin(false);
+        }
       } else {
-        setIsAdmin(!!data);
+        if (!cancelled) {
+          setIsAdmin(!!data);
+        }
       }
-      setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+      }
     };
 
     checkAdminStatus();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   return { isAdmin, loading };

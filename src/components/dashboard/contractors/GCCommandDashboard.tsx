@@ -38,7 +38,7 @@ const sidebarSections = [
   {
     label: 'Overview',
     items: [
-      { icon: BarChart3, name: 'Dashboard', badge: null },
+      { icon: BarChart3, name: 'GC-Dashboard', badge: null },
       { icon: MapPin, name: 'Site Map', badge: 'Live', badgeType: 'green' },
       { icon: Calendar, name: 'Schedule', badge: null },
     ],
@@ -205,7 +205,7 @@ function EmptyState({ message }: { message: string }) {
 // ─── Main component ──────────────────────────────────────────────
 export default function GCCommandDashboard() {
   const [activeTab, setActiveTab] = useState(0);
-  const [activeSidebar, setActiveSidebar] = useState('Dashboard');
+  const [activeSidebar, setActiveSidebar] = useState('GC-Dashboard');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
     Overview: false,
     Communications: false,
@@ -372,7 +372,7 @@ export default function GCCommandDashboard() {
         <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 lg:p-5">
           {isDept ? (
             <Suspense fallback={<DeptLoader />}>
-              <ActiveDept onBack={() => setActiveSidebar('Dashboard')} />
+              <ActiveDept onBack={() => setActiveSidebar('GC-Dashboard')} />
             </Suspense>
           ) : (
             <>

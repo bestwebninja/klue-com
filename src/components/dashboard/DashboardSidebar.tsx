@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Crown, Shield, LogOut, Settings, ExternalLink, Building2 } from 'lucide-react';
-import { useAdmin } from '@/hooks/useAdmin';
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +30,7 @@ interface DashboardSidebarProps {
   userName?: string;
   unreadMessages: number;
   onSignOut: () => void;
+  isAdmin: boolean;
 }
 
 export function DashboardSidebar({
@@ -42,9 +42,9 @@ export function DashboardSidebar({
   userName,
   unreadMessages,
   onSignOut,
+  isAdmin,
 }: DashboardSidebarProps) {
   const { state } = useSidebar();
-  const { isAdmin } = useAdmin();
   const location = useLocation();
   const isCollapsed = state === 'collapsed';
 

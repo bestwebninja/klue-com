@@ -371,6 +371,7 @@ const Dashboard = () => {
             userName={profile?.full_name || undefined}
             unreadMessages={unreadMessages}
             onSignOut={handleSignOut}
+            isAdmin={isAdmin}
           />
         </div>
 

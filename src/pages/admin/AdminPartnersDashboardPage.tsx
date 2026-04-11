@@ -36,6 +36,8 @@ export default function AdminPartnersDashboardPage() {
     expiringDocs: 'all',
   });
   const [note, setNote] = useState('');
+  const [verificationTierDraft, setVerificationTierDraft] = useState('tier-2');
+  const [complianceStatusDraft, setComplianceStatusDraft] = useState('approved');
 
   const partnersQuery = usePartnerList(filters);
   const detailQuery = usePartnerDetail(selectedPartnerId);
@@ -54,6 +56,26 @@ export default function AdminPartnersDashboardPage() {
         row.contact_name?.toLowerCase().includes(q)
     );
   }, [partnersQuery.data, search]);
+
+  const summary = useMemo(() => {
+    const list = rows;
+    const approved = list.filter((row) => row.status === 'approved').length;
+    const pending = list.filter((row) => row.status === 'pending').length;
+    const linked = list.filter((row) => (row.contractor_partner_links?.length ?? 0) > 0).length;
+    const expiringSoon = list.filter((row) =>
+      (row.partner_documents ?? []).some((doc) => {
+        if (!doc.expires_at) return false;
+        return new Date(doc.expires_at).getTime() < Date.now() + THIRTY_DAYS_MS;
+      }),
+    ).length;
+    return {
+      total: list.length,
+      approved,
+      pending,
+      linked,
+      expiringSoon,
+    };
+  }, [rows]);
 
   const runAction = async (action: Parameters<typeof actionMutation.mutateAsync>[0]['action'], payload?: Record<string, unknown>) => {
     if (!selectedPartnerId) return;
@@ -83,6 +105,39 @@ export default function AdminPartnersDashboardPage() {
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-semibold">Partners Dashboard (Admin)</h1>
+
+      <section className="grid gap-3 md:grid-cols-5">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Partners in view</p>
+            <p className="text-2xl font-semibold">{summary.total}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Approved</p>
+            <p className="text-2xl font-semibold">{summary.approved}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Pending</p>
+            <p className="text-2xl font-semibold">{summary.pending}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Linked contractors</p>
+            <p className="text-2xl font-semibold">{summary.linked}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">Expiring docs (30d)</p>
+            <p className="text-2xl font-semibold">{summary.expiringSoon}</p>
+          </CardContent>
+        </Card>
+      </section>
 
       <Card>
         <CardHeader>
@@ -177,6 +232,22 @@ export default function AdminPartnersDashboardPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex items-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setSearch('');
+                setFilters({
+                  preferredRequested: 'all',
+                  linkedContractors: 'all',
+                  expiringDocs: 'all',
+                });
+              }}
+            >
+              Clear filters
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -200,7 +271,7 @@ export default function AdminPartnersDashboardPage() {
                 </thead>
                 <tbody>
                   {rows.map((row: PartnerRecord) => (
-                    <tr key={row.id} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => setSelectedPartnerId(row.id)}>
+                    <tr key={row.id} className={`border-b hover:bg-muted/50 cursor-pointer ${selectedPartnerId === row.id ? 'bg-muted/60' : ''}`} onClick={() => setSelectedPartnerId(row.id)}>
                       <td className="p-2">{row.partner_id}</td>
                       <td className="p-2">{row.partner_type}</td>
                       <td className="p-2">{row.legal_business_name}</td>
@@ -312,14 +383,49 @@ export default function AdminPartnersDashboardPage() {
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button size="sm" onClick={() => runAction('approve_partner')}>Approve partner</Button>
-              <Button size="sm" variant="destructive" onClick={() => runAction('reject_partner')}>Reject partner</Button>
-              <Button size="sm" variant="secondary" onClick={() => runAction('request_more_info')}>Request more info</Button>
-              <Button size="sm" variant="outline" onClick={() => runAction('approve_preferred_territory')}>Approve preferred territory</Button>
-              <Button size="sm" variant="outline" onClick={() => runAction('reject_preferred_territory')}>Reject preferred territory</Button>
-              <Button size="sm" variant="outline" onClick={() => runAction('update_verification_status', { verification_tier: 'tier-2' })}>Set verification tier</Button>
-              <Button size="sm" variant="outline" onClick={() => runAction('update_compliance_status', { compliance_status: 'approved' })}>Set compliance</Button>
-              <Button size="sm" variant="outline" onClick={() => runAction('refresh_contractor_links')}>Refresh contractor links</Button>
+              <Button size="sm" disabled={actionMutation.isPending} onClick={() => runAction('approve_partner')}>Approve partner</Button>
+              <Button size="sm" disabled={actionMutation.isPending} variant="destructive" onClick={() => runAction('reject_partner')}>Reject partner</Button>
+              <Button size="sm" disabled={actionMutation.isPending} variant="secondary" onClick={() => runAction('request_more_info')}>Request more info</Button>
+              <Button size="sm" disabled={actionMutation.isPending} variant="outline" onClick={() => runAction('approve_preferred_territory')}>Approve preferred territory</Button>
+              <Button size="sm" disabled={actionMutation.isPending} variant="outline" onClick={() => runAction('reject_preferred_territory')}>Reject preferred territory</Button>
+              <Select value={verificationTierDraft} onValueChange={setVerificationTierDraft}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Verification tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tier-1">tier-1</SelectItem>
+                  <SelectItem value="tier-2">tier-2</SelectItem>
+                  <SelectItem value="tier-3">tier-3</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={actionMutation.isPending}
+                onClick={() => runAction('update_verification_status', { verification_tier: verificationTierDraft })}
+              >
+                Set verification tier
+              </Button>
+              <Select value={complianceStatusDraft} onValueChange={setComplianceStatusDraft}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Compliance status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in_review">in_review</SelectItem>
+                  <SelectItem value="approved">approved</SelectItem>
+                  <SelectItem value="requires_info">requires_info</SelectItem>
+                  <SelectItem value="rejected">rejected</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={actionMutation.isPending}
+                onClick={() => runAction('update_compliance_status', { compliance_status: complianceStatusDraft })}
+              >
+                Set compliance
+              </Button>
+              <Button size="sm" disabled={actionMutation.isPending} variant="outline" onClick={() => runAction('refresh_contractor_links')}>Refresh contractor links</Button>
             </div>
           </CardContent>
         </Card>

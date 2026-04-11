@@ -203,10 +203,10 @@ export function DashboardSidebar({
         <SidebarMenu>
           {isAdmin && (
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={isCollapsed ? 'AD-Dashboard' : undefined}>
+              <SidebarMenuButton asChild tooltip={isCollapsed ? 'ADMIN Dashboard' : undefined}>
                 <Link to="/admin" className="text-red-400 hover:text-red-300 hover:bg-red-400/10">
                   <Shield className="h-4 w-4" />
-                  {!isCollapsed && <span>AD-Dashboard</span>}
+                  {!isCollapsed && <span>ADMIN Dashboard</span>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

@@ -3,7 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { getCommandCenterRoutes } from "@/app/routes/commandCenterRoutes";
 import { CommandCenterProvider } from "@/app/providers/CommandCenterProvider";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -14,7 +20,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import Index from "./pages/Index";
 
 // Lazy-loaded routes – only the homepage is eagerly bundled
-const ServiceProviderProfile = lazy(() => import("./pages/ServiceProviderProfile"));
+const ServiceProviderProfile = lazy(
+  () => import("./pages/ServiceProviderProfile"),
+);
 const BrowseProviders = lazy(() => import("./pages/BrowseProviders"));
 const BrowseJobs = lazy(() => import("./pages/BrowseJobs"));
 const CategoryLanding = lazy(() => import("./pages/CategoryLanding"));
@@ -47,21 +55,31 @@ const AboutUs = lazy(() => import("./pages/AboutUs"));
 const DemoPage = lazy(() => import("./pages/DemoPage"));
 const MetricsPage = lazy(() => import("./pages/MetricsPage"));
 const PrivacyRequestPage = lazy(() => import("./pages/PrivacyRequestPage"));
-const PrivacyPreferencesPage = lazy(() => import("./pages/PrivacyPreferencesPage"));
+const PrivacyPreferencesPage = lazy(
+  () => import("./pages/PrivacyPreferencesPage"),
+);
 const DoNotSellPage = lazy(() => import("./pages/DoNotSellPage"));
 const CookieAdminPage = lazy(() => import("./pages/CookieAdminPage"));
 const CookieAdminLoginPage = lazy(() => import("./pages/CookieAdminLoginPage"));
-const ComplyOSAdminDashboard = lazy(() => import("./pages/ComplyOSAdminDashboard"));
+const ComplyOSAdminDashboard = lazy(
+  () => import("./pages/ComplyOSAdminDashboard"),
+);
 const Trademark = lazy(() => import("./pages/Trademark"));
-const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake"));
+const ContractorQuoteIntake = lazy(
+  () => import("./pages/ContractorQuoteIntake"),
+);
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
-const PartnerSignupPage = lazy(() => import("./pages/partners/PartnerSignupPage"));
+const PartnerSignupPage = lazy(
+  () => import("./pages/partners/PartnerSignupPage"),
+);
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -81,59 +99,104 @@ const App = () => (
             <CookieConsent />
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/index.html" element={<Navigate to="/" replace />} />
-              <Route path="/index.php" element={<Navigate to="/" replace />} />
-              <Route path="/browse" element={<Navigate to="/browse-providers" replace />} />
-              <Route path="/browse-providers" element={<BrowseProviders />} />
-              <Route path="/jobs" element={<BrowseJobs />} />
-              <Route path="/services/:slug" element={<CategoryLanding />} />
-              <Route path="/jobs/:id" element={<JobDetail />} />
-              <Route path="/post-job" element={<PostJob />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/my-dashboard" element={<UserDashboard />} />
-              <Route path="/user-dashboard" element={<Navigate to="/my-dashboard" replace />} />
-              <Route path="/ask-expert" element={<AskExpert />} />
-              <Route path="/ask-expert/:id" element={<QuestionDetail />} />
-              <Route path="/messages" element={<MessagesInbox />} />
-              <Route path="/settings/notifications" element={<NotificationSettings />} />
-              <Route path="/service-provider/:id" element={<ServiceProviderProfile />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/how-it-works" element={<HowItWorksPage />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/complete-profile" element={<CompleteProfile />} />
-              <Route path="/sitemap" element={<Sitemap />} />
-              <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/admin-setup" element={<AdminSetup />} />
-              <Route path="/admin" element={<AdvertiserDashboard />} />
-              <Route path="/advertiser-dashboard" element={<AdvertiserDashboard />} />
-              <Route path="/advertise" element={<Advertise />} />
-              <Route path="/platform-manifesto" element={<PlatformManifesto />} />
-              <Route path="/about" element={<AboutUs />} />
-              {/* ComplyOS SaaS routes */}
-              <Route path="/demo" element={<DemoPage />} />
-              <Route path="/metrics" element={<MetricsPage />} />
-              <Route path="/privacy/request" element={<PrivacyRequestPage />} />
-              <Route path="/privacy/preferences" element={<PrivacyPreferencesPage />} />
-              <Route path="/privacy/do-not-sell" element={<DoNotSellPage />} />
-              <Route path="/cookie-admin/login" element={<CookieAdminLoginPage />} />
-              <Route path="/cookie-admin" element={<CookieAdminPage />} />
-              <Route path="/admin-dashboard" element={<ComplyOSAdminDashboard />} />
-              <Route path="/trademark" element={<Trademark />} />
-              <Route path="/contractor/quote-intake" element={<ContractorQuoteIntake />} />
-              <Route path="/zip-explorer" element={<ZipExplorerHub />} />
-              <Route path="/zip/:zipCode" element={<ZipExplorer />} />
-              <Route path="/partners/signup" element={<PartnerSignupPage />} />
-              {getCommandCenterRoutes()}
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
+                <Route path="/" element={<Index />} />
+                <Route
+                  path="/index.html"
+                  element={<Navigate to="/" replace />}
+                />
+                <Route
+                  path="/index.php"
+                  element={<Navigate to="/" replace />}
+                />
+                <Route
+                  path="/browse"
+                  element={<Navigate to="/browse-providers" replace />}
+                />
+                <Route path="/browse-providers" element={<BrowseProviders />} />
+                <Route path="/jobs" element={<BrowseJobs />} />
+                <Route path="/services/:slug" element={<CategoryLanding />} />
+                <Route path="/jobs/:id" element={<JobDetail />} />
+                <Route path="/post-job" element={<PostJob />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/my-dashboard" element={<UserDashboard />} />
+                <Route
+                  path="/user-dashboard"
+                  element={<Navigate to="/my-dashboard" replace />}
+                />
+                <Route path="/ask-expert" element={<AskExpert />} />
+                <Route path="/ask-expert/:id" element={<QuestionDetail />} />
+                <Route path="/messages" element={<MessagesInbox />} />
+                <Route
+                  path="/settings/notifications"
+                  element={<NotificationSettings />}
+                />
+                <Route
+                  path="/service-provider/:id"
+                  element={<ServiceProviderProfile />}
+                />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/how-it-works" element={<HowItWorksPage />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/complete-profile" element={<CompleteProfile />} />
+                <Route path="/sitemap" element={<Sitemap />} />
+                <Route path="/newsletter" element={<Newsletter />} />
+                <Route path="/admin-setup" element={<AdminSetup />} />
+                <Route path="/admin" element={<AdvertiserDashboard />} />
+                <Route
+                  path="/advertiser-dashboard"
+                  element={<AdvertiserDashboard />}
+                />
+                <Route path="/advertise" element={<Advertise />} />
+                <Route
+                  path="/platform-manifesto"
+                  element={<PlatformManifesto />}
+                />
+                <Route path="/about" element={<AboutUs />} />
+                {/* ComplyOS SaaS routes */}
+                <Route path="/demo" element={<DemoPage />} />
+                <Route path="/metrics" element={<MetricsPage />} />
+                <Route
+                  path="/privacy/request"
+                  element={<PrivacyRequestPage />}
+                />
+                <Route
+                  path="/privacy/preferences"
+                  element={<PrivacyPreferencesPage />}
+                />
+                <Route
+                  path="/privacy/do-not-sell"
+                  element={<DoNotSellPage />}
+                />
+                <Route
+                  path="/cookie-admin/login"
+                  element={<CookieAdminLoginPage />}
+                />
+                <Route path="/cookie-admin" element={<CookieAdminPage />} />
+                <Route
+                  path="/admin-dashboard"
+                  element={<ComplyOSAdminDashboard />}
+                />
+                <Route path="/trademark" element={<Trademark />} />
+                <Route
+                  path="/contractor/quote-intake"
+                  element={<ContractorQuoteIntake />}
+                />
+                <Route path="/zip-explorer" element={<ZipExplorerHub />} />
+                <Route path="/zip/:zipCode" element={<ZipExplorer />} />
+                <Route
+                  path="/partners/signup"
+                  element={<PartnerSignupPage />}
+                />
+                {getCommandCenterRoutes()}
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </BrowserRouter>

@@ -57,7 +57,6 @@ const ContractorQuoteIntake = lazy(() => import("./pages/ContractorQuoteIntake")
 const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
-const PartnerSignupPage = lazy(() => import("./pages/PartnerSignupPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -117,7 +116,6 @@ const App = () => (
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               <Route path="/about" element={<AboutUs />} />
-              <Route path="/partners/signup" element={<PartnerSignupPage />} />
               {/* ComplyOS SaaS routes */}
               <Route path="/demo" element={<DemoPage />} />
               <Route path="/metrics" element={<MetricsPage />} />

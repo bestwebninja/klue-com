@@ -22,7 +22,9 @@ export const useAdmin = () => {
         return;
       }
 
-      if (isAllowlistedAdminEmail(user.email)) {
+      const normalizedEmail = user.email?.toLowerCase().trim();
+
+      if (isAllowlistedAdminEmail(normalizedEmail)) {
         if (!cancelled) {
           setIsAdmin(true);
           setLoading(false);
@@ -35,7 +37,7 @@ export const useAdmin = () => {
         .select('role')
         .eq('user_id', user.id)
         .eq('role', 'admin')
-        .maybeSingle();
+        .limit(1);
 
       if (error) {
         console.error('Error checking admin status:', error);
@@ -44,7 +46,7 @@ export const useAdmin = () => {
         }
       } else {
         if (!cancelled) {
-          setIsAdmin(!!data);
+          setIsAdmin((data?.length ?? 0) > 0);
         }
       }
       if (!cancelled) {

@@ -14,6 +14,7 @@ export type PartnerFilters = {
   feedType?: string;
   minRiskScore?: number;
   linkedContractors?: 'all' | 'yes' | 'no';
+  expiringDocs?: 'all' | 'yes' | 'no';
 };
 
 export const usePartnerList = (filters: PartnerFilters) =>
@@ -22,7 +23,7 @@ export const usePartnerList = (filters: PartnerFilters) =>
     queryFn: async () => {
       let query = supabase
         .from('partners')
-        .select('id,partner_id,partner_type,legal_business_name,dba_name,contact_name,email,phone,state,city,zip,primary_territory,verification_tier,compliance_status,feed_status,preferred_territory_status,created_at,updated_at,risk_score,status,preferred_requested,feed_type,partner_categories(category),contractor_partner_links(id)')
+        .select('id,partner_id,partner_type,legal_business_name,dba_name,contact_name,email,phone,state,city,zip,primary_territory,verification_tier,compliance_status,feed_status,preferred_territory_status,created_at,updated_at,risk_score,status,preferred_requested,feed_type,partner_categories(category),contractor_partner_links(id),partner_documents(expires_at)')
         .order('created_at', { ascending: false });
 
       if (filters.partnerType) query = query.eq('partner_type', filters.partnerType);
@@ -46,6 +47,25 @@ export const usePartnerList = (filters: PartnerFilters) =>
       if (filters.category) {
         const categoryLower = filters.category.toLowerCase();
         rows = rows.filter((row) => row.partner_categories?.some((c) => c.category.toLowerCase().includes(categoryLower)));
+      }
+
+      if (filters.expiringDocs === 'yes') {
+        rows = rows.filter((row) =>
+          (row.partner_documents ?? []).some((doc) => {
+            if (!doc.expires_at) return false;
+            const expiry = new Date(doc.expires_at).getTime();
+            return expiry < Date.now() + 1000 * 60 * 60 * 24 * 30;
+          })
+        );
+      }
+      if (filters.expiringDocs === 'no') {
+        rows = rows.filter((row) =>
+          (row.partner_documents ?? []).every((doc) => {
+            if (!doc.expires_at) return true;
+            const expiry = new Date(doc.expires_at).getTime();
+            return expiry >= Date.now() + 1000 * 60 * 60 * 24 * 30;
+          })
+        );
       }
 
       if (filters.linkedContractors === 'yes') {

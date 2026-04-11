@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -21,13 +22,19 @@ import type { PartnerRecord } from '@/features/partners-admin/types';
 
 const statusBadge = (value?: string | null) => <Badge variant="outline">{value || 'unknown'}</Badge>;
 
+const THIRTY_DAYS_MS = 1000 * 60 * 60 * 24 * 30;
+
 export default function AdminPartnersDashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const { toast } = useToast();
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>();
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<PartnerFilters>({ preferredRequested: 'all', linkedContractors: 'all' });
+  const [filters, setFilters] = useState<PartnerFilters>({
+    preferredRequested: 'all',
+    linkedContractors: 'all',
+    expiringDocs: 'all',
+  });
   const [note, setNote] = useState('');
 
   const partnersQuery = usePartnerList(filters);
@@ -53,6 +60,9 @@ export default function AdminPartnersDashboardPage() {
     try {
       await actionMutation.mutateAsync({ action, partnerId: selectedPartnerId, payload });
       toast({ title: 'Partner updated', description: `Action ${action} completed.` });
+      if (action === 'save_internal_note') {
+        setNote('');
+      }
     } catch (error) {
       toast({ title: 'Action failed', description: (error as Error).message, variant: 'destructive' });
     }
@@ -110,6 +120,62 @@ export default function AdminPartnersDashboardPage() {
           <div>
             <Label>Compliance Status</Label>
             <Input value={filters.complianceStatus ?? ''} onChange={(e) => setFilters((f) => ({ ...f, complianceStatus: e.target.value || undefined }))} />
+          </div>
+          <div>
+            <Label>Feed Type</Label>
+            <Input value={filters.feedType ?? ''} onChange={(e) => setFilters((f) => ({ ...f, feedType: e.target.value || undefined }))} />
+          </div>
+          <div>
+            <Label>Risk Score (min)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              value={typeof filters.minRiskScore === 'number' ? filters.minRiskScore : ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilters((f) => ({ ...f, minRiskScore: value ? Number(value) : undefined }));
+              }}
+            />
+          </div>
+          <div>
+            <Label>Preferred Requested</Label>
+            <Select value={filters.preferredRequested ?? 'all'} onValueChange={(value: 'all' | 'yes' | 'no') => setFilters((f) => ({ ...f, preferredRequested: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any</SelectItem>
+                <SelectItem value="yes">Yes</SelectItem>
+                <SelectItem value="no">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Expiring Docs (30d)</Label>
+            <Select value={filters.expiringDocs ?? 'all'} onValueChange={(value: 'all' | 'yes' | 'no') => setFilters((f) => ({ ...f, expiringDocs: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any</SelectItem>
+                <SelectItem value="yes">Yes</SelectItem>
+                <SelectItem value="no">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Linked Contractors</Label>
+            <Select value={filters.linkedContractors ?? 'all'} onValueChange={(value: 'all' | 'yes' | 'no') => setFilters((f) => ({ ...f, linkedContractors: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any</SelectItem>
+                <SelectItem value="yes">Yes</SelectItem>
+                <SelectItem value="no">No</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -192,24 +258,27 @@ export default function AdminPartnersDashboardPage() {
                   <p>Business verified: {statusBadge(detailQuery.data.partner_verifications?.[0]?.business_verified ? 'yes' : 'no')}</p>
                   <p>License verified: {statusBadge(detailQuery.data.partner_verifications?.[0]?.license_verified ? 'yes' : 'no')}</p>
                   <p>Insurance verified: {statusBadge(detailQuery.data.partner_verifications?.[0]?.insurance_verified ? 'yes' : 'no')}</p>
+                  <p>Territory reviewed: {statusBadge(detailQuery.data.preferred_territory_status)}</p>
+                  <p>Feed approved: {statusBadge(detailQuery.data.feed_status)}</p>
+                  <p>Preferred status: {statusBadge(detailQuery.data.preferred_requested ? 'under review' : 'not requested')}</p>
                   <p>Missing docs: {detailQuery.data.partner_documents?.length ? 'No' : 'Yes'}</p>
-                  <p>Expiry warnings: {(detailQuery.data.partner_documents ?? []).some((d: any) => d.expires_at && new Date(d.expires_at) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)) ? 'Yes' : 'No'}</p>
+                  <p>Expiry warnings: {(detailQuery.data.partner_documents ?? []).some((d: { expires_at?: string | null }) => d.expires_at && new Date(d.expires_at).getTime() < Date.now() + THIRTY_DAYS_MS) ? 'Yes' : 'No'}</p>
                   <p>Risk score: {detailQuery.data.risk_score}</p>
                 </TabsContent>
 
                 <TabsContent value="territory" className="text-sm space-y-2">
-                  {(detailQuery.data.partner_territories ?? []).map((t: any) => (
+                  {(detailQuery.data.partner_territories ?? []).map((t: { id: string; territory_label: string; territory_state?: string | null }) => (
                     <p key={t.id}>{t.territory_label} ({t.territory_state || 'N/A'})</p>
                   ))}
                 </TabsContent>
 
                 <TabsContent value="offerings" className="text-sm">
-                  Categories: {(detailQuery.data.partner_categories ?? []).map((c: any) => c.category).join(', ') || '—'}
+                  Categories: {(detailQuery.data.partner_categories ?? []).map((c: { category: string }) => c.category).join(', ') || '—'}
                 </TabsContent>
 
                 <TabsContent value="feed/systems" className="text-sm space-y-2">
                   <p>Feed status: {detailQuery.data.feed_status}</p>
-                  {(detailQuery.data.partner_feed_connections ?? []).map((f: any) => <p key={f.id}>{f.feed_type}: {f.connection_status}</p>)}
+                  {(detailQuery.data.partner_feed_connections ?? []).map((f: { id: string; feed_type: string; connection_status: string }) => <p key={f.id}>{f.feed_type}: {f.connection_status}</p>)}
                 </TabsContent>
 
                 <TabsContent value="commercial" className="text-sm">
@@ -218,7 +287,7 @@ export default function AdminPartnersDashboardPage() {
 
                 <TabsContent value="linked entities" className="space-y-2 text-sm">
                   {linkedQuery.isLoading && <p>Loading linked contractors…</p>}
-                  {(linkedQuery.data ?? []).map((c: any) => (
+                  {(linkedQuery.data ?? []).map((c: { id: string; contractor_id: string; match_score: number; territory_match_score: number; category_match_score: number; compliance_match_score: number; profiles?: { full_name?: string | null } | null }) => (
                     <div key={c.id} className="rounded border p-2">
                       <p>{c.profiles?.full_name || c.contractor_id} — Match {c.match_score}</p>
                       <p className="text-muted-foreground text-xs">territory {c.territory_match_score} / category {c.category_match_score} / compliance {c.compliance_match_score}</p>
@@ -227,13 +296,13 @@ export default function AdminPartnersDashboardPage() {
                 </TabsContent>
 
                 <TabsContent value="audit log" className="text-sm space-y-2">
-                  {(detailQuery.data.partner_audit_log ?? []).map((log: any) => (
+                  {(detailQuery.data.partner_audit_log ?? []).map((log: { id: string; created_at: string; action: string }) => (
                     <p key={log.id}>{new Date(log.created_at).toLocaleString()} — {log.action}</p>
                   ))}
                 </TabsContent>
 
                 <TabsContent value="internal notes" className="text-sm space-y-3">
-                  {(detailQuery.data.partner_internal_notes ?? []).map((n: any) => (
+                  {(detailQuery.data.partner_internal_notes ?? []).map((n: { id: string; note: string }) => (
                     <p key={n.id} className="rounded border p-2">{n.note}</p>
                   ))}
                   <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add internal note" />

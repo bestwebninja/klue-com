@@ -61,8 +61,12 @@ const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartner
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, search, hash, key } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, search, hash, key]);
+
   return null;
 }
 

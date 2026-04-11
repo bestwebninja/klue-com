@@ -28,5 +28,6 @@ export const env = {
   stripeCheckoutSuccessUrl:
     process.env.STRIPE_CHECKOUT_SUCCESS_URL ?? "https://dashboard.kluje.com/billing/success",
   stripeCheckoutCancelUrl:
-    process.env.STRIPE_CHECKOUT_CANCEL_URL ?? "https://dashboard.kluje.com/billing/cancel"
+    process.env.STRIPE_CHECKOUT_CANCEL_URL ?? "https://dashboard.kluje.com/billing/cancel",
+  leadRoutingWebhookUrl: process.env.LEAD_ROUTING_WEBHOOK_URL ?? ""
 };

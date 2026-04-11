@@ -41,6 +41,7 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const Newsletter = lazy(() => import("./pages/Newsletter"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Advertise = lazy(() => import("./pages/Advertise"));
+const PartnerSignupPage = lazy(() => import("./pages/PartnerSignupPage"));
 const AdvertiserDashboard = lazy(() => import("./pages/AdvertiserDashboard"));
 const PlatformManifesto = lazy(() => import("./pages/PlatformManifesto"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
@@ -114,6 +115,7 @@ const App = () => (
               <Route path="/admin" element={<AdvertiserDashboard />} />
               <Route path="/advertiser-dashboard" element={<AdvertiserDashboard />} />
               <Route path="/advertise" element={<Advertise />} />
+              <Route path="/partners/signup" element={<PartnerSignupPage />} />
               <Route path="/platform-manifesto" element={<PlatformManifesto />} />
               <Route path="/about" element={<AboutUs />} />
               {/* ComplyOS SaaS routes */}

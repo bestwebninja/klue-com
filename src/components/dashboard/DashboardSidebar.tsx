@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { Crown, Shield, LogOut, Settings, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link, useLocation } from 'react-router-dom';
+import { Crown, Shield, LogOut, Settings, ExternalLink, Building2 } from 'lucide-react';
+import { useAdmin } from '@/hooks/useAdmin';
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +27,6 @@ interface DashboardSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   isSubscribed: boolean;
-  isAdmin: boolean;
   userId: string;
   userName?: string;
   unreadMessages: number;
@@ -39,13 +38,14 @@ export function DashboardSidebar({
   activeTab,
   onTabChange,
   isSubscribed,
-  isAdmin,
   userId,
   userName,
   unreadMessages,
   onSignOut,
 }: DashboardSidebarProps) {
   const { state } = useSidebar();
+  const { isAdmin } = useAdmin();
+  const location = useLocation();
   const isCollapsed = state === 'collapsed';
 
   // Group items for better organization
@@ -61,6 +61,7 @@ export function DashboardSidebar({
   const adminItems = items.filter(item =>
     ['admin-users', 'admin-roles', 'admin-newsletter', 'admin-settings'].includes(item.value)
   );
+  const isPartnersRouteActive = location.pathname === '/admin/partners';
 
   const renderMenuItem = (item: NavItem) => {
     const Icon = item.icon;
@@ -175,6 +176,23 @@ export function DashboardSidebar({
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminItems.map(renderMenuItem)}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      'w-full justify-start transition-colors',
+                      isPartnersRouteActive
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    )}
+                    tooltip={isCollapsed ? 'Partners' : undefined}
+                  >
+                    <Link to="/admin/partners">
+                      <Building2 className="h-4 w-4 shrink-0" />
+                      {!isCollapsed && <span className="flex-1">Partners</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

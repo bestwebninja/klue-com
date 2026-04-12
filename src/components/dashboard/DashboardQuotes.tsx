@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { QuoteBuilderForm } from '@/components/dashboard/QuoteBuilderForm';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -211,6 +212,16 @@ const DashboardQuotes = ({ userId }: DashboardQuotesProps) => {
       </CardHeader>
 
       <CardContent>
+        {/* ── Quote Builder Form ── */}
+        <QuoteBuilderForm />
+
+        <div className="mt-8 mb-4 border-t border-border/40 pt-6">
+          <h3 className="text-sm font-semibold text-foreground mb-1">Submitted Quotes</h3>
+          <p className="text-xs text-muted-foreground mb-4">
+            Quotes you have submitted on job listings. Quote data from the builder above auto-propagates to your GC Dashboard departments.
+          </p>
+        </div>
+
         <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
           <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="all">All ({stats.total})</TabsTrigger>

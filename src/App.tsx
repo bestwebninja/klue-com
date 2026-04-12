@@ -7,6 +7,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getCommandCenterRoutes } from "@/app/routes/commandCenterRoutes";
 import { CommandCenterProvider } from "@/app/providers/CommandCenterProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import { QuoteProvider } from "@/context/QuoteContext";
 import { NotificationPermissionBanner } from "@/components/NotificationPermissionBanner";
 import { MessageNotificationListener } from "@/components/MessageNotificationListener";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -59,6 +60,7 @@ const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
 const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
 const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartnersDashboardPage"));
+const CleanScopePage = lazy(() => import("./pages/CleanScopePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -77,6 +79,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <QuoteProvider>
         <CommandCenterProvider>
         <Toaster />
         <Sonner />
@@ -138,12 +141,14 @@ const App = () => (
               <Route path="/admin/partners" element={<AdminPartnersDashboardPage />} />
               <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
+              <Route path="/cleanscope" element={<CleanScopePage />} />
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
         </Suspense>
               </CommandCenterProvider>
+        </QuoteProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

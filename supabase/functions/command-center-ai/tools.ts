@@ -481,6 +481,42 @@ export const TOOL_DEFINITIONS: Record<string, ToolDefinition> = {
       },
     },
   },
+
+  score_lead_quality: {
+    type: "function",
+    function: {
+      name: "score_lead_quality",
+      description:
+        "Score an inbound job lead for quality, conversion probability, and contractor match strength. Returns a 0–100 score, tier (platinum/gold/silver/bronze), intent signals, estimated job value, and a recommended contractor response.",
+      parameters: {
+        type: "object",
+        properties: {
+          jobDescription: {
+            type: "string",
+            description: "The homeowner's job description or request.",
+          },
+          budgetUsd: {
+            type: "number",
+            description: "Homeowner's stated budget in USD (0 if unknown).",
+          },
+          tradeType: {
+            type: "string",
+            description: "Trade type: plumbing, electrical, roofing, hvac, kitchen_remodel, bathroom_remodel, general, etc.",
+          },
+          homeownerType: {
+            type: "string",
+            enum: ["owner_occupant", "investor", "flipper", "unknown"],
+            description: "Type of homeowner submitting the lead.",
+          },
+          jobId: {
+            type: "string",
+            description: "Optional job ID to associate the score with in the database.",
+          },
+        },
+        required: ["jobDescription", "tradeType"],
+      },
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -533,6 +569,8 @@ export async function executeTool(
       return scoreBidCompetitiveness(args);
     case "analyze_market_conditions":
       return analyzeMarketConditions(args);
+    case "score_lead_quality":
+      return scoreLeadQuality(args);
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -1791,6 +1829,104 @@ async function analyzeMarketConditions(args: Record<string, unknown>): Promise<T
         : { priority: "medium", action: "Differentiate on reviews and response speed to stand out from competitors" },
     ],
     alertCreated: false,
+  };
+}
+
+function scoreLeadQuality(args: Record<string, unknown>): ToolResult {
+  const description = String(args.jobDescription ?? "").toLowerCase();
+  const budget = Number(args.budgetUsd ?? 0);
+  const trade = String(args.tradeType ?? "general").toLowerCase().replace(/\s+/g, "_");
+  const homeownerType = String(args.homeownerType ?? "unknown");
+
+  // Budget scoring (0–30 pts)
+  let budgetScore = 5;
+  if (budget >= 50_000) budgetScore = 30;
+  else if (budget >= 25_000) budgetScore = 25;
+  else if (budget >= 10_000) budgetScore = 20;
+  else if (budget >= 5_000) budgetScore = 12;
+
+  // Trade urgency (0–25 pts) — urgent trades score higher
+  const URGENT_TRADES: Record<string, number> = {
+    plumbing: 25, electrical: 25, roofing: 20, hvac: 20,
+    kitchen_remodel: 12, bathroom_remodel: 12, full_renovation: 15, general: 8,
+  };
+  const tradeScore = URGENT_TRADES[trade] ?? 8;
+
+  // Homeowner type (0–20 pts)
+  const OWNER_SCORES: Record<string, number> = {
+    owner_occupant: 20, investor: 12, flipper: 8, unknown: 10,
+  };
+  const ownerScore = OWNER_SCORES[homeownerType] ?? 10;
+
+  // Description signals (0–25 pts)
+  let descScore = 0;
+  const urgentKeywords = ["urgent", "emergency", "asap", "flooding", "leak", "no heat", "no power", "broken", "burst", "fire"];
+  const detailKeywords = ["square feet", "sqft", "bedroom", "bathroom", "licensed", "insured", "permit", "blueprint"];
+  const lowValueKeywords = ["cheapest", "lowest price", "cheapest quote", "free estimate"];
+
+  const hasUrgency = urgentKeywords.some((k) => description.includes(k));
+  const hasDetail = detailKeywords.some((k) => description.includes(k)) || description.length > 200;
+  const hasLowValue = lowValueKeywords.some((k) => description.includes(k));
+
+  if (hasUrgency) descScore += 20;
+  if (hasDetail) descScore += 10;
+  if (hasLowValue) descScore -= 15;
+  descScore = Math.max(0, Math.min(25, descScore));
+
+  const totalScore = Math.min(100, budgetScore + tradeScore + ownerScore + descScore);
+
+  // Tier
+  const tier =
+    totalScore >= 85 ? "platinum" :
+    totalScore >= 70 ? "gold" :
+    totalScore >= 50 ? "silver" : "bronze";
+
+  // Contractor match strength (0–1)
+  const contractorMatchStrength = Math.round((totalScore / 100) * 10) / 10;
+
+  // Conversion probability
+  const conversionProbability =
+    tier === "platinum" ? 0.72 :
+    tier === "gold" ? 0.55 :
+    tier === "silver" ? 0.35 : 0.18;
+
+  // Estimated job value
+  const BASE_VALUES: Record<string, number> = {
+    plumbing: 3800, electrical: 4200, roofing: 12000, hvac: 8500,
+    kitchen_remodel: 28000, bathroom_remodel: 14000, full_renovation: 85000, general: 6000,
+  };
+  const estimatedJobValue = budget > 0 ? budget : (BASE_VALUES[trade] ?? 6000);
+
+  // Intent signals
+  const intentSignals: string[] = [];
+  if (hasUrgency) intentSignals.push("urgent_timeline");
+  if (hasDetail) intentSignals.push("detailed_scope");
+  if (budget >= 25_000) intentSignals.push("high_budget");
+  if (homeownerType === "owner_occupant") intentSignals.push("owner_occupant");
+  if (homeownerType === "investor") intentSignals.push("repeat_client_potential");
+  if (!hasLowValue) intentSignals.push("quality_focused");
+
+  // Recommended response
+  const recommendedResponse =
+    tier === "platinum" ? "Respond within 1 hour with a personalized proposal. Offer a same-day site visit." :
+    tier === "gold" ? "Respond within 4 hours. Send a detailed quote and references." :
+    tier === "silver" ? "Respond within 24 hours with a standard estimate." :
+    "Add to follow-up queue. Send a brief intro and availability.";
+
+  return {
+    score: totalScore,
+    tier,
+    intentSignals,
+    contractorMatchStrength,
+    conversionProbability,
+    estimatedJobValue,
+    recommendedResponse,
+    scoreBreakdown: {
+      budgetScore,
+      tradeUrgencyScore: tradeScore,
+      homeownerTypeScore: ownerScore,
+      descriptionScore: descScore,
+    },
   };
 }
 

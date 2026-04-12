@@ -19,6 +19,8 @@ export type IntentLabel =
   | "renovation_workflow"   // Full project scope: storm + code + docs + leak
   | "zoning_entitlement"   // Permits, compliance, approval paths
   | "lending_capital"      // Draw review, escrow, cash-flow
+  | "bid_estimating"       // Job cost estimation and bid strategy
+  | "market_intelligence"  // Local market analysis and opportunity scoring
   | "risk_scan"            // General risk check across active jobs
   | "document_audit"       // Document extraction and packet assembly
   | "rebate_discovery"     // Incentive and rebate programs
@@ -119,6 +121,46 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
     ],
   },
 
+  bid_estimating: {
+    stages: [
+      {
+        agentKeys: ["bid_estimator"],
+        mode: "parallel",
+        rationale: "Route to Bid & Estimating AI for line-item cost analysis, margin modeling, and competitive bid positioning.",
+      },
+    ],
+    nudges: [
+      {
+        trigger: "bid_estimator.competitiveness.winProbabilityPercent < 50",
+        suggestedAction: "Win probability below 50% — review pricing strategy and consider adjusting the bid amount.",
+      },
+      {
+        trigger: "bid_estimator.marginAnalysis.recommendedMarginPercent < 18",
+        suggestedAction: "Margin is thin — ensure your overhead and profit are fully accounted for in this estimate.",
+      },
+    ],
+  },
+
+  market_intelligence: {
+    stages: [
+      {
+        agentKeys: ["market_intel"],
+        mode: "parallel",
+        rationale: "Route to Market Intelligence AI for local opportunity analysis, competitor density, and seasonal demand patterns.",
+      },
+    ],
+    nudges: [
+      {
+        trigger: "market_intel.opportunityScore > 75",
+        suggestedAction: "High-opportunity market detected — consider increasing capacity or marketing spend to capture share.",
+      },
+      {
+        trigger: "market_intel.competitorDensity === 'low'",
+        suggestedAction: "Low competitor density found — you have a significant first-mover advantage in this market.",
+      },
+    ],
+  },
+
   risk_scan: {
     stages: [
       {
@@ -196,6 +238,8 @@ Available intent labels and when to use them:
 - "renovation_workflow": User wants to plan, monitor, or audit a renovation or construction project end-to-end.
 - "zoning_entitlement": User asks about permits, zoning approvals, code compliance, or entitlement paths.
 - "lending_capital": User asks about draw requests, financing, cash flow, or closing/escrow.
+- "bid_estimating": User wants to estimate a job cost, price a project, or understand what to bid.
+- "market_intelligence": User asks about local market conditions, competitor landscape, demand trends, or where to focus their business.
 - "risk_scan": User wants a general risk check or status overview of active jobs.
 - "document_audit": User wants document review, permit packet assembly, or entity extraction.
 - "rebate_discovery": User asks about rebates, tax credits, or energy incentive programs.
@@ -204,7 +248,7 @@ Available intent labels and when to use them:
 
 If the query mentions a single agent by name or capability, set intent to "single_agent" and set
 singleAgentKey to one of: leak_hunter, code_guardian, rebate_maximizer, storm_scout, draw_guardian,
-document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai.
+document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai, bid_estimator, market_intel.
 
 Return ONLY this JSON object (no markdown, no extra text):
 {

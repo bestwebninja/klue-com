@@ -21,6 +21,8 @@ import type { SupervisorMessage } from "../../hooks/useSupervisor";
 import { RenovationWorkflowCard } from "./RenovationWorkflowCard";
 import { ZoningEntitlementCard } from "./ZoningEntitlementCard";
 import { LendingCapitalCard } from "./LendingCapitalCard";
+import { BidEstimatorCard } from "./BidEstimatorCard";
+import { MarketIntelCard } from "./MarketIntelCard";
 
 // ---------------------------------------------------------------------------
 // Risk level styling
@@ -49,6 +51,8 @@ const AGENT_LABELS: Record<string, string> = {
   renovation_ai: "Renovation AI",
   zoning_ai: "Zoning AI",
   lending_ai: "Lending AI",
+  bid_estimator: "Bid & Estimating AI",
+  market_intel: "Market Intel AI",
 };
 
 const INTENT_LABELS: Record<string, string> = {
@@ -166,6 +170,16 @@ export function SupervisorResponseCard({ message }: SupervisorResponseCardProps)
         {agentOutputs.lending_ai && (
           <div className="pl-0 pt-1">
             <LendingCapitalCard output={agentOutputs.lending_ai as any} />
+          </div>
+        )}
+        {agentOutputs.bid_estimator && (
+          <div className="pl-0 pt-1">
+            <BidEstimatorCard output={agentOutputs.bid_estimator as any} />
+          </div>
+        )}
+        {agentOutputs.market_intel && (
+          <div className="pl-0 pt-1">
+            <MarketIntelCard output={agentOutputs.market_intel as any} />
           </div>
         )}
 

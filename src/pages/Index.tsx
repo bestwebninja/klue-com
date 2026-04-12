@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { HomepageIntro } from "@/components/HomepageIntro";
 import { HowItWorks } from "@/components/HowItWorks";
+import { AgentDemoSection } from "@/components/AgentDemoSection";
 import { Footer } from "@/components/Footer";
 import { Separator } from "@/components/ui/separator";
 import { SEOHead } from "@/components/SEOHead";
@@ -231,6 +232,7 @@ const Index = () => {
         <HeroSection />
         <HomepageIntro />
         <HowItWorks />
+        <AgentDemoSection />
         <ZipExplorerEntry />
         <Suspense fallback={null}>
           <SocialJobPosts />

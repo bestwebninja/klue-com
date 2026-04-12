@@ -8,6 +8,7 @@ import { Navbar } from '@/components/Navbar';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useProfileComplete } from '@/hooks/useProfileComplete';
 import { Button } from '@/components/ui/button';
+import { VeteranProfileSection, type VeteranProfileData } from '@/components/veteran/VeteranProfileSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,7 @@ const Auth = () => {
   const [contractorType, setContractorType] = useState<'general' | 'sub' | ''>('');
   const [selectedServices, setSelectedServices] = useState<string[]>(prefillServices);
   const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
+  const [veteranData, setVeteranData] = useState<VeteranProfileData | null>(null);
 
   // Check signup restriction on mount
   useEffect(() => {
@@ -377,6 +379,24 @@ const Auth = () => {
             pinned_widget_keys: ['profile_summary', 'weather', 'ai_next_action'],
           } as any) as any);
           syncZipIntelligence(zipCode).catch(() => null);
+
+          // Veteran profile — fire-and-forget
+          if (veteranData?.isVeteran && veteranData.branch) {
+            (supabase.from('veteran_profiles' as any).upsert({
+              user_id: data.user.id,
+              branch: veteranData.branch,
+              rank_grade: veteranData.rankGrade || null,
+              years_of_service: veteranData.yearsOfService || null,
+              service_eras: veteranData.serviceEras,
+              specialty_code: veteranData.specialtyCode || null,
+              specialty_title: veteranData.specialtyTitle || null,
+              unit_type: veteranData.unitType || null,
+              open_to_veteran_network: veteranData.openToVeteranNetwork,
+              subscription_credit_months: 3,
+            } as any, { onConflict: 'user_id' }) as any).catch(() => {});
+            // Stamp is_veteran on profiles for quick filtering
+            supabase.from('profiles').update({ is_veteran: true, veteran_branch: veteranData.branch } as any).eq('id', data.user.id).catch(() => {});
+          }
 
           // Send welcome email
           supabase.functions.invoke('send-provider-welcome-notification', {
@@ -929,6 +949,12 @@ const Auth = () => {
                         )}
                         <p className="text-xs text-muted-foreground mt-1">Select all services you provide.</p>
                       </div>
+
+                      {/* Veteran program */}
+                      <VeteranProfileSection
+                        mode="signup"
+                        onChange={(data) => setVeteranData(data.isVeteran ? data : null)}
+                      />
                     </>
                   )}
 

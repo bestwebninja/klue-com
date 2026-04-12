@@ -1,9 +1,12 @@
 name: Sync from klue-com
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"
+    # Also run every 15 minutes as a safety net
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
@@ -16,14 +19,27 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          # GITHUB_TOKEN is always available — no custom secret needed here
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Mirror source main into target main
+      - name: Mirror klue-com main → target main
+        env:
+          SOURCE_TOKEN: ${{ secrets.SOURCE_REPO_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote add source https://x-access-token:${{ secrets.SOURCE_REPO_TOKEN }}@github.com/bestwebninja/klue-com.git
-          git fetch source main
+
+          # Use SOURCE_REPO_TOKEN for private source; falls back to public HTTPS
+          if [ -n "$SOURCE_TOKEN" ]; then
+            SOURCE_URL="https://x-access-token:${SOURCE_TOKEN}@github.com/bestwebninja/klue-com.git"
+          else
+            SOURCE_URL="https://github.com/bestwebninja/klue-com.git"
+          fi
+
+          git remote add source "$SOURCE_URL"
+          git fetch source main --depth=1
+
           git checkout main
           git reset --hard source/main
+
           git push origin main --force

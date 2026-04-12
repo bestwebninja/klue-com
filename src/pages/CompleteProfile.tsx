@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { useToast } from '@/hooks/use-toast';
+import { VeteranProfileSection, type VeteranProfileData } from '@/components/veteran/VeteranProfileSection';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { mapServicesToCategoryIds, providerServiceTaxonomy } from '@/lib/providerServiceTaxonomy';
@@ -55,6 +56,7 @@ const CompleteProfile = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [serviceCategories, setServiceCategories] = useState<Category[]>([]);
   const [isServicePickerOpen, setIsServicePickerOpen] = useState(false);
+  const [veteranData, setVeteranData] = useState<VeteranProfileData | null>(null);
 
   // Location state
   const [locationQuery, setLocationQuery] = useState('');
@@ -241,6 +243,32 @@ const CompleteProfile = () => {
             longitude: selectedLocation.longitude,
             is_primary: true,
           });
+        }
+
+        // Veteran profile — fire-and-forget
+        if (veteranData?.isVeteran && veteranData.branch) {
+          (supabase.from('veteran_profiles' as any).upsert({
+            user_id: user.id,
+            branch: veteranData.branch,
+            rank_grade: veteranData.rankGrade || null,
+            rank_title: (veteranData as any).rankTitle || null,
+            years_of_service: veteranData.yearsOfService || null,
+            service_eras: veteranData.serviceEras,
+            specialty_code: veteranData.specialtyCode || null,
+            specialty_title: veteranData.specialtyTitle || null,
+            unit_type: veteranData.unitType || null,
+            last_duty_station: veteranData.lastDutyStation || null,
+            last_unit: veteranData.lastUnit || null,
+            clearance_level: veteranData.clearanceLevel || 'none',
+            va_disability_rating: veteranData.vaDisabilityRating ?? null,
+            discharge_type: veteranData.dischargeType || 'honorable',
+            is_sdvosb: veteranData.isSdvosb,
+            is_vosb: veteranData.isVosb,
+            open_to_veteran_network: veteranData.openToVeteranNetwork,
+            additional_notes: veteranData.additionalNotes || null,
+            subscription_credit_months: 3,
+          } as any, { onConflict: 'user_id' }) as any).catch(() => {});
+          supabase.from('profiles').update({ is_veteran: true, veteran_branch: veteranData.branch } as any).eq('id', user.id).catch(() => {});
         }
 
         // Welcome email
@@ -477,6 +505,12 @@ const CompleteProfile = () => {
               </>
             )}
 
+
+            {/* Veteran program — shown for all user types */}
+            <VeteranProfileSection
+              mode="full"
+              onChange={(data) => setVeteranData(data.isVeteran ? data : null)}
+            />
 
             {/* Terms */}
             <div className="flex items-start space-x-2">

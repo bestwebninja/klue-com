@@ -4,7 +4,8 @@
  * Shows: current temp, condition, wind, humidity, UV index,
  * 3-day forecast strip, and a construction risk flag banner.
  *
- * Uses the free wttr.in API via useWeather hook.
+ * Uses the official US National Weather Service API (api.weather.gov)
+ * via the useWeather hook. No API key required.
  */
 
 import { Cloud, Wind, Droplets, Sun, RefreshCw, AlertTriangle, Thermometer } from 'lucide-react';

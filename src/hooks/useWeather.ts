@@ -1,14 +1,19 @@
 /**
  * useWeather — fetches real weather data for a US ZIP code.
  *
- * Uses the free wttr.in JSON API (no key required).
- * Caches results in-memory for 30 minutes to avoid hammering the API.
+ * API chain (all free, no key required):
+ *   1. api.zippopotam.us/us/{zip}          → lat/lon, city, state
+ *   2. api.weather.gov/points/{lat},{lon}  → NWS grid + station/forecast URLs
+ *   3. (parallel) forecast URL             → 7-day period forecast
+ *   3. (parallel) observationStations URL  → nearest ASOS/AWOS station ID
+ *   4. stations/{id}/observations/latest  → current temp, wind, humidity, precip
  *
- * Returns: current temp (°F), condition, wind, humidity, UV index,
- *          feels-like, 3-day forecast, and construction risk flags.
+ * Results cached in-memory for 30 minutes per ZIP.
  */
 
 import { useState, useEffect, useRef } from 'react';
+
+// ─── Public interfaces ───────────────────────────────────────────────────────
 
 export interface CurrentWeather {
   tempF: number;
@@ -39,7 +44,7 @@ export interface ForecastDay {
 export interface ConstructionRiskFlags {
   /** Wind > 25 mph — scaffolding/roofing risk */
   highWind: boolean;
-  /** Precip > 5mm — concrete pour / drywall risk */
+  /** Precip expected — concrete pour / drywall risk */
   rain: boolean;
   /** Temp < 40°F — concrete cure / paint risk */
   coldSnap: boolean;
@@ -47,7 +52,6 @@ export interface ConstructionRiskFlags {
   extreme_heat: boolean;
   /** UV > 8 — worker sun exposure risk */
   highUv: boolean;
-  /** Combined risk level */
   level: 'low' | 'moderate' | 'high';
   summary: string;
 }
@@ -62,27 +66,77 @@ export interface WeatherData {
   fetchedAt: number;
 }
 
-interface UseWeatherReturn {
+export interface UseWeatherReturn {
   weather: WeatherData | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
 }
 
-// In-memory cache keyed by ZIP
-const CACHE: Record<string, WeatherData> = {};
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+// ─── Cache ───────────────────────────────────────────────────────────────────
 
-function buildRiskFlags(current: CurrentWeather, forecast: ForecastDay[]): ConstructionRiskFlags {
-  const highWind = current.windMph > 25 || forecast.slice(0, 2).some(d => d.windMph > 25);
-  const rain = current.precipMm > 5 || forecast.slice(0, 2).some(d => d.precipMm > 5);
-  const coldSnap = current.tempF < 40 || forecast.slice(0, 2).some(d => d.minTempF < 40);
-  const extreme_heat = current.tempF > 95 || forecast.slice(0, 2).some(d => d.maxTempF > 95);
+const CACHE: Record<string, WeatherData> = {};
+const CACHE_TTL_MS = 30 * 60 * 1000;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const cToF = (c: number | null | undefined): number =>
+  c != null ? Math.round(c * 9 / 5 + 32) : 70;
+
+const msToMph = (ms: number | null | undefined): number =>
+  ms != null ? Math.round(ms * 2.23694) : 0;
+
+function degreesToDir(deg: number | null | undefined): string {
+  if (deg == null) return 'N';
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round((deg % 360) / 22.5) % 16];
+}
+
+/** Parse "10 mph" or "10 to 20 mph" → average integer */
+function parseWindSpeed(str: string): number {
+  const nums = (str.match(/\d+/g) ?? ['0']).map(Number);
+  return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
+}
+
+/** Estimate cloud cover % from short forecast text */
+function estimateCloudCover(text: string): number {
+  const t = text.toLowerCase();
+  if (t.includes('overcast') || t.includes('cloudy') && t.includes('mostly')) return 85;
+  if (t.includes('cloudy')) return 70;
+  if (t.includes('partly')) return 40;
+  if (t.includes('mostly sunny') || t.includes('mostly clear')) return 20;
+  if (t.includes('sunny') || t.includes('clear')) return 5;
+  if (t.includes('rain') || t.includes('storm') || t.includes('snow')) return 90;
+  return 50;
+}
+
+/** Rough daytime UV estimate from forecast text (NWS doesn't expose UV in public forecast) */
+function estimateUV(text: string, isDaytime: boolean): number {
+  if (!isDaytime) return 0;
+  const t = text.toLowerCase();
+  if (t.includes('sunny') && !t.includes('mostly') && !t.includes('partly')) return 7;
+  if (t.includes('mostly sunny') || t.includes('mostly clear')) return 5;
+  if (t.includes('partly') || t.includes('mix')) return 4;
+  if (t.includes('mostly cloudy')) return 2;
+  if (t.includes('cloudy') || t.includes('overcast')) return 1;
+  if (t.includes('rain') || t.includes('thunder') || t.includes('snow')) return 1;
+  return 3;
+}
+
+function buildRiskFlags(
+  current: CurrentWeather,
+  forecast: ForecastDay[]
+): ConstructionRiskFlags {
+  const next2 = forecast.slice(0, 2);
+  const highWind = current.windMph > 25 || next2.some(d => d.windMph > 25);
+  const rain = current.precipMm > 5 || next2.some(d => d.precipMm > 5);
+  const coldSnap = current.tempF < 40 || next2.some(d => d.minTempF < 40);
+  const extreme_heat = current.tempF > 95 || next2.some(d => d.maxTempF > 95);
   const highUv = current.uvIndex > 8;
 
-  const riskCount = [highWind, rain, coldSnap, extreme_heat, highUv].filter(Boolean).length;
+  const flagCount = [highWind, rain, coldSnap, extreme_heat, highUv].filter(Boolean).length;
   const level: ConstructionRiskFlags['level'] =
-    riskCount >= 2 ? 'high' : riskCount === 1 ? 'moderate' : 'low';
+    flagCount >= 2 ? 'high' : flagCount === 1 ? 'moderate' : 'low';
 
   const parts: string[] = [];
   if (highWind) parts.push(`Wind ${current.windMph} mph — secure scaffolding`);
@@ -98,6 +152,147 @@ function buildRiskFlags(current: CurrentWeather, forecast: ForecastDay[]): Const
   return { highWind, rain, coldSnap, extreme_heat, highUv, level, summary };
 }
 
+// ─── Core fetch chain ─────────────────────────────────────────────────────────
+
+const NWS_HEADERS = {
+  'Accept': 'application/geo+json',
+};
+
+async function fetchWeatherGov(zip: string, signal: AbortSignal): Promise<WeatherData> {
+  // 1. ZIP → lat/lon via zippopotam.us (free, no key, CORS-enabled)
+  const zipRes = await fetch(`https://api.zippopotam.us/us/${zip}`, { signal });
+  if (!zipRes.ok) throw new Error(`ZIP lookup failed (${zipRes.status})`);
+  const zipJson = await zipRes.json();
+  const place = zipJson.places?.[0];
+  if (!place) throw new Error('ZIP code not found');
+  const lat = parseFloat(place.latitude).toFixed(4);
+  const lon = parseFloat(place.longitude).toFixed(4);
+  const city: string = place['place name'] ?? '';
+  const state: string = place['state abbreviation'] ?? '';
+
+  // 2. lat/lon → NWS grid metadata
+  const ptRes = await fetch(
+    `https://api.weather.gov/points/${lat},${lon}`,
+    { signal, headers: NWS_HEADERS }
+  );
+  if (!ptRes.ok) {
+    const body = await ptRes.json().catch(() => ({}));
+    throw new Error(body?.detail ?? `NWS grid lookup failed (${ptRes.status})`);
+  }
+  const ptJson = await ptRes.json();
+  const forecastUrl: string = ptJson.properties?.forecast;
+  const stationsUrl: string = ptJson.properties?.observationStations;
+  if (!forecastUrl || !stationsUrl) throw new Error('NWS: missing forecast or stations URL');
+
+  // 3. Parallel — forecast + station list
+  const [fcRes, stRes] = await Promise.all([
+    fetch(forecastUrl, { signal, headers: NWS_HEADERS }),
+    fetch(stationsUrl, { signal, headers: NWS_HEADERS }),
+  ]);
+  if (!fcRes.ok) throw new Error(`Forecast fetch failed (${fcRes.status})`);
+  if (!stRes.ok) throw new Error(`Stations fetch failed (${stRes.status})`);
+  const [fcJson, stJson] = await Promise.all([fcRes.json(), stRes.json()]);
+
+  // 4. Latest observation from nearest station (best-effort — may return null values)
+  let obsProps: Record<string, any> = {};
+  const stationId: string | undefined = stJson.features?.[0]?.properties?.stationIdentifier;
+  if (stationId) {
+    try {
+      const obsRes = await fetch(
+        `https://api.weather.gov/stations/${stationId}/observations/latest`,
+        { signal, headers: NWS_HEADERS }
+      );
+      if (obsRes.ok) {
+        const obsJson = await obsRes.json();
+        obsProps = obsJson.properties ?? {};
+      }
+    } catch {
+      // Non-fatal — fall back to first forecast period
+    }
+  }
+
+  // ── Parse current conditions ─────────────────────────────────────────────
+  const periods: any[] = fcJson.properties?.periods ?? [];
+  const firstPeriod = periods[0];
+
+  const obsTemp = obsProps.temperature?.value;      // Celsius or null
+  const obsWindMs = obsProps.windSpeed?.value;      // m/s or null
+  const obsWindDeg = obsProps.windDirection?.value; // degrees or null
+  const obsHumidity = obsProps.relativeHumidity?.value; // % or null
+  const obsHeatIdx = obsProps.heatIndex?.value;     // Celsius or null
+  const obsWindChill = obsProps.windChill?.value;   // Celsius or null
+  const obsPrecip = obsProps.precipitationLastHour?.value; // mm or null
+  const obsVis = obsProps.visibility?.value;        // meters or null
+  const obsDesc: string = obsProps.textDescription ?? '';
+
+  const hasObsTemp = obsTemp != null;
+
+  const tempF = hasObsTemp
+    ? cToF(obsTemp)
+    : (firstPeriod?.temperature ?? 70); // forecast temps are already in °F
+
+  const feelsLikeF = hasObsTemp
+    ? cToF(obsHeatIdx ?? obsWindChill ?? obsTemp)
+    : tempF;
+
+  const condition = obsDesc || firstPeriod?.shortForecast || 'Unknown';
+
+  const current: CurrentWeather = {
+    tempF,
+    feelsLikeF,
+    condition,
+    conditionCode: 0,
+    windMph: obsWindMs != null
+      ? msToMph(obsWindMs)
+      : parseWindSpeed(firstPeriod?.windSpeed ?? '0 mph'),
+    windDir: obsWindDeg != null
+      ? degreesToDir(obsWindDeg)
+      : (firstPeriod?.windDirection ?? 'N'),
+    humidity: obsHumidity != null ? Math.round(obsHumidity) : 50,
+    uvIndex: estimateUV(condition, firstPeriod?.isDaytime ?? true),
+    precipMm: obsPrecip ?? (firstPeriod?.probabilityOfPrecipitation?.value ?? 0) / 10,
+    visibility: obsVis != null ? Math.round(obsVis / 1609.34) : 10,
+    cloudCover: estimateCloudCover(condition),
+  };
+
+  // ── Parse forecast into daily buckets ────────────────────────────────────
+  const dayMap: Record<string, { day?: any; night?: any }> = {};
+  for (const p of periods) {
+    const dateKey: string = p.startTime?.slice(0, 10);
+    if (!dateKey) continue;
+    if (!dayMap[dateKey]) dayMap[dateKey] = {};
+    if (p.isDaytime) dayMap[dateKey].day = p;
+    else dayMap[dateKey].night = p;
+  }
+
+  const forecast: ForecastDay[] = Object.entries(dayMap)
+    .slice(0, 3)
+    .map(([date, { day, night }]) => {
+      const rep = day ?? night;
+      const pop = rep?.probabilityOfPrecipitation?.value ?? 0;
+      // NWS day periods hold high temp, night periods hold low temp
+      const maxTempF = day?.temperature ?? (night ? night.temperature + 15 : 75);
+      const minTempF = night?.temperature ?? (day ? day.temperature - 15 : 55);
+      return {
+        date,
+        maxTempF,
+        minTempF,
+        precipMm: Math.round(pop) / 10,  // 100% PoP ≈ 10mm rough proxy
+        condition: day?.shortForecast ?? night?.shortForecast ?? 'Unknown',
+        windMph: parseWindSpeed(rep?.windSpeed ?? '0 mph'),
+        uvIndex: estimateUV(day?.shortForecast ?? '', true),
+        sunrise: '—',
+        sunset: '—',
+      };
+    });
+
+  const riskFlags = buildRiskFlags(current, forecast);
+
+  return { zip, city, state, current, forecast, riskFlags, fetchedAt: Date.now() };
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
 export function useWeather(zip: string | undefined | null): UseWeatherReturn {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -108,17 +303,17 @@ export function useWeather(zip: string | undefined | null): UseWeatherReturn {
   useEffect(() => {
     if (!zip || !/^\d{5}$/.test(zip)) {
       setWeather(null);
+      setError(null);
       return;
     }
 
-    // Check cache
     const cached = CACHE[zip];
     if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
       setWeather(cached);
+      setLoading(false);
       return;
     }
 
-    // Abort any in-flight request
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -126,79 +321,20 @@ export function useWeather(zip: string | undefined | null): UseWeatherReturn {
     setLoading(true);
     setError(null);
 
-    fetch(`https://wttr.in/${zip}?format=j1`, {
-      signal: controller.signal,
-      headers: { Accept: 'application/json' },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
-        return res.json();
-      })
-      .then((json: any) => {
-        const current = json.current_condition?.[0];
-        const nearest = json.nearest_area?.[0];
-        const weather3Day = json.weather ?? [];
-
-        if (!current) throw new Error('No weather data returned');
-
-        const city = nearest?.areaName?.[0]?.value ?? '';
-        const state = nearest?.region?.[0]?.value ?? '';
-
-        const currentWeather: CurrentWeather = {
-          tempF: parseInt(current.temp_F ?? '70'),
-          feelsLikeF: parseInt(current.FeelsLikeF ?? '70'),
-          condition: current.weatherDesc?.[0]?.value ?? 'Unknown',
-          conditionCode: parseInt(current.weatherCode ?? '113'),
-          windMph: parseInt(current.windspeedMiles ?? '0'),
-          windDir: current.winddir16Point ?? 'N',
-          humidity: parseInt(current.humidity ?? '50'),
-          uvIndex: parseInt(current.uvIndex ?? '0'),
-          precipMm: parseFloat(current.precipMM ?? '0'),
-          visibility: parseInt(current.visibility ?? '10'),
-          cloudCover: parseInt(current.cloudcover ?? '0'),
-        };
-
-        const forecast: ForecastDay[] = weather3Day.map((day: any) => ({
-          date: day.date ?? '',
-          maxTempF: parseInt(day.maxtempF ?? '75'),
-          minTempF: parseInt(day.mintempF ?? '55'),
-          precipMm: parseFloat(day.hourly?.reduce(
-            (sum: number, h: any) => sum + parseFloat(h.precipMM ?? '0'), 0
-          ).toFixed(1) ?? '0'),
-          condition: day.hourly?.[4]?.weatherDesc?.[0]?.value ?? 'Unknown',
-          windMph: parseInt(day.hourly?.[4]?.windspeedMiles ?? '0'),
-          uvIndex: parseInt(day.uvIndex ?? '0'),
-          sunrise: day.astronomy?.[0]?.sunrise ?? '6:00 AM',
-          sunset: day.astronomy?.[0]?.sunset ?? '7:00 PM',
-        }));
-
-        const riskFlags = buildRiskFlags(currentWeather, forecast);
-
-        const data: WeatherData = {
-          zip,
-          city,
-          state,
-          current: currentWeather,
-          forecast,
-          riskFlags,
-          fetchedAt: Date.now(),
-        };
-
+    fetchWeatherGov(zip, controller.signal)
+      .then(data => {
         CACHE[zip] = data;
         setWeather(data);
       })
-      .catch((err) => {
+      .catch(err => {
         if (err.name !== 'AbortError') {
-          setError('Could not load weather data. Check your internet connection.');
+          console.error('[useWeather]', err);
+          setError('Could not load weather data. Check your connection or ZIP code.');
         }
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
 
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [zip, tick]);
 
   return {
@@ -207,7 +343,7 @@ export function useWeather(zip: string | undefined | null): UseWeatherReturn {
     error,
     refetch: () => {
       if (zip) delete CACHE[zip];
-      setTick((t) => t + 1);
+      setTick(t => t + 1);
     },
   };
 }

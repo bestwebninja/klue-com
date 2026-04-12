@@ -71,6 +71,9 @@ export interface SupervisorRun {
  * The supervisor classifies intent, routes to appropriate agents, and
  * returns a synthesized unified response.
  */
+/** Hard timeout for supervisor edge function calls (120 s). */
+const SUPERVISOR_TIMEOUT_MS = 120_000;
+
 export async function runSupervisor(
   query: string,
   options: {
@@ -78,23 +81,36 @@ export async function runSupervisor(
     payload?: Record<string, unknown>;
   } = {}
 ): Promise<{ data: SupervisorRunResponse | null; error: string | null }> {
-  const { data, error } = await supabase.functions.invoke("command-center-supervisor", {
-    body: {
-      query,
-      businessUnitId: options.businessUnitId,
-      payload: options.payload ?? {},
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SUPERVISOR_TIMEOUT_MS);
 
-  if (error) {
-    return { data: null, error: error.message };
+  try {
+    const { data, error } = await supabase.functions.invoke("command-center-supervisor", {
+      body: {
+        query,
+        businessUnitId: options.businessUnitId,
+        payload: options.payload ?? {},
+      },
+      signal: controller.signal,
+    });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    const response = data as SupervisorRunResponse;
+    return {
+      data: response,
+      error: response.ok ? null : "Supervisor run completed with errors.",
+    };
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      return { data: null, error: "The request timed out. Please try again." };
+    }
+    return { data: null, error: err instanceof Error ? err.message : "Unexpected error." };
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  const response = data as SupervisorRunResponse;
-  return {
-    data: response,
-    error: response.ok ? null : "Supervisor run completed with errors.",
-  };
 }
 
 // ---------------------------------------------------------------------------

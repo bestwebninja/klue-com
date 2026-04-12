@@ -161,12 +161,16 @@ export function useSupervisor(options: UseSupervisorOptions = {}) {
     loadHistory();
   }, [loadHistory]);
 
-  // Live subscription: update history when new supervisor runs complete
+  // Live subscription: update history when new supervisor runs complete.
+  // On CHANNEL_ERROR / TIMED_OUT (idle WebSocket drop), re-fetches history
+  // so the UI never gets stuck showing stale data.
   useEffect(() => {
     if (!businessUnitId) return;
 
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
     const channel = supabase
-      .channel("supervisor_runs_live")
+      .channel(`supervisor_runs_live_${businessUnitId}`)
       .on(
         "postgres_changes",
         {
@@ -175,13 +179,16 @@ export function useSupervisor(options: UseSupervisorOptions = {}) {
           table: "supervisor_runs",
           filter: `business_unit_id=eq.${businessUnitId}`,
         },
-        () => {
-          loadHistory();
-        }
+        () => { loadHistory(); }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          retryTimer = setTimeout(() => loadHistory(), 2_000);
+        }
+      });
 
     return () => {
+      if (retryTimer) clearTimeout(retryTimer);
       supabase.removeChannel(channel);
     };
   }, [businessUnitId, loadHistory]);

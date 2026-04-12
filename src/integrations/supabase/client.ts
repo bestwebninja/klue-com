@@ -18,6 +18,15 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
   },
+  realtime: {
+    // Send a heartbeat every 25s to keep the WebSocket alive through proxies
+    // and NAT gateways that drop idle connections after ~30-60s.
+    heartbeatIntervalMs: 25_000,
+    // Reconnect after 1s, 2s, 4s … capped at 10s.
+    reconnectAfterMs: (tries: number) => Math.min(1_000 * 2 ** tries, 10_000),
+    // Supabase realtime timeout before declaring a channel dead.
+    timeout: 30_000,
+  },
 });
 
 export const invokeEdgeFunction = <T>(functionName: string, body?: unknown) =>

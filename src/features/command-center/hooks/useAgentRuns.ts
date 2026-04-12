@@ -95,10 +95,14 @@ export function useAgentRuns(options: UseAgentRunsOptions = {}) {
     fetchRuns();
   }, [fetchRuns]);
 
-  // Live subscription — update run in place when status/output changes
+  // Live subscription — update run in place when status/output changes.
+  // Monitors channel status and re-fetches on error/timeout so stale data
+  // never lingers after an idle WebSocket drop.
   useEffect(() => {
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
     const channel = supabase
-      .channel("agent_runs_live")
+      .channel(`agent_runs_live_${businessUnitId ?? "global"}`)
       .on(
         "postgres_changes",
         {
@@ -122,12 +126,18 @@ export function useAgentRuns(options: UseAgentRunsOptions = {}) {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          // Re-fetch latest data so UI reflects reality after any gap.
+          retryTimer = setTimeout(() => fetchRuns(), 2_000);
+        }
+      });
 
     return () => {
+      if (retryTimer) clearTimeout(retryTimer);
       supabase.removeChannel(channel);
     };
-  }, [businessUnitId, limit]);
+  }, [businessUnitId, limit, fetchRuns]);
 
   return { runs, loading, error, refetch: fetchRuns };
 }
@@ -170,7 +180,17 @@ export function useAgentRun(runId: string | null) {
           if (updated) setRun(rowToRun(updated));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          // Re-fetch so we don't show a stale running state indefinitely.
+          supabase
+            .from("ai_agent_runs")
+            .select("id, agent_key, business_unit_id, status, input_payload, output_payload, error_message, reasoning_steps, model, iteration_count, created_at, updated_at")
+            .eq("id", runId)
+            .maybeSingle()
+            .then(({ data }) => { if (data) setRun(rowToRun(data as Record<string, unknown>)); });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);

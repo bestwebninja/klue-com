@@ -358,6 +358,27 @@ export const TOOL_DEFINITIONS: Record<string, ToolDefinition> = {
     },
   },
 
+  generate_proposal: {
+    type: "function",
+    function: {
+      name: "generate_proposal",
+      description: "Generate a professional client-facing project proposal with scope of work, payment schedule, inclusions/exclusions, and warranty statement.",
+      parameters: {
+        type: "object",
+        properties: {
+          tradeType:         { type: "string", description: "Trade type: roofing, plumbing, electrical, hvac, kitchen_remodel, bathroom_remodel, etc." },
+          scopeDescription:  { type: "string", description: "Detailed description of the project scope." },
+          totalBudgetUsd:    { type: "number", description: "Total project value in USD." },
+          clientName:        { type: "string", description: "Client's name for the proposal header." },
+          contractorName:    { type: "string", description: "Contractor/company name." },
+          startDate:         { type: "string", description: "Projected start date (YYYY-MM-DD)." },
+          totalWeeks:        { type: "number", description: "Estimated project duration in weeks." },
+        },
+        required: ["tradeType", "totalBudgetUsd"],
+      },
+    },
+  },
+
   estimate_job_cost: {
     type: "function",
     function: {
@@ -504,6 +525,8 @@ export async function executeTool(
       return generateTermSheet(args);
     case "save_project_timeline":
       return saveProjectTimeline(args, ctx);
+    case "generate_proposal":
+      return generateProposal(args);
     case "estimate_job_cost":
       return estimateJobCost(args);
     case "score_bid_competitiveness":
@@ -1281,6 +1304,215 @@ async function saveProjectTimeline(
 
   if (error) return { error: error.message };
   return { saved: true, timelineId: data.id };
+}
+
+// ---------------------------------------------------------------------------
+// Client proposal generator — knowledge-based template engine
+// ---------------------------------------------------------------------------
+
+interface ProposalTemplate {
+  scopeSections: Array<{ title: string; items: string[] }>;
+  inclusions: string[];
+  exclusions: string[];
+  warrantyStatement: string;
+  paymentMilestones: Array<{ milestone: string; percent: number }>;
+}
+
+const PROPOSAL_TEMPLATES: Record<string, ProposalTemplate> = {
+  roofing: {
+    scopeSections: [
+      { title: "Tear-Off & Preparation", items: ["Remove all existing roofing material down to decking", "Inspect and document deck condition; replace damaged boards (up to 5% of area)", "Install new drip edge flashing along eaves and rakes"] },
+      { title: "Waterproofing System", items: ["Install ice & water shield at all eaves (min. 24\" past exterior wall)", "Install ice & water shield in all valleys", "Install synthetic felt underlayment over entire deck"] },
+      { title: "Roofing Installation", items: ["Install architectural shingles per manufacturer installation specifications", "Install pre-formed ridge cap shingles", "Flash and seal all pipe boots, skylights, and chimney penetrations", "Install new step flashing at all wall intersections"] },
+      { title: "Completion & Cleanup", items: ["Perform thorough jobsite cleanup", "Magnetic nail sweep of all lawn and driveway areas", "Haul away all debris and roofing materials", "Final walk-through inspection with client"] },
+    ],
+    inclusions: ["Complete material tear-off and licensed disposal", "New synthetic underlayment and ice & water shield system", "Architectural shingles and ridge cap", "Drip edge replacement", "Standard pipe boot and flashing repair/replacement", "Magnetic nail sweep", "Debris hauling and jobsite cleanup"],
+    exclusions: ["Structural deck repairs exceeding 5% of total area (billed time & materials)", "Fascia, soffit, or gutter repair/replacement", "Interior ceiling or insulation repair", "Skylight lens/glass replacement", "Solar panel removal/reinstallation"],
+    warrantyStatement: "Contractor warrants all workmanship against defect for ten (10) years from the date of completion. Materials carry manufacturer's warranty (typically 30-year limited for architectural shingles). Warranty is non-transferable and void if roof is modified or walked on by non-authorized parties.",
+    paymentMilestones: [
+      { milestone: "Signed contract & project mobilization deposit", percent: 10 },
+      { milestone: "Material delivery and complete tear-off", percent: 40 },
+      { milestone: "Installation complete — pre-final inspection", percent: 40 },
+      { milestone: "Final inspection passed, punch list signed off", percent: 10 },
+    ],
+  },
+  plumbing: {
+    scopeSections: [
+      { title: "Scope Preparation", items: ["Site walk-through and fixture location confirmation", "Permit application and scheduling with jurisdiction", "Material procurement and staging"] },
+      { title: "Rough-In Phase", items: ["Install all supply and drain lines per approved plan", "Pressure-test all supply lines to 150 PSI for 1 hour", "Set all drain, waste, and vent (DWV) rough-in locations", "Coordinate rough-in inspection with building department"] },
+      { title: "Trim-Out Phase", items: ["Set all fixtures per manufacturer specifications", "Connect all supply stops, P-traps, and supply lines", "Install and test all shut-off valves", "Commission and test all fixtures for proper operation and absence of leaks"] },
+    ],
+    inclusions: ["All labor and standard fittings per scope", "Permit application fees", "Pressure testing and documentation", "Manufacturer-specified fixture installation", "Final leak test and client walk-through"],
+    exclusions: ["Fixtures and appliances (unless specified as allowance)", "Tile, drywall, or finish restoration after rough-in", "Water heater or filtration system (quoted separately if needed)", "Underground excavation beyond normal trenching"],
+    warrantyStatement: "Contractor warrants all labor and installed materials against defect for two (2) years from substantial completion. Fixture warranties pass through manufacturer.",
+    paymentMilestones: [
+      { milestone: "Contract execution and permit submission", percent: 25 },
+      { milestone: "Rough-in complete and inspection passed", percent: 50 },
+      { milestone: "Trim-out complete and final inspection passed", percent: 25 },
+    ],
+  },
+  electrical: {
+    scopeSections: [
+      { title: "Panel & Service Work", items: ["Install/upgrade main electrical panel per specifications", "Install main breaker and all branch circuit breakers", "Label all circuits clearly", "Schedule and coordinate utility service upgrade if required"] },
+      { title: "Rough-In Wiring", items: ["Run all branch circuit wiring per code", "Install junction boxes, outlet, and switch boxes", "Install dedicated circuits for high-draw appliances", "Coordinate rough-in inspection with AHJ"] },
+      { title: "Devices & Trim", items: ["Install all outlets, switches, and cover plates", "Install all light fixtures per schedule", "Install GFCIs in all code-required locations", "Install AFCIs on all bedroom circuits", "Final circuit testing and load balancing"] },
+    ],
+    inclusions: ["Panel and service upgrade materials and labor", "All rough-in wire and boxes", "All devices, plates, and standard fixtures", "Permit and inspection fees", "Load calculation documentation"],
+    exclusions: ["Low-voltage (data, coax, security, audio/video)", "Utility transformer upgrade or temporary power", "Specialty or decorative fixtures (client-supplied)", "Generator or EV charger installation (quoted separately)"],
+    warrantyStatement: "Contractor warrants all workmanship for two (2) years. All work performed to current NEC edition adopted by jurisdiction. Materials carry manufacturer warranty.",
+    paymentMilestones: [
+      { milestone: "Contract signing and permit application", percent: 20 },
+      { milestone: "Panel installation complete", percent: 30 },
+      { milestone: "Rough-in complete and inspection passed", percent: 30 },
+      { milestone: "Trim-out complete and final inspection signed off", percent: 20 },
+    ],
+  },
+  hvac: {
+    scopeSections: [
+      { title: "System Design & Procurement", items: ["Perform Manual J load calculation", "Select equipment per calculated load", "Procure and deliver all system components"] },
+      { title: "Removal of Existing System", items: ["Recover refrigerant per EPA Section 608 regulations", "Remove existing air handler, condenser, and lineset", "Cap or repurpose existing ductwork as applicable"] },
+      { title: "New System Installation", items: ["Install new air handler / furnace in designated location", "Install new condenser on new pad or existing structure", "Install new lineset with vapor line insulation", "Connect condensate drain with trap and p-trap", "Install and configure programmable thermostat"] },
+      { title: "Commissioning", items: ["Charge refrigerant to manufacturer specifications", "Measure and document supply/return airflows", "Verify temperature differential across coil", "Test all heating and cooling modes", "Instruct client on system operation and filter maintenance"] },
+    ],
+    inclusions: ["Manual J load calculation", "New air handler/furnace and condenser unit", "New refrigerant lineset and insulation", "New thermostat and wiring", "Refrigerant charge and commissioning", "Permit and mechanical inspection"],
+    exclusions: ["Ductwork repairs or replacement beyond 10 linear feet", "Electrical panel upgrade or dedicated circuit (quoted separately)", "Gas line extension or upgrade", "Attic or crawlspace access improvements"],
+    warrantyStatement: "Contractor warrants all labor for two (2) years. Equipment carries manufacturer's parts and compressor warranty (typically 5–10 years depending on brand and registration).",
+    paymentMilestones: [
+      { milestone: "Equipment order and project mobilization", percent: 40 },
+      { milestone: "Installation complete — pre-commissioning", percent: 40 },
+      { milestone: "Commissioning complete and inspection passed", percent: 20 },
+    ],
+  },
+  kitchen_remodel: {
+    scopeSections: [
+      { title: "Demolition & Preparation", items: ["Remove existing cabinets, countertops, and appliances", "Remove flooring within kitchen footprint", "Protect adjacent areas during demolition", "Haul away all demo debris"] },
+      { title: "Rough-In Trades", items: ["Relocate or add plumbing supply and drain lines per layout", "Upgrade electrical panel circuit and add dedicated circuits for appliances", "Install in-floor heating if specified", "Coordinate all rough-in inspections"] },
+      { title: "Cabinet & Countertop Installation", items: ["Install all base and wall cabinets plumb, level, and square", "Install countertop per fabricator template", "Install backsplash tile per selected pattern", "Install cabinet hardware"] },
+      { title: "Flooring & Finishes", items: ["Install flooring material (tile/LVP/hardwood) per selection", "Install base molding and transition strips", "Paint walls and ceiling per color selections", "Touch-up and punch list"] },
+      { title: "Appliance & Fixture Installation", items: ["Install sink, faucet, and garbage disposal", "Install dishwasher and connect to plumbing/electrical", "Set range/cooktop and connect gas or electric", "Install range hood and vent to exterior", "Install refrigerator if cabinetry surround required"] },
+    ],
+    inclusions: ["All demo and debris hauling", "Plumbing and electrical rough-in within scope", "Cabinet installation (per selected line)", "Countertop template and installation", "Backsplash tile installation", "Flooring installation", "Appliance installation", "Permit and inspection fees"],
+    exclusions: ["Cabinetry and countertop materials (allowance basis unless specified)", "Appliances (client-supplied unless specified)", "Window or door modifications", "Structural wall removal (requires separate engineering and permit)", "Painting beyond kitchen walls/ceiling"],
+    warrantyStatement: "Contractor warrants all labor for two (2) years from substantial completion. Cabinet and countertop materials carry manufacturer's warranty (typically 1-5 years limited).",
+    paymentMilestones: [
+      { milestone: "Contract signing and permit application", percent: 10 },
+      { milestone: "Demo complete and rough-in trades begin", percent: 25 },
+      { milestone: "Cabinet delivery and installation begins", percent: 30 },
+      { milestone: "Countertops installed and appliances set", percent: 25 },
+      { milestone: "Final punch list signed and inspection passed", percent: 10 },
+    ],
+  },
+  bathroom_remodel: {
+    scopeSections: [
+      { title: "Demolition", items: ["Remove existing tile, fixtures, vanity, and flooring", "Remove drywall/backer board in wet areas as needed", "Haul away all demo debris"] },
+      { title: "Waterproofing & Substrate", items: ["Install cement backer board in all wet areas", "Apply liquid-applied waterproof membrane to shower walls and floor", "Flash curb and pre-slope shower floor to drain"] },
+      { title: "Tile Work", items: ["Install floor tile per pattern selection and grout lines", "Install shower wall tile to specified height", "Grout and seal all tile installations", "Install threshold and transition pieces"] },
+      { title: "Fixtures & Finishes", items: ["Install vanity, top, and mirror per selection", "Install toilet, supply, and seat", "Install shower valve, trim, and showerhead", "Install all accessories (towel bars, paper holder, robe hooks)", "Install and connect light fixtures and exhaust fan"] },
+    ],
+    inclusions: ["Demo and debris removal", "Cement backer board and waterproofing system", "Tile installation (floor and shower/tub surround)", "Vanity, toilet, and shower/tub fixture installation", "Exhaust fan installation or replacement", "Permit and inspection"],
+    exclusions: ["Tile and materials (allowance basis unless specified)", "Plumbing or electrical work outside bathroom walls", "Medicine cabinet or specialty mirror (quoted separately)", "Heated floor system (quoted separately)"],
+    warrantyStatement: "Contractor warrants all labor including waterproofing for two (2) years. Tile grout and caulk are maintenance items; client must re-caulk annually at penetrations.",
+    paymentMilestones: [
+      { milestone: "Contract signing and material selection confirmation", percent: 25 },
+      { milestone: "Demo complete and waterproofing inspection passed", percent: 30 },
+      { milestone: "Tile work complete", percent: 25 },
+      { milestone: "Fixtures installed and final inspection passed", percent: 20 },
+    ],
+  },
+};
+
+// Fallback template for unlisted trade types
+const DEFAULT_TEMPLATE: ProposalTemplate = {
+  scopeSections: [
+    { title: "Project Preparation", items: ["Site assessment and material procurement", "Permit application and scheduling (if required)", "Protect adjacent areas and establish safe work zone"] },
+    { title: "Construction Phase", items: ["Execute all work per agreed scope of work and approved plans", "Coordinate all required trade inspections", "Maintain daily job log and communicate progress to client"] },
+    { title: "Completion", items: ["Perform punch list walk-through with client", "Obtain all final inspections and certificates of occupancy (if applicable)", "Complete full jobsite cleanup and restore all affected areas"] },
+  ],
+  inclusions: ["All labor per scope", "Contractor-supplied consumables and fasteners", "Standard permit fees", "Progress communication and daily job logs", "Final inspection coordination"],
+  exclusions: ["Owner-furnished materials (unless listed as allowance)", "Changes to scope after contract execution (change orders required)", "Unforeseen concealed conditions beyond reasonable expectation"],
+  warrantyStatement: "Contractor warrants all workmanship for one (1) year from substantial completion date.",
+  paymentMilestones: [
+    { milestone: "Contract execution and mobilization", percent: 25 },
+    { milestone: "50% project completion milestone", percent: 50 },
+    { milestone: "Substantial completion and punch list sign-off", percent: 25 },
+  ],
+};
+
+function generateProposal(args: Record<string, unknown>): ToolResult {
+  const tradeRaw = String(args.tradeType ?? "general").toLowerCase().replace(/\s+/g, "_");
+  const totalBudget = Number(args.totalBudgetUsd ?? 0);
+  const scopeDescription = String(args.scopeDescription ?? "");
+  const clientName = String(args.clientName ?? "Valued Client");
+  const contractorName = String(args.contractorName ?? "Contractor");
+  const startDateStr = String(args.startDate ?? "");
+  const totalWeeks = Number(args.totalWeeks ?? 4);
+
+  if (totalBudget <= 0) return { error: "totalBudgetUsd must be a positive number." };
+
+  const template = PROPOSAL_TEMPLATES[tradeRaw] ?? DEFAULT_TEMPLATE;
+
+  // Proposal number: P-YYYYMM-XXXX
+  const now = new Date();
+  const proposalNumber = `P-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+  const dateIssued = now.toISOString().split("T")[0];
+  const validDays = 30;
+  const validThrough = new Date(now.getTime() + validDays * 86400000).toISOString().split("T")[0];
+
+  // Completion date
+  const startDate = startDateStr ? new Date(startDateStr) : new Date(now.getTime() + 14 * 86400000);
+  const completionDate = new Date(startDate.getTime() + totalWeeks * 7 * 86400000);
+
+  // Scope sections with approximate cost allocation
+  const costPerSection = totalBudget / template.scopeSections.length;
+  const scopeOfWork = template.scopeSections.map((section, i) => ({
+    section: section.title,
+    items: section.items,
+    subtotalUsd: Math.round(costPerSection * (i === template.scopeSections.length - 1 ? 1.2 : 0.9)), // last section slightly higher
+  }));
+
+  // Payment schedule
+  const paymentSchedule = template.paymentMilestones.map((m) => ({
+    milestone: m.milestone,
+    amountUsd: Math.round(totalBudget * m.percent / 100),
+    percentOfTotal: m.percent,
+    dueAt: m.percent === template.paymentMilestones[0].percent ? "Upon signing" :
+           m.percent === template.paymentMilestones[template.paymentMilestones.length - 1].percent ? "Upon final completion" :
+           "Upon milestone completion",
+  }));
+
+  // Executive summary
+  const tradeLabel = tradeRaw.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const executiveSummary = `${contractorName} is pleased to present this proposal for ${clientName}'s ${tradeLabel} project. This proposal outlines the complete scope of work, materials, timeline, and investment required to deliver a high-quality result. All work will be performed by licensed professionals, in full compliance with applicable building codes, and backed by a written workmanship warranty. The total investment for this project is $${totalBudget.toLocaleString()}.`;
+
+  return {
+    proposal: {
+      proposalNumber,
+      dateIssued,
+      validThrough,
+      contractorName,
+      clientName,
+      executiveSummary,
+      scopeDescription: scopeDescription || `${tradeLabel} project as discussed`,
+      scopeOfWork,
+      paymentSchedule,
+      timeline: {
+        startDate: startDate.toISOString().split("T")[0],
+        completionDate: completionDate.toISOString().split("T")[0],
+        totalWeeks,
+        keyMilestones: scopeOfWork.map((s) => s.section),
+      },
+      inclusions: template.inclusions,
+      exclusions: template.exclusions,
+      warrantyStatement: template.warrantyStatement,
+      totalAmountUsd: totalBudget,
+      terms: "Payment is due within 3 business days of each milestone completion. A 1.5% per month late fee applies to balances unpaid after 30 days. Contractor is not liable for delays caused by owner-furnished materials, permit jurisdiction delays, or concealed conditions.",
+    },
+    recommendedActions: [
+      { priority: "high", action: "Review scope and exclusions with client before signing — set clear expectations" },
+      { priority: "medium", action: `Lock in material pricing before ${validThrough} — proposal validity expires on that date` },
+      { priority: "low", action: "Photograph existing conditions before mobilization to protect against scope creep disputes" },
+    ],
+  };
 }
 
 // ---------------------------------------------------------------------------

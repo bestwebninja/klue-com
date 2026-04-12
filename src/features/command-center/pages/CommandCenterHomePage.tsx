@@ -41,9 +41,10 @@ export default function CommandCenterHomePage() {
     return (
       <div className="max-w-xl mx-auto py-10">
         <CommandCenterSetupWizard
+          workspaceId={workspaceId ?? user.id}
           onComplete={async (values) => {
-            await saveOnboarding(user.id, user.id, values);
-            navigate(`/command-center/${user.id}/trade/${values.trade}?section=today`);
+            await saveOnboarding(workspaceId ?? user.id, user.id, values);
+            navigate(`/command-center/${workspaceId ?? user.id}/trade/${values.trade}?section=today`);
           }}
         />
       </div>

@@ -21,6 +21,7 @@ export type IntentLabel =
   | "lending_capital"      // Draw review, escrow, cash-flow
   | "bid_estimating"       // Job cost estimation and bid strategy
   | "market_intelligence"  // Local market analysis and opportunity scoring
+  | "proposal_generation"  // Client-facing project proposal generation
   | "risk_scan"            // General risk check across active jobs
   | "document_audit"       // Document extraction and packet assembly
   | "rebate_discovery"     // Incentive and rebate programs
@@ -141,6 +142,23 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
     ],
   },
 
+  proposal_generation: {
+    stages: [
+      {
+        agentKeys: ["proposal_ai"],
+        mode: "parallel",
+        rationale: "Route to Client Proposal AI to generate a professional, client-ready project proposal with scope, payment schedule, and warranty.",
+      },
+    ],
+    nudges: [
+      {
+        trigger: "proposal_ai.proposal.totalAmountUsd > 50000",
+        suggestedAction: "Large project — consider routing to Lending Capital AI so your client has financing options ready.",
+        targetAgentKey: "lending_ai",
+      },
+    ],
+  },
+
   market_intelligence: {
     stages: [
       {
@@ -240,6 +258,7 @@ Available intent labels and when to use them:
 - "lending_capital": User asks about draw requests, financing, cash flow, or closing/escrow.
 - "bid_estimating": User wants to estimate a job cost, price a project, or understand what to bid.
 - "market_intelligence": User asks about local market conditions, competitor landscape, demand trends, or where to focus their business.
+- "proposal_generation": User wants to generate a client proposal, write up a contract scope, or create a project quote document.
 - "risk_scan": User wants a general risk check or status overview of active jobs.
 - "document_audit": User wants document review, permit packet assembly, or entity extraction.
 - "rebate_discovery": User asks about rebates, tax credits, or energy incentive programs.
@@ -248,7 +267,7 @@ Available intent labels and when to use them:
 
 If the query mentions a single agent by name or capability, set intent to "single_agent" and set
 singleAgentKey to one of: leak_hunter, code_guardian, rebate_maximizer, storm_scout, draw_guardian,
-document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai, bid_estimator, market_intel.
+document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai, bid_estimator, market_intel, proposal_ai.
 
 Return ONLY this JSON object (no markdown, no extra text):
 {

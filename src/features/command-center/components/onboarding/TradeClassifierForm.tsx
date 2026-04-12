@@ -192,7 +192,7 @@ export function TradeClassifierForm({ onSubmit }: Props) {
         <div
           onClick={() => setVeteranOwned((v) => !v)}
           className={cn(
-            "h-4 w-4 rounded border flex items-center justify-center transition-all",
+            "h-4 w-4 aspect-square shrink-0 rounded border flex items-center justify-center transition-all",
             veteranOwned ? "border-primary bg-primary" : "border-border/60 bg-card/40"
           )}
         >

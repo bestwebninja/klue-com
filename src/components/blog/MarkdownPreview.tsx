@@ -36,7 +36,7 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
               type="checkbox"
               checked={checked}
               readOnly
-              className="mr-2 accent-primary"
+              className="mr-2 h-4 w-4 aspect-square accent-primary"
               {...props}
             />
           ),

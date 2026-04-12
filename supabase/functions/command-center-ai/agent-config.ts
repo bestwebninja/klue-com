@@ -626,6 +626,53 @@ ${OUTPUT_INSTRUCTION}`,
   },
 };
 
+  lead_scorer: {
+    key: "lead_scorer",
+    systemPrompt: `${PLATFORM_CONTEXT}
+
+ROLE — Lead Scoring AI:
+You evaluate the quality and conversion potential of inbound job leads for a contractor business unit.
+Your goal is to triage the lead pipeline so contractors focus their energy on the highest-value opportunities
+and respond to platinum/gold leads within the response windows that maximize win rates.
+
+ANALYSIS APPROACH:
+1. List recent jobs to understand the business unit's trade focus and historical job values.
+2. For each unscored or recently added lead, call score_lead_quality with the job description,
+   budget, trade type, and homeowner type.
+3. Cluster results by tier (platinum > gold > silver > bronze).
+4. Create a high-severity alert if you find 2+ platinum leads that have not received a contractor
+   response within 2 hours — time-sensitive opportunity at risk.
+5. Provide tier-specific response strategies for each lead group.
+
+OUTPUT SCHEMA:
+{
+  "leads": [{
+    "jobId": string,
+    "score": number,
+    "tier": "platinum" | "gold" | "silver" | "bronze",
+    "intentSignals": string[],
+    "estimatedJobValue": number,
+    "conversionProbability": number,
+    "contractorMatchStrength": number,
+    "recommendedResponse": string
+  }],
+  "tierSummary": {
+    "platinum": number,
+    "gold": number,
+    "silver": number,
+    "bronze": number
+  },
+  "recommendations": [{ "priority": "high" | "medium" | "low", "action": string, "rationale": string }],
+  "summary": string,
+  "alertCreated": boolean
+}
+
+${OUTPUT_INSTRUCTION}`,
+    allowedTools: ["list_jobs", "score_lead_quality", "create_alert"],
+    outputKeys: ["leads", "tierSummary", "recommendations", "summary", "alertCreated"],
+  },
+};
+
 export function getAgentConfig(agentKey: string): AgentConfig | null {
   return AGENT_CONFIGS[agentKey] ?? null;
 }

@@ -22,6 +22,7 @@ export type IntentLabel =
   | "bid_estimating"       // Job cost estimation and bid strategy
   | "market_intelligence"  // Local market analysis and opportunity scoring
   | "proposal_generation"  // Client-facing project proposal generation
+  | "lead_scoring"         // Score and triage inbound job leads by quality/conversion potential
   | "risk_scan"            // General risk check across active jobs
   | "document_audit"       // Document extraction and packet assembly
   | "rebate_discovery"     // Incentive and rebate programs
@@ -217,6 +218,28 @@ const INTENT_AGENT_MAP: Record<IntentLabel, { stages: Omit<RoutingStage, "stage"
     nudges: [],
   },
 
+  lead_scoring: {
+    stages: [
+      {
+        agentKeys: ["lead_scorer"],
+        mode: "parallel",
+        rationale: "Route to Lead Scoring AI to evaluate and triage inbound job leads by quality, conversion probability, and recommended response window.",
+      },
+    ],
+    nudges: [
+      {
+        trigger: "lead_scorer.tierSummary.platinum > 0",
+        suggestedAction: "Platinum lead detected — respond within 1 hour to maximize win probability.",
+        targetAgentKey: "lead_scorer",
+      },
+      {
+        trigger: "lead_scorer.leads.some(l => l.conversionProbability > 0.6)",
+        suggestedAction: "High-conversion lead in pipeline — ask Kluje to 'generate a proposal' for this lead.",
+        targetAgentKey: "proposal_ai",
+      },
+    ],
+  },
+
   single_agent: {
     stages: [],  // Filled dynamically by the router
     nudges: [],
@@ -259,6 +282,7 @@ Available intent labels and when to use them:
 - "bid_estimating": User wants to estimate a job cost, price a project, or understand what to bid.
 - "market_intelligence": User asks about local market conditions, competitor landscape, demand trends, or where to focus their business.
 - "proposal_generation": User wants to generate a client proposal, write up a contract scope, or create a project quote document.
+- "lead_scoring": User wants to score, rank, or triage inbound job leads by quality, budget, or conversion potential.
 - "risk_scan": User wants a general risk check or status overview of active jobs.
 - "document_audit": User wants document review, permit packet assembly, or entity extraction.
 - "rebate_discovery": User asks about rebates, tax credits, or energy incentive programs.
@@ -267,7 +291,7 @@ Available intent labels and when to use them:
 
 If the query mentions a single agent by name or capability, set intent to "single_agent" and set
 singleAgentKey to one of: leak_hunter, code_guardian, rebate_maximizer, storm_scout, draw_guardian,
-document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai, bid_estimator, market_intel, proposal_ai.
+document_whisperer, escrow_automator, renovation_ai, zoning_ai, lending_ai, bid_estimator, market_intel, proposal_ai, lead_scorer.
 
 Return ONLY this JSON object (no markdown, no extra text):
 {

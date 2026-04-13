@@ -57,7 +57,7 @@ const DEMO_SEQUENCES: Sequence[] = [
     steps: [
       { dayOffset: 1, channel: 'Email', subject: 'Checking in on your quote', body: 'Hi [Name], just following up on the estimate we sent. Happy to answer any questions!' },
       { dayOffset: 4, channel: 'SMS', subject: '', body: 'Hi [Name], this is [Company]. Did you get a chance to review our estimate? Let us know!' },
-      { dayOffset: 8, channel: 'Email', subject: 'Final follow-up on your project', body: "Hi [Name], we want to make sure our quote works for your project. Let's connect!" },
+      { dayOffset: 8, channel: 'Email', subject: 'Final follow-up on your project', body: "Hi [Name], we want to make sure our quote works for your project. Let us connect!" },
     ],
   },
   {
@@ -65,7 +65,7 @@ const DEMO_SEQUENCES: Sequence[] = [
     name: 'Review Request',
     type: 'review-request',
     steps: [
-      { dayOffset: 3, channel: 'Email', subject: 'How did we do?', body: 'Hi [Name], we recently completed your project. We'd love a Google review if you're happy with our work!' },
+      { dayOffset: 3, channel: 'Email', subject: 'How did we do?', body: "Hi [Name], we recently completed your project. We would love a Google review if you are happy with our work!" },
       { dayOffset: 10, channel: 'SMS', subject: '', body: 'Hi [Name], did you get our email about leaving a review? Your feedback means a lot to our team. [Link]' },
     ],
   },
@@ -74,7 +74,7 @@ const DEMO_SEQUENCES: Sequence[] = [
     name: 'Post-Job Check-in',
     type: 'post-job',
     steps: [
-      { dayOffset: 7, channel: 'Email', subject: 'How is everything?', body: 'Hi [Name], it's been a week since we completed your project. Is everything looking great?' },
+      { dayOffset: 7, channel: 'Email', subject: 'How is everything?', body: "Hi [Name], it has been a week since we completed your project. Is everything looking great?" },
       { dayOffset: 30, channel: 'Email', subject: '30-day check-in', body: 'Hi [Name], just a 30-day check-in to make sure everything is holding up. Let us know if you need anything!' },
     ],
   },

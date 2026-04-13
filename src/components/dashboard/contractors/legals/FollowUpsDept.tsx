@@ -57,7 +57,7 @@ const DEMO_SEQUENCES: Sequence[] = [
     steps: [
       { dayOffset: 1, channel: 'Email', subject: 'Checking in on your quote', body: 'Hi [Name], just following up on the estimate we sent. Happy to answer any questions!' },
       { dayOffset: 4, channel: 'SMS', subject: '', body: 'Hi [Name], this is [Company]. Did you get a chance to review our estimate? Let us know!' },
-      { dayOffset: 8, channel: 'Email', subject: 'Final follow-up on your project', body: 'Hi [Name], we want to make sure our quote works for your project. Let's connect!' },
+      { dayOffset: 8, channel: 'Email', subject: 'Final follow-up on your project', body: "Hi [Name], we want to make sure our quote works for your project. Let's connect!" },
     ],
   },
   {

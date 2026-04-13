@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Home } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,8 @@ export default function AdminPartnersDashboardPage() {
   const [note, setNote] = useState('');
   const [verificationTierDraft, setVerificationTierDraft] = useState('tier-2');
   const [complianceStatusDraft, setComplianceStatusDraft] = useState('approved');
+
+  const navigate = useNavigate();
 
   const partnersQuery = usePartnerList(filters);
   const detailQuery = usePartnerDetail(selectedPartnerId);
@@ -104,7 +107,18 @@ export default function AdminPartnersDashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Partners Dashboard (Admin)</h1>
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/admin')}
+          className="gap-1.5"
+        >
+          <Home className="h-4 w-4" />
+          Home
+        </Button>
+        <h1 className="text-2xl font-semibold">Partners Dashboard (Admin)</h1>
+      </div>
 
       <section className="grid gap-3 md:grid-cols-5">
         <Card>

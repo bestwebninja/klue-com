@@ -12,8 +12,12 @@ import {
   Clock, Receipt, Ruler, FileText, Scale, Handshake, Compass,
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
-  Loader2, BrainCircuit, Download, AlertTriangle, Siren,
+  Loader2, BrainCircuit, Download, AlertTriangle, Siren, Sparkles, Globe2,
 } from 'lucide-react';
+import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
+import { useLanguage } from '@/hooks/useLanguage';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 // ─── Lazy-load each department to keep initial bundle small ───
 const AttorneysDept = lazy(() => import('./legals/AttorneysDept'));
@@ -32,6 +36,7 @@ const SecurityDept = lazy(() => import('./legals/SecurityDept'));
 const TitleCompaniesDept = lazy(() => import('./legals/TitleCompaniesDept'));
 const TownPlanningDept = lazy(() => import('./legals/TownPlanningDept'));
 const VerificationDept = lazy(() => import('./legals/VerificationOrdersDept'));
+const CleaningDept = lazy(() => import('./legals/CleaningDept'));
 
 // ─── Sidebar data ───────────────────────────────────────────────
 const sidebarSections = [
@@ -99,6 +104,7 @@ const sidebarSections = [
       { icon: Landmark, name: 'Title Companies', badge: null },
       { icon: Map, name: 'Town Planning', badge: null },
       { icon: BadgeCheck, name: 'Verification Orders', badge: null },
+      { icon: Sparkles, name: 'Cleaning', badge: 'New', badgeType: 'green' },
     ],
   },
 ];
@@ -121,17 +127,11 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
   'Title Companies': TitleCompaniesDept,
   'Town Planning': TownPlanningDept,
   'Verification Orders': VerificationDept,
+  'Cleaning': CleaningDept,
 };
 
 // ─── Summary dashboard data ──────────────────────────────────────
 const tabs = ["Today's Snapshot", 'Active Jobs', 'Materials Queue', 'AI Activity'];
-
-const kpis = [
-  { label: 'On-site today', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
-  { label: 'Open orders', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
-  { label: 'Pending invoices', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
-  { label: 'AI actions today', value: '—', sub: 'No data yet', trend: 'neutral' as 'up' | 'down' | 'neutral' },
-];
 
 const commandCenterAdds = {
   weeklyThroughput: '24 jobs',
@@ -204,6 +204,8 @@ function EmptyState({ message }: { message: string }) {
 
 // ─── Main component ──────────────────────────────────────────────
 export default function GCCommandDashboard() {
+  const { user } = useAuth();
+  const { t, lang, toggleLang } = useLanguage();
   const [activeTab, setActiveTab] = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('GC-Dashboard');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
@@ -214,6 +216,45 @@ export default function GCCommandDashboard() {
     Finance: true,
     Legals: false,
   });
+
+  // ── Real-time KPI data from Supabase ──
+  const [kpis, setKpis] = useState([
+    { label: 'On-site today',    value: '—', sub: 'Loading…', trend: 'neutral' as const },
+    { label: 'Open orders',      value: '—', sub: 'Loading…', trend: 'neutral' as const },
+    { label: 'Pending invoices', value: '—', sub: 'Loading…', trend: 'neutral' as const },
+    { label: 'AI actions today', value: '—', sub: 'No data yet', trend: 'neutral' as const },
+  ]);
+  const [profileZip, setProfileZip] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Fetch ZIP from profile for weather
+    (supabase as any).from('profiles').select('zip').eq('id', user.id).maybeSingle()
+      .then(({ data }: any) => { if (data?.zip) setProfileZip(data.zip); });
+
+    // Fetch active jobs count
+    (supabase as any).from('command_center_jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_unit_id', user.id)
+      .then(({ count }: any) => {
+        setKpis(prev => prev.map((k, i) =>
+          i === 1 ? { ...k, value: String(count ?? 0), sub: 'Active construction jobs', trend: (count ?? 0) > 0 ? 'up' : 'neutral' as const } : k
+        ));
+      });
+
+    // Fetch pending invoices / quotes
+    (supabase as any).from('command_center_quotes')
+      .select('id, payload', { count: 'exact' })
+      .eq('business_unit_id', user.id)
+      .then(({ data, count }: any) => {
+        const total = (data ?? []).reduce((sum: number, q: any) =>
+          sum + (parseFloat(q.payload?.total_amount ?? q.payload?.totalAmount ?? 0)), 0);
+        setKpis(prev => prev.map((k, i) =>
+          i === 2 ? { ...k, value: String(count ?? 0), sub: total > 0 ? `$${(total / 1000).toFixed(0)}k pipeline` : 'No pipeline yet', trend: (count ?? 0) > 0 ? 'up' : 'neutral' as const } : k
+        ));
+      });
+  }, [user]);
 
   const legalsRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -250,8 +291,8 @@ export default function GCCommandDashboard() {
         <Input
           placeholder={
             isDept
-              ? `Ask AI about ${activeSidebar}…`
-              : 'Ask anything about your jobs, materials, subs, or finances…'
+              ? `${t('Ask AI about')} ${t(activeSidebar)}…`
+              : t('Ask anything about your jobs, materials, subs, or finances…')
           }
           className="flex-1 text-sm bg-[#0d294f] border-amber-300/30 text-slate-100 placeholder:text-slate-300/70 focus-visible:ring-amber-300/60"
         />
@@ -290,6 +331,15 @@ export default function GCCommandDashboard() {
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs">
             <Download className="w-3.5 h-3.5" /> Export PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLang}
+            className="gap-1.5 text-xs border-amber-300/30 text-amber-200 hover:bg-amber-300/10"
+          >
+            <Globe2 className="w-3.5 h-3.5" />
+            {lang === 'en' ? 'ES' : 'EN'}
           </Button>
         </div>
       </div>
@@ -448,6 +498,13 @@ export default function GCCommandDashboard() {
               {activeTab === 0 && allKpisEmpty && (
                 <div className="mb-4">
                   <EmptyState message="No activity data yet. KPI intelligence activates as your team uses the platform." />
+                </div>
+              )}
+
+              {/* ── Weather Widget ── */}
+              {profileZip && (
+                <div className="mb-4">
+                  <WeatherWidget zip={profileZip} />
                 </div>
               )}
 

@@ -100,7 +100,7 @@ export function NeuralCommandBar({
           placeholder={
             isThinking
               ? "Kluje is thinking…"
-              : "Ask Kluje: "Check my active roofing jobs for storm and code risk" or "Review draw #4""
+              : 'Ask Kluje: "Check my active roofing jobs for storm and code risk" or "Review draw #4"'
           }
           disabled={isThinking}
           rows={2}

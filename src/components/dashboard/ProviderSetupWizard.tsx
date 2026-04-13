@@ -4,11 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { LocationPicker } from '@/components/LocationPicker';
-import { mapServicesToCategoryIds } from '@/lib/providerServiceTaxonomy';
 import {
   Select,
   SelectContent,
@@ -26,7 +24,35 @@ import {
   Loader2,
   Sparkles,
   X,
+  HardHat,
+  Wrench,
+  Scale,
 } from 'lucide-react';
+
+const GC_OPTIONS = [
+  'General Contractor','Building Contractor','Renovation Contractor',
+  'Project Manager / Site Supervisor','Handyman','Carpentry / Joinery',
+  'Kitchen Renovation','Bathroom Renovation','Flooring Contractor',
+  'Painting & Decorating','Plastering','Tiling','Roofing Contractor',
+  'Window & Door Installation','Paving & Concrete','Waterproofing',
+  'Post-Construction Cleanup',
+];
+const SUB_OPTIONS = [
+  'Electrician','Lighting Specialist','Plumber','HVAC / Air Conditioning',
+  'Landscaping Contractor','Garden Designer','Scaffolding Contractor',
+  'Swimming Pool Contractor','Interior Designer','Cleaning Services',
+  'Maintenance Services','Demolition Contractor','Masonry / Brickwork',
+  'Insulation Contractor','Drywall / Sheetrock','Glass & Glazing',
+  'Custom Furniture / Millwork',
+];
+const PROFESSIONAL_OPTIONS = [
+  'Realtor / Real Estate Agent','Real Estate Attorney','Title Company / Officer',
+  'Architect','Structural Engineer','Civil Engineer',
+  'Town Planner / Zoning Consultant','Insurance Agent / Broker',
+  'Health & Safety Officer','Security Consultant','Arbitration Specialist',
+  'Property Manager','Mortgage Broker / Lender','Home Inspector',
+  'Environmental Consultant',
+];
 import type { Database } from '@/integrations/supabase/types';
 
 type ServiceCategory = Database['public']['Tables']['service_categories']['Row'];
@@ -45,7 +71,9 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
   const [fullName, setFullName] = useState('');
   const [bio, setBio] = useState('');
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [selectedMainCategory, setSelectedMainCategory] = useState('');
+  const [gcType, setGcType] = useState('');
+  const [subType, setSubType] = useState('');
+  const [profType, setProfType] = useState('');
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;
@@ -152,26 +180,23 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
   };
 
   const handleSaveServices = async () => {
-    if (selectedSubcategories.length === 0) {
-      toast({ title: 'Services required', description: 'Please select at least one service.', variant: 'destructive' });
+    const chosen = [gcType, subType, profType].filter(Boolean);
+    if (chosen.length === 0) {
+      toast({ title: 'Category required', description: 'Please select at least one category type.', variant: 'destructive' });
       return;
     }
     setIsLoading(true);
 
-    const insertData = selectedSubcategories.map(categoryId => ({
-      provider_id: userId,
-      category_id: categoryId,
-      custom_name: subCategories.find(c => c.id === categoryId)?.name || '',
-    }));
+    // Save service_type_key to profile
+    const serviceTypeKey = gcType ? 'general_contractor' : subType ? 'subcontractor' : 'professional';
+    const serviceTypeLabel = gcType || subType || profType;
+    await (supabase.from('profiles').update({
+      service_type_key: serviceTypeKey,
+      service_type_label: serviceTypeLabel,
+    } as any).eq('id', userId));
 
-    const { error } = await supabase.from('provider_services').insert(insertData);
     setIsLoading(false);
-
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to save services.', variant: 'destructive' });
-    } else {
-      setStep('location');
-    }
+    setStep('location');
   };
 
   const handleSaveLocation = async () => {
@@ -299,45 +324,88 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
           </div>
         )}
 
-        {/* Step 2: Services */}
+        {/* Step 2: Services — three-category model */}
         {step === 'services' && (
           <div className="space-y-4 max-w-lg mx-auto">
             <div>
-              <Label>Main Service Category <span className="text-destructive">*</span></Label>
-              <Select value={selectedMainCategory} onValueChange={(v) => { setSelectedMainCategory(v); setSelectedSubcategories([]); }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your main category" />
+              <Label>Select Your Main Category <span className="text-destructive">*</span></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Choose your type in any category that applies to you.
+              </p>
+            </div>
+
+            {/* 1. General Contractors */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-orange-500/15 flex items-center justify-center">
+                  <HardHat className="w-3.5 h-3.5 text-orange-500" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">General Contractors</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Licensed GCs, builders, renovation specialists, project managers &amp; site supervisors.
+              </p>
+              <Select value={gcType} onValueChange={setGcType}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select your GC type…" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mainCategories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
+                  <SelectItem value="">— Not applicable —</SelectItem>
+                  {GC_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedMainCategory && subCategories.length > 0 && (
-              <div>
-                <Label>Services Offered <span className="text-destructive">*</span> (select all that apply)</Label>
-                <div className="mt-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3 space-y-2 bg-background">
-                  {subCategories.map(cat => (
-                    <div key={cat.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`setup-svc-${cat.id}`}
-                        checked={selectedSubcategories.includes(cat.id)}
-                        onCheckedChange={() => toggleSubcategory(cat.id)}
-                      />
-                      <label htmlFor={`setup-svc-${cat.id}`} className="text-sm cursor-pointer text-foreground">
-                        {cat.name}
-                      </label>
-                    </div>
-                  ))}
+            {/* 2. Sub-Contractors */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-blue-500/15 flex items-center justify-center">
+                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
                 </div>
-                {selectedSubcategories.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {selectedSubcategories.length} service{selectedSubcategories.length !== 1 ? 's' : ''} selected
-                  </p>
-                )}
+                <span className="text-sm font-semibold text-foreground">Sub-Contractors</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Tradespeople and specialty contractors — electricians, plumbers, HVAC, landscaping &amp; more.
+              </p>
+              <Select value={subType} onValueChange={setSubType}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select your trade…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">— Not applicable —</SelectItem>
+                  {SUB_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 3. Professional Services */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-purple-500/15 flex items-center justify-center">
+                  <Scale className="w-3.5 h-3.5 text-purple-500" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">Professional Services</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Licensed professionals — Realtors, Architects, Attorneys, Engineers, Title Officers &amp; more.
+              </p>
+              <Select value={profType} onValueChange={setProfType}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select your profession…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">— Not applicable —</SelectItem>
+                  {PROFESSIONAL_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Selected badges */}
+            {(gcType || subType || profType) && (
+              <div className="flex flex-wrap gap-1.5">
+                {gcType && <Badge variant="secondary" className="gap-1 text-xs"><HardHat className="w-3 h-3" />{gcType}<button type="button" onClick={() => setGcType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
+                {subType && <Badge variant="secondary" className="gap-1 text-xs"><Wrench className="w-3 h-3" />{subType}<button type="button" onClick={() => setSubType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
+                {profType && <Badge variant="secondary" className="gap-1 text-xs"><Scale className="w-3 h-3" />{profType}<button type="button" onClick={() => setProfType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
               </div>
             )}
 
@@ -345,7 +413,11 @@ const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: Pro
               <Button variant="outline" onClick={() => setStep('profile')}>
                 <ArrowLeft className="w-4 h-4 mr-1" />Back
               </Button>
-              <Button onClick={handleSaveServices} className="flex-1" disabled={isLoading || selectedSubcategories.length === 0}>
+              <Button
+                onClick={handleSaveServices}
+                className="flex-1"
+                disabled={isLoading || (!gcType && !subType && !profType)}
+              >
                 {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                 Continue to Location
                 <ArrowRight className="w-4 h-4 ml-2" />

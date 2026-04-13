@@ -13,8 +13,10 @@ import {
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
   Loader2, BrainCircuit, Download, AlertTriangle, Siren, Sparkles, Globe2,
+  Star, ThumbsUp, Send as SendIcon, GitPullRequest,
 } from 'lucide-react';
 import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
+import { FloatingAIChat } from '@/components/dashboard/FloatingAIChat';
 import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -37,6 +39,16 @@ const TitleCompaniesDept = lazy(() => import('./legals/TitleCompaniesDept'));
 const TownPlanningDept = lazy(() => import('./legals/TownPlanningDept'));
 const VerificationDept = lazy(() => import('./legals/VerificationOrdersDept'));
 const CleaningDept = lazy(() => import('./legals/CleaningDept'));
+// ─── New departments (11-feature build) ───
+const InvoicesDept = lazy(() => import('./legals/InvoicesDept'));
+const CRMPipelineDept = lazy(() => import('./legals/CRMPipelineDept'));
+const BidAnalyticsDept = lazy(() => import('./legals/BidAnalyticsDept'));
+const ScheduleDept = lazy(() => import('./legals/ScheduleDept'));
+const MaterialsTakeoffDept = lazy(() => import('./legals/MaterialsTakeoffDept'));
+const PermitsDept = lazy(() => import('./legals/PermitsDept'));
+const ReviewsDept = lazy(() => import('./legals/ReviewsDept'));
+const FollowUpsDept = lazy(() => import('./legals/FollowUpsDept'));
+const MarketRatesDept = lazy(() => import('./legals/MarketRatesDept'));
 
 // ─── Sidebar data ───────────────────────────────────────────────
 const sidebarSections = [
@@ -55,6 +67,8 @@ const sidebarSections = [
       { icon: Mail, name: 'Email Inbox', badge: '7', badgeType: 'default' },
       { icon: MessageSquare, name: 'Sub Messaging', badge: null },
       { icon: Bot, name: 'Agent Log', badge: null },
+      { icon: Star, name: 'Reviews', badge: '3', badgeType: 'red' },
+      { icon: SendIcon, name: 'Follow-ups', badge: 'New', badgeType: 'green' },
     ],
   },
   {
@@ -64,6 +78,7 @@ const sidebarSections = [
       { icon: Factory, name: 'Suppliers', badge: null },
       { icon: Archive, name: 'Inventory', badge: null },
       { icon: DollarSign, name: 'Quote Builder', badge: null },
+      { icon: Ruler, name: 'Materials Takeoff', badge: 'New', badgeType: 'green' },
       { icon: ClipboardList, name: 'Design Checklist', badge: 'New', badgeType: 'green' },
     ],
   },
@@ -81,7 +96,9 @@ const sidebarSections = [
     items: [
       { icon: BookOpen, name: 'Accounting', badge: null },
       { icon: Receipt, name: 'Invoices', badge: '2', badgeType: 'red' },
-      { icon: Ruler, name: 'Job Costing', badge: null },
+      { icon: GitPullRequest, name: 'CRM Pipeline', badge: 'New', badgeType: 'green' },
+      { icon: BarChart3, name: 'Bid Analytics', badge: 'New', badgeType: 'green' },
+      { icon: TrendingUp, name: 'Market Rates', badge: 'New', badgeType: 'green' },
       { icon: FileText, name: 'Lien Waivers', badge: null },
     ],
   },
@@ -105,12 +122,14 @@ const sidebarSections = [
       { icon: Map, name: 'Town Planning', badge: null },
       { icon: BadgeCheck, name: 'Verification Orders', badge: null },
       { icon: Sparkles, name: 'Cleaning', badge: 'New', badgeType: 'green' },
+      { icon: FileCheck, name: 'Permits', badge: '1', badgeType: 'red' },
     ],
   },
 ];
 
 // ─── Map sidebar item name → lazy component ──────────────────────
 const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: () => void }) => JSX.Element>> = {
+  // ── Legals (original) ──
   Attorneys: AttorneysDept,
   Arbitration: ArbitrationDept,
   Architects: ArchitectsDept,
@@ -127,7 +146,17 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
   'Title Companies': TitleCompaniesDept,
   'Town Planning': TownPlanningDept,
   'Verification Orders': VerificationDept,
-  'Cleaning': CleaningDept,
+  Cleaning: CleaningDept,
+  // ── 11-feature build ──
+  Invoices: InvoicesDept,
+  'CRM Pipeline': CRMPipelineDept,
+  'Bid Analytics': BidAnalyticsDept,
+  Schedule: ScheduleDept,
+  'Materials Takeoff': MaterialsTakeoffDept,
+  Permits: PermitsDept,
+  Reviews: ReviewsDept,
+  'Follow-ups': FollowUpsDept,
+  'Market Rates': MarketRatesDept,
 };
 
 // ─── Summary dashboard data ──────────────────────────────────────
@@ -286,6 +315,7 @@ export default function GCCommandDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-full w-full min-w-0 bg-gradient-to-b from-[#07182f] via-[#081f38] to-[#07182f] text-slate-100">
+      <FloatingAIChat />
       {/* ── AI Input Bar ── */}
       <div className="bg-[#081f3b]/95 backdrop-blur border-b border-amber-300/20 px-3 sm:px-5 py-3 flex items-center gap-2 shrink-0">
         <Input

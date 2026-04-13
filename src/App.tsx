@@ -61,6 +61,7 @@ const ZipExplorer = lazy(() => import("./pages/ZipExplorer"));
 const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
 const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartnersDashboardPage"));
 const CleanScopePage = lazy(() => import("./pages/CleanScopePage"));
+const ClientProjectPortal = lazy(() => import("./pages/ClientProjectPortal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ScrollToTop() {
@@ -142,6 +143,7 @@ const App = () => (
               <Route path="/zip-explorer" element={<ZipExplorerHub />} />
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               <Route path="/cleanscope" element={<CleanScopePage />} />
+              <Route path="/project/:id" element={<ClientProjectPortal />} />
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

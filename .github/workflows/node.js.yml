@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  typecheck:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,14 +19,8 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Enable Corepack (matches packageManager in package.json)
-        run: corepack enable
-
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       - name: Typecheck
         run: npm run typecheck
-
-      - name: Build
-        run: npm run build

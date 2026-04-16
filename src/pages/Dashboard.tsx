@@ -7,7 +7,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2, Command } from 'lucide-react';
+import { Settings, MapPin, FileText, User, HelpCircle, Shield, MessageSquare, Star, ClipboardList, Home, Image, BookOpen, HardHat, Users, Mail, Settings2, Command, Sparkles } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
 const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
@@ -25,6 +25,7 @@ import DashboardQuotes from '@/components/dashboard/DashboardQuotes';
 import DashboardPortfolio from '@/components/dashboard/DashboardPortfolio';
 import DashboardVerification from '@/components/dashboard/DashboardVerification';
 import { DashboardBlogPosts } from '@/components/dashboard/DashboardBlogPosts';
+import JanitorialDashboard from '@/features/janitorial/JanitorialDashboard';
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -37,6 +38,7 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 const providerNavItems = [
   { value: 'home', label: 'Home', icon: Home },
   { value: 'command-center', label: 'Command Center', icon: Command },
+  { value: 'janitorial', label: 'Janitorial', icon: Sparkles },
   { value: 'quotes', label: 'Quotes', icon: ClipboardList },
   { value: 'messages', label: 'Messages', icon: MessageSquare },
   { value: 'profile', label: 'Profile', icon: User },
@@ -313,6 +315,8 @@ const Dashboard = () => {
         return <DashboardBlogPosts userId={user.id} />;
       case 'quotes':
         return <DashboardQuotes userId={user.id} />;
+      case 'janitorial':
+        return <JanitorialDashboard />;
       case 'messages':
         return <DashboardMessages />;
       case 'reviews':

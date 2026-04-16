@@ -80,6 +80,17 @@ type PipelineItem = {
   aiConfidence: number;
   column: PipelineColumn;
 };
+type FunnelStage = "Leads" | "Opportunities" | "Won Contracts";
+type SalesReportRow = {
+  id: string;
+  client: string;
+  stage: FunnelStage;
+  monthlyValue: number;
+  annualizedValue: number;
+  lastActivity: string;
+  source: string;
+  confidence: number;
+};
 
 type SettingsState = {
   laborRate: number;
@@ -243,6 +254,7 @@ export default function JanitorialManagerDashboard() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
+  const [reportsRefreshedAt, setReportsRefreshedAt] = useState(new Date().toISOString());
 
   const [settings, setSettings] = useState<SettingsState>({ laborRate: 48, otherDirect: 85, suppliesPct: 7, overheadPct: 18, profitPct: 22, apiProvider: "OpenAI", apiKey: "", useLiveAI: false, systemPrompt: DEFAULT_SYSTEM_PROMPT, internalCrmEnabled: true, crmProvider: "Jobber", autoPushWonProposals: true, syncHistoricalJobs: true, defaultEmailProvider: "Gmail" });
 
@@ -306,6 +318,49 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
     return true;
   });
 
+  const reportsRows = useMemo<SalesReportRow[]>(() => {
+    const stageOrder: Record<FunnelStage, number> = { Leads: 0, Opportunities: 1, "Won Contracts": 2 };
+    return pipelineItems
+      .filter((item) => item.column !== "Lost / Archived")
+      .map((item) => ({
+        id: item.id,
+        client: item.clientName,
+        stage: item.column as FunnelStage,
+        monthlyValue: item.estimatedMonthlyValue,
+        annualizedValue: item.estimatedMonthlyValue * 12,
+        lastActivity: item.lastActivity,
+        source: item.column === "Won Contracts" ? "Contract Conversion" : "CRM Pipeline",
+        confidence: item.aiConfidence,
+      }))
+      .sort((a, b) => stageOrder[a.stage] - stageOrder[b.stage]);
+  }, [pipelineItems]);
+
+  const salesKpis = useMemo(() => {
+    const leadsCount = pipelineItems.filter((item) => item.column === "Leads").length;
+    const opportunitiesCount = pipelineItems.filter((item) => item.column === "Opportunities").length;
+    const wonCount = pipelineItems.filter((item) => item.column === "Won Contracts").length;
+    const totalPipelineValue = pipelineItems
+      .filter((item) => item.column !== "Lost / Archived")
+      .reduce((sum, item) => sum + item.estimatedMonthlyValue, 0);
+    const wonMonthly = contracts.reduce((sum, item) => sum + item.monthlyValue, 0);
+    const conversionRate = opportunitiesCount > 0 ? (wonCount / opportunitiesCount) * 100 : 0;
+
+    return { leadsCount, opportunitiesCount, wonCount, totalPipelineValue, wonMonthly, conversionRate };
+  }, [contracts, pipelineItems]);
+
+  const aiInsights = useMemo(() => {
+    const strongestOpportunity = reportsRows
+      .filter((row) => row.stage !== "Won Contracts")
+      .sort((a, b) => b.confidence - a.confidence)[0];
+    const highRiskLead = reportsRows
+      .filter((row) => row.stage === "Leads")
+      .sort((a, b) => a.confidence - b.confidence)[0];
+    return {
+      strongestOpportunity,
+      highRiskLead,
+    };
+  }, [reportsRows]);
+
   return (
     <div className="min-h-screen bg-background p-4 text-foreground md:p-6">
       <div className="mb-4 rounded-3xl bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 p-6 text-white">
@@ -320,6 +375,7 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
           <TabsTrigger value="walkthroughs">Janitorial Walkthroughs</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="sales-reports">Sales Reports</TabsTrigger>
           <TabsTrigger value="calculator">Janitorial Pricing Calculator</TabsTrigger>
           <TabsTrigger value="new-bid">New Bid / Proposal</TabsTrigger>
         </TabsList>
@@ -355,6 +411,137 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                   <div className="space-y-1 text-sm"><div className="font-medium">Email Log</div>{selectedClient.emailLog.map((e)=><div key={e.id} className="rounded-lg border p-2">{e.subject} · {e.to} · {e.sentAt} · {e.attachmentName}</div>)}</div>
                 </CardContent></Card>
               )}
+            </TabsContent>
+
+            <TabsContent value="sales-reports" className="mt-0 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-lg font-semibold">Sales Reports Dashboard</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setReportsRefreshedAt(new Date().toISOString())}
+                >
+                  Refresh Reports
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Last refreshed: {new Date(reportsRefreshedAt).toLocaleString()}</p>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Card className="rounded-2xl"><CardHeader><CardTitle className="text-sm">Open Pipeline</CardTitle></CardHeader><CardContent className="text-2xl font-semibold">{usd(salesKpis.totalPipelineValue)}</CardContent></Card>
+                <Card className="rounded-2xl"><CardHeader><CardTitle className="text-sm">Won Monthly Revenue</CardTitle></CardHeader><CardContent className="text-2xl font-semibold">{usd(salesKpis.wonMonthly)}</CardContent></Card>
+                <Card className="rounded-2xl"><CardHeader><CardTitle className="text-sm">Lead → Won Conversion</CardTitle></CardHeader><CardContent className="text-2xl font-semibold">{salesKpis.conversionRate.toFixed(1)}%</CardContent></Card>
+                <Card className="rounded-2xl"><CardHeader><CardTitle className="text-sm">Proposal Emails Sent</CardTitle></CardHeader><CardContent className="text-2xl font-semibold">{emailLogs.length}</CardContent></Card>
+              </div>
+
+              <Card className="rounded-2xl">
+                <CardHeader><CardTitle>Pipeline Funnel</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {[
+                    { label: "Leads", value: salesKpis.leadsCount, color: "from-sky-600 to-sky-500" },
+                    { label: "Opportunities", value: salesKpis.opportunitiesCount, color: "from-indigo-600 to-indigo-500" },
+                    { label: "Won Contracts", value: salesKpis.wonCount, color: "from-emerald-600 to-emerald-500" },
+                  ].map((stage) => (
+                    <div key={stage.label}>
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span>{stage.label}</span>
+                        <span>{stage.value}</span>
+                      </div>
+                      <div className="h-3 rounded-full bg-muted/50">
+                        <div
+                          className={`h-3 rounded-full bg-gradient-to-r ${stage.color}`}
+                          style={{ width: `${Math.max(8, Math.min(100, stage.value * 22))}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Card className="rounded-2xl">
+                  <CardHeader><CardTitle>Revenue Trend (30d)</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="h-44 rounded-xl bg-gradient-to-t from-blue-700/20 via-blue-500/10 to-transparent p-4">
+                      <div className="flex h-full items-end gap-2">
+                        {[42, 38, 51, 47, 63, 57, 69].map((v, i) => (
+                          <div key={i} className="flex-1 rounded-t bg-blue-500/70" style={{ height: `${v}%` }} />
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="rounded-2xl">
+                  <CardHeader><CardTitle>Sales Performance Mix</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="h-44 rounded-xl bg-gradient-to-r from-indigo-500/20 via-violet-500/10 to-sky-500/20 p-4">
+                      <div className="space-y-3">
+                        {[
+                          ["New Bids", 62],
+                          ["Renewals", 22],
+                          ["Upsells", 16],
+                        ].map(([label, pct]) => (
+                          <div key={label}>
+                            <div className="mb-1 flex justify-between text-sm"><span>{label}</span><span>{pct}%</span></div>
+                            <div className="h-2 rounded-full bg-muted/40">
+                              <div className="h-2 rounded-full bg-indigo-500" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="rounded-2xl">
+                <CardHeader><CardTitle>Detailed Sales Reports</CardTitle></CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Client</TableHead>
+                        <TableHead>Stage</TableHead>
+                        <TableHead>Monthly Value</TableHead>
+                        <TableHead>Annualized</TableHead>
+                        <TableHead>AI Confidence</TableHead>
+                        <TableHead>Last Activity</TableHead>
+                        <TableHead>Source</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {reportsRows.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.client}</TableCell>
+                          <TableCell><Badge variant="outline">{row.stage}</Badge></TableCell>
+                          <TableCell>{usd(row.monthlyValue)}</TableCell>
+                          <TableCell>{usd(row.annualizedValue)}</TableCell>
+                          <TableCell>{row.confidence}%</TableCell>
+                          <TableCell>{row.lastActivity}</TableCell>
+                          <TableCell>{row.source}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-blue-500/40 bg-blue-500/5">
+                <CardHeader><CardTitle>AI Insights</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>
+                    Highest-confidence active deal:{" "}
+                    <strong>{aiInsights.strongestOpportunity?.client ?? "No active opportunities"}</strong>
+                    {aiInsights.strongestOpportunity ? ` (${aiInsights.strongestOpportunity.confidence}% confidence)` : ""}.
+                  </p>
+                  <p>
+                    Risk watch:{" "}
+                    <strong>{aiInsights.highRiskLead?.client ?? "No lead-risk alerts"}</strong>
+                    {aiInsights.highRiskLead ? ` is below threshold at ${aiInsights.highRiskLead.confidence}% confidence.` : "."}
+                  </p>
+                  <p>
+                    Contracts + pipeline are synced from Active Contracts, CRM pipeline, proposal conversion actions, and email log events.
+                  </p>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="calculator" className="mt-0"><Card className="rounded-2xl"><CardHeader><CardTitle>Janitorial Pricing Calculator</CardTitle></CardHeader><CardContent className="space-y-2 text-sm"><div>Per Visit: {usd(result.summary.perVisit)}</div><div>Monthly: {usd(result.summary.monthlyRecurring)}</div><div>One-Time: {usd(result.summary.oneTime)}</div><Button variant="outline" onClick={()=>setActiveTab("new-bid")}>Convert to Full Bid</Button></CardContent></Card></TabsContent>
@@ -399,7 +586,15 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
 
             <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm">
               <CardHeader className="pb-3"><CardTitle className="text-base text-white">Quick Links</CardTitle></CardHeader>
-              <CardContent className="pt-0"><div className="flex flex-wrap gap-2">{["AI Assistant Chat", "Company Branding", "Labor Rates", "Recent Jobs", "Task Library"].map((item) => (<Button key={item} variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm font-medium text-white hover:bg-white hover:text-blue-700">{item}</Button>))}</div></CardContent>
+              <CardContent className="pt-0"><div className="flex flex-wrap gap-2">{[
+                { label: "CRM Clients", tab: "clients" },
+                { label: "Pipeline Board", tab: "pipeline" },
+                { label: "Sales Reports", tab: "sales-reports" },
+                { label: "New Proposal", tab: "new-bid" },
+                { label: "Active Contracts", tab: "active-contracts" },
+              ].map((item) => (
+                <Button key={item.label} variant="ghost" onClick={() => setActiveTab(item.tab)} className="h-9 rounded-xl bg-white/10 px-3 text-sm font-medium text-white hover:bg-white hover:text-blue-700">{item.label}</Button>
+              ))}</div></CardContent>
             </Card>
           </div>
         </div>

@@ -25,7 +25,6 @@ import DashboardQuotes from '@/components/dashboard/DashboardQuotes';
 import DashboardPortfolio from '@/components/dashboard/DashboardPortfolio';
 import DashboardVerification from '@/components/dashboard/DashboardVerification';
 import { DashboardBlogPosts } from '@/components/dashboard/DashboardBlogPosts';
-import JanitorialDashboard from '@/features/janitorial/JanitorialDashboard';
 import { MobileBottomNav } from '@/components/dashboard/MobileBottomNav';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -138,6 +137,11 @@ const Dashboard = () => {
       return;
     }
 
+    if (tabFromUrl === 'janitorial') {
+      navigate('/janitorial-dashboard', { replace: true });
+      return;
+    }
+
     const normalizedTab = !isAdmin && ADMIN_TABS.has(tabFromUrl) ? 'home' : tabFromUrl;
 
     if (normalizedTab !== tabFromUrl) {
@@ -158,6 +162,11 @@ const Dashboard = () => {
 
     if (tab === 'command-center') {
       navigate('/command-center/remodeling');
+      return;
+    }
+
+    if (tab === 'janitorial') {
+      navigate('/janitorial-dashboard');
       return;
     }
 
@@ -315,8 +324,6 @@ const Dashboard = () => {
         return <DashboardBlogPosts userId={user.id} />;
       case 'quotes':
         return <DashboardQuotes userId={user.id} />;
-      case 'janitorial':
-        return <JanitorialDashboard />;
       case 'messages':
         return <DashboardMessages />;
       case 'reviews':

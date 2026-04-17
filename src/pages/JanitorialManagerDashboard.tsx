@@ -436,9 +436,9 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                 <CardHeader><CardTitle>Pipeline Funnel</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { label: "Leads", value: salesKpis.leadsCount, color: "from-sky-600 to-sky-500" },
-                    { label: "Opportunities", value: salesKpis.opportunitiesCount, color: "from-indigo-600 to-indigo-500" },
-                    { label: "Won Contracts", value: salesKpis.wonCount, color: "from-emerald-600 to-emerald-500" },
+                    { label: "Leads", value: salesKpis.leadsCount, barClass: "h-3 rounded-full bg-gradient-to-r from-sky-600 to-sky-500" },
+                    { label: "Opportunities", value: salesKpis.opportunitiesCount, barClass: "h-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500" },
+                    { label: "Won Contracts", value: salesKpis.wonCount, barClass: "h-3 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-500" },
                   ].map((stage) => (
                     <div key={stage.label}>
                       <div className="mb-1 flex items-center justify-between text-sm">
@@ -447,7 +447,7 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                       </div>
                       <div className="h-3 rounded-full bg-muted/50">
                         <div
-                          className={`h-3 rounded-full bg-gradient-to-r ${stage.color}`}
+                          className={stage.barClass}
                           style={{ width: `${Math.max(8, Math.min(100, stage.value * 22))}%` }}
                         />
                       </div>

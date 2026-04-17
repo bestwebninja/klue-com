@@ -38,6 +38,34 @@ const TIERS = {
   },
 } as const;
 
+const CITY_RATES = [
+  { city: 'Seattle, WA',        rate: 47, costIdx: 1.28, sqftCost: 0.18, highlight: true },
+  { city: 'San Francisco, CA',  rate: 52, costIdx: 1.42, sqftCost: 0.21, highlight: false },
+  { city: 'New York, NY',       rate: 54, costIdx: 1.45, sqftCost: 0.22, highlight: false },
+  { city: 'Los Angeles, CA',    rate: 49, costIdx: 1.35, sqftCost: 0.19, highlight: false },
+  { city: 'Boston, MA',         rate: 48, costIdx: 1.30, sqftCost: 0.18, highlight: false },
+  { city: 'Chicago, IL',        rate: 43, costIdx: 1.15, sqftCost: 0.16, highlight: false },
+  { city: 'Denver, CO',         rate: 41, costIdx: 1.08, sqftCost: 0.15, highlight: false },
+  { city: 'Portland, OR',       rate: 44, costIdx: 1.18, sqftCost: 0.16, highlight: false },
+  { city: 'Minneapolis, MN',    rate: 42, costIdx: 1.10, sqftCost: 0.15, highlight: false },
+  { city: 'Miami, FL',          rate: 38, costIdx: 1.00, sqftCost: 0.14, highlight: false },
+  { city: 'Atlanta, GA',        rate: 36, costIdx: 0.96, sqftCost: 0.13, highlight: false },
+  { city: 'Dallas, TX',         rate: 36, costIdx: 0.95, sqftCost: 0.13, highlight: false },
+  { city: 'Houston, TX',        rate: 35, costIdx: 0.93, sqftCost: 0.13, highlight: false },
+  { city: 'Nashville, TN',      rate: 35, costIdx: 0.92, sqftCost: 0.13, highlight: false },
+  { city: 'Phoenix, AZ',        rate: 34, costIdx: 0.90, sqftCost: 0.12, highlight: false },
+  { city: 'Charlotte, NC',      rate: 34, costIdx: 0.91, sqftCost: 0.12, highlight: false },
+  { city: 'Las Vegas, NV',      rate: 35, costIdx: 0.94, sqftCost: 0.13, highlight: false },
+];
+
+const WIZARD_STEPS = [
+  { title: 'Building Type', question: 'What type of facility are we quoting?', placeholder: 'e.g. Medical office, Class A office tower, retail strip…' },
+  { title: 'Current Provider', question: 'Who is their current cleaning provider, and what are they paying?', placeholder: 'e.g. ABC Cleaning, ~$4,200/mo, 3x weekly…' },
+  { title: 'Pain Points', question: 'What problems are they experiencing with their current service?', placeholder: 'e.g. Poor restroom standards, missed visits, no account manager…' },
+  { title: 'Budget', question: 'What monthly budget range are they working with?', placeholder: 'e.g. $3,000–$5,000/mo, flexible, or unknown…' },
+  { title: 'Timeline', question: 'When do they want service to start?', placeholder: 'e.g. ASAP, next quarter, contract renewal in August…' },
+];
+
 type TopTab = 'walkthroughs' | 'proposal' | 'pipeline' | 'clients' | 'contracts' | 'sales-reports' | 'calculator' | 'history' | 'subscription';
 type PipelineStage = 'lead' | 'opportunity' | 'proposal-sent' | 'won' | 'lost';
 type BuildingType = 'Medical' | 'Office' | 'Retail' | 'Warehouse' | 'Bank';
@@ -196,6 +224,14 @@ export default function JanitorialDashboard() {
   const [stripeSecretKey, setStripeSecretKey] = useState('');
   const [stripeConnected, setStripeConnected] = useState(false);
 
+  // ── costing wizard ──
+  const [costingWizardOpen, setCostingWizardOpen] = useState(false);
+
+  // ── client conversation wizard ──
+  const [proposalSubTab, setProposalSubTab] = useState<'builder' | 'conversation'>('builder');
+  const [wizardStep, setWizardStep] = useState(0);
+  const [wizardAnswers, setWizardAnswers] = useState(['', '', '', '', '']);
+
   // ── computed ──
   const result = useMemo(() => generateResult(areas, scope, settings, frequencyPerWeek), [areas, scope, settings, frequencyPerWeek]);
 
@@ -346,6 +382,55 @@ export default function JanitorialDashboard() {
     return { subject, body, to: salesRepInfo.email || 'marcus@kluje.com' };
   };
 
+  // ── render: client conversation wizard ──
+  const renderClientConversation = () => {
+    const step = WIZARD_STEPS[wizardStep];
+    const isLast = wizardStep === WIZARD_STEPS.length - 1;
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-1">{WIZARD_STEPS.map((s, i) => (<div key={s.title} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= wizardStep ? 'bg-emerald-500' : 'bg-muted'}`} />))}</div>
+        <Card className="rounded-3xl">
+          <CardHeader>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              <span>Step {wizardStep + 1} of {WIZARD_STEPS.length}</span>
+              <span>·</span>
+              <span className="font-medium text-foreground">{step.title}</span>
+            </div>
+            <CardTitle className="text-lg">{step.question}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              className="min-h-28 rounded-2xl"
+              placeholder={step.placeholder}
+              value={wizardAnswers[wizardStep]}
+              onChange={e => setWizardAnswers(prev => prev.map((a, i) => i === wizardStep ? e.target.value : a))}
+            />
+            <div className="flex gap-2 justify-between">
+              <Button variant="outline" className="rounded-2xl" disabled={wizardStep === 0} onClick={() => setWizardStep(s => s - 1)}>← Back</Button>
+              {isLast ? (
+                <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600" onClick={() => { setProposalSubTab('builder'); setWizardStep(0); }}>
+                  Build Quote from Notes →
+                </Button>
+              ) : (
+                <Button className="rounded-2xl" onClick={() => setWizardStep(s => s + 1)}>Next →</Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        {wizardAnswers.some(a => a.trim()) && (
+          <Card className="rounded-3xl bg-muted/30">
+            <CardHeader><CardTitle className="text-sm">Conversation Notes</CardTitle></CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {WIZARD_STEPS.map((s, i) => wizardAnswers[i] ? (
+                <div key={s.title}><span className="font-medium text-muted-foreground">{s.title}: </span><span>{wizardAnswers[i]}</span></div>
+              ) : null)}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
   // ── render: new proposal ──
   const renderNewProposal = () => {
     const traffic = getTrafficEstimate();
@@ -353,6 +438,11 @@ export default function JanitorialDashboard() {
     const winProb = calcWinProbability('Office', sqft);
     return (
       <div className="space-y-4">
+        <div className="flex gap-2 rounded-2xl bg-muted/40 p-1">
+          <Button variant={proposalSubTab === 'builder' ? 'default' : 'ghost'} className="rounded-xl flex-1" onClick={() => setProposalSubTab('builder')}>Quote Builder</Button>
+          <Button variant={proposalSubTab === 'conversation' ? 'default' : 'ghost'} className="rounded-xl flex-1" onClick={() => setProposalSubTab('conversation')}>Client Conversation</Button>
+        </div>
+        {proposalSubTab === 'conversation' ? renderClientConversation() : (<div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="rounded-3xl">
             <CardHeader><CardTitle className="text-base">Client Details</CardTitle></CardHeader>
@@ -447,11 +537,12 @@ export default function JanitorialDashboard() {
               </div>
             </div>
             <Button className="w-full rounded-2xl" onClick={approveQuote}>
-              Approve Quote &amp; Preview Emails →
+              Approve Quote &amp; Review Costs →
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </div>)}
+    </div>
     );
   };
 
@@ -466,7 +557,110 @@ export default function JanitorialDashboard() {
       daysInPipeline: 0, stage: 'proposal-sent', region: 'Seattle',
       rep: `${salesRepInfo.firstName} ${salesRepInfo.lastName}`.trim() || 'Sales Rep',
     }, ...prev]);
-    setQuoteEmailOpen(true);
+    setCostingWizardOpen(true); // auto-open costing wizard before emails
+  };
+
+  // ── render: costing wizard modal ──
+  const renderCostingWizard = () => {
+    const sqft = result.summary.cleanableSqFt || 1;
+    const visits = result.summary.visitsPerMonth;
+    const directCostPerMonth = result.pricing.directSubtotal * visits;
+    const overheadPerMonth = result.pricing.overheadAmount * visits;
+    const totalCostPerMonth = directCostPerMonth + overheadPerMonth;
+    const sellingPerMonth = result.pricing.monthlyTotal;
+    const grossMarginAmt = sellingPerMonth - totalCostPerMonth;
+    const grossMarginPct = sellingPerMonth > 0 ? (grossMarginAmt / sellingPerMonth) * 100 : 0;
+    const costPerSqft = totalCostPerMonth / sqft;
+    const sellPerSqft = sellingPerMonth / sqft;
+    const seattleRef = CITY_RATES.find(c => c.highlight)!;
+    const yourVsMarket = costPerSqft - seattleRef.sqftCost;
+    return (
+      <Dialog open={costingWizardOpen} onOpenChange={setCostingWizardOpen}>
+        <DialogContent className="rounded-3xl sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">True Cost of Sales Analysis</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5">
+            <div className="grid gap-3 sm:grid-cols-4">
+              <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Direct Cost/mo</p>
+                <p className="text-xl font-bold text-rose-600">{currency(totalCostPerMonth)}</p>
+              </div>
+              <div className="rounded-2xl bg-blue-500/10 border border-blue-500/20 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Selling Price/mo</p>
+                <p className="text-xl font-bold text-blue-600">{currency(sellingPerMonth)}</p>
+              </div>
+              <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Gross Margin</p>
+                <p className="text-xl font-bold text-emerald-600">{currency(grossMarginAmt)}</p>
+                <p className="text-xs text-emerald-600 font-medium">{percent(grossMarginPct)}</p>
+              </div>
+              <div className="rounded-2xl bg-muted/40 p-3 text-center">
+                <p className="text-xs text-muted-foreground">Cost / sq ft / mo</p>
+                <p className="text-xl font-bold">${costPerSqft.toFixed(3)}</p>
+                <p className="text-xs text-muted-foreground">Sell: ${sellPerSqft.toFixed(3)}</p>
+              </div>
+            </div>
+
+            <Card className="rounded-2xl">
+              <CardContent className="pt-4 space-y-2">
+                {[
+                  { label: 'Labor (monthly)', val: result.pricing.lineItems[0].amount * visits },
+                  { label: 'Supplies (monthly)', val: result.pricing.lineItems[1].amount * visits },
+                  { label: 'Other Direct (monthly)', val: result.pricing.lineItems[2].amount * visits },
+                  { label: 'Overhead (monthly)', val: overheadPerMonth },
+                ].map(row => (
+                  <div key={row.label} className="flex justify-between text-sm border-b border-border/40 pb-1">
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className="font-medium">{currency(row.val)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-sm font-bold pt-1">
+                  <span>Total Cost of Sales</span><span className="text-rose-600">{currency(totalCostPerMonth)}</span>
+                </div>
+                <div className="flex justify-between text-sm font-bold">
+                  <span>Gross Profit</span><span className="text-emerald-600">{currency(grossMarginAmt)} ({percent(grossMarginPct)})</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="rounded-2xl border border-border/60 overflow-hidden">
+              <div className="bg-muted/50 px-3 py-2 text-xs font-semibold uppercase tracking-wide">Labor Rate + Cost/sqft by Market</div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/30 text-left">
+                    <tr><th className="px-3 py-2">City</th><th className="px-3 py-2">Labor/hr</th><th className="px-3 py-2">Cost Index</th><th className="px-3 py-2">Est. Cost/sqft/mo</th><th className="px-3 py-2">vs Your Quote</th></tr>
+                  </thead>
+                  <tbody>
+                    {CITY_RATES.map(c => (
+                      <tr key={c.city} className={`border-t border-border/40 ${c.highlight ? 'bg-blue-500/10 font-semibold' : ''}`}>
+                        <td className="px-3 py-2">{c.city}{c.highlight ? ' ★' : ''}</td>
+                        <td className="px-3 py-2">${c.rate}/hr</td>
+                        <td className="px-3 py-2">{c.costIdx.toFixed(2)}×</td>
+                        <td className="px-3 py-2">${c.sqftCost.toFixed(3)}</td>
+                        <td className={`px-3 py-2 font-medium ${(costPerSqft - c.sqftCost) > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                          {(costPerSqft - c.sqftCost) > 0 ? '+' : ''}{((costPerSqft - c.sqftCost) * 100).toFixed(1)}¢
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className={`rounded-2xl p-3 text-sm ${Math.abs(yourVsMarket) < 0.01 ? 'bg-emerald-500/10 border border-emerald-500/20' : yourVsMarket > 0 ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-emerald-500/10 border border-emerald-500/20'}`}>
+              {yourVsMarket > 0.005
+                ? `⚠ Your cost/sqft ($${costPerSqft.toFixed(3)}) is ${((yourVsMarket / seattleRef.sqftCost) * 100).toFixed(0)}% above the Seattle market benchmark. Consider tightening overhead or adjusting scope.`
+                : `✓ Your cost/sqft ($${costPerSqft.toFixed(3)}) is competitive vs the Seattle market benchmark ($${seattleRef.sqftCost.toFixed(3)}). Margin is healthy.`}
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" className="rounded-2xl" onClick={() => setCostingWizardOpen(false)}>Close</Button>
+            <Button className="rounded-2xl" onClick={() => { setCostingWizardOpen(false); setQuoteEmailOpen(true); }}>Send Quote Emails →</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   // ── render: quote email modal ──
@@ -704,26 +898,56 @@ export default function JanitorialDashboard() {
   };
 
   // ── render: pricing calculator ──
-  const renderPricingCalculator = () => (
-    <div className="space-y-4">
-      <Card className="rounded-3xl">
-        <CardHeader><CardTitle className="text-base">Quick Quote Calculator</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="max-w-xs space-y-1"><Label>Visits / week</Label><Input type="number" value={frequencyPerWeek} onChange={e => setFrequencyPerWeek(Number(e.target.value) || 1)} className="rounded-xl" /></div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Per Visit</p><p className="text-lg font-semibold">{currency(result.pricing.totalPerVisit)}</p></div>
-            <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Monthly</p><p className="text-lg font-semibold">{currency(result.pricing.monthlyTotal)}</p></div>
-            <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">One-Time</p><p className="text-lg font-semibold">{currency(result.pricing.oneTimeTotal)}</p></div>
-          </div>
-          <div className="rounded-2xl border border-border/60 p-3 space-y-2">
-            {result.pricing.lineItems.map(item => (
-              <div key={item.item} className="flex justify-between text-sm"><span className="text-muted-foreground">{item.item}</span><span className="font-medium">{currency(item.amount)}</span></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const renderPricingCalculator = () => {
+    const sqft = result.summary.cleanableSqFt || 1;
+    const visits = result.summary.visitsPerMonth;
+    const directCostMonthly = result.pricing.directSubtotal * visits;
+    const overheadMonthly = result.pricing.overheadAmount * visits;
+    const totalCostMonthly = directCostMonthly + overheadMonthly;
+    const sellingMonthly = result.pricing.monthlyTotal;
+    const grossMargin = sellingMonthly > 0 ? ((sellingMonthly - totalCostMonthly) / sellingMonthly) * 100 : 0;
+    const costPerSqft = totalCostMonthly / sqft;
+    const sellPerSqft = sellingMonthly / sqft;
+    const marginInsight = grossMargin >= 20 ? 'Healthy margin — within target range.' : grossMargin >= 15 ? 'Margin is lean — consider tightening scope or raising price.' : 'Margin below threshold — review labor rate and overhead.';
+    return (
+      <div className="space-y-4">
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle className="text-base">Quick Quote Calculator</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="max-w-xs space-y-1"><Label>Visits / week</Label><Input type="number" value={frequencyPerWeek} onChange={e => setFrequencyPerWeek(Number(e.target.value) || 1)} className="rounded-xl" /></div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Per Visit</p><p className="text-lg font-semibold">{currency(result.pricing.totalPerVisit)}</p></div>
+              <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Monthly</p><p className="text-lg font-semibold">{currency(result.pricing.monthlyTotal)}</p></div>
+              <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">One-Time</p><p className="text-lg font-semibold">{currency(result.pricing.oneTimeTotal)}</p></div>
+            </div>
+            <div className="rounded-2xl border border-border/60 p-3 space-y-2">
+              {result.pricing.lineItems.map(item => (
+                <div key={item.item} className="flex justify-between text-sm"><span className="text-muted-foreground">{item.item}</span><span className="font-medium">{currency(item.amount)}</span></div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="rounded-3xl border-rose-500/20 bg-gradient-to-br from-rose-500/5 to-emerald-500/5">
+          <CardHeader><CardTitle className="text-base">Real-Time Cost of Sales</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl bg-rose-500/10 p-3 text-center"><p className="text-xs text-muted-foreground">Total Cost/mo</p><p className="text-lg font-bold text-rose-600">{currency(totalCostMonthly)}</p></div>
+              <div className="rounded-2xl bg-blue-500/10 p-3 text-center"><p className="text-xs text-muted-foreground">Selling Price/mo</p><p className="text-lg font-bold text-blue-600">{currency(sellingMonthly)}</p></div>
+              <div className="rounded-2xl bg-emerald-500/10 p-3 text-center"><p className="text-xs text-muted-foreground">Gross Margin</p><p className="text-lg font-bold text-emerald-600">{percent(grossMargin)}</p></div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Cost / sq ft / mo</p><p className="text-base font-semibold text-rose-600">${costPerSqft.toFixed(3)}</p></div>
+              <div className="rounded-2xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Sell / sq ft / mo</p><p className="text-base font-semibold text-blue-600">${sellPerSqft.toFixed(3)}</p></div>
+            </div>
+            <div className={`rounded-2xl p-3 text-sm ${grossMargin >= 20 ? 'bg-emerald-500/10 text-emerald-700' : grossMargin >= 15 ? 'bg-amber-500/10 text-amber-700' : 'bg-rose-500/10 text-rose-700'}`}>
+              {grossMargin >= 20 ? '✓' : '⚠'} {marginInsight}
+            </div>
+            <Button variant="outline" className="w-full rounded-2xl" onClick={() => setCostingWizardOpen(true)}>Open Full City Comparison →</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   // ── render: main content router ──
   const renderMainContent = () => {
@@ -779,22 +1003,32 @@ export default function JanitorialDashboard() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-4">
-          <div className="flex w-full flex-wrap gap-2 rounded-2xl bg-muted/40 p-1">
-            {([
-              { key: 'walkthroughs', label: 'Walkthroughs' },
-              { key: 'proposal', label: 'New Bid / Proposal' },
-              { key: 'pipeline', label: 'Pipeline' },
-              { key: 'clients', label: 'Clients' },
-              { key: 'contracts', label: 'Contracts' },
-              { key: 'sales-reports', label: 'Sales Reports' },
-              { key: 'calculator', label: 'Calculator' },
-              { key: 'history', label: 'History' },
-              { key: 'subscription', label: 'Subscription' },
-            ] as const).map(tab => (
-              <Button key={tab.key} variant={topTab === tab.key ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setTopTab(tab.key)}>
-                {tab.label}
-              </Button>
-            ))}
+          <div className="space-y-1">
+            <div className="flex w-full flex-wrap gap-2 rounded-2xl bg-muted/40 p-1">
+              {([
+                { key: 'contracts', label: 'Active Contracts' },
+                { key: 'clients',   label: 'Clients' },
+                { key: 'proposal',  label: 'New Bid / Proposal' },
+                { key: 'pipeline',  label: 'Pipeline' },
+              ] as const).map(tab => (
+                <Button key={tab.key} variant={topTab === tab.key ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setTopTab(tab.key)}>
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+            <div className="flex w-full flex-wrap gap-2 rounded-2xl bg-muted/30 p-1">
+              {([
+                { key: 'sales-reports', label: 'AI Report' },
+                { key: 'history',       label: 'Historical Jobs' },
+                { key: 'calculator',    label: 'Pricing Calculator' },
+                { key: 'walkthroughs',  label: 'Walkthroughs' },
+                { key: 'subscription',  label: 'Subscription' },
+              ] as const).map(tab => (
+                <Button key={tab.key} variant={topTab === tab.key ? 'secondary' : 'ghost'} className="rounded-xl text-sm" onClick={() => setTopTab(tab.key)}>
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
           </div>
           <div className="max-h-[70vh] overflow-auto pr-1">{renderMainContent()}</div>
         </div>
@@ -853,6 +1087,7 @@ export default function JanitorialDashboard() {
       </div>
 
       <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} onSave={setSettings} />
+      {renderCostingWizard()}
       {renderQuoteEmailModal()}
       {renderStripeCheckoutModal()}
       {renderInvoiceModal()}

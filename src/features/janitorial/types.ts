@@ -22,6 +22,35 @@ export type SettingsState = {
   profitPercent: number;
 };
 
+export type ClientInfo = {
+  firstName: string;
+  lastName: string;
+  company: string;
+  email: string;
+};
+
+export type SalesRepInfo = {
+  firstName: string;
+  lastName: string;
+  cell: string;
+  email: string;
+  company: string;
+};
+
+export type WeatherState = {
+  loading: boolean;
+  error: string | null;
+  temp: number | null;
+  feelsLike: number | null;
+  condition: string;
+  emoji: string;
+  humidity: number | null;
+  windSpeed: number | null;
+  city: string;
+};
+
+export type TrafficLevel = 'low' | 'moderate' | 'heavy';
+
 export type ResultState = {
   summary: {
     cleanableSqFt: number;

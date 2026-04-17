@@ -2,7 +2,22 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  safelist: [
+    // Gradient bars — static strings but listing explicitly so they survive any future refactors
+    "from-sky-600", "to-sky-500",
+    "from-indigo-600", "to-indigo-500",
+    "from-emerald-600", "to-emerald-500",
+    "from-blue-500", "to-emerald-500",
+    // Opacity variants used in command center arbitrary values
+    { pattern: /bg-\[#[0-9a-fA-F]+\]/ },
+    { pattern: /border-amber-300\/(20|40|60)/ },
+    { pattern: /bg-amber-300\/(10|15|20)/ },
+    { pattern: /text-emerald-(300|400|500|600)/ },
+    { pattern: /text-rose-(300|400|500)/ },
+    { pattern: /bg-(blue|rose|amber|emerald|sky|indigo)-500\/(10|15)/ },
+    { pattern: /border-(blue|rose|amber)-500\/(30|40)/ },
+  ],
   prefix: "",
   theme: {
   	container: {

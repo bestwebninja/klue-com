@@ -90,7 +90,204 @@ const WIZARD_STEPS = [
   { title: 'Timeline', question: 'When do they want service to start?', placeholder: 'e.g. ASAP, next quarter, contract renewal in August…' },
 ];
 
-type TopTab = 'walkthroughs' | 'proposal' | 'pipeline' | 'clients' | 'contracts' | 'sales-reports' | 'calculator' | 'history' | 'subscription' | 'client-sentiment';
+type InvitationStatus = 'not-sent' | 'sent' | 'accepted' | 'expired';
+
+const STAFF_LIST = [
+  { id: 'st1', name: 'J. Rivera',   role: 'Lead Cleaner',   phone: '+1 (206) 555-0101', consentGiven: true,  consentDate: '2026-03-15' },
+  { id: 'st2', name: 'M. Tanaka',   role: 'Cleaner',        phone: '+1 (206) 555-0102', consentGiven: true,  consentDate: '2026-03-15' },
+  { id: 'st3', name: 'P. Okafor',   role: 'Sub-Contractor', phone: '+1 (206) 555-0103', consentGiven: true,  consentDate: '2026-03-20' },
+  { id: 'st4', name: 'S. Flores',   role: 'Cleaner',        phone: '+1 (206) 555-0104', consentGiven: true,  consentDate: '2026-03-20' },
+  { id: 'st5', name: 'T. Williams', role: 'Sub-Contractor', phone: '+1 (206) 555-0105', consentGiven: false, consentDate: '' },
+];
+
+const CONSENT_HISTORY = [
+  { id: 'ch1', staff: 'J. Rivera',   action: 'Consent given',    date: '2026-03-15', method: 'Digital signature — app onboarding' },
+  { id: 'ch2', staff: 'M. Tanaka',   action: 'Consent given',    date: '2026-03-15', method: 'Digital signature — app onboarding' },
+  { id: 'ch3', staff: 'P. Okafor',   action: 'Consent given',    date: '2026-03-20', method: 'Digital signature — app onboarding' },
+  { id: 'ch4', staff: 'S. Flores',   action: 'Consent given',    date: '2026-03-20', method: 'Digital signature — app onboarding' },
+  { id: 'ch5', staff: 'J. Rivera',   action: 'Tracking paused',  date: '2026-03-28', method: 'In-app toggle' },
+  { id: 'ch6', staff: 'J. Rivera',   action: 'Tracking resumed', date: '2026-03-29', method: 'In-app toggle' },
+];
+
+const INITIAL_INVITE_STATUS: Record<string, InvitationStatus> = {
+  c1: 'accepted', c2: 'sent', c3: 'not-sent', c4: 'accepted', c5: 'sent',
+};
+
+const GEO_TRACKING_CODE = `// CleanerApp.tsx — React Native / Expo
+// deps: expo-location  expo-task-manager  expo-notifications
+// opt:  react-native-nfc-manager (NFC fallback)
+// ──────────────────────────────────────────────────────────────
+
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+import * as Notifications from 'expo-notifications';
+
+const GEOFENCE_TASK   = 'KLUJE_GEOFENCE';
+const BACKGROUND_TASK = 'KLUJE_BG_LOCATION';
+const API             = 'https://api.kluje.com/v1/tracking';
+
+// 1. Background geofence handler — fires on enter / exit ─────────────────
+TaskManager.defineTask(GEOFENCE_TASK, async ({ data, error }) => {
+  if (error) { console.error(error); return; }
+  const { eventType, region } = data;
+  const staffId = await AsyncStorage.getItem('staffId');
+
+  if (eventType === Location.GeofencingEventType.Enter) {
+    // AUTO-START: cleaner entered job-site boundary
+    await fetch(API + '/shift/start', {
+      method: 'POST',
+      body: JSON.stringify({ staffId, siteId: region.identifier, enteredAt: new Date().toISOString() }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    await startBackgroundTracking();
+    await Notifications.scheduleNotificationAsync({
+      content: { title: '● Tracking Active', body: 'Kluje is recording your shift. Stops automatically when you leave.' },
+      trigger: null,
+    });
+  }
+
+  if (eventType === Location.GeofencingEventType.Exit) {
+    // AUTO-STOP: cleaner left job-site — no manual action required
+    await Location.stopLocationUpdatesAsync(BACKGROUND_TASK);
+    await fetch(API + '/shift/end', {
+      method: 'POST',
+      body: JSON.stringify({ staffId, exitedAt: new Date().toISOString() }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    await Notifications.scheduleNotificationAsync({
+      content: { title: '○ Shift Complete', body: 'Tracking stopped. Tap to view your shift summary.' },
+      trigger: null,
+    });
+  }
+});
+
+// 2. Background location ping every 60s (on-site only) ───────────────────
+TaskManager.defineTask(BACKGROUND_TASK, async ({ data: { locations }, error }) => {
+  if (error || !locations.length) return;
+  const loc     = locations[locations.length - 1].coords;
+  const staffId = await AsyncStorage.getItem('staffId');
+  await fetch(API + '/ping', {
+    method: 'POST',
+    body: JSON.stringify({ staffId, lat: loc.latitude, lng: loc.longitude, ts: new Date().toISOString() }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+});
+
+async function startBackgroundTracking() {
+  await Location.startLocationUpdatesAsync(BACKGROUND_TASK, {
+    accuracy:         Location.Accuracy.Balanced,
+    timeInterval:     60000,   // ping every 60 seconds
+    distanceInterval: 30,      // or every 30 metres
+    showsBackgroundLocationIndicator: true,
+    foregroundService: {
+      notificationTitle: 'Kluje — Shift Active',
+      notificationBody:  'Location tracked on job site only. Auto-stops when you leave.',
+    },
+  });
+}
+
+// 3. Register geofence for job site (call after cleaner logs in) ──────────
+export async function registerSiteGeofence(site: { id: string; lat: number; lng: number; radius?: number }) {
+  const { status } = await Location.requestBackgroundPermissionsAsync();
+  if (status !== 'granted') {
+    Alert.alert('Permission needed', 'Background location is required for shift tracking.'); return;
+  }
+  await Location.startGeofencingAsync(GEOFENCE_TASK, [{
+    identifier:    site.id,
+    latitude:      site.lat,
+    longitude:     site.lng,
+    radius:        site.radius ?? 75,  // 75-metre boundary around building
+    notifyOnEnter: true,
+    notifyOnExit:  true,
+  }]);
+}
+
+// 4. NFC fallback check-in ────────────────────────────────────────────────
+// import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+// async function nfcCheckIn(staffId: string, siteId: string) {
+//   try {
+//     await NfcManager.requestTechnology(NfcTech.Ndef);
+//     const tag = await NfcManager.getTag();
+//     await fetch(API + '/nfc', {
+//       method: 'POST',
+//       body: JSON.stringify({ staffId, siteId, nfcTagId: tag.id, ts: new Date().toISOString() }),
+//       headers: { 'Content-Type': 'application/json' },
+//     });
+//   } finally { await NfcManager.cancelTechnologyRequest(); }
+// }
+
+// 5. Cleaner UI ───────────────────────────────────────────────────────────
+/*
+  TRACKING SCREEN:
+  +------------------------------------------+
+  |  * TRACKING ACTIVE                       |  <- green dot, pulse
+  |  Harbor Medical Pavilion -- Wing B       |  <- site name from API
+  |  Shift started: 6:02 AM                  |
+  |  Time on site:  2h 14m                   |
+  |  FTE Efficiency: 94%  [====  ]           |
+  |                                          |
+  |  [ NFC Check-In (backup)             ]   |
+  |  [ Report Issue                      ]   |
+  |  [ Mark Shift Complete (check)       ]   |  <- closes shift, pushes data
+  +------------------------------------------+
+
+  CONSENT SCREEN (one-time, shown at app install):
+  +------------------------------------------+
+  |  Location & Tracking Notice              |
+  |  ──────────────────────────────────────  |
+  |  (check) Tracking starts ONLY when you  |
+  |           enter the job-site boundary.   |
+  |  (check) Tracking stops automatically   |
+  |           when you leave -- no action    |
+  |           needed from you.              |
+  |  (check) Zero tracking off-site or      |
+  |           outside work hours.            |
+  |  (check) Data: shift time + FTE score   |
+  |           only. Never shared externally. |
+  |                                          |
+  |  [ I Agree & Continue ->             ]   |
+  |  [ Read Full Privacy Policy          ]   |
+  +------------------------------------------+
+*/
+
+export default function CleanerApp() {
+  const [shiftActive, setShiftActive] = useState(false);
+  const [siteName,    setSiteName]    = useState('Awaiting job-site entry...');
+  const [fteScore,    setFteScore]    = useState(94);
+
+  useEffect(() => {
+    // In production: fetch assigned site from API, then register
+    registerSiteGeofence({ id: 'harbor-medical', lat: 47.6062, lng: -122.3321 });
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={[styles.badge, { backgroundColor: shiftActive ? '#10b981' : '#6b7280' }]}>
+        <Text style={styles.badgeText}>{shiftActive ? '* TRACKING ACTIVE' : 'O NOT ON SITE'}</Text>
+      </View>
+      <Text style={styles.site}>{siteName}</Text>
+      <Text style={styles.fte}>FTE Efficiency: {fteScore}%</Text>
+      <TouchableOpacity style={styles.btn} onPress={() => setShiftActive(false)}>
+        <Text style={styles.btnText}>Mark Shift Complete (check)</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, backgroundColor: '#0f172a' },
+  badge:     { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginBottom: 12 },
+  badgeText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  site:      { color: '#94a3b8', fontSize: 16, marginBottom: 8 },
+  fte:       { color: '#10b981', fontSize: 18, fontWeight: '700', marginBottom: 24 },
+  btn:       { backgroundColor: '#10b981', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 16 },
+  btnText:   { color: '#fff', fontSize: 16, fontWeight: '700' },
+});`;
+
+type TopTab = 'walkthroughs' | 'proposal' | 'pipeline' | 'clients' | 'contracts' | 'sales-reports' | 'calculator' | 'history' | 'subscription' | 'client-sentiment' | 'legal-consent';
 type PipelineStage = 'lead' | 'opportunity' | 'proposal-sent' | 'won' | 'lost';
 type BuildingType = 'Medical' | 'Office' | 'Retail' | 'Warehouse' | 'Bank';
 
@@ -260,6 +457,16 @@ export default function JanitorialDashboard() {
   const [signalClientOpen, setSignalClientOpen] = useState(false);
   const [signalClientId, setSignalClientId] = useState('');
   const [signalNotes, setSignalNotes] = useState('');
+
+  // ── client invitations ──
+  const [inviteStatuses, setInviteStatuses] = useState<Record<string, InvitationStatus>>(INITIAL_INVITE_STATUS);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteClientId, setInviteClientId] = useState('');
+
+  // ── legal & consent ──
+  const [companyTrackingEnabled, setCompanyTrackingEnabled] = useState(true);
+  const [staffTrackingEnabled, setStaffTrackingEnabled] = useState<Record<string, boolean>>({ st1: true, st2: true, st3: true, st4: true, st5: false });
+  const [consentSubTab, setConsentSubTab] = useState<'policy' | 'staff' | 'mobile'>('policy');
 
   // ── computed ──
   const result = useMemo(() => generateResult(areas, scope, settings, frequencyPerWeek), [areas, scope, settings, frequencyPerWeek]);
@@ -978,6 +1185,91 @@ export default function JanitorialDashboard() {
     );
   };
 
+  // ── render: invite modal ──
+  const renderInviteModal = () => {
+    const client = SENTIMENT_CLIENTS.find(c => c.id === inviteClientId);
+    const token  = inviteClientId ? `klj_${inviteClientId}_${Math.random().toString(36).slice(2, 10)}` : '';
+    const link   = `https://kluje.com/sentiment?token=${token}`;
+    return (
+      <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+        <DialogContent className="rounded-3xl sm:max-w-lg">
+          <DialogHeader><DialogTitle>Invite Client to Sentiment Dashboard</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-2xl bg-muted/40 p-3">
+              <p className="text-xs text-muted-foreground">Inviting</p>
+              <p className="font-semibold">{client?.name ?? '—'}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>One-Time Invitation Link (expires in 7 days)</Label>
+              <div className="flex gap-2">
+                <Input readOnly value={link} className="rounded-xl font-mono text-xs flex-1" />
+                <Button variant="outline" className="rounded-xl shrink-0" onClick={() => copyToClipboard(link)}>{copied ? '✓ Copied' : 'Copy'}</Button>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-blue-500/10 border border-blue-500/20 p-3 text-sm space-y-1">
+              <p className="font-medium text-blue-700">Client read-only access includes:</p>
+              <p className="text-muted-foreground">• NPS score for their facility only</p>
+              <p className="text-muted-foreground">• Recent feedback submitted for their account</p>
+              <p className="text-muted-foreground">• Cleaner efficiency scores (anonymized names)</p>
+              <p className="text-muted-foreground">• No access to pricing, pipeline, or other client data</p>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" className="rounded-2xl" onClick={() => setInviteModalOpen(false)}>Cancel</Button>
+            <Button className="rounded-2xl" onClick={() => {
+              setInviteStatuses(prev => ({ ...prev, [inviteClientId]: 'sent' }));
+              window.open('mailto:?subject=' + encodeURIComponent("You're invited to view your cleaning performance dashboard") + '&body=' + encodeURIComponent('Access your facility\'s Kluje dashboard: ' + link));
+              setInviteModalOpen(false);
+            }}>Send Invitation →</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
+  // ── render: clients tab ──
+  const renderClients = () => {
+    const inviteBg = (s: InvitationStatus) =>
+      s === 'accepted' ? 'bg-emerald-500 text-white' : s === 'sent' ? 'bg-blue-500 text-white' : s === 'expired' ? 'bg-amber-500 text-white' : 'bg-muted text-muted-foreground';
+    const inviteLabel = (s: InvitationStatus) =>
+      s === 'accepted' ? '● Accepted' : s === 'sent' ? '● Sent' : s === 'expired' ? '○ Expired' : '○ Not Sent';
+    return (
+      <div className="space-y-4">
+        <Card className="rounded-3xl">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Client Accounts</CardTitle>
+            <Badge className="bg-blue-600 text-white">{SENTIMENT_CLIENTS.length} clients</Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left"><tr>
+                  <th className="px-3 py-2">Client</th><th className="px-3 py-2">Contract</th>
+                  <th className="px-3 py-2">NPS</th><th className="px-3 py-2">Risk</th>
+                  <th className="px-3 py-2">Portal Status</th><th className="px-3 py-2">Action</th>
+                </tr></thead>
+                <tbody>
+                  {SENTIMENT_CLIENTS.map(c => (
+                    <tr key={c.id} className="border-t border-border/40">
+                      <td className="px-3 py-2 font-medium">{c.name}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{c.contract}</td>
+                      <td className="px-3 py-2"><span className={`font-bold ${c.nps >= 50 ? 'text-emerald-600' : c.nps >= 30 ? 'text-amber-600' : 'text-rose-600'}`}>{c.nps}</span></td>
+                      <td className="px-3 py-2"><Badge className={c.riskScore === 'High' ? 'bg-rose-500 text-white' : c.riskScore === 'Medium' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}>{c.riskScore}</Badge></td>
+                      <td className="px-3 py-2"><Badge className={inviteBg(inviteStatuses[c.id] ?? 'not-sent')}>{inviteLabel(inviteStatuses[c.id] ?? 'not-sent')}</Badge></td>
+                      <td className="px-3 py-2">
+                        <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => { setInviteClientId(c.id); setInviteModalOpen(true); }}>Invite to Dashboard</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   // ── render: client sentiment portal ──
   const renderClientSentiment = () => {
     const avgNps = Math.round(SENTIMENT_CLIENTS.reduce((s, c) => s + c.nps, 0) / SENTIMENT_CLIENTS.length);
@@ -989,6 +1281,13 @@ export default function JanitorialDashboard() {
     const signalClient = SENTIMENT_CLIENTS.find(c => c.id === signalClientId);
     return (
       <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-500/30 bg-blue-500/5 p-4">
+          <div>
+            <p className="text-sm font-semibold">Share performance data with your clients</p>
+            <p className="text-xs text-muted-foreground">Invite building owners to view their facility's NPS, feedback, and cleaning scores — read-only access.</p>
+          </div>
+          <Button className="rounded-2xl text-sm shrink-0" onClick={() => { setInviteClientId(SENTIMENT_CLIENTS[0].id); setInviteModalOpen(true); }}>+ Invite Client to Dashboard</Button>
+        </div>
         <div className="grid gap-3 sm:grid-cols-4">
           <Card className="rounded-3xl border-blue-500/30 bg-blue-500/5">
             <CardHeader className="pb-2"><CardTitle className="text-sm">Portfolio NPS</CardTitle></CardHeader>
@@ -1046,7 +1345,12 @@ export default function JanitorialDashboard() {
                       <td className="px-3 py-2">{c.daysSincePositive}d</td>
                       <td className="px-3 py-2"><Badge className={c.riskScore === 'High' ? 'bg-rose-500 text-white' : c.riskScore === 'Medium' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}>{c.riskScore}</Badge></td>
                       <td className="px-3 py-2 text-muted-foreground">{c.contract}</td>
-                      <td className="px-3 py-2"><Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => { setSignalClientId(c.id); setSignalNotes(''); setSignalClientOpen(true); }}>Signal</Button></td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-col gap-1">
+                          <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => { setSignalClientId(c.id); setSignalNotes(''); setSignalClientOpen(true); }}>Signal</Button>
+                          <Button size="sm" variant="outline" className="rounded-xl text-xs text-blue-600 border-blue-300 hover:bg-blue-50" onClick={() => { setInviteClientId(c.id); setInviteModalOpen(true); }}>Invite</Button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1138,6 +1442,162 @@ export default function JanitorialDashboard() {
     );
   };
 
+  // ── render: legal & consent tab ──
+  const renderLegalConsent = () => {
+    const consentedCount = STAFF_LIST.filter(s => s.consentGiven).length;
+    const activeCount    = Object.values(staffTrackingEnabled).filter(Boolean).length;
+    const pendingCount   = STAFF_LIST.filter(s => !s.consentGiven).length;
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-2 rounded-2xl bg-muted/40 p-1">
+          <Button variant={consentSubTab === 'policy' ? 'default' : 'ghost'} className="rounded-xl flex-1" onClick={() => setConsentSubTab('policy')}>Policy &amp; Toggles</Button>
+          <Button variant={consentSubTab === 'staff' ? 'default' : 'ghost'} className="rounded-xl flex-1" onClick={() => setConsentSubTab('staff')}>Staff Consent</Button>
+          <Button variant={consentSubTab === 'mobile' ? 'default' : 'ghost'} className="rounded-xl flex-1" onClick={() => setConsentSubTab('mobile')}>Mobile App Code</Button>
+        </div>
+
+        {consentSubTab === 'policy' && (
+          <div className="space-y-4">
+            <Card className="rounded-3xl border-blue-500/30 bg-blue-500/5">
+              <CardHeader><CardTitle className="text-base">Geo-Tracking &amp; Location Policy</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p className="text-muted-foreground">This policy governs how Kluje (Divitiae Terrae LLC) collects and uses location data for cleaning staff and sub-contractors. By using the Kluje Cleaner App, all staff acknowledge and consent to the following:</p>
+                <div className="space-y-2">
+                  {[
+                    { title: 'Geofencing + GPS — On-Site Only', desc: 'Tracking activates automatically when a cleaner enters the job-site geofence (50–100 metres around the building). Tracking stops automatically on exit. No tracking occurs during commute, personal time, or outside work hours.' },
+                    { title: 'Automatic Start & Stop', desc: 'No manual action required from the cleaner. The Kluje app detects arrival and departure via GPS geofencing. Cleaners receive a phone notification when tracking becomes active or inactive.' },
+                    { title: 'NFC Check-In (Optional Fallback)', desc: 'In buildings with poor GPS signal, cleaners may use an NFC tag mounted at the entry point. NFC records time, date, and staff ID only — no continuous location tracking.' },
+                    { title: 'Data Collected', desc: 'Time entered job site · Time exited · Location pings every 60 seconds inside geofence · Shift duration · FTE efficiency score. No audio, video, or data outside the geofence is ever collected.' },
+                    { title: 'Data Use', desc: 'Collected data is used exclusively for shift verification, FTE efficiency scoring, and client reporting. Data is never sold, shared with third parties, or used for personal profiling.' },
+                    { title: 'Data Retention', desc: 'Location pings are retained for 90 days. Shift summaries are retained for 2 years for payroll and compliance purposes. Staff may request deletion at any time by contacting marcus@kluje.com.' },
+                    { title: 'Right to Revoke', desc: 'Any staff member may revoke tracking consent at any time via the app or by notifying management. Revoking disables geofence tracking for that individual — time records will then require manual entry.' },
+                  ].map(item => (
+                    <div key={item.title} className="rounded-2xl border border-border/60 p-3 space-y-1">
+                      <p className="font-semibold text-xs">{item.title}</p>
+                      <p className="text-muted-foreground text-xs">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-3xl">
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base">Company-Wide Tracking</CardTitle>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">{companyTrackingEnabled ? 'Enabled' : 'Disabled'}</span>
+                  <button
+                    className={`relative h-6 w-11 rounded-full transition-colors ${companyTrackingEnabled ? 'bg-emerald-500' : 'bg-muted'}`}
+                    onClick={() => setCompanyTrackingEnabled(v => !v)}
+                    aria-label="Toggle company tracking"
+                  >
+                    <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${companyTrackingEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-1 text-sm">
+                <p className="text-muted-foreground">{companyTrackingEnabled ? 'Geofencing and GPS tracking is ENABLED for all staff who have given consent.' : 'Tracking is DISABLED company-wide. All geo-tracking has been paused for all staff.'}</p>
+                <p className="text-xs text-muted-foreground">Consented: <strong>{consentedCount} / {STAFF_LIST.length}</strong> · Tracking active: <strong>{activeCount}</strong> · Pending consent: <strong>{pendingCount}</strong></p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {consentSubTab === 'staff' && (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Card className="rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm text-emerald-600">Consent Given</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-emerald-600">{consentedCount}</p></CardContent></Card>
+              <Card className="rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm text-blue-600">Tracking Active</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-blue-600">{activeCount}</p></CardContent></Card>
+              <Card className="rounded-3xl"><CardHeader className="pb-2"><CardTitle className="text-sm text-amber-600">Pending Consent</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-amber-600">{pendingCount}</p></CardContent></Card>
+            </div>
+            <Card className="rounded-3xl">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base">Staff &amp; Sub-Contractor Tracking</CardTitle>
+                <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => setStaffTrackingEnabled(Object.fromEntries(STAFF_LIST.map(s => [s.id, false])))}>Revoke All</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto rounded-2xl border border-border/60">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-left"><tr>
+                      <th className="px-3 py-2">Name</th><th className="px-3 py-2">Role</th>
+                      <th className="px-3 py-2">Consent Date</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">Tracking</th>
+                    </tr></thead>
+                    <tbody>
+                      {STAFF_LIST.map(s => (
+                        <tr key={s.id} className="border-t border-border/40">
+                          <td className="px-3 py-2 font-medium">{s.name}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{s.role}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{s.consentDate || '—'}</td>
+                          <td className="px-3 py-2"><Badge className={s.consentGiven ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>{s.consentGiven ? 'Consented' : 'Pending'}</Badge></td>
+                          <td className="px-3 py-2">
+                            {s.consentGiven ? (
+                              <button
+                                className={`relative h-6 w-11 rounded-full transition-colors ${staffTrackingEnabled[s.id] && companyTrackingEnabled ? 'bg-emerald-500' : 'bg-muted'}`}
+                                onClick={() => setStaffTrackingEnabled(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
+                                disabled={!companyTrackingEnabled}
+                                aria-label={`Toggle tracking for ${s.name}`}
+                              >
+                                <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${staffTrackingEnabled[s.id] && companyTrackingEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                              </button>
+                            ) : (
+                              <Button size="sm" variant="outline" className="rounded-xl text-xs">Send Request</Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-3xl">
+              <CardHeader><CardTitle className="text-base">Consent History</CardTitle></CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto rounded-2xl border border-border/60">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-left"><tr>
+                      <th className="px-3 py-2">Staff</th><th className="px-3 py-2">Action</th>
+                      <th className="px-3 py-2">Date</th><th className="px-3 py-2">Method</th>
+                    </tr></thead>
+                    <tbody>
+                      {CONSENT_HISTORY.map(ch => (
+                        <tr key={ch.id} className="border-t border-border/40">
+                          <td className="px-3 py-2 font-medium">{ch.staff}</td>
+                          <td className="px-3 py-2"><Badge className={ch.action.includes('given') ? 'bg-emerald-500/20 text-emerald-700 border-0' : ch.action.includes('paused') ? 'bg-amber-500/20 text-amber-700 border-0' : 'bg-blue-500/20 text-blue-700 border-0'}>{ch.action}</Badge></td>
+                          <td className="px-3 py-2 text-muted-foreground">{ch.date}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{ch.method}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {consentSubTab === 'mobile' && (
+          <div className="space-y-4">
+            <Card className="rounded-3xl border-blue-500/30 bg-blue-500/5">
+              <CardHeader><CardTitle className="text-base">Geo-Tracking Mobile App — React Native / Expo</CardTitle></CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p>The Kluje Cleaner App uses Expo Location's geofencing and background location APIs. Tracking is fully automatic — no cleaner interaction required beyond the one-time consent screen on first install.</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {['expo-location', 'expo-task-manager', 'expo-notifications', 'react-native-nfc-manager (opt)'].map(pkg => (
+                    <code key={pkg} className="rounded bg-muted px-2 py-0.5 text-xs">{pkg}</code>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-3xl">
+              <CardContent className="pt-4">
+                <pre className="overflow-x-auto rounded-2xl bg-muted/60 p-4 text-xs font-mono text-foreground whitespace-pre leading-relaxed">{GEO_TRACKING_CODE}</pre>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // ── render: main content router ──
   const renderMainContent = () => {
     switch (topTab) {
@@ -1149,7 +1609,7 @@ export default function JanitorialDashboard() {
           <CardContent className="space-y-2 text-sm">{salesRecords.filter(r => r.outcome === 'Open').map(r => (<div key={r.id} className="rounded-2xl border border-border/60 p-3"><p className="font-medium">{r.client}</p><p className="text-muted-foreground">{r.buildingType} · {currency(r.proposedMonthlyPrice)} · {r.daysInPipeline} days</p></div>))}</CardContent>
         </Card>
       );
-      case 'clients': return <Card className="rounded-3xl"><CardHeader><CardTitle>Clients</CardTitle></CardHeader><CardContent className="text-sm text-muted-foreground">Harbor Medical Pavilion, Emerald Office Tower, and Rainier Community Bank synced from CRM demo data.</CardContent></Card>;
+      case 'clients': return renderClients();
       case 'contracts': return (
         <Card className="rounded-3xl">
           <CardHeader><CardTitle>Active Contracts</CardTitle></CardHeader>
@@ -1161,6 +1621,7 @@ export default function JanitorialDashboard() {
       case 'history': return <Card className="rounded-3xl"><CardHeader><CardTitle>Historical Jobs</CardTitle></CardHeader><CardContent className="text-sm text-muted-foreground">Track prior opportunities, accepted terms, and revision notes.</CardContent></Card>;
       case 'subscription': return renderSubscription();
       case 'client-sentiment': return renderClientSentiment();
+      case 'legal-consent': return renderLegalConsent();
       default: return null;
     }
   };
@@ -1211,9 +1672,10 @@ export default function JanitorialDashboard() {
                 { key: 'sales-reports',    label: 'AI Report' },
                 { key: 'client-sentiment', label: 'Client Sentiment' },
                 { key: 'history',          label: 'Historical Jobs' },
-                { key: 'calculator',    label: 'Pricing Calculator' },
-                { key: 'walkthroughs',  label: 'Walkthroughs' },
-                { key: 'subscription',  label: 'Subscription' },
+                { key: 'calculator',       label: 'Pricing Calculator' },
+                { key: 'walkthroughs',     label: 'Walkthroughs' },
+                { key: 'subscription',     label: 'Subscription' },
+                { key: 'legal-consent',    label: 'Legal & Consent' },
               ] as const).map(tab => (
                 <Button key={tab.key} variant={topTab === tab.key ? 'secondary' : 'ghost'} className="rounded-xl text-sm" onClick={() => setTopTab(tab.key)}>
                   {tab.label}
@@ -1282,6 +1744,7 @@ export default function JanitorialDashboard() {
       {renderQuoteEmailModal()}
       {renderStripeCheckoutModal()}
       {renderInvoiceModal()}
+      {renderInviteModal()}
     </div>
   );
 }

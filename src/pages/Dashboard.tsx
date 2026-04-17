@@ -13,6 +13,7 @@ const AdminUsersInline = lazy(() => import('@/components/admin/AdminUsers'));
 const AdminRolesInline = lazy(() => import('@/components/admin/AdminRoles'));
 const AdminSiteSettingsInline = lazy(() => import('@/components/admin/AdminSiteSettings'));
 const AdminNewsletterInline = lazy(() => import('@/components/admin/AdminNewsletter'));
+const JanitorialDashboardInline = lazy(() => import('@/features/janitorial/JanitorialDashboard'));
 import { RoleBasedDashboardHome } from '@/components/dashboard/RoleBasedDashboardHome';
 import DashboardServices from '@/components/dashboard/DashboardServices';
 import DashboardLocations from '@/components/dashboard/DashboardLocations';
@@ -137,12 +138,12 @@ const Dashboard = () => {
       return;
     }
 
+    const normalizedTab = !isAdmin && ADMIN_TABS.has(tabFromUrl) ? 'home' : tabFromUrl;
+
     if (tabFromUrl === 'janitorial') {
-      navigate('/janitorial-dashboard', { replace: true });
+      if (tabFromUrl !== activeTab) setActiveTab('janitorial');
       return;
     }
-
-    const normalizedTab = !isAdmin && ADMIN_TABS.has(tabFromUrl) ? 'home' : tabFromUrl;
 
     if (normalizedTab !== tabFromUrl) {
       setSearchParams({ tab: normalizedTab });
@@ -166,7 +167,8 @@ const Dashboard = () => {
     }
 
     if (tab === 'janitorial') {
-      navigate('/janitorial-dashboard');
+      setActiveTab('janitorial');
+      setSearchParams({ tab: 'janitorial' });
       return;
     }
 
@@ -332,6 +334,12 @@ const Dashboard = () => {
         return <DashboardExpertAnswers userId={user.id} />;
       case 'subscription':
         return <DashboardSubscription profile={profile} onSubscriptionUpdate={fetchProfile} />;
+      case 'janitorial':
+        return (
+          <Suspense fallback={<div className="py-12 text-center text-muted-foreground">Loading Janitorial Dashboard…</div>}>
+            <JanitorialDashboardInline />
+          </Suspense>
+        );
       case 'admin-users':
         if (!isAdmin) return <RoleBasedDashboardHome profile={profile} isAdmin={isAdmin} />;
         return (

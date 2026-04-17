@@ -58,6 +58,30 @@ const CITY_RATES = [
   { city: 'Las Vegas, NV',      rate: 35, costIdx: 0.94, sqftCost: 0.13, highlight: false },
 ];
 
+const SENTIMENT_CLIENTS = [
+  { id: 'c1', name: 'Harbor Medical Pavilion',   nps: 67, trend: 'up',   sentiment: 'Positive', sentimentPct: 82, daysSincePositive: 4,  riskScore: 'Low',    fte: 96, contract: '$28,200/mo' },
+  { id: 'c2', name: 'Emerald Office Tower',       nps: 41, trend: 'down', sentiment: 'Neutral',  sentimentPct: 54, daysSincePositive: 18, riskScore: 'Medium', fte: 88, contract: '$34,400/mo' },
+  { id: 'c3', name: 'Rainier Community Bank HQ',  nps: 22, trend: 'down', sentiment: 'Negative', sentimentPct: 31, daysSincePositive: 34, riskScore: 'High',   fte: 79, contract: '$14,300/mo' },
+  { id: 'c4', name: 'Puget Cardiology Center',    nps: 58, trend: 'up',   sentiment: 'Positive', sentimentPct: 74, daysSincePositive: 7,  riskScore: 'Low',    fte: 93, contract: '$19,850/mo' },
+  { id: 'c5', name: 'Westlake Tech Offices',      nps: 35, trend: 'flat', sentiment: 'Neutral',  sentimentPct: 61, daysSincePositive: 11, riskScore: 'Medium', fte: 85, contract: '$30,900/mo' },
+];
+
+const RFID_CLEANERS = [
+  { id: 'r1', name: 'Cleaner A — J. Rivera',    location: 'Harbor Medical — Wing B',      status: 'On Site',   efficiency: 94 },
+  { id: 'r2', name: 'Cleaner B — M. Tanaka',    location: 'Emerald Office Tower — Fl 12', status: 'On Site',   efficiency: 88 },
+  { id: 'r3', name: 'Cleaner C — P. Okafor',    location: 'In Transit',                   status: 'In Transit', efficiency: 91 },
+  { id: 'r4', name: 'Cleaner D — S. Flores',    location: 'Rainier Bank HQ — Lobby',      status: 'On Site',   efficiency: 79 },
+  { id: 'r5', name: 'Cleaner E — T. Williams',  location: 'Puget Cardiology — Fl 3',      status: 'On Site',   efficiency: 96 },
+];
+
+const RECENT_FEEDBACK = [
+  { client: 'Harbor Medical',   date: '2026-04-16', text: 'Restrooms were spotless during the 8am inspection — great work this week.', sentiment: 'Positive' },
+  { client: 'Emerald Office',   date: '2026-04-14', text: 'Lobby was missed on Tuesday evening. Need more consistency.', sentiment: 'Negative' },
+  { client: 'Rainier Bank',     date: '2026-04-10', text: 'Third time this month trash was not collected before close of business.', sentiment: 'Negative' },
+  { client: 'Puget Cardiology', date: '2026-04-15', text: 'Very happy overall. The new cart system seems faster — keep it up.', sentiment: 'Positive' },
+  { client: 'Westlake Tech',    date: '2026-04-13', text: 'Okay week. Nothing outstanding, nothing terrible.', sentiment: 'Neutral' },
+];
+
 const WIZARD_STEPS = [
   { title: 'Building Type', question: 'What type of facility are we quoting?', placeholder: 'e.g. Medical office, Class A office tower, retail strip…' },
   { title: 'Current Provider', question: 'Who is their current cleaning provider, and what are they paying?', placeholder: 'e.g. ABC Cleaning, ~$4,200/mo, 3x weekly…' },
@@ -66,7 +90,7 @@ const WIZARD_STEPS = [
   { title: 'Timeline', question: 'When do they want service to start?', placeholder: 'e.g. ASAP, next quarter, contract renewal in August…' },
 ];
 
-type TopTab = 'walkthroughs' | 'proposal' | 'pipeline' | 'clients' | 'contracts' | 'sales-reports' | 'calculator' | 'history' | 'subscription';
+type TopTab = 'walkthroughs' | 'proposal' | 'pipeline' | 'clients' | 'contracts' | 'sales-reports' | 'calculator' | 'history' | 'subscription' | 'client-sentiment';
 type PipelineStage = 'lead' | 'opportunity' | 'proposal-sent' | 'won' | 'lost';
 type BuildingType = 'Medical' | 'Office' | 'Retail' | 'Warehouse' | 'Bank';
 
@@ -231,6 +255,11 @@ export default function JanitorialDashboard() {
   const [proposalSubTab, setProposalSubTab] = useState<'builder' | 'conversation'>('builder');
   const [wizardStep, setWizardStep] = useState(0);
   const [wizardAnswers, setWizardAnswers] = useState(['', '', '', '', '']);
+
+  // ── client sentiment ──
+  const [signalClientOpen, setSignalClientOpen] = useState(false);
+  const [signalClientId, setSignalClientId] = useState('');
+  const [signalNotes, setSignalNotes] = useState('');
 
   // ── computed ──
   const result = useMemo(() => generateResult(areas, scope, settings, frequencyPerWeek), [areas, scope, settings, frequencyPerWeek]);
@@ -949,6 +978,166 @@ export default function JanitorialDashboard() {
     );
   };
 
+  // ── render: client sentiment portal ──
+  const renderClientSentiment = () => {
+    const avgNps = Math.round(SENTIMENT_CLIENTS.reduce((s, c) => s + c.nps, 0) / SENTIMENT_CLIENTS.length);
+    const promoters = SENTIMENT_CLIENTS.filter(c => c.nps >= 50).length;
+    const passives  = SENTIMENT_CLIENTS.filter(c => c.nps >= 30 && c.nps < 50).length;
+    const detractors = SENTIMENT_CLIENTS.filter(c => c.nps < 30).length;
+    const avgFte = Math.round(SENTIMENT_CLIENTS.reduce((s, c) => s + c.fte, 0) / SENTIMENT_CLIENTS.length);
+    const atRiskMrr = SENTIMENT_CLIENTS.filter(c => c.riskScore !== 'Low').reduce((s, c) => s + parseInt(c.contract.replace(/[^0-9]/g, '')), 0);
+    const signalClient = SENTIMENT_CLIENTS.find(c => c.id === signalClientId);
+    return (
+      <div className="space-y-5">
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Card className="rounded-3xl border-blue-500/30 bg-blue-500/5">
+            <CardHeader className="pb-2"><CardTitle className="text-sm">Portfolio NPS</CardTitle></CardHeader>
+            <CardContent><p className="text-4xl font-bold text-blue-600">{avgNps}</p><p className="text-xs text-muted-foreground mt-1">Net Promoter Score</p></CardContent>
+          </Card>
+          <Card className="rounded-3xl">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-emerald-600">Promoters</CardTitle></CardHeader>
+            <CardContent><p className="text-3xl font-bold text-emerald-600">{promoters}</p><p className="text-xs text-muted-foreground">NPS ≥ 50</p></CardContent>
+          </Card>
+          <Card className="rounded-3xl">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-amber-600">Passives</CardTitle></CardHeader>
+            <CardContent><p className="text-3xl font-bold text-amber-600">{passives}</p><p className="text-xs text-muted-foreground">NPS 30–49</p></CardContent>
+          </Card>
+          <Card className="rounded-3xl">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-rose-600">Detractors</CardTitle></CardHeader>
+            <CardContent><p className="text-3xl font-bold text-rose-600">{detractors}</p><p className="text-xs text-muted-foreground">NPS &lt; 30</p></CardContent>
+          </Card>
+        </div>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle>Sentiment Analysis — Recent Feedback</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            {RECENT_FEEDBACK.map((fb, i) => (
+              <div key={i} className="rounded-2xl border border-border/60 p-3 flex items-start gap-3">
+                <Badge className={fb.sentiment === 'Positive' ? 'bg-emerald-500 text-white shrink-0' : fb.sentiment === 'Negative' ? 'bg-rose-500 text-white shrink-0' : 'bg-amber-500 text-white shrink-0'}>{fb.sentiment}</Badge>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-sm font-medium">{fb.client}</p>
+                    <p className="text-xs text-muted-foreground">{fb.date}</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{fb.text}</p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle>At-Risk Client Detection</CardTitle></CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left"><tr>
+                  <th className="px-3 py-2">Client</th><th className="px-3 py-2">NPS</th><th className="px-3 py-2">Trend</th>
+                  <th className="px-3 py-2">Sentiment</th><th className="px-3 py-2">Days Since +</th>
+                  <th className="px-3 py-2">Risk</th><th className="px-3 py-2">Contract</th><th className="px-3 py-2">Action</th>
+                </tr></thead>
+                <tbody>
+                  {SENTIMENT_CLIENTS.map(c => (
+                    <tr key={c.id} className="border-t border-border/40">
+                      <td className="px-3 py-2 font-medium">{c.name}</td>
+                      <td className="px-3 py-2"><span className={`font-bold ${c.nps >= 50 ? 'text-emerald-600' : c.nps >= 30 ? 'text-amber-600' : 'text-rose-600'}`}>{c.nps}</span></td>
+                      <td className="px-3 py-2 text-lg">{c.trend === 'up' ? '↑' : c.trend === 'down' ? '↓' : '→'}</td>
+                      <td className="px-3 py-2"><Badge className={c.sentiment === 'Positive' ? 'bg-emerald-500/20 text-emerald-700 border-0' : c.sentiment === 'Negative' ? 'bg-rose-500/20 text-rose-700 border-0' : 'bg-amber-500/20 text-amber-700 border-0'}>{c.sentiment}</Badge></td>
+                      <td className="px-3 py-2">{c.daysSincePositive}d</td>
+                      <td className="px-3 py-2"><Badge className={c.riskScore === 'High' ? 'bg-rose-500 text-white' : c.riskScore === 'Medium' ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white'}>{c.riskScore}</Badge></td>
+                      <td className="px-3 py-2 text-muted-foreground">{c.contract}</td>
+                      <td className="px-3 py-2"><Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => { setSignalClientId(c.id); setSignalNotes(''); setSignalClientOpen(true); }}>Signal</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle>FTE Efficiency Scores</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm text-muted-foreground">Portfolio Average</p>
+              <p className="font-bold text-emerald-600">{avgFte}%</p>
+            </div>
+            {SENTIMENT_CLIENTS.map(c => (
+              <div key={c.id} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <p>{c.name}</p>
+                  <p className={`font-medium ${c.fte >= 90 ? 'text-emerald-600' : c.fte >= 80 ? 'text-amber-600' : 'text-rose-600'}`}>{c.fte}%</p>
+                </div>
+                <div className="h-2 rounded-full bg-muted">
+                  <div className={`h-2 rounded-full ${c.fte >= 90 ? 'bg-emerald-500' : c.fte >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${c.fte}%` }} />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle>RFID Hardware Tracking</CardTitle></CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-2xl border border-border/60">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-left"><tr>
+                  <th className="px-3 py-2">Cleaner</th><th className="px-3 py-2">Current Location</th>
+                  <th className="px-3 py-2">Status</th><th className="px-3 py-2">Efficiency</th>
+                </tr></thead>
+                <tbody>
+                  {RFID_CLEANERS.map(r => (
+                    <tr key={r.id} className="border-t border-border/40">
+                      <td className="px-3 py-2 font-medium">{r.name}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{r.location}</td>
+                      <td className="px-3 py-2"><Badge className={r.status === 'On Site' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>{r.status}</Badge></td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-16 rounded-full bg-muted">
+                            <div className={`h-2 rounded-full ${r.efficiency >= 90 ? 'bg-emerald-500' : r.efficiency >= 80 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${r.efficiency}%` }} />
+                          </div>
+                          <span className={`text-xs font-medium ${r.efficiency >= 90 ? 'text-emerald-600' : r.efficiency >= 80 ? 'text-amber-600' : 'text-rose-600'}`}>{r.efficiency}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl border-blue-500/40 bg-gradient-to-br from-blue-500/10 via-background to-emerald-500/10">
+          <CardHeader><CardTitle>AI Insights — Client Health</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>• Rainier Community Bank HQ is 34 days without positive feedback — immediate account manager intervention recommended.</p>
+            <p>• Emerald Office Tower NPS dropped 12 points in 30 days. Lobby miss on 2026-04-14 is likely the trigger — schedule service recovery call.</p>
+            <p>• Harbor Medical Pavilion and Puget Cardiology are strong promoters — ideal for referral program outreach this quarter.</p>
+            <p>• Portfolio FTE average of {avgFte}% is above the 85% operational benchmark — team efficiency is healthy.</p>
+            <p>• 3 of 5 clients are Medium–High risk, representing {currency(atRiskMrr)}/mo in at-risk MRR.</p>
+          </CardContent>
+        </Card>
+
+        <Dialog open={signalClientOpen} onOpenChange={setSignalClientOpen}>
+          <DialogContent className="rounded-3xl sm:max-w-md">
+            <DialogHeader><DialogTitle>Signal At-Risk Client</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Client: <strong>{signalClient?.name ?? '—'}</strong></p>
+              <div className="space-y-1">
+                <Label>Notes for Account Manager</Label>
+                <Textarea className="min-h-24 rounded-2xl" placeholder="Describe the issue, urgency, and recommended action…" value={signalNotes} onChange={e => setSignalNotes(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" className="rounded-2xl" onClick={() => setSignalClientOpen(false)}>Cancel</Button>
+              <Button className="rounded-2xl bg-rose-500 hover:bg-rose-600 text-white" onClick={() => { setSignalClientOpen(false); setSignalNotes(''); }}>Send Signal →</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };
+
   // ── render: main content router ──
   const renderMainContent = () => {
     switch (topTab) {
@@ -971,6 +1160,7 @@ export default function JanitorialDashboard() {
       case 'calculator': return renderPricingCalculator();
       case 'history': return <Card className="rounded-3xl"><CardHeader><CardTitle>Historical Jobs</CardTitle></CardHeader><CardContent className="text-sm text-muted-foreground">Track prior opportunities, accepted terms, and revision notes.</CardContent></Card>;
       case 'subscription': return renderSubscription();
+      case 'client-sentiment': return renderClientSentiment();
       default: return null;
     }
   };
@@ -1018,8 +1208,9 @@ export default function JanitorialDashboard() {
             </div>
             <div className="flex w-full flex-wrap gap-2 rounded-2xl bg-muted/30 p-1">
               {([
-                { key: 'sales-reports', label: 'AI Report' },
-                { key: 'history',       label: 'Historical Jobs' },
+                { key: 'sales-reports',    label: 'AI Report' },
+                { key: 'client-sentiment', label: 'Client Sentiment' },
+                { key: 'history',          label: 'Historical Jobs' },
                 { key: 'calculator',    label: 'Pricing Calculator' },
                 { key: 'walkthroughs',  label: 'Walkthroughs' },
                 { key: 'subscription',  label: 'Subscription' },

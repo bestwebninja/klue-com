@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +14,10 @@ type SettingsModalProps = {
 };
 
 export function SettingsModal({ open, settings, onOpenChange, onSave }: SettingsModalProps) {
+  const [stripePub, setStripePub] = useState('');
+  const [stripeSecret, setStripeSecret] = useState('');
+  const [stripeConnected, setStripeConnected] = useState(false);
+
   const setNumber = (key: keyof SettingsState, value: string) => {
     const parsed = Number(value);
     onSave({
@@ -87,6 +93,26 @@ export function SettingsModal({ open, settings, onOpenChange, onSave }: Settings
               onChange={(e) => setNumber('profitPercent', e.target.value)}
               className="rounded-2xl"
             />
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-border/60 pt-4">
+          <p className="text-sm font-semibold">Stripe Integration</p>
+          <div className="space-y-2">
+            <Label htmlFor="stripePub">Publishable Key</Label>
+            <Input id="stripePub" value={stripePub} onChange={e => setStripePub(e.target.value)} placeholder="pk_live_…" className="rounded-2xl font-mono text-xs" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="stripeSecret">Secret Key</Label>
+            <Input id="stripeSecret" type="password" value={stripeSecret} onChange={e => setStripeSecret(e.target.value)} placeholder="sk_live_…" className="rounded-2xl font-mono text-xs" />
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="rounded-2xl" onClick={() => setStripeConnected(!!(stripePub && stripeSecret))}>
+              {stripeConnected ? 'Reconnect' : 'Connect Stripe'}
+            </Button>
+            <Badge className={stripeConnected ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'}>
+              {stripeConnected ? '● Connected' : '○ Not Connected'}
+            </Badge>
           </div>
         </div>
 

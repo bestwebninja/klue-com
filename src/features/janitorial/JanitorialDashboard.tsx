@@ -1,4 +1,4 @@
-// CleanScope AI v5.0 — Janitorial Manager CRM Dashboard
+// CleanScope AI v1.0 — Janitorial Manager CRM Dashboard
 // Features: Quote Builder · Site Intel · Sentiment Portal · Legal & Consent · Geo-Tracking · Billing
 // Sync: 2026-04-18
 import { useCallback, useMemo, useState } from 'react';
@@ -331,7 +331,7 @@ function generateInvoiceNumber() {
   return `INV-${d}-${Math.floor(100 + Math.random() * 900)}`;
 }
 
-const DEFAULT_SYSTEM_PROMPT = `You are CleanScope AI v5.0 – Production janitorial sales agent. Seattle launch, nationwide coverage.
+const DEFAULT_SYSTEM_PROMPT = `You are CleanScope AI v1.0 – Production janitorial sales agent. Seattle launch, nationwide coverage.
 Labor: $38/hr national. +20–35% high-cost markets (Seattle, NYC, SF). Show every pricing step. Return clean JSON.`;
 
 const DEFAULT_SETTINGS: SettingsState = { laborRate: 38, otherDirect: 45, suppliesPercent: 7, overheadPercent: 18, profitPercent: 22 };
@@ -1641,7 +1641,7 @@ export default function JanitorialDashboard() {
             <div>
               <div className="mb-2 flex items-center gap-2">
                 <Badge className="bg-blue-600 text-white">Janitorial</Badge>
-                <Badge variant="outline">CleanScope AI v5.0</Badge>
+                <Badge variant="outline">CleanScope AI v1.0</Badge>
                 {currentTier !== 'none' && <Badge className="bg-emerald-500 text-white">{TIERS[currentTier as keyof typeof TIERS].name}</Badge>}
               </div>
               <CardTitle className="text-2xl">Janitorial Manager CRM Dashboard</CardTitle>
@@ -1736,7 +1736,7 @@ export default function JanitorialDashboard() {
           </Card>
 
           <Card className="rounded-3xl">
-            <CardHeader><CardTitle className="text-base">CleanScope AI v5.0</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">CleanScope AI v1.0</CardTitle></CardHeader>
             <CardContent><Textarea className="min-h-28 rounded-2xl text-xs" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} /></CardContent>
           </Card>
         </div>

@@ -1,3 +1,5 @@
+// CleanScope AI v5.0 — Janitorial Manager CRM Dashboard
+// Features: Quote Builder · Site Intel · Sentiment Portal · Legal & Consent · Geo-Tracking · Billing
 import { useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

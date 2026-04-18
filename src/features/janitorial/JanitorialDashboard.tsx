@@ -32,11 +32,11 @@ const TIERS = {
     features: ['Core AI bidding engine', 'Up to 5 users', 'Basic proposal builder', 'Pipeline tracking', 'Email quote output', 'CSV export'],
   },
   professional: {
-    name: 'Professional', monthly: 169, annual: 149, annualTotal: 1788, users: '20 users', popular: true,
+    name: 'Professional', monthly: 169, annual: 149, annualTotal: 1788, users: '5 users', popular: true,
     features: ['Everything in Starter', 'Full CRM & pipeline', 'AI Sales Reports', 'Weather + Traffic intel', 'Dual email system', 'Client + Rep branding', 'Win probability scores'],
   },
   growth: {
-    name: 'Growth', monthly: 279, annual: 249, annualTotal: 2988, users: 'Unlimited users', popular: false,
+    name: 'Growth', monthly: 279, annual: 249, annualTotal: 2988, users: '10 users', popular: false,
     features: ['Everything in Professional', 'Priority support (4hr SLA)', 'Advanced CRM sync', 'Custom branding', 'API access', 'Dedicated account manager'],
   },
 } as const;

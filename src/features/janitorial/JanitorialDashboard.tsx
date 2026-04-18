@@ -474,12 +474,22 @@ export default function JanitorialDashboard() {
   const [walkInspector, setWalkInspector] = useState('');
   const [walkDate, setWalkDate] = useState(new Date().toISOString().slice(0, 10));
   const [walkNotes, setWalkNotes] = useState('');
-  const [walkRooms, setWalkRooms] = useState([
-    { id: 'w1', room: 'Lobby + Reception',  sqft: 1800, tasks: ['Vacuum/mop floors', 'Wipe surfaces', 'Empty trash'], done: [false, false, false] },
-    { id: 'w2', room: 'Restrooms',           sqft: 900,  tasks: ['Sanitize fixtures', 'Restock supplies', 'Mop floors'], done: [false, false, false] },
-    { id: 'w3', room: 'Open Office',         sqft: 6200, tasks: ['Vacuum carpet', 'Dust workstations', 'Empty bins'], done: [false, false, false] },
-    { id: 'w4', room: 'Conference Rooms',    sqft: 1200, tasks: ['Wipe tables', 'Clean whiteboards', 'Vacuum'], done: [false, false, false] },
-    { id: 'w5', room: 'Break Room / Kitchen',sqft: 600,  tasks: ['Clean appliances', 'Wipe counters', 'Mop floor'], done: [false, false, false] },
+  const [walkFloors, setWalkFloors] = useState([
+    {
+      id: 'f1', name: 'Ground Floor',
+      rooms: [
+        { id: 'w1', room: 'Lobby + Reception', sqft: 1800, tasks: ['Vacuum/mop floors', 'Wipe surfaces', 'Empty trash'], done: [false, false, false] },
+        { id: 'w2', room: 'Restrooms',          sqft: 900,  tasks: ['Sanitize fixtures', 'Restock supplies', 'Mop floors'], done: [false, false, false] },
+      ],
+    },
+    {
+      id: 'f2', name: 'Floor 2',
+      rooms: [
+        { id: 'w3', room: 'Open Office',          sqft: 6200, tasks: ['Vacuum carpet', 'Dust workstations', 'Empty bins'], done: [false, false, false] },
+        { id: 'w4', room: 'Conference Rooms',      sqft: 1200, tasks: ['Wipe tables', 'Clean whiteboards', 'Vacuum'], done: [false, false, false] },
+        { id: 'w5', room: 'Break Room / Kitchen',  sqft: 600,  tasks: ['Clean appliances', 'Wipe counters', 'Mop floor'], done: [false, false, false] },
+      ],
+    },
   ]);
 
   // ── legal & consent ──
@@ -1678,97 +1688,128 @@ export default function JanitorialDashboard() {
   };
 
   // ── render: walkthroughs ──
-  const renderWalkthroughs = () => (
-    <div className="space-y-4">
-      <Card className="rounded-3xl">
-        <CardHeader><CardTitle className="text-base">Site Walkthrough — Header</CardTitle></CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1"><Label>Site / Facility Name</Label><Input value={walkSite} onChange={e => setWalkSite(e.target.value)} className="rounded-xl" placeholder="Harbor Medical Pavilion" /></div>
-          <div className="space-y-1"><Label>Inspector / Rep</Label><Input value={walkInspector} onChange={e => setWalkInspector(e.target.value)} className="rounded-xl" placeholder="Avery Kim" /></div>
-          <div className="space-y-1"><Label>Walkthrough Date</Label><Input type="date" value={walkDate} onChange={e => setWalkDate(e.target.value)} className="rounded-xl" /></div>
-          <div className="space-y-1"><Label>Site Address</Label><Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} className="rounded-xl" placeholder="1309 Coffeen Ave, Sheridan WY" /></div>
-        </CardContent>
-      </Card>
+  const renderWalkthroughs = () => {
+    const allRooms = walkFloors.flatMap(f => f.rooms);
+    const totalSqft = allRooms.reduce((s, r) => s + r.sqft, 0);
+    const newRoom = () => ({ id: `w${Date.now()}`, room: 'New Area', sqft: 0, tasks: ['Task 1', 'Task 2', 'Task 3'], done: [false, false, false] });
+    const addFloor = () => setWalkFloors(prev => [...prev, { id: `f${Date.now()}`, name: `Floor ${prev.length + 1}`, rooms: [newRoom()] }]);
+    const addRoom = (fid: string) => setWalkFloors(prev => prev.map(f => f.id !== fid ? f : { ...f, rooms: [...f.rooms, newRoom()] }));
+    const updateFloorName = (fid: string, name: string) => setWalkFloors(prev => prev.map(f => f.id !== fid ? f : { ...f, name }));
+    const updateRoom = (fid: string, rid: string, patch: { room?: string; sqft?: number }) => setWalkFloors(prev => prev.map(f => f.id !== fid ? f : { ...f, rooms: f.rooms.map(r => r.id !== rid ? r : { ...r, ...patch }) }));
+    const toggleTask = (fid: string, rid: string, ti: number) => setWalkFloors(prev => prev.map(f => f.id !== fid ? f : { ...f, rooms: f.rooms.map(r => r.id !== rid ? r : { ...r, done: r.done.map((d, di) => di === ti ? !d : d) }) }));
+    return (
+      <div className="space-y-4">
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle className="text-base">Site Walkthrough — Header</CardTitle></CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1"><Label>Site / Facility Name</Label><Input value={walkSite} onChange={e => setWalkSite(e.target.value)} className="rounded-xl" placeholder="Harbor Medical Pavilion" /></div>
+            <div className="space-y-1"><Label>Inspector / Rep</Label><Input value={walkInspector} onChange={e => setWalkInspector(e.target.value)} className="rounded-xl" placeholder="Avery Kim" /></div>
+            <div className="space-y-1"><Label>Walkthrough Date</Label><Input type="date" value={walkDate} onChange={e => setWalkDate(e.target.value)} className="rounded-xl" /></div>
+            <div className="space-y-1"><Label>Site Address</Label><Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} className="rounded-xl" placeholder="1309 Coffeen Ave, Sheridan WY" /></div>
+          </CardContent>
+        </Card>
 
-      <Card className="rounded-3xl">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Floor Area Inputs</CardTitle>
-          <p className="text-xs text-muted-foreground">Total: {walkRooms.reduce((s, r) => s + r.sqft, 0).toLocaleString()} sq ft</p>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto rounded-2xl border border-border/60">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th className="px-3 py-2">Room / Area</th>
-                  <th className="px-3 py-2">Sq Ft</th>
-                  <th className="px-3 py-2">Task 1</th>
-                  <th className="px-3 py-2">Task 2</th>
-                  <th className="px-3 py-2">Task 3</th>
-                </tr>
-              </thead>
-              <tbody>
-                {walkRooms.map((r, ri) => (
-                  <tr key={r.id} className="border-t border-border/40">
-                    <td className="px-3 py-2">
-                      <Input value={r.room} onChange={e => setWalkRooms(prev => prev.map((x, i) => i === ri ? { ...x, room: e.target.value } : x))} className="rounded-xl h-8 text-xs" />
-                    </td>
-                    <td className="px-3 py-2">
-                      <Input type="number" value={r.sqft} onChange={e => setWalkRooms(prev => prev.map((x, i) => i === ri ? { ...x, sqft: Number(e.target.value) } : x))} className="rounded-xl h-8 text-xs w-24" />
-                    </td>
-                    {r.tasks.map((task, ti) => (
-                      <td key={ti} className="px-3 py-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={r.done[ti]} onChange={() => setWalkRooms(prev => prev.map((x, i) => i !== ri ? x : { ...x, done: x.done.map((d, di) => di === ti ? !d : d) }))} className="rounded" />
-                          <span className={`text-xs ${r.done[ti] ? 'line-through text-muted-foreground' : ''}`}>{task}</span>
-                        </label>
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Button size="sm" variant="outline" className="mt-3 rounded-xl text-xs" onClick={() => setWalkRooms(prev => [...prev, { id: `w${Date.now()}`, room: 'New Area', sqft: 0, tasks: ['Task 1', 'Task 2', 'Task 3'], done: [false, false, false] }])}>+ Add Room</Button>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl">
-        <CardHeader><CardTitle className="text-base">QA Checklist Summary</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          {walkRooms.map(r => {
-            const completed = r.done.filter(Boolean).length;
-            const total = r.tasks.length;
-            return (
-              <div key={r.id} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span>{r.room}</span>
-                  <span className={`font-medium ${completed === total ? 'text-emerald-600' : completed > 0 ? 'text-amber-600' : 'text-muted-foreground'}`}>{completed}/{total} tasks</span>
-                </div>
-                <div className="h-2 rounded-full bg-muted"><div className={`h-2 rounded-full ${completed === total ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${(completed / total) * 100}%` }} /></div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-3xl">
-        <CardHeader><CardTitle className="text-base">Inspector Notes &amp; Sign-Off</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <Textarea value={walkNotes} onChange={e => setWalkNotes(e.target.value)} placeholder="Note any access issues, special equipment needed, client-specific requirements, or follow-up items…" className="min-h-24 rounded-2xl" />
-          <div className="flex items-center justify-between rounded-2xl bg-muted/40 p-3">
-            <div className="text-sm">
-              <p className="font-medium">{walkInspector || 'Inspector'}</p>
-              <p className="text-xs text-muted-foreground">{walkDate} · {walkSite || 'Site not entered'}</p>
+        <Card className="rounded-3xl">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Floor Area Inputs</CardTitle>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted-foreground">Total: {totalSqft.toLocaleString()} sq ft</p>
+              <Button size="sm" variant="outline" className="h-7 rounded-xl text-xs" onClick={addFloor}>+ Add Floor</Button>
             </div>
-            <Badge className={walkRooms.every(r => r.done.every(Boolean)) ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>
-              {walkRooms.every(r => r.done.every(Boolean)) ? '✓ Complete' : 'In Progress'}
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {walkFloors.map((floor, fi) => {
+              const floorSqft = floor.rooms.reduce((s, r) => s + r.sqft, 0);
+              return (
+                <div key={floor.id} className="overflow-hidden rounded-2xl border border-border/60">
+                  <div className="flex items-center gap-2 border-b border-blue-100 bg-blue-50 px-3 py-2">
+                    <span className="text-xs font-semibold text-blue-600 whitespace-nowrap">Floor {fi + 1}:</span>
+                    <Input value={floor.name} onChange={e => updateFloorName(floor.id, e.target.value)} className="h-7 flex-1 rounded-xl border-blue-200 bg-white text-xs" />
+                    <span className="text-xs text-blue-500 whitespace-nowrap">{floorSqft.toLocaleString()} sq ft</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50 text-left">
+                        <tr>
+                          <th className="px-3 py-2">Room / Area</th>
+                          <th className="px-3 py-2">Sq Ft</th>
+                          <th className="px-3 py-2">Task 1</th>
+                          <th className="px-3 py-2">Task 2</th>
+                          <th className="px-3 py-2">Task 3</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {floor.rooms.map(r => (
+                          <tr key={r.id} className="border-t border-border/40">
+                            <td className="px-3 py-2"><Input value={r.room} onChange={e => updateRoom(floor.id, r.id, { room: e.target.value })} className="h-8 rounded-xl text-xs" /></td>
+                            <td className="px-3 py-2"><Input type="number" value={r.sqft} onChange={e => updateRoom(floor.id, r.id, { sqft: Number(e.target.value) })} className="h-8 w-24 rounded-xl text-xs" /></td>
+                            {r.tasks.map((task, ti) => (
+                              <td key={ti} className="px-3 py-2">
+                                <label className="flex cursor-pointer items-center gap-2">
+                                  <input type="checkbox" checked={r.done[ti]} onChange={() => toggleTask(floor.id, r.id, ti)} className="rounded" />
+                                  <span className={`text-xs ${r.done[ti] ? 'line-through text-muted-foreground' : ''}`}>{task}</span>
+                                </label>
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="px-3 pb-3 pt-2">
+                    <Button size="sm" variant="outline" className="h-7 rounded-xl text-xs" onClick={() => addRoom(floor.id)}>+ Add Room</Button>
+                  </div>
+                </div>
+              );
+            })}
+            <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={addFloor}>+ Add Floor</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle className="text-base">QA Checklist Summary</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            {walkFloors.map(floor => (
+              <div key={floor.id}>
+                <p className="mb-2 text-xs font-semibold text-blue-600">{floor.name}</p>
+                <div className="space-y-2">
+                  {floor.rooms.map(r => {
+                    const completed = r.done.filter(Boolean).length;
+                    const total = r.tasks.length;
+                    return (
+                      <div key={r.id} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span>{r.room}</span>
+                          <span className={`font-medium ${completed === total ? 'text-emerald-600' : completed > 0 ? 'text-amber-600' : 'text-muted-foreground'}`}>{completed}/{total} tasks</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted"><div className={`h-2 rounded-full ${completed === total ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${(completed / total) * 100}%` }} /></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl">
+          <CardHeader><CardTitle className="text-base">Inspector Notes &amp; Sign-Off</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <Textarea value={walkNotes} onChange={e => setWalkNotes(e.target.value)} placeholder="Note any access issues, special equipment needed, client-specific requirements, or follow-up items…" className="min-h-24 rounded-2xl" />
+            <div className="flex items-center justify-between rounded-2xl bg-muted/40 p-3">
+              <div className="text-sm">
+                <p className="font-medium">{walkInspector || 'Inspector'}</p>
+                <p className="text-xs text-muted-foreground">{walkDate} · {walkSite || 'Site not entered'}</p>
+              </div>
+              <Badge className={allRooms.every(r => r.done.every(Boolean)) ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>
+                {allRooms.every(r => r.done.every(Boolean)) ? '✓ Complete' : 'In Progress'}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   // ── render: main content router ──
   const renderMainContent = () => {

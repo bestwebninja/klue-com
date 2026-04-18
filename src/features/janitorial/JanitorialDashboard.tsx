@@ -1698,7 +1698,7 @@ export default function JanitorialDashboard() {
 
   return (
     <div className="space-y-6">
-      <Card className="rounded-3xl border-border/60">
+      <Card className="rounded-3xl border-blue-200 bg-gradient-to-br from-blue-50 via-indigo-50 to-sky-50">
         <CardHeader className="pb-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

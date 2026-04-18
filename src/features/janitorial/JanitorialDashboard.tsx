@@ -1940,107 +1940,105 @@ export default function JanitorialDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm">
-            <CardHeader className="pb-3"><CardTitle className="text-base text-white">Quick Links</CardTitle></CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-wrap gap-2">
+          <div className="rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm p-4">
+            <p className="text-base font-semibold text-white mb-3">Quick Links</p>
+            <div className="flex flex-col gap-1">
 
-                {/* AI Assistant */}
-                <div className="relative">
-                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'AI Assistant' ? null : 'AI Assistant')}>
-                    AI Assistant {quickLinkOpen === 'AI Assistant' ? '▲' : '▼'}
-                  </Button>
-                  {quickLinkOpen === 'AI Assistant' && (
-                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
-                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">System Prompt</div>
-                      <div className="p-2"><Textarea className="rounded-xl text-xs min-h-20 w-full" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} /></div>
-                      <div className="border-t border-border/40 divide-y divide-border/40">
-                        {['Open AI Chat', 'View Conversation History', 'Reset System Prompt'].map(item => (
-                          <button key={item} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(null)}>{item}</button>
-                        ))}
-                      </div>
+              {/* AI Assistant */}
+              <div className="relative">
+                <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(quickLinkOpen === 'AI Assistant' ? null : 'AI Assistant')}>
+                  <span>AI Assistant</span><span className="text-xs">{quickLinkOpen === 'AI Assistant' ? '▲' : '▼'}</span>
+                </button>
+                {quickLinkOpen === 'AI Assistant' && (
+                  <div className="absolute left-0 top-10 z-[200] w-72 rounded-2xl border border-border/60 bg-white text-slate-800 shadow-2xl">
+                    <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100 rounded-t-2xl">System Prompt</div>
+                    <div className="p-2"><Textarea className="rounded-xl text-xs min-h-20 w-full" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} /></div>
+                    <div className="border-t border-border/40 divide-y divide-border/40">
+                      {['Open AI Chat', 'View Conversation History', 'Reset System Prompt'].map(item => (
+                        <button key={item} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors last:rounded-b-2xl" onClick={() => setQuickLinkOpen(null)}>{item}</button>
+                      ))}
                     </div>
-                  )}
-                </div>
-
-                {/* Company Branding */}
-                <div className="relative">
-                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Company Branding' ? null : 'Company Branding')}>
-                    Company Branding {quickLinkOpen === 'Company Branding' ? '▲' : '▼'}
-                  </Button>
-                  {quickLinkOpen === 'Company Branding' && (
-                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
-                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Brand Settings</div>
-                      <div className="p-3 space-y-2">
-                        {[['Company Name', 'CleanScope AI'], ['Tagline', 'Precision Cleaning. Proven Results.'], ['Primary Colour', '#1d4ed8'], ['Logo URL', 'https://kluje.com/logo.png']].map(([lbl, ph]) => (
-                          <div key={lbl} className="space-y-0.5">
-                            <p className="text-xs text-muted-foreground">{lbl}</p>
-                            <Input className="rounded-xl h-7 text-xs" placeholder={ph} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Labor Rates */}
-                <div className="relative">
-                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Labor Rates' ? null : 'Labor Rates')}>
-                    Labor Rates {quickLinkOpen === 'Labor Rates' ? '▲' : '▼'}
-                  </Button>
-                  {quickLinkOpen === 'Labor Rates' && (
-                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
-                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Market Labor Rates</div>
-                      <div className="overflow-y-auto max-h-64">
-                        <table className="w-full text-xs">
-                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">City</th><th className="px-3 py-1.5 text-right">$/hr</th><th className="px-3 py-1.5 text-right">$/sqft</th></tr></thead>
-                          <tbody>{CITY_RATES.map(c => (<tr key={c.city} className={`border-t border-border/40 ${c.highlight ? 'bg-blue-50 font-semibold' : ''}`}><td className="px-3 py-1.5">{c.city}{c.highlight ? ' ★' : ''}</td><td className="px-3 py-1.5 text-right">${c.rate}</td><td className="px-3 py-1.5 text-right">${c.sqftCost.toFixed(3)}</td></tr>))}</tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Recent Jobs */}
-                <div className="relative">
-                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Recent Jobs' ? null : 'Recent Jobs')}>
-                    Recent Jobs {quickLinkOpen === 'Recent Jobs' ? '▲' : '▼'}
-                  </Button>
-                  {quickLinkOpen === 'Recent Jobs' && (
-                    <div className="absolute left-0 top-11 z-50 w-80 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
-                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Recent Jobs &amp; Pipeline</div>
-                      <div className="overflow-y-auto max-h-64">
-                        <table className="w-full text-xs">
-                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Client</th><th className="px-3 py-1.5">Type</th><th className="px-3 py-1.5 text-right">Value</th><th className="px-3 py-1.5">Status</th></tr></thead>
-                          <tbody>{salesRecords.slice(0, 8).map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5 max-w-[100px] truncate">{r.client}</td><td className="px-3 py-1.5 text-muted-foreground">{r.buildingType}</td><td className="px-3 py-1.5 text-right font-medium">{currency(r.proposedMonthlyPrice)}</td><td className="px-3 py-1.5"><span className={r.outcome === 'Won' ? 'text-emerald-600 font-medium' : r.outcome === 'Lost' ? 'text-rose-500' : 'text-amber-600'}>{r.outcome}</span></td></tr>))}</tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Task Library */}
-                <div className="relative">
-                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Task Library' ? null : 'Task Library')}>
-                    Task Library {quickLinkOpen === 'Task Library' ? '▲' : '▼'}
-                  </Button>
-                  {quickLinkOpen === 'Task Library' && (
-                    <div className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
-                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Scope / Task Library</div>
-                      <div className="overflow-y-auto max-h-64">
-                        <table className="w-full text-xs">
-                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Task</th><th className="px-3 py-1.5">Frequency</th></tr></thead>
-                          <tbody>{scope.map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5">{r.task}</td><td className="px-3 py-1.5 text-muted-foreground">{r.frequency}</td></tr>))}</tbody>
-                        </table>
-                      </div>
-                      <div className="border-t border-border/40 px-3 py-2"><button className="text-xs text-blue-600 hover:underline" onClick={() => setQuickLinkOpen(null)}>+ Add Custom Task</button></div>
-                    </div>
-                  )}
-                </div>
-
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Company Branding */}
+              <div className="relative">
+                <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Company Branding' ? null : 'Company Branding')}>
+                  <span>Company Branding</span><span className="text-xs">{quickLinkOpen === 'Company Branding' ? '▲' : '▼'}</span>
+                </button>
+                {quickLinkOpen === 'Company Branding' && (
+                  <div className="absolute left-0 top-10 z-[200] w-72 rounded-2xl border border-border/60 bg-white text-slate-800 shadow-2xl">
+                    <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100 rounded-t-2xl">Brand Settings</div>
+                    <div className="p-3 space-y-2">
+                      {[['Company Name', 'CleanScope AI'], ['Tagline', 'Precision Cleaning. Proven Results.'], ['Primary Colour', '#1d4ed8'], ['Logo URL', 'https://kluje.com/logo.png']].map(([lbl, ph]) => (
+                        <div key={lbl} className="space-y-0.5">
+                          <p className="text-xs text-muted-foreground">{lbl}</p>
+                          <Input className="rounded-xl h-7 text-xs" placeholder={ph} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Labor Rates */}
+              <div className="relative">
+                <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Labor Rates' ? null : 'Labor Rates')}>
+                  <span>Labor Rates</span><span className="text-xs">{quickLinkOpen === 'Labor Rates' ? '▲' : '▼'}</span>
+                </button>
+                {quickLinkOpen === 'Labor Rates' && (
+                  <div className="absolute left-0 top-10 z-[200] w-72 rounded-2xl border border-border/60 bg-white text-slate-800 shadow-2xl">
+                    <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100 rounded-t-2xl">Market Labor Rates</div>
+                    <div className="overflow-y-auto max-h-64">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">City</th><th className="px-3 py-1.5 text-right">$/hr</th><th className="px-3 py-1.5 text-right">$/sqft</th></tr></thead>
+                        <tbody>{CITY_RATES.map(c => (<tr key={c.city} className={`border-t border-border/40 ${c.highlight ? 'bg-blue-50 font-semibold' : ''}`}><td className="px-3 py-1.5">{c.city}{c.highlight ? ' ★' : ''}</td><td className="px-3 py-1.5 text-right">${c.rate}</td><td className="px-3 py-1.5 text-right">${c.sqftCost.toFixed(3)}</td></tr>))}</tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Jobs */}
+              <div className="relative">
+                <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Recent Jobs' ? null : 'Recent Jobs')}>
+                  <span>Recent Jobs</span><span className="text-xs">{quickLinkOpen === 'Recent Jobs' ? '▲' : '▼'}</span>
+                </button>
+                {quickLinkOpen === 'Recent Jobs' && (
+                  <div className="absolute left-0 top-10 z-[200] w-80 rounded-2xl border border-border/60 bg-white text-slate-800 shadow-2xl">
+                    <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100 rounded-t-2xl">Recent Jobs &amp; Pipeline</div>
+                    <div className="overflow-y-auto max-h-64">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Client</th><th className="px-3 py-1.5">Type</th><th className="px-3 py-1.5 text-right">Value</th><th className="px-3 py-1.5">Status</th></tr></thead>
+                        <tbody>{salesRecords.slice(0, 8).map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5 max-w-[100px] truncate">{r.client}</td><td className="px-3 py-1.5 text-muted-foreground">{r.buildingType}</td><td className="px-3 py-1.5 text-right font-medium">{currency(r.proposedMonthlyPrice)}</td><td className="px-3 py-1.5"><span className={r.outcome === 'Won' ? 'text-emerald-600 font-medium' : r.outcome === 'Lost' ? 'text-rose-500' : 'text-amber-600'}>{r.outcome}</span></td></tr>))}</tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Task Library */}
+              <div className="relative">
+                <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Task Library' ? null : 'Task Library')}>
+                  <span>Task Library</span><span className="text-xs">{quickLinkOpen === 'Task Library' ? '▲' : '▼'}</span>
+                </button>
+                {quickLinkOpen === 'Task Library' && (
+                  <div className="absolute left-0 top-10 z-[200] w-72 rounded-2xl border border-border/60 bg-white text-slate-800 shadow-2xl">
+                    <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100 rounded-t-2xl">Scope / Task Library</div>
+                    <div className="overflow-y-auto max-h-64">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Task</th><th className="px-3 py-1.5">Frequency</th></tr></thead>
+                        <tbody>{scope.map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5">{r.task}</td><td className="px-3 py-1.5 text-muted-foreground">{r.frequency}</td></tr>))}</tbody>
+                      </table>
+                    </div>
+                    <div className="border-t border-border/40 px-3 py-2 rounded-b-2xl bg-white"><button className="text-xs text-blue-600 hover:underline" onClick={() => setQuickLinkOpen(null)}>+ Add Custom Task</button></div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
 
           <Card className="rounded-3xl">
             <CardHeader><CardTitle className="text-base">CleanScope AI v1.0</CardTitle></CardHeader>

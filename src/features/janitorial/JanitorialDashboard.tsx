@@ -1901,53 +1901,103 @@ export default function JanitorialDashboard() {
 
           <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm">
             <CardHeader className="pb-3"><CardTitle className="text-base text-white">Quick Links</CardTitle></CardHeader>
-            <CardContent className="pt-0 space-y-3">
+            <CardContent className="pt-0">
               <div className="flex flex-wrap gap-2">
-                {(['AI Assistant', 'Company Branding', 'Labor Rates', 'Recent Jobs', 'Task Library'] as const).map(label => (
-                  <Button key={label} variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === label ? null : label)}>
-                    {label} {quickLinkOpen === label ? '▲' : '▼'}
+
+                {/* AI Assistant */}
+                <div className="relative">
+                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'AI Assistant' ? null : 'AI Assistant')}>
+                    AI Assistant {quickLinkOpen === 'AI Assistant' ? '▲' : '▼'}
                   </Button>
-                ))}
+                  {quickLinkOpen === 'AI Assistant' && (
+                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
+                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">System Prompt</div>
+                      <div className="p-2"><Textarea className="rounded-xl text-xs min-h-20 w-full" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} /></div>
+                      <div className="border-t border-border/40 divide-y divide-border/40">
+                        {['Open AI Chat', 'View Conversation History', 'Reset System Prompt'].map(item => (
+                          <button key={item} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" onClick={() => setQuickLinkOpen(null)}>{item}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Company Branding */}
+                <div className="relative">
+                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Company Branding' ? null : 'Company Branding')}>
+                    Company Branding {quickLinkOpen === 'Company Branding' ? '▲' : '▼'}
+                  </Button>
+                  {quickLinkOpen === 'Company Branding' && (
+                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
+                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Brand Settings</div>
+                      <div className="p-3 space-y-2">
+                        {[['Company Name', 'CleanScope AI'], ['Tagline', 'Precision Cleaning. Proven Results.'], ['Primary Colour', '#1d4ed8'], ['Logo URL', 'https://kluje.com/logo.png']].map(([lbl, ph]) => (
+                          <div key={lbl} className="space-y-0.5">
+                            <p className="text-xs text-muted-foreground">{lbl}</p>
+                            <Input className="rounded-xl h-7 text-xs" placeholder={ph} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Labor Rates */}
+                <div className="relative">
+                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Labor Rates' ? null : 'Labor Rates')}>
+                    Labor Rates {quickLinkOpen === 'Labor Rates' ? '▲' : '▼'}
+                  </Button>
+                  {quickLinkOpen === 'Labor Rates' && (
+                    <div className="absolute left-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
+                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Market Labor Rates</div>
+                      <div className="overflow-y-auto max-h-64">
+                        <table className="w-full text-xs">
+                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">City</th><th className="px-3 py-1.5 text-right">$/hr</th><th className="px-3 py-1.5 text-right">$/sqft</th></tr></thead>
+                          <tbody>{CITY_RATES.map(c => (<tr key={c.city} className={`border-t border-border/40 ${c.highlight ? 'bg-blue-50 font-semibold' : ''}`}><td className="px-3 py-1.5">{c.city}{c.highlight ? ' ★' : ''}</td><td className="px-3 py-1.5 text-right">${c.rate}</td><td className="px-3 py-1.5 text-right">${c.sqftCost.toFixed(3)}</td></tr>))}</tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Recent Jobs */}
+                <div className="relative">
+                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Recent Jobs' ? null : 'Recent Jobs')}>
+                    Recent Jobs {quickLinkOpen === 'Recent Jobs' ? '▲' : '▼'}
+                  </Button>
+                  {quickLinkOpen === 'Recent Jobs' && (
+                    <div className="absolute left-0 top-11 z-50 w-80 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
+                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Recent Jobs &amp; Pipeline</div>
+                      <div className="overflow-y-auto max-h-64">
+                        <table className="w-full text-xs">
+                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Client</th><th className="px-3 py-1.5">Type</th><th className="px-3 py-1.5 text-right">Value</th><th className="px-3 py-1.5">Status</th></tr></thead>
+                          <tbody>{salesRecords.slice(0, 8).map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5 max-w-[100px] truncate">{r.client}</td><td className="px-3 py-1.5 text-muted-foreground">{r.buildingType}</td><td className="px-3 py-1.5 text-right font-medium">{currency(r.proposedMonthlyPrice)}</td><td className="px-3 py-1.5"><span className={r.outcome === 'Won' ? 'text-emerald-600 font-medium' : r.outcome === 'Lost' ? 'text-rose-500' : 'text-amber-600'}>{r.outcome}</span></td></tr>))}</tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Task Library */}
+                <div className="relative">
+                  <Button variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === 'Task Library' ? null : 'Task Library')}>
+                    Task Library {quickLinkOpen === 'Task Library' ? '▲' : '▼'}
+                  </Button>
+                  {quickLinkOpen === 'Task Library' && (
+                    <div className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-border/60 bg-white shadow-xl overflow-hidden">
+                      <div className="bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border-b border-blue-100">Scope / Task Library</div>
+                      <div className="overflow-y-auto max-h-64">
+                        <table className="w-full text-xs">
+                          <thead className="bg-muted/50 sticky top-0"><tr><th className="px-3 py-1.5 text-left">Task</th><th className="px-3 py-1.5">Frequency</th></tr></thead>
+                          <tbody>{scope.map(r => (<tr key={r.id} className="border-t border-border/40 hover:bg-muted/30"><td className="px-3 py-1.5">{r.task}</td><td className="px-3 py-1.5 text-muted-foreground">{r.frequency}</td></tr>))}</tbody>
+                        </table>
+                      </div>
+                      <div className="border-t border-border/40 px-3 py-2"><button className="text-xs text-blue-600 hover:underline" onClick={() => setQuickLinkOpen(null)}>+ Add Custom Task</button></div>
+                    </div>
+                  )}
+                </div>
+
               </div>
-
-              {quickLinkOpen === 'Labor Rates' && (
-                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
-                  <table className="w-full">
-                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">City</th><th className="px-2 py-1">$/hr</th><th className="px-2 py-1">Cost/sqft</th></tr></thead>
-                    <tbody>{CITY_RATES.map(c => (<tr key={c.city} className={`border-t border-white/10 ${c.highlight ? 'bg-white/20 font-semibold' : ''}`}><td className="px-2 py-1">{c.city}{c.highlight ? ' ★' : ''}</td><td className="px-2 py-1 text-center">${c.rate}</td><td className="px-2 py-1 text-center">${c.sqftCost.toFixed(3)}</td></tr>))}</tbody>
-                  </table>
-                </div>
-              )}
-
-              {quickLinkOpen === 'Recent Jobs' && (
-                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
-                  <table className="w-full">
-                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">Client</th><th className="px-2 py-1">Type</th><th className="px-2 py-1">Value</th><th className="px-2 py-1">Status</th></tr></thead>
-                    <tbody>{salesRecords.slice(0, 6).map(r => (<tr key={r.id} className="border-t border-white/10"><td className="px-2 py-1">{r.client.split(' ').slice(0, 2).join(' ')}</td><td className="px-2 py-1">{r.buildingType}</td><td className="px-2 py-1">{currency(r.proposedMonthlyPrice)}</td><td className="px-2 py-1"><span className={r.outcome === 'Won' ? 'text-emerald-300' : r.outcome === 'Lost' ? 'text-rose-300' : 'text-amber-300'}>{r.outcome}</span></td></tr>))}</tbody>
-                  </table>
-                </div>
-              )}
-
-              {quickLinkOpen === 'Task Library' && (
-                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
-                  <table className="w-full">
-                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">Task</th><th className="px-2 py-1">Frequency</th></tr></thead>
-                    <tbody>{scope.map(r => (<tr key={r.id} className="border-t border-white/10"><td className="px-2 py-1">{r.task}</td><td className="px-2 py-1">{r.frequency}</td></tr>))}</tbody>
-                  </table>
-                </div>
-              )}
-
-              {quickLinkOpen === 'AI Assistant' && (
-                <Textarea className="rounded-2xl text-xs bg-white/10 text-white placeholder:text-white/50 border-white/20 min-h-20" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} />
-              )}
-
-              {quickLinkOpen === 'Company Branding' && (
-                <div className="space-y-2 text-xs">
-                  {[['Company Name', 'CleanScope AI'], ['Tagline', 'Precision Cleaning. Proven Results.'], ['Primary Colour', '#1d4ed8'], ['Logo URL', 'https://kluje.com/logo.png']].map(([label, ph]) => (
-                    <div key={label} className="flex items-center gap-2"><span className="w-28 shrink-0 text-white/70">{label}</span><Input className="rounded-xl h-7 text-xs bg-white/10 text-white border-white/20 placeholder:text-white/40 flex-1" placeholder={ph} /></div>
-                  ))}
-                </div>
-              )}
             </CardContent>
           </Card>
 

@@ -469,6 +469,19 @@ export default function JanitorialDashboard() {
   // ── quick links dropdown ──
   const [quickLinkOpen, setQuickLinkOpen] = useState<string | null>(null);
 
+  // ── walkthrough state ──
+  const [walkSite, setWalkSite] = useState('');
+  const [walkInspector, setWalkInspector] = useState('');
+  const [walkDate, setWalkDate] = useState(new Date().toISOString().slice(0, 10));
+  const [walkNotes, setWalkNotes] = useState('');
+  const [walkRooms, setWalkRooms] = useState([
+    { id: 'w1', room: 'Lobby + Reception',  sqft: 1800, tasks: ['Vacuum/mop floors', 'Wipe surfaces', 'Empty trash'], done: [false, false, false] },
+    { id: 'w2', room: 'Restrooms',           sqft: 900,  tasks: ['Sanitize fixtures', 'Restock supplies', 'Mop floors'], done: [false, false, false] },
+    { id: 'w3', room: 'Open Office',         sqft: 6200, tasks: ['Vacuum carpet', 'Dust workstations', 'Empty bins'], done: [false, false, false] },
+    { id: 'w4', room: 'Conference Rooms',    sqft: 1200, tasks: ['Wipe tables', 'Clean whiteboards', 'Vacuum'], done: [false, false, false] },
+    { id: 'w5', room: 'Break Room / Kitchen',sqft: 600,  tasks: ['Clean appliances', 'Wipe counters', 'Mop floor'], done: [false, false, false] },
+  ]);
+
   // ── legal & consent ──
   const [companyTrackingEnabled, setCompanyTrackingEnabled] = useState(true);
   const [staffTrackingEnabled, setStaffTrackingEnabled] = useState<Record<string, boolean>>({ st1: true, st2: true, st3: true, st4: true, st5: false });
@@ -1664,10 +1677,103 @@ export default function JanitorialDashboard() {
     );
   };
 
+  // ── render: walkthroughs ──
+  const renderWalkthroughs = () => (
+    <div className="space-y-4">
+      <Card className="rounded-3xl">
+        <CardHeader><CardTitle className="text-base">Site Walkthrough — Header</CardTitle></CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1"><Label>Site / Facility Name</Label><Input value={walkSite} onChange={e => setWalkSite(e.target.value)} className="rounded-xl" placeholder="Harbor Medical Pavilion" /></div>
+          <div className="space-y-1"><Label>Inspector / Rep</Label><Input value={walkInspector} onChange={e => setWalkInspector(e.target.value)} className="rounded-xl" placeholder="Avery Kim" /></div>
+          <div className="space-y-1"><Label>Walkthrough Date</Label><Input type="date" value={walkDate} onChange={e => setWalkDate(e.target.value)} className="rounded-xl" /></div>
+          <div className="space-y-1"><Label>Site Address</Label><Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} className="rounded-xl" placeholder="1309 Coffeen Ave, Sheridan WY" /></div>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Floor Area Inputs</CardTitle>
+          <p className="text-xs text-muted-foreground">Total: {walkRooms.reduce((s, r) => s + r.sqft, 0).toLocaleString()} sq ft</p>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto rounded-2xl border border-border/60">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="px-3 py-2">Room / Area</th>
+                  <th className="px-3 py-2">Sq Ft</th>
+                  <th className="px-3 py-2">Task 1</th>
+                  <th className="px-3 py-2">Task 2</th>
+                  <th className="px-3 py-2">Task 3</th>
+                </tr>
+              </thead>
+              <tbody>
+                {walkRooms.map((r, ri) => (
+                  <tr key={r.id} className="border-t border-border/40">
+                    <td className="px-3 py-2">
+                      <Input value={r.room} onChange={e => setWalkRooms(prev => prev.map((x, i) => i === ri ? { ...x, room: e.target.value } : x))} className="rounded-xl h-8 text-xs" />
+                    </td>
+                    <td className="px-3 py-2">
+                      <Input type="number" value={r.sqft} onChange={e => setWalkRooms(prev => prev.map((x, i) => i === ri ? { ...x, sqft: Number(e.target.value) } : x))} className="rounded-xl h-8 text-xs w-24" />
+                    </td>
+                    {r.tasks.map((task, ti) => (
+                      <td key={ti} className="px-3 py-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={r.done[ti]} onChange={() => setWalkRooms(prev => prev.map((x, i) => i !== ri ? x : { ...x, done: x.done.map((d, di) => di === ti ? !d : d) }))} className="rounded" />
+                          <span className={`text-xs ${r.done[ti] ? 'line-through text-muted-foreground' : ''}`}>{task}</span>
+                        </label>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Button size="sm" variant="outline" className="mt-3 rounded-xl text-xs" onClick={() => setWalkRooms(prev => [...prev, { id: `w${Date.now()}`, room: 'New Area', sqft: 0, tasks: ['Task 1', 'Task 2', 'Task 3'], done: [false, false, false] }])}>+ Add Room</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl">
+        <CardHeader><CardTitle className="text-base">QA Checklist Summary</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          {walkRooms.map(r => {
+            const completed = r.done.filter(Boolean).length;
+            const total = r.tasks.length;
+            return (
+              <div key={r.id} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>{r.room}</span>
+                  <span className={`font-medium ${completed === total ? 'text-emerald-600' : completed > 0 ? 'text-amber-600' : 'text-muted-foreground'}`}>{completed}/{total} tasks</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted"><div className={`h-2 rounded-full ${completed === total ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${(completed / total) * 100}%` }} /></div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-3xl">
+        <CardHeader><CardTitle className="text-base">Inspector Notes &amp; Sign-Off</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <Textarea value={walkNotes} onChange={e => setWalkNotes(e.target.value)} placeholder="Note any access issues, special equipment needed, client-specific requirements, or follow-up items…" className="min-h-24 rounded-2xl" />
+          <div className="flex items-center justify-between rounded-2xl bg-muted/40 p-3">
+            <div className="text-sm">
+              <p className="font-medium">{walkInspector || 'Inspector'}</p>
+              <p className="text-xs text-muted-foreground">{walkDate} · {walkSite || 'Site not entered'}</p>
+            </div>
+            <Badge className={walkRooms.every(r => r.done.every(Boolean)) ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}>
+              {walkRooms.every(r => r.done.every(Boolean)) ? '✓ Complete' : 'In Progress'}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   // ── render: main content router ──
   const renderMainContent = () => {
     switch (topTab) {
-      case 'walkthroughs': return <Card className="rounded-3xl"><CardHeader><CardTitle>Janitorial Walkthroughs</CardTitle></CardHeader><CardContent className="text-sm text-muted-foreground">Room-by-room walkthrough notes for operations and QA signoff.</CardContent></Card>;
+      case 'walkthroughs': return renderWalkthroughs();
       case 'proposal': return renderNewProposal();
       case 'pipeline': return (
         <Card className="rounded-3xl">
@@ -1795,45 +1901,79 @@ export default function JanitorialDashboard() {
 
           <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm">
             <CardHeader className="pb-3"><CardTitle className="text-base text-white">Quick Links</CardTitle></CardHeader>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 space-y-3">
               <div className="flex flex-wrap gap-2">
-                {([
-                  { label: 'AI Assistant', items: ['Open AI Chat', 'View Conversation History', 'Reset System Prompt'] },
-                  { label: 'Company Branding', items: ['Upload Logo', 'Edit Brand Colors', 'Preview Proposal'] },
-                  { label: 'Labor Rates', items: ['View Rate Table', 'Edit Rates', 'City Comparison'] },
-                  { label: 'Recent Jobs', items: ['Harbor Medical Pavilion', 'Emerald Office Tower', 'Rainier Bank HQ'] },
-                  { label: 'Task Library', items: ['Trash + Liner Replacement', 'Restroom Sanitation', 'Floor Machine Scrub', 'Add Custom Task'] },
-                ] as const).map(link => (
-                  <div key={link.label} className="relative">
-                    <Button
-                      variant="ghost"
-                      className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700"
-                      onClick={() => setQuickLinkOpen(quickLinkOpen === link.label ? null : link.label)}
-                    >
-                      {link.label} {quickLinkOpen === link.label ? '▲' : '▼'}
-                    </Button>
-                    {quickLinkOpen === link.label && (
-                      <div className="absolute left-0 top-10 z-50 min-w-[180px] rounded-2xl border border-border/60 bg-white shadow-lg overflow-hidden">
-                        {link.items.map(item => (
-                          <button
-                            key={item}
-                            className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                            onClick={() => setQuickLinkOpen(null)}
-                          >
-                            {item}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                {(['AI Assistant', 'Company Branding', 'Labor Rates', 'Recent Jobs', 'Task Library'] as const).map(label => (
+                  <Button key={label} variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700" onClick={() => setQuickLinkOpen(quickLinkOpen === label ? null : label)}>
+                    {label} {quickLinkOpen === label ? '▲' : '▼'}
+                  </Button>
                 ))}
               </div>
+
+              {quickLinkOpen === 'Labor Rates' && (
+                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
+                  <table className="w-full">
+                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">City</th><th className="px-2 py-1">$/hr</th><th className="px-2 py-1">Cost/sqft</th></tr></thead>
+                    <tbody>{CITY_RATES.map(c => (<tr key={c.city} className={`border-t border-white/10 ${c.highlight ? 'bg-white/20 font-semibold' : ''}`}><td className="px-2 py-1">{c.city}{c.highlight ? ' ★' : ''}</td><td className="px-2 py-1 text-center">${c.rate}</td><td className="px-2 py-1 text-center">${c.sqftCost.toFixed(3)}</td></tr>))}</tbody>
+                  </table>
+                </div>
+              )}
+
+              {quickLinkOpen === 'Recent Jobs' && (
+                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
+                  <table className="w-full">
+                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">Client</th><th className="px-2 py-1">Type</th><th className="px-2 py-1">Value</th><th className="px-2 py-1">Status</th></tr></thead>
+                    <tbody>{salesRecords.slice(0, 6).map(r => (<tr key={r.id} className="border-t border-white/10"><td className="px-2 py-1">{r.client.split(' ').slice(0, 2).join(' ')}</td><td className="px-2 py-1">{r.buildingType}</td><td className="px-2 py-1">{currency(r.proposedMonthlyPrice)}</td><td className="px-2 py-1"><span className={r.outcome === 'Won' ? 'text-emerald-300' : r.outcome === 'Lost' ? 'text-rose-300' : 'text-amber-300'}>{r.outcome}</span></td></tr>))}</tbody>
+                  </table>
+                </div>
+              )}
+
+              {quickLinkOpen === 'Task Library' && (
+                <div className="rounded-2xl overflow-hidden bg-white/10 text-white text-xs">
+                  <table className="w-full">
+                    <thead className="bg-white/20"><tr><th className="px-2 py-1 text-left">Task</th><th className="px-2 py-1">Frequency</th></tr></thead>
+                    <tbody>{scope.map(r => (<tr key={r.id} className="border-t border-white/10"><td className="px-2 py-1">{r.task}</td><td className="px-2 py-1">{r.frequency}</td></tr>))}</tbody>
+                  </table>
+                </div>
+              )}
+
+              {quickLinkOpen === 'AI Assistant' && (
+                <Textarea className="rounded-2xl text-xs bg-white/10 text-white placeholder:text-white/50 border-white/20 min-h-20" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} />
+              )}
+
+              {quickLinkOpen === 'Company Branding' && (
+                <div className="space-y-2 text-xs">
+                  {[['Company Name', 'CleanScope AI'], ['Tagline', 'Precision Cleaning. Proven Results.'], ['Primary Colour', '#1d4ed8'], ['Logo URL', 'https://kluje.com/logo.png']].map(([label, ph]) => (
+                    <div key={label} className="flex items-center gap-2"><span className="w-28 shrink-0 text-white/70">{label}</span><Input className="rounded-xl h-7 text-xs bg-white/10 text-white border-white/20 placeholder:text-white/40 flex-1" placeholder={ph} /></div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <Card className="rounded-3xl">
             <CardHeader><CardTitle className="text-base">CleanScope AI v1.0</CardTitle></CardHeader>
-            <CardContent><Textarea className="min-h-28 rounded-2xl text-xs" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} /></CardContent>
+            <CardContent className="space-y-3">
+              <Textarea className="min-h-20 rounded-2xl text-xs" value={assistantPrompt} onChange={e => setAssistantPrompt(e.target.value)} />
+              <div className="rounded-2xl bg-muted/40 p-3 space-y-2 text-xs">
+                <p className="font-semibold text-sm">Active Contracts</p>
+                {salesRecords.filter(r => r.outcome === 'Won').map(r => (
+                  <div key={r.id} className="flex justify-between border-b border-border/40 pb-1">
+                    <span className="text-muted-foreground truncate max-w-[140px]">{r.client}</span>
+                    <span className="font-medium text-emerald-600">{currency(r.actualWonPrice)}/mo</span>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-2xl bg-muted/40 p-3 space-y-2 text-xs">
+                <p className="font-semibold text-sm">Open Pipeline</p>
+                {salesRecords.filter(r => r.outcome === 'Open').map(r => (
+                  <div key={r.id} className="flex justify-between border-b border-border/40 pb-1">
+                    <span className="text-muted-foreground truncate max-w-[140px]">{r.client}</span>
+                    <span className="font-medium text-amber-600">{currency(r.proposedMonthlyPrice)}/mo</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
           </Card>
         </div>
       </div>

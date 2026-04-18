@@ -1460,6 +1460,66 @@ export default function JanitorialDashboard() {
 
         {consentSubTab === 'policy' && (
           <div className="space-y-4">
+
+            {/* ── Copyright & Proprietary Ownership ── */}
+            <Card className="rounded-3xl border-amber-500/30 bg-amber-500/5">
+              <CardHeader><CardTitle className="text-base">Copyright &amp; Intellectual Property Notice</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-1">
+                  <p className="font-bold text-amber-900 text-sm">© 2024–2026 Divitiae Terrae LLC. All Rights Reserved.</p>
+                  <p className="text-xs text-amber-800">
+                    <strong>CleanScope AI</strong> and <strong>CleanScope</strong> are proprietary names, brands, and software products owned exclusively by Divitiae Terrae LLC ("the Company"), a Wyoming limited liability company. All source code, design, user interface elements, algorithms, data structures, documentation, and associated intellectual property comprising CleanScope AI and CleanScope are protected under applicable United States and international copyright law, including the Copyright Act of 1976 (17 U.S.C. § 101 et seq.), and the Berne Convention for the Protection of Literary and Artistic Works.
+                  </p>
+                  <p className="text-xs text-amber-800 pt-1">
+                    Common law copyright in the names <strong>CleanScope AI</strong> and <strong>CleanScope</strong> vests automatically in Divitiae Terrae LLC from the date of first use in commerce. Unauthorized reproduction, distribution, modification, reverse engineering, or use of any portion of this software or its associated trademarks without the express written consent of Divitiae Terrae LLC is strictly prohibited and may result in civil and criminal penalties under applicable law.
+                  </p>
+                  <p className="text-xs text-amber-800 pt-1 italic">
+                    M. Marcus Mommsen, Managing Member · Divitiae Terrae LLC · 1309 Coffeen Avenue, STE 1200, Sheridan, Wyoming 82801, USA · marcus@kluje.com
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-3xl border-slate-400/30 bg-muted/30">
+              <CardHeader><CardTitle className="text-base">Additional Proprietary Software Ownership Measures</CardTitle></CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p className="text-xs text-muted-foreground">The following measures are in place or recommended to strengthen legal ownership and protection of CleanScope AI beyond the basic copyright notice.</p>
+                <div className="space-y-2">
+                  {[
+                    {
+                      title: '1. End-User License Agreement (EULA)',
+                      desc: 'CleanScope AI is licensed, not sold. The EULA expressly prohibits users from modifying, reverse-engineering, decompiling, sublicensing, or redistributing the software or any portion thereof. Access to the platform constitutes acceptance of these terms.',
+                    },
+                    {
+                      title: '2. Written Assignment of Rights',
+                      desc: 'All independent contractors and developers engaged to build or contribute to CleanScope AI are required to execute a written Intellectual Property Assignment Agreement transferring full copyright ownership to Divitiae Terrae LLC prior to commencement of work. "Work for hire" doctrine alone is not relied upon for freelance engagements.',
+                    },
+                    {
+                      title: '3. Trade Secret Protection',
+                      desc: 'Source code, architecture, pricing algorithms, and proprietary data models are treated as trade secrets under the Defend Trade Secrets Act (DTSA), 18 U.S.C. § 1836. Access is restricted on a need-to-know basis. All employees, contractors, and partners are bound by Non-Disclosure Agreements (NDAs). Code is stored in secured, access-controlled private repositories.',
+                    },
+                    {
+                      title: '4. Trademark Protection',
+                      desc: 'Divitiae Terrae LLC asserts common law trademark rights in the names CleanScope AI™ and CleanScope™ based on first use in commerce. Federal trademark registration with the United States Patent and Trademark Office (USPTO) is in process or planned to secure broader statutory protection of the product name, logo, and distinctive UI elements.',
+                    },
+                    {
+                      title: '5. U.S. Copyright Office Registration',
+                      desc: 'Registration of CleanScope AI source code with the U.S. Copyright Office (pursuant to 17 U.S.C. § 408) is maintained or pursued to establish a public record of ownership, enable filing of infringement lawsuits in federal court, and preserve eligibility for statutory damages of up to $150,000 per willful infringement act.',
+                    },
+                    {
+                      title: '6. Code Obfuscation',
+                      desc: 'Compiled and distributed object code is processed through industry-standard obfuscation tooling to scramble identifiers, control flow, and data structures, materially impeding reverse-engineering efforts by unauthorized parties. This measure supplements — and does not replace — the legal protections described above.',
+                    },
+                  ].map(item => (
+                    <div key={item.title} className="rounded-2xl border border-border/60 bg-background p-3 space-y-1">
+                      <p className="font-semibold text-xs text-foreground">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="rounded-3xl border-blue-500/30 bg-blue-500/5">
               <CardHeader><CardTitle className="text-base">Geo-Tracking &amp; Location Policy</CardTitle></CardHeader>
               <CardContent className="space-y-3 text-sm">

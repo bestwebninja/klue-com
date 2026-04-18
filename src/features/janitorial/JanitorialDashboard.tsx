@@ -466,6 +466,9 @@ export default function JanitorialDashboard() {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteClientId, setInviteClientId] = useState('');
 
+  // ── quick links dropdown ──
+  const [quickLinkOpen, setQuickLinkOpen] = useState<string | null>(null);
+
   // ── legal & consent ──
   const [companyTrackingEnabled, setCompanyTrackingEnabled] = useState(true);
   const [staffTrackingEnabled, setStaffTrackingEnabled] = useState<Record<string, boolean>>({ st1: true, st2: true, st3: true, st4: true, st5: false });
@@ -1792,7 +1795,40 @@ export default function JanitorialDashboard() {
 
           <Card className="overflow-hidden rounded-3xl border-0 bg-gradient-to-r from-sky-800 via-blue-700 to-indigo-700 text-white shadow-sm">
             <CardHeader className="pb-3"><CardTitle className="text-base text-white">Quick Links</CardTitle></CardHeader>
-            <CardContent className="pt-0"><div className="flex flex-wrap gap-2">{['AI Assistant', 'Company Branding', 'Labor Rates', 'Recent Jobs', 'Task Library'].map(item => (<Button key={item} variant="ghost" className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700">{item}</Button>))}</div></CardContent>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { label: 'AI Assistant', items: ['Open AI Chat', 'View Conversation History', 'Reset System Prompt'] },
+                  { label: 'Company Branding', items: ['Upload Logo', 'Edit Brand Colors', 'Preview Proposal'] },
+                  { label: 'Labor Rates', items: ['View Rate Table', 'Edit Rates', 'City Comparison'] },
+                  { label: 'Recent Jobs', items: ['Harbor Medical Pavilion', 'Emerald Office Tower', 'Rainier Bank HQ'] },
+                  { label: 'Task Library', items: ['Trash + Liner Replacement', 'Restroom Sanitation', 'Floor Machine Scrub', 'Add Custom Task'] },
+                ] as const).map(link => (
+                  <div key={link.label} className="relative">
+                    <Button
+                      variant="ghost"
+                      className="h-9 rounded-xl bg-white/10 px-3 text-sm text-white hover:bg-white hover:text-blue-700"
+                      onClick={() => setQuickLinkOpen(quickLinkOpen === link.label ? null : link.label)}
+                    >
+                      {link.label} {quickLinkOpen === link.label ? '▲' : '▼'}
+                    </Button>
+                    {quickLinkOpen === link.label && (
+                      <div className="absolute left-0 top-10 z-50 min-w-[180px] rounded-2xl border border-border/60 bg-white shadow-lg overflow-hidden">
+                        {link.items.map(item => (
+                          <button
+                            key={item}
+                            className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                            onClick={() => setQuickLinkOpen(null)}
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
           </Card>
 
           <Card className="rounded-3xl">

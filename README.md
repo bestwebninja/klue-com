@@ -1,83 +1,61 @@
-# Kluje Enterprise Platform Monorepo
+# Walk Through Operations Dashboard
 
-Production-ready scaffold aligned with `docs/enterprise-build-spec.md`.
+A React + TypeScript + Tailwind + Supabase dashboard for janitorial/operations walkthrough planning. Teams can manage floors, areas, and tasks with inline edits, then review QA completion and labor/cost summaries.
 
-## Project Structure
+## Stack
 
-- `apps/web` — React + Vite operations dashboard shell
-- `apps/api` — Node.js/Express API with `/api/v1` route groups
-- `packages/shared` — Shared TypeScript domain contracts
-- `infra` — Docker Compose stack + PostgreSQL bootstrap schema
-- `n8n/workflows` — Workflow templates for onboarding, routing, billing, and campaign approvals
+- React + TypeScript
+- Tailwind CSS
+- shadcn/ui-compatible styling patterns
+- Supabase Postgres + Supabase JS client
 
-## Prerequisites
-
-- Node.js 20+
-- npm 10+
-- Docker + Docker Compose (for local infra stack)
-
-## Local Setup (without Docker)
+## Getting Started
 
 1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Add environment variables in `.env` (see `.env.example`).
+3. Run development server:
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm install
-```
+## Environment Variables
 
-2. Start the Vite development server:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-```bash
-npm run dev
-```
+## Supabase Configuration
 
-- Web: `http://localhost:5173`
+- SQL schema and constraints live in `supabase/migrations/`.
+- Apply migrations with your normal Supabase migration workflow (`supabase db push` or CI migration pipeline).
 
-## Command Reference
+## Code Organization
 
-```bash
-npm run dev          # start local web development server
-npm run build        # production build
-npm run build:dev    # development-mode build
-npm run build:verify # alias for build verification
-npm run typecheck    # TypeScript no-emit check
-npm run lint         # ESLint on JS/CJS/MJS files
-npm run preview      # preview built output
-```
+- DB access (CRUD and table mutations): `lib/supabase/`
+- Metrics/business calculations: `lib/metrics/`
+- UI components and page composition: `components/`
+- Schema migration source: `supabase/migrations/`
+- Additional docs: `docs/`
 
-## Local Setup (Docker Compose)
+## CRUD Coverage
 
-```bash
-cd infra
-docker compose up --build
-```
+The data layer centralizes:
 
-Services:
-- Web: `http://localhost:5175`
-- API: `http://localhost:4000/api/v1`
-- Postgres: `localhost:5432`
-- n8n: `http://localhost:5678`
+- Walkthrough creation/fetch
+- Floor add/edit/remove
+- Area add/edit/remove
+- Task add/edit/remove
+- Area-task status toggles
+- Walkthrough settings load/update
 
-## Security Baseline Included
+## Metrics Coverage
 
-- JWT access + refresh tokens on `/api/v1/auth/*`
-- Bearer auth required for campaign, lead, and non-webhook billing endpoints
-- Zod payload validation on route inputs
-- Global and auth-specific rate limiting via `express-rate-limit`
-- `helmet` and CORS origin controls for API headers
+The metrics layer centralizes:
 
-## Build & Typecheck
-
-```bash
-npm run build
-npm run typecheck
-```
-
-## Deployment Checklist
-
-See `docs/deployment-checklist.md` for pre-release checks covering env setup, security, runtime validation, and operations handoff.
-
-## Notes
-
-- API contracts and route conventions are documented in `apps/api/openapi.yaml`.
-- Database bootstrap schema is in `infra/db/schema.sql`.
-- Additional architecture and rollout docs are under `docs/`.
+- Task completion totals and ratios
+- Scope/priority multiplier lookup
+- Staffing requirement calculations
+- Hours and cost calculations
+- Initial risk scoring helper

@@ -59,3 +59,19 @@ The metrics layer centralizes:
 - Staffing requirement calculations
 - Hours and cost calculations
 - Initial risk scoring helper
+
+## AI Build Instructions
+
+Before extending this repository with Lovable or another coding agent, read:
+- `/docs/LOVABLE_INSTRUCTIONS.md`
+
+This repo is continuation-first:
+- extend the existing architecture
+- do not regenerate the app from scratch
+- do not create duplicate systems or alternate file patterns
+
+Required structure:
+- UI lives in `components/`
+- Database logic lives in `lib/supabase/`
+- Metrics and calculations live in `lib/metrics/`
+- SQL schema lives in `supabase/migrations/`

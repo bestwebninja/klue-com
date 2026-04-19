@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { LocationPicker } from '@/components/LocationPicker';
 import {
   Select,
   SelectContent,
@@ -15,47 +16,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  CheckCircle,
-  ArrowRight,
   ArrowLeft,
-  Settings,
-  MapPin,
-  User,
+  ArrowRight,
+  CheckCircle,
   Loader2,
+  MapPin,
+  Settings,
   Sparkles,
+  User,
   X,
-  HardHat,
-  Wrench,
-  Scale,
 } from 'lucide-react';
-
-const GC_OPTIONS = [
-  'General Contractor','Building Contractor','Renovation Contractor',
-  'Project Manager / Site Supervisor','Handyman','Carpentry / Joinery',
-  'Kitchen Renovation','Bathroom Renovation','Flooring Contractor',
-  'Painting & Decorating','Plastering','Tiling','Roofing Contractor',
-  'Window & Door Installation','Paving & Concrete','Waterproofing',
-  'Post-Construction Cleanup',
-];
-const SUB_OPTIONS = [
-  'Electrician','Lighting Specialist','Plumber','HVAC / Air Conditioning',
-  'Landscaping Contractor','Garden Designer','Scaffolding Contractor',
-  'Swimming Pool Contractor','Interior Designer','Cleaning Services',
-  'Maintenance Services','Demolition Contractor','Masonry / Brickwork',
-  'Insulation Contractor','Drywall / Sheetrock','Glass & Glazing',
-  'Custom Furniture / Millwork',
-];
-const PROFESSIONAL_OPTIONS = [
-  'Realtor / Real Estate Agent','Real Estate Attorney','Title Company / Officer',
-  'Architect','Structural Engineer','Civil Engineer',
-  'Town Planner / Zoning Consultant','Insurance Agent / Broker',
-  'Health & Safety Officer','Security Consultant','Arbitration Specialist',
-  'Property Manager','Mortgage Broker / Lender','Home Inspector',
-  'Environmental Consultant',
-];
-import type { Database } from '@/integrations/supabase/types';
-
-type ServiceCategory = Database['public']['Tables']['service_categories']['Row'];
 
 interface ProviderSetupWizardProps {
   userId: string;
@@ -65,395 +35,1007 @@ interface ProviderSetupWizardProps {
 }
 
 type SetupStep = 'profile' | 'services' | 'location' | 'done';
+type YesNo = 'yes' | 'no' | null;
+type HomeownerStatus = 'yes' | 'no' | 'looking_to_buy' | null;
+type ProfessionalRole = 'tradesman' | 'general_contractor' | 'realtor' | 'none' | null;
+
+type OnboardingState = {
+  contactName: string;
+  profileTypes: string[];
+  primaryGoal: string;
+  isVeteran: YesNo;
+  veteranBranch: string;
+  veteranStatus: string;
+  veteranSpecialty: string;
+  isHomeowner: HomeownerStatus;
+  homeownerIntent: string[];
+  professionalRole: ProfessionalRole;
+  yearsExperience: string;
+  licensed: YesNo;
+  insured: YesNo;
+  crewSize: string;
+  realtorFocus: string;
+  realtorConnections: string[];
+  ageRange: string;
+  gender: string;
+  shortIntent: string;
+  mainCategory: string;
+  specificServices: string[];
+  serviceType: string;
+  projectSizePreference: string;
+  budgetRange: string;
+  availability: string;
+  financingInterest: string;
+  growthSupport: string[];
+  city: string;
+  state: string;
+  zipCode: string;
+  serviceRadius: string;
+  additionalZipCodes: string[];
+  remoteAvailable: YesNo;
+  willingToTravel: string;
+  areaInterests: string[];
+  internalFeedConsent: boolean;
+};
+
+const STORAGE_KEY = 'provider_onboarding_state_v2';
+
+const PROFILE_TYPES = [
+  'Homeowner',
+  'Skilled Tradesman',
+  'General Contractor',
+  'Realtor',
+  'Investor',
+  'Veteran',
+  'Small Business Owner',
+  'Property Manager',
+  'Other',
+];
+
+const PRIMARY_GOALS = [
+  'Get job leads',
+  'Find clients',
+  'Hire a contractor',
+  'Grow my business',
+  'Find financing',
+  'Connect with veterans',
+  'Find local partners',
+  'Explore opportunities',
+];
+
+const SERVICE_CONFIG = {
+  provider: {
+    'General Contracting': ['New builds', 'Renovations', 'Tenant improvements', 'Project management'],
+    Electrical: ['Panel upgrades', 'Lighting', 'Rewiring', 'EV charger installs'],
+    Plumbing: ['Pipe repair', 'Water heaters', 'Fixtures', 'Drain services'],
+    HVAC: ['Installations', 'Repairs', 'Ductwork', 'Seasonal tune-ups'],
+    Roofing: ['Leak repairs', 'Re-roofing', 'Inspections', 'Gutter installation'],
+    Painting: ['Interior painting', 'Exterior painting', 'Commercial repaint', 'Stain & seal'],
+    Flooring: ['Hardwood', 'Tile', 'LVP', 'Carpet'],
+    Remodeling: ['Kitchen remodeling', 'Bathroom remodeling', 'Whole-home remodel', 'Additions'],
+    Landscaping: ['Design', 'Irrigation', 'Hardscapes', 'Tree services'],
+    Masonry: ['Brickwork', 'Stone veneer', 'Retaining walls', 'Concrete finishing'],
+    Carpentry: ['Trim carpentry', 'Framing', 'Cabinet installation', 'Deck building'],
+    'Cleaning / Maintenance': ['Turnover cleaning', 'Routine maintenance', 'Pressure washing', 'Janitorial contracts'],
+    'Real Estate': ['Buyer representation', 'Seller representation', 'Property sourcing', 'Listing strategy'],
+    'Homeowner Needs': ['Quick repairs', 'Seasonal prep', 'Renovation planning', 'Trusted contractor match'],
+    'Financing / Lending': ['Project financing', 'HELOC support', 'Business lines', 'Equipment financing'],
+    Other: ['Custom service package', 'Specialty consulting'],
+  },
+  homeowner: {
+    'Homeowner Needs': ['Renovations', 'Repairs', 'Maintenance', 'Energy upgrades', 'Financing options'],
+    Remodeling: ['Kitchen makeover', 'Bathroom refresh', 'Basement finishing', 'Accessibility updates'],
+    Roofing: ['Leak fixes', 'Roof replacement', 'Storm restoration'],
+    Landscaping: ['Curb appeal', 'Drainage fixes', 'Outdoor living'],
+    'Financing / Lending': ['Pre-approval guidance', 'Home improvement loans', 'Budget planning'],
+    Other: ['Not sure yet, need guidance'],
+  },
+  realtor: {
+    'Real Estate': ['Contractor partner network', 'Investor referrals', 'Property prep', 'Project coordination'],
+    Remodeling: ['Flip-ready teams', 'Staging upgrades', 'Value-add scope planning'],
+    'General Contracting': ['Bid coordination', 'Renovation oversight', 'Inspection punch lists'],
+    'Financing / Lending': ['Bridge loans', 'Investor financing', 'Buyer financing partners'],
+    Other: ['Strategic local partnerships'],
+  },
+} as const;
+
+const initOnboardingState = (): OnboardingState => ({
+  contactName: '',
+  profileTypes: [],
+  primaryGoal: '',
+  isVeteran: null,
+  veteranBranch: '',
+  veteranStatus: '',
+  veteranSpecialty: '',
+  isHomeowner: null,
+  homeownerIntent: [],
+  professionalRole: null,
+  yearsExperience: '',
+  licensed: null,
+  insured: null,
+  crewSize: '',
+  realtorFocus: '',
+  realtorConnections: [],
+  ageRange: '',
+  gender: '',
+  shortIntent: '',
+  mainCategory: '',
+  specificServices: [],
+  serviceType: '',
+  projectSizePreference: '',
+  budgetRange: '',
+  availability: '',
+  financingInterest: '',
+  growthSupport: [],
+  city: '',
+  state: '',
+  zipCode: '',
+  serviceRadius: 'zip_only',
+  additionalZipCodes: [],
+  remoteAvailable: null,
+  willingToTravel: '',
+  areaInterests: [],
+  internalFeedConsent: false,
+});
 
 const ProviderSetupWizard = ({ userId, companyName, onComplete, onDismiss }: ProviderSetupWizardProps) => {
   const [step, setStep] = useState<SetupStep>('profile');
-  const [fullName, setFullName] = useState('');
-  const [bio, setBio] = useState('');
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [gcType, setGcType] = useState('');
-  const [subType, setSubType] = useState('');
-  const [profType, setProfType] = useState('');
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<{
-    address: string;
-    city: string;
-    postcode: string;
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [state, setState] = useState<OnboardingState>(initOnboardingState);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [zipInput, setZipInput] = useState('');
+  const [serviceSearch, setServiceSearch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const mainCategories = categories.filter(c => !c.parent_id);
-  const subCategories = categories.filter(c => c.parent_id === selectedMainCategory);
-
-  useEffect(() => {
-    fetchCategories();
-    fetchExistingProfile();
-    checkSignupMetadata();
+  const trackEvent = useCallback((event: string, payload: Record<string, unknown>) => {
+    // analytics hook stub
+    console.debug('[analytics]', event, payload);
   }, []);
 
-  const fetchCategories = async () => {
-    const { data } = await supabase
-      .from('service_categories')
-      .select('*')
-      .order('name');
-    if (data) setCategories(data);
-  };
+  useEffect(() => {
+    trackEvent('onboarding_step_viewed', { step });
+  }, [step, trackEvent]);
 
-  const fetchExistingProfile = async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('full_name, bio')
-      .eq('id', userId)
-      .maybeSingle();
-    if (data) {
-      setFullName(data.full_name || '');
-      setBio(data.bio || '');
-    }
-  };
-
-  // Auto-populate from signup metadata
-  const checkSignupMetadata = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.user_metadata) return;
-
-    const meta = user.user_metadata;
-    const signupServices = meta.selected_services as string[] | undefined;
-
-    if (signupServices && signupServices.length > 0) {
-      // Fetch categories then auto-save services
-      const { data: cats } = await supabase
-        .from('service_categories')
-        .select('*')
-        .order('name');
-      if (!cats) return;
-
-      const { categoryIds } = mapServicesToCategoryIds(signupServices, cats);
-
-      if (categoryIds.length > 0) {
-        // Check if already saved
-        const { data: existing } = await supabase
-          .from('provider_services')
-          .select('id')
-          .eq('provider_id', userId)
-          .limit(1);
-
-        if (!existing || existing.length === 0) {
-          const insertData = categoryIds.map(categoryId => ({
-            provider_id: userId,
-            category_id: categoryId,
-          }));
-          await supabase.from('provider_services').insert(insertData);
-        }
-
-        // Skip to location step since services are done
-        setStep('location');
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        setState({ ...initOnboardingState(), ...JSON.parse(saved) });
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
+
+  useEffect(() => {
+    const hydrateProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, city, state, zip_code, bio')
+        .eq('id', userId)
+        .maybeSingle();
+      if (!data) return;
+
+      setState(prev => ({
+        ...prev,
+        contactName: prev.contactName || data.full_name || '',
+        city: prev.city || data.city || '',
+        state: prev.state || data.state || '',
+        zipCode: prev.zipCode || data.zip_code || '',
+        shortIntent: prev.shortIntent || data.bio || '',
+      }));
+    };
+
+    hydrateProfile();
+  }, [userId]);
+
+  const flowType = useMemo<'provider' | 'homeowner' | 'realtor'>(() => {
+    const isRealtor = state.profileTypes.includes('Realtor') || state.professionalRole === 'realtor';
+    const isProvider =
+      state.profileTypes.some(type => ['Skilled Tradesman', 'General Contractor', 'Small Business Owner', 'Property Manager'].includes(type)) ||
+      ['tradesman', 'general_contractor'].includes(state.professionalRole ?? '');
+
+    if (isRealtor) return 'realtor';
+    if (!isProvider && state.profileTypes.includes('Homeowner')) return 'homeowner';
+    return 'provider';
+  }, [state.profileTypes, state.professionalRole]);
+
+  const mainCategories = useMemo(() => Object.keys(SERVICE_CONFIG[flowType]), [flowType]);
+
+  const filteredSpecificServices = useMemo(() => {
+    const options = state.mainCategory
+      ? SERVICE_CONFIG[flowType][state.mainCategory as keyof (typeof SERVICE_CONFIG)[typeof flowType]] || []
+      : [];
+
+    if (!serviceSearch.trim()) return options;
+    return options.filter(option => option.toLowerCase().includes(serviceSearch.toLowerCase()));
+  }, [flowType, serviceSearch, state.mainCategory]);
+
+  const stepTitles: Record<Exclude<SetupStep, 'done'>, string> = {
+    profile: 'Profile',
+    services: 'Services',
+    location: 'Location',
   };
 
-  const toggleSubcategory = (id: string) => {
-    setSelectedSubcategories(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+  const setField = <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => {
+    setState(prev => ({ ...prev, [key]: value }));
+    setErrors(prev => ({ ...prev, [String(key)]: '' }));
+    trackEvent('onboarding_field_updated', { field: key, value });
+  };
+
+  const toggleArrayValue = (key: keyof OnboardingState, value: string) => {
+    const list = state[key] as string[];
+    const next = list.includes(value) ? list.filter(v => v !== value) : [...list, value];
+    setField(key as never, next as never);
+  };
+
+  const validateStep = (target: Exclude<SetupStep, 'done'>) => {
+    const nextErrors: Record<string, string> = {};
+
+    if (target === 'profile') {
+      if (!state.contactName.trim()) nextErrors.contactName = 'Contact name is required.';
+      if (state.profileTypes.length === 0) nextErrors.profileTypes = 'Select at least one profile type.';
+      if (!state.primaryGoal) nextErrors.primaryGoal = 'Choose your primary goal.';
+      if (!state.isHomeowner) nextErrors.isHomeowner = 'Please choose your homeowner status.';
+      if (!state.professionalRole) nextErrors.professionalRole = 'Please select your professional role.';
+      if (state.isVeteran === 'yes' && !state.veteranStatus) nextErrors.veteranStatus = 'Please select veteran status.';
+      if (['tradesman', 'general_contractor'].includes(state.professionalRole ?? '') && !state.yearsExperience) {
+        nextErrors.yearsExperience = 'Years of experience is required for service pros.';
+      }
+      if (state.professionalRole === 'realtor' && !state.realtorFocus) nextErrors.realtorFocus = 'Select your realtor focus.';
+    }
+
+    if (target === 'services') {
+      if (!state.mainCategory) nextErrors.mainCategory = 'Main category is required.';
+      if (!state.serviceType) nextErrors.serviceType = 'Select a service type.';
+      if (!state.projectSizePreference) nextErrors.projectSizePreference = 'Project size preference is required.';
+      if (!state.availability) nextErrors.availability = 'Availability is required.';
+      if (!state.financingInterest) nextErrors.financingInterest = 'Please select financing preference.';
+    }
+
+    if (target === 'location') {
+      if (!state.city.trim()) nextErrors.city = 'City is required.';
+      if (!state.state.trim()) nextErrors.state = 'State is required.';
+      if (!state.zipCode.trim()) nextErrors.zipCode = 'ZIP code is required.';
+      if (!/^\d{5}$/.test(state.zipCode.trim())) nextErrors.zipCode = 'Please enter a valid 5-digit ZIP code.';
+      if (!state.willingToTravel) nextErrors.willingToTravel = 'Please select travel preference.';
+      if (!state.remoteAvailable) nextErrors.remoteAvailable = 'Please choose remote availability.';
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const userArchetype = useMemo(() => {
+    if (state.isVeteran === 'yes' && state.professionalRole === 'general_contractor') return 'Veteran Contractor Seeking Leads';
+    if (flowType === 'homeowner') return 'Homeowner Seeking Renovation Help';
+    if (flowType === 'realtor') return 'Realtor Building Local Contractor Network';
+    return 'Tradesman Looking for Growth and Financing';
+  }, [flowType, state.isVeteran, state.professionalRole]);
+
+  const matchingSummary = useMemo(
+    () => ({
+      archetype: userArchetype,
+      goals: {
+        primaryGoal: state.primaryGoal,
+        shortIntent: state.shortIntent,
+        growthSupport: state.growthSupport,
+      },
+      profileSignals: {
+        profileTypes: state.profileTypes,
+        professionalRole: state.professionalRole,
+        veteranStatus: state.veteranStatus,
+        homeownerStatus: state.isHomeowner,
+      },
+      serviceSignals: {
+        mainCategory: state.mainCategory,
+        specificServices: state.specificServices,
+        projectSizePreference: state.projectSizePreference,
+        budgetRange: state.budgetRange,
+        financingInterest: state.financingInterest,
+      },
+      locationSignals: {
+        city: state.city,
+        state: state.state,
+        zipCode: state.zipCode,
+        radius: state.serviceRadius,
+        additionalZipCodes: state.additionalZipCodes,
+      },
+    }),
+    [state, userArchetype],
+  );
+
+  const handleNext = async () => {
+    if (step === 'profile') {
+      if (!validateStep('profile')) return;
+      trackEvent('onboarding_step_completed', { step: 'profile' });
+      setStep('services');
+      return;
+    }
+
+    if (step === 'services') {
+      if (!validateStep('services')) return;
+      trackEvent('onboarding_step_completed', { step: 'services', branch: flowType });
+      setStep('location');
+      return;
+    }
+
+    if (step !== 'location') return;
+    if (!validateStep('location')) return;
+
+    setIsLoading(true);
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        full_name: state.contactName,
+        bio: state.shortIntent || null,
+        city: state.city,
+        state: state.state,
+        zip_code: state.zipCode,
+        services_offered: state.specificServices,
+      })
+      .eq('id', userId);
+
+    const address = `${state.city}, ${state.state} ${state.zipCode}`;
+    const { error: locationError } = await supabase
+      .from('provider_locations')
+      .upsert(
+        {
+          provider_id: userId,
+          address,
+          city: state.city,
+          postcode: state.zipCode,
+          is_primary: true,
+        },
+        { onConflict: 'provider_id,address' },
+      );
+
+    setIsLoading(false);
+
+    if (profileError || locationError) {
+      toast({ title: 'Error', description: 'Unable to complete onboarding. Please try again.', variant: 'destructive' });
+      return;
+    }
+
+    trackEvent('onboarding_step_completed', { step: 'location' });
+    trackEvent('onboarding_completed', { archetype: userArchetype, summary: matchingSummary });
+    setStep('done');
+  };
+
+  const handleAddZip = () => {
+    const trimmed = zipInput.trim();
+    if (!/^\d{5}$/.test(trimmed) || state.additionalZipCodes.includes(trimmed)) return;
+    setField('additionalZipCodes', [...state.additionalZipCodes, trimmed]);
+    setZipInput('');
+  };
+
+  const branchInfo = (message: string, branch: string) => {
+    trackEvent('onboarding_branch_triggered', { branch });
+    return (
+      <div className="rounded-xl border border-amber-300/40 bg-amber-400/10 p-3 text-sm text-amber-100">
+        {message}
+      </div>
     );
   };
 
-  const handleSaveProfile = async () => {
-    if (!fullName.trim()) {
-      toast({ title: 'Name required', description: 'Please enter your contact name.', variant: 'destructive' });
-      return;
-    }
-    setIsLoading(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ full_name: fullName.trim(), bio: bio.trim() || null })
-      .eq('id', userId);
-    setIsLoading(false);
-
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to save profile.', variant: 'destructive' });
-    } else {
-      setStep('services');
-    }
-  };
-
-  const handleSaveServices = async () => {
-    const chosen = [gcType, subType, profType].filter(Boolean);
-    if (chosen.length === 0) {
-      toast({ title: 'Category required', description: 'Please select at least one category type.', variant: 'destructive' });
-      return;
-    }
-    setIsLoading(true);
-
-    // Save service_type_key to profile
-    const serviceTypeKey = gcType ? 'general_contractor' : subType ? 'subcontractor' : 'professional';
-    const serviceTypeLabel = gcType || subType || profType;
-    await (supabase.from('profiles').update({
-      service_type_key: serviceTypeKey,
-      service_type_label: serviceTypeLabel,
-    } as any).eq('id', userId));
-
-    setIsLoading(false);
-    setStep('location');
-  };
-
-  const handleSaveLocation = async () => {
-    if (!selectedLocation) {
-      toast({ title: 'Location required', description: 'Please select your service area.', variant: 'destructive' });
-      return;
-    }
-    setIsLoading(true);
-
-    const { error } = await supabase.from('provider_locations').insert({
-      provider_id: userId,
-      address: selectedLocation.address,
-      city: selectedLocation.city,
-      postcode: selectedLocation.postcode,
-      latitude: selectedLocation.latitude,
-      longitude: selectedLocation.longitude,
-      is_primary: true,
-    });
-    setIsLoading(false);
-
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to save location.', variant: 'destructive' });
-    } else {
-      setStep('done');
-    }
-  };
-
-  const steps: { key: SetupStep; label: string; icon: typeof Settings }[] = [
-    { key: 'profile', label: 'Profile', icon: User },
-    { key: 'services', label: 'Services', icon: Settings },
-    { key: 'location', label: 'Location', icon: MapPin },
-  ];
-
-  const currentIndex = steps.findIndex(s => s.key === step);
-
   if (step === 'done') {
     return (
-      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5">
+      <Card className="border-amber-300/40 bg-[#0a1b3d] text-white">
         <CardContent className="py-10 text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Sparkles className="w-8 h-8 text-primary" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-300/20">
+            <Sparkles className="h-7 w-7 text-amber-300" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">You're all set!</h2>
-          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Your profile is ready. You'll now see job leads matching your services. Upgrade to Pro to start quoting.
+          <h2 className="text-2xl font-bold">Your adaptive profile is ready.</h2>
+          <p className="mt-2 text-sm text-slate-200">
+            Archetype: <span className="font-semibold text-amber-200">{userArchetype}</span>
           </p>
-          <Button size="lg" onClick={onComplete}>
+          <p className="mt-3 text-sm text-slate-300">We use your profile to surface the right projects, partners, and programs.</p>
+          <Button className="mt-6 bg-amber-400 text-slate-900 hover:bg-amber-300" size="lg" onClick={onComplete}>
             Go to Dashboard
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>
       </Card>
     );
   }
 
+  const steps: { key: Exclude<SetupStep, 'done'>; label: string; icon: typeof User }[] = [
+    { key: 'profile', label: 'Profile', icon: User },
+    { key: 'services', label: 'Services', icon: Settings },
+    { key: 'location', label: 'Location', icon: MapPin },
+  ];
+
+  const currentIndex = steps.findIndex(item => item.key === step);
+
   return (
-    <Card className="border-primary/30">
+    <Card className="border-amber-300/40 bg-[#0a1b3d] text-white">
       <CardContent className="pt-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+              <Sparkles className="h-5 w-5 text-amber-300" />
               Complete Your Setup
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Finish setting up your profile to start receiving job leads.
+            <p className="mt-1 text-sm text-slate-300">
+              Answering a few details helps us match you to the best leads, tools, and local connections.
             </p>
+            {companyName ? <p className="mt-1 text-xs text-slate-400">Company: {companyName}</p> : null}
           </div>
-          <Button variant="ghost" size="icon" onClick={onDismiss} className="text-muted-foreground">
-            <X className="w-4 h-4" />
+          <Button variant="ghost" size="icon" onClick={onDismiss} className="text-slate-300 hover:text-white">
+            <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Step indicator */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          {steps.map((s, i) => (
-            <div key={s.key} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
-                step === s.key
-                  ? 'bg-primary text-primary-foreground'
-                  : currentIndex > i
-                    ? 'bg-primary/20 text-primary'
-                    : 'bg-muted text-muted-foreground'
-              }`}>
-                {currentIndex > i ? <CheckCircle className="w-4 h-4" /> : i + 1}
+        <div className="mb-8 flex items-center justify-center gap-2">
+          {steps.map((item, index) => (
+            <div key={item.key} className="flex items-center gap-2">
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                  currentIndex === index
+                    ? 'bg-amber-300 text-slate-900'
+                    : currentIndex > index
+                      ? 'bg-emerald-500/30 text-emerald-200'
+                      : 'bg-slate-700 text-slate-300'
+                }`}
+              >
+                {currentIndex > index ? <CheckCircle className="h-4 w-4" /> : index + 1}
               </div>
-              <span className={`text-xs font-medium hidden sm:inline ${step === s.key ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {s.label}
+              <span className={`hidden text-xs sm:inline ${currentIndex === index ? 'text-amber-200' : 'text-slate-300'}`}>
+                {item.label}
               </span>
-              {i < steps.length - 1 && <div className={`w-6 sm:w-10 h-0.5 ${currentIndex > i ? 'bg-primary/40' : 'bg-muted'}`} />}
+              {index < steps.length - 1 ? (
+                <div className={`h-0.5 w-8 sm:w-12 ${currentIndex > index ? 'bg-amber-300/80' : 'bg-slate-700'}`} />
+              ) : null}
             </div>
           ))}
         </div>
 
-        {/* Step 1: Profile */}
-        {step === 'profile' && (
-          <div className="space-y-4 max-w-lg mx-auto">
-            <div>
-              <Label htmlFor="setup-name">Contact Name <span className="text-destructive">*</span></Label>
-              <Input
-                id="setup-name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="John Smith"
-              />
-              <p className="text-xs text-muted-foreground mt-1">Your name as the primary business contact.</p>
+        {step === 'profile' ? (
+          <div className="mx-auto max-w-3xl space-y-5">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <Label htmlFor="contactName">Contact Name *</Label>
+                <Input
+                  id="contactName"
+                  value={state.contactName}
+                  onChange={e => setField('contactName', e.target.value)}
+                  placeholder="Jane Smith"
+                  className="mt-1 rounded-xl border-slate-500 bg-slate-900"
+                />
+                <p className="mt-1 text-xs text-slate-300">This identifies your primary account contact.</p>
+                {errors.contactName ? <p className="text-xs text-red-300">{errors.contactName}</p> : null}
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Profile Type *</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {PROFILE_TYPES.map(option => (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => toggleArrayValue('profileTypes', option)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                        state.profileTypes.includes(option)
+                          ? 'border-amber-300 bg-amber-300 text-slate-900'
+                          : 'border-slate-500 bg-slate-800 text-slate-200'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-xs text-slate-300">We use this to route leads, connections, and resources.</p>
+                {errors.profileTypes ? <p className="text-xs text-red-300">{errors.profileTypes}</p> : null}
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Primary Goal *</Label>
+                <Select value={state.primaryGoal} onValueChange={value => setField('primaryGoal', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900">
+                    <SelectValue placeholder="Select your main onboarding goal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRIMARY_GOALS.map(goal => (
+                      <SelectItem key={goal} value={goal}>
+                        {goal}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.primaryGoal ? <p className="text-xs text-red-300">{errors.primaryGoal}</p> : null}
+              </div>
+
+              <div>
+                <Label>Are you a veteran?</Label>
+                <Select value={state.isVeteran ?? ''} onValueChange={value => setField('isVeteran', value as YesNo)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900">
+                    <SelectValue placeholder="Choose one" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Do you own a home? *</Label>
+                <Select value={state.isHomeowner ?? ''} onValueChange={value => setField('isHomeowner', value as HomeownerStatus)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900">
+                    <SelectValue placeholder="Choose one" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="looking_to_buy">Looking to buy</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.isHomeowner ? <p className="text-xs text-red-300">{errors.isHomeowner}</p> : null}
+              </div>
+
+              {state.isVeteran === 'yes' ? (
+                <div className="space-y-3 md:col-span-2">
+                  {branchInfo(
+                    'We proudly connect veterans with other veterans, local opportunities, business support, and growth tools.',
+                    'veteran_yes',
+                  )}
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <Label>Branch</Label>
+                      <Input value={state.veteranBranch} onChange={e => setField('veteranBranch', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                    </div>
+                    <div>
+                      <Label>Status *</Label>
+                      <Select value={state.veteranStatus} onValueChange={value => setField('veteranStatus', value)}>
+                        <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900">
+                          <SelectValue placeholder="Veteran status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Veteran">Veteran</SelectItem>
+                          <SelectItem value="Active Duty">Active Duty</SelectItem>
+                          <SelectItem value="Reservist">Reservist</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.veteranStatus ? <p className="text-xs text-red-300">{errors.veteranStatus}</p> : null}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Military specialty (optional)</Label>
+                    <Input value={state.veteranSpecialty} onChange={e => setField('veteranSpecialty', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                  </div>
+                </div>
+              ) : null}
+
+              {state.isHomeowner === 'yes' ? (
+                <div className="md:col-span-2">
+                  <Label>Homeowner interests</Label>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {['renovations', 'repairs', 'maintenance', 'investment property', 'financing'].map(option => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => toggleArrayValue('homeownerIntent', option)}
+                        className={`rounded-full border px-3 py-1 text-xs ${
+                          state.homeownerIntent.includes(option) ? 'border-amber-300 bg-amber-300 text-slate-900' : 'border-slate-500 bg-slate-800'
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {state.isHomeowner === 'no' || state.isHomeowner === 'looking_to_buy' ? (
+                <div className="md:col-span-2">
+                  {branchInfo('You can access homeownership and financing resources based on your goals.', 'homeowner_resources')}
+                </div>
+              ) : null}
+
+              <div>
+                <Label>Professional Role *</Label>
+                <Select value={state.professionalRole ?? ''} onValueChange={value => setField('professionalRole', value as ProfessionalRole)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900">
+                    <SelectValue placeholder="Choose your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tradesman">Skilled tradesman</SelectItem>
+                    <SelectItem value="general_contractor">General contractor</SelectItem>
+                    <SelectItem value="realtor">Realtor</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.professionalRole ? <p className="text-xs text-red-300">{errors.professionalRole}</p> : null}
+              </div>
+
+              {(state.professionalRole === 'tradesman' || state.professionalRole === 'general_contractor') && (
+                <>
+                  <div>
+                    <Label>Years of experience *</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={state.yearsExperience}
+                      onChange={e => setField('yearsExperience', e.target.value)}
+                      className="mt-1 rounded-xl border-slate-500 bg-slate-900"
+                    />
+                    {errors.yearsExperience ? <p className="text-xs text-red-300">{errors.yearsExperience}</p> : null}
+                  </div>
+                  <div>
+                    <Label>Crew size</Label>
+                    <Input value={state.crewSize} onChange={e => setField('crewSize', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                  </div>
+                  <div>
+                    <Label>Licensed?</Label>
+                    <Select value={state.licensed ?? ''} onValueChange={value => setField('licensed', value as YesNo)}>
+                      <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Choose" /></SelectTrigger>
+                      <SelectContent><SelectItem value="yes">Yes</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Insured?</Label>
+                    <Select value={state.insured ?? ''} onValueChange={value => setField('insured', value as YesNo)}>
+                      <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Choose" /></SelectTrigger>
+                      <SelectContent><SelectItem value="yes">Yes</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
+              {state.professionalRole === 'realtor' && (
+                <>
+                  <div>
+                    <Label>Realtor focus *</Label>
+                    <Select value={state.realtorFocus} onValueChange={value => setField('realtorFocus', value)}>
+                      <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Choose focus" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="residential">Residential</SelectItem>
+                        <SelectItem value="commercial">Commercial</SelectItem>
+                        <SelectItem value="both">Both</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.realtorFocus ? <p className="text-xs text-red-300">{errors.realtorFocus}</p> : null}
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Who do you want to connect with?</Label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {['contractors', 'investors', 'homeowners', 'vendors'].map(option => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => toggleArrayValue('realtorConnections', option)}
+                          className={`rounded-full border px-3 py-1 text-xs ${
+                            state.realtorConnections.includes(option) ? 'border-amber-300 bg-amber-300 text-slate-900' : 'border-slate-500 bg-slate-800'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <Label>Age range</Label>
+                <Input value={state.ageRange} onChange={e => setField('ageRange', e.target.value)} placeholder="e.g. 35-44" className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+              </div>
+              <div>
+                <Label>Gender (optional)</Label>
+                <Input value={state.gender} onChange={e => setField('gender', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="shortIntent">What are you hoping to achieve in the next 90 days?</Label>
+                <Textarea
+                  id="shortIntent"
+                  value={state.shortIntent}
+                  onChange={e => setField('shortIntent', e.target.value)}
+                  className="mt-1 min-h-[90px] rounded-xl border-slate-500 bg-slate-900"
+                />
+                <p className="mt-1 text-xs text-slate-300">This helps us personalize your matches and opportunities.</p>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="setup-bio">About Your Business</Label>
-              <textarea
-                id="setup-bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell customers about your business, experience, and what sets you apart..."
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[100px] resize-y"
-                rows={4}
-              />
+          </div>
+        ) : null}
+
+        {step === 'services' ? (
+          <div className="mx-auto max-w-3xl space-y-5">
+            <div className="rounded-xl border border-slate-500/60 bg-slate-900/70 p-3 text-sm text-slate-200">
+              {flowType === 'homeowner'
+                ? 'What kind of help do you need?'
+                : flowType === 'realtor'
+                  ? 'What types of project partners and deals are you looking for?'
+                  : 'Build your service profile so we can match leads and opportunities accurately.'}
             </div>
-            <Button onClick={handleSaveProfile} className="w-full" disabled={isLoading}>
-              {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              Continue to Services
-              <ArrowRight className="w-4 h-4 ml-2" />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label>Main Service Category *</Label>
+                <Select
+                  value={state.mainCategory}
+                  onValueChange={value => {
+                    setField('mainCategory', value);
+                    setField('specificServices', []);
+                  }}
+                >
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectContent>
+                    {mainCategories.map(category => <SelectItem key={category} value={category}>{category}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {errors.mainCategory ? <p className="text-xs text-red-300">{errors.mainCategory}</p> : null}
+              </div>
+
+              <div>
+                <Label>Service Type *</Label>
+                <Select value={state.serviceType} onValueChange={value => setField('serviceType', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="residential">Residential</SelectItem>
+                    <SelectItem value="commercial">Commercial</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.serviceType ? <p className="text-xs text-red-300">{errors.serviceType}</p> : null}
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Specific Services Offered</Label>
+                <Input
+                  value={serviceSearch}
+                  onChange={e => setServiceSearch(e.target.value)}
+                  placeholder="Search services"
+                  className="mt-1 rounded-xl border-slate-500 bg-slate-900"
+                />
+                <div className="mt-2 flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-xl border border-slate-600 p-2">
+                  {filteredSpecificServices.map(option => (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => toggleArrayValue('specificServices', option)}
+                      className={`rounded-full border px-3 py-1 text-xs ${
+                        state.specificServices.includes(option) ? 'border-amber-300 bg-amber-300 text-slate-900' : 'border-slate-500 bg-slate-800'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Project Size Preference *</Label>
+                <Select value={state.projectSizePreference} onValueChange={value => setField('projectSizePreference', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select preference" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small_jobs">Small jobs</SelectItem>
+                    <SelectItem value="medium_projects">Medium projects</SelectItem>
+                    <SelectItem value="large_projects">Large projects</SelectItem>
+                    <SelectItem value="ongoing_contracts">Ongoing contracts</SelectItem>
+                    <SelectItem value="consulting_only">Consulting only</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.projectSizePreference ? <p className="text-xs text-red-300">{errors.projectSizePreference}</p> : null}
+              </div>
+
+              <div>
+                <Label>{flowType === 'homeowner' ? 'Project Budget Range' : 'Deal / Budget Range'}</Label>
+                <Input
+                  value={state.budgetRange}
+                  onChange={e => setField('budgetRange', e.target.value)}
+                  placeholder={flowType === 'homeowner' ? 'e.g. $15k-$40k' : 'e.g. $5k-$50k or retainers'}
+                  className="mt-1 rounded-xl border-slate-500 bg-slate-900"
+                />
+              </div>
+
+              <div>
+                <Label>Availability *</Label>
+                <Select value={state.availability} onValueChange={value => setField('availability', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select availability" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asap">ASAP</SelectItem>
+                    <SelectItem value="this_week">This week</SelectItem>
+                    <SelectItem value="this_month">This month</SelectItem>
+                    <SelectItem value="flexible">Flexible</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.availability ? <p className="text-xs text-red-300">{errors.availability}</p> : null}
+              </div>
+
+              <div>
+                <Label>Financing Interest *</Label>
+                <Select
+                  value={state.financingInterest}
+                  onValueChange={value => {
+                    setField('financingInterest', value);
+                    trackEvent('onboarding_branch_triggered', { branch: 'financing_interest', value });
+                  }}
+                >
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select option" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="project_lenders">Match me with licensed lenders for projects</SelectItem>
+                    <SelectItem value="growth_funding">Match me with business growth funding</SelectItem>
+                    <SelectItem value="none">No financing needed</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.financingInterest ? <p className="text-xs text-red-300">{errors.financingInterest}</p> : null}
+              </div>
+
+              {state.financingInterest && state.financingInterest !== 'none'
+                ? branchInfo('Financing preferences help us connect you with licensed funding partners.', 'financing_support')
+                : null}
+
+              <div className="md:col-span-2">
+                <Label>Growth Support Interests</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {['Lead generation', 'Social media auto-posting', 'Marketing ideas', 'Veteran business support', 'Referral partnerships'].map(option => (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => toggleArrayValue('growthSupport', option)}
+                      className={`rounded-full border px-3 py-1 text-xs ${
+                        state.growthSupport.includes(option) ? 'border-amber-300 bg-amber-300 text-slate-900' : 'border-slate-500 bg-slate-800'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {step === 'location' ? (
+          <div className="mx-auto max-w-3xl space-y-5">
+            <p className="text-sm text-slate-300">Your location helps us match you with nearby opportunities and service areas.</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label>City *</Label>
+                <Input value={state.city} onChange={e => setField('city', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                {errors.city ? <p className="text-xs text-red-300">{errors.city}</p> : null}
+              </div>
+              <div>
+                <Label>State *</Label>
+                <Input value={state.state} onChange={e => setField('state', e.target.value)} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                {errors.state ? <p className="text-xs text-red-300">{errors.state}</p> : null}
+              </div>
+              <div>
+                <Label>ZIP Code *</Label>
+                <Input value={state.zipCode} onChange={e => setField('zipCode', e.target.value.replace(/\D/g, '').slice(0, 5))} className="mt-1 rounded-xl border-slate-500 bg-slate-900" />
+                {errors.zipCode ? <p className="text-xs text-red-300">{errors.zipCode}</p> : null}
+              </div>
+
+              <div>
+                <Label>Service Radius</Label>
+                <Select value={state.serviceRadius} onValueChange={value => setField('serviceRadius', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zip_only">ZIP only</SelectItem>
+                    <SelectItem value="10_miles">10 miles</SelectItem>
+                    <SelectItem value="25_miles">25 miles</SelectItem>
+                    <SelectItem value="50_miles">50 miles</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Additional ZIP Codes Served</Label>
+                <div className="mt-1 flex gap-2">
+                  <Input value={zipInput} onChange={e => setZipInput(e.target.value.replace(/\D/g, '').slice(0, 5))} placeholder="Add ZIP" className="rounded-xl border-slate-500 bg-slate-900" />
+                  <Button type="button" variant="outline" onClick={handleAddZip}>Add</Button>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {state.additionalZipCodes.map(zip => (
+                    <Badge key={zip} className="bg-slate-700 text-slate-100">
+                      {zip}
+                      <button type="button" onClick={() => setField('additionalZipCodes', state.additionalZipCodes.filter(item => item !== zip))} className="ml-1">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Remote / Consulting Available? *</Label>
+                <Select value={state.remoteAvailable ?? ''} onValueChange={value => setField('remoteAvailable', value as YesNo)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent><SelectItem value="yes">Yes</SelectItem><SelectItem value="no">No</SelectItem></SelectContent>
+                </Select>
+                {errors.remoteAvailable ? <p className="text-xs text-red-300">{errors.remoteAvailable}</p> : null}
+              </div>
+
+              <div>
+                <Label>Willing to travel for the right project? *</Label>
+                <Select value={state.willingToTravel} onValueChange={value => setField('willingToTravel', value)}>
+                  <SelectTrigger className="mt-1 rounded-xl border-slate-500 bg-slate-900"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="occasionally">Occasionally</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.willingToTravel ? <p className="text-xs text-red-300">{errors.willingToTravel}</p> : null}
+              </div>
+
+              <div className="md:col-span-2">
+                <Label>Area Interest Preferences</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {['Job leads', 'Homeowner projects', 'Veteran networking', 'Realtor partnerships', 'Investor deals', 'Lender opportunities'].map(option => (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => toggleArrayValue('areaInterests', option)}
+                      className={`rounded-full border px-3 py-1 text-xs ${
+                        state.areaInterests.includes(option) ? 'border-amber-300 bg-amber-300 text-slate-900' : 'border-slate-500 bg-slate-800'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="md:col-span-2 rounded-xl border border-slate-500 p-3">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="internal-feed"
+                    checked={state.internalFeedConsent}
+                    onCheckedChange={checked => setField('internalFeedConsent', Boolean(checked))}
+                  />
+                  <Label htmlFor="internal-feed" className="text-sm font-normal">
+                    Allow us to create a summary post on our internal board so nearby users can connect with me.
+                  </Label>
+                </div>
+
+                {state.internalFeedConsent ? (
+                  <div className="mt-3 rounded-lg bg-slate-800 p-3 text-xs text-slate-200">
+                    Preview: {state.contactName || 'This user'} in {state.city || 'their area'} is seeking {state.primaryGoal || 'new opportunities'} in {state.mainCategory || 'their category'}.
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="md:col-span-2 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs text-amber-100">
+                Matching preview ready for downstream services: <strong>{userArchetype}</strong>
+                <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-slate-900 p-2 text-[11px] text-slate-300">
+                  {JSON.stringify(matchingSummary, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-8 flex gap-3">
+          {step !== 'profile' ? (
+            <Button
+              variant="outline"
+              onClick={() => setStep(step === 'services' ? 'profile' : 'services')}
+              className="border-slate-500 bg-transparent text-slate-200"
+            >
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Back
             </Button>
-          </div>
-        )}
+          ) : null}
 
-        {/* Step 2: Services — three-category model */}
-        {step === 'services' && (
-          <div className="space-y-4 max-w-lg mx-auto">
-            <div>
-              <Label>Select Your Main Category <span className="text-destructive">*</span></Label>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Choose your type in any category that applies to you.
-              </p>
-            </div>
-
-            {/* 1. General Contractors */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-orange-500/15 flex items-center justify-center">
-                  <HardHat className="w-3.5 h-3.5 text-orange-500" />
-                </div>
-                <span className="text-sm font-semibold text-foreground">General Contractors</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Licensed GCs, builders, renovation specialists, project managers &amp; site supervisors.
-              </p>
-              <Select value={gcType} onValueChange={setGcType}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Select your GC type…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">— Not applicable —</SelectItem>
-                  {GC_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 2. Sub-Contractors */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-blue-500/15 flex items-center justify-center">
-                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
-                </div>
-                <span className="text-sm font-semibold text-foreground">Sub-Contractors</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Tradespeople and specialty contractors — electricians, plumbers, HVAC, landscaping &amp; more.
-              </p>
-              <Select value={subType} onValueChange={setSubType}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Select your trade…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">— Not applicable —</SelectItem>
-                  {SUB_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 3. Professional Services */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-purple-500/15 flex items-center justify-center">
-                  <Scale className="w-3.5 h-3.5 text-purple-500" />
-                </div>
-                <span className="text-sm font-semibold text-foreground">Professional Services</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Licensed professionals — Realtors, Architects, Attorneys, Engineers, Title Officers &amp; more.
-              </p>
-              <Select value={profType} onValueChange={setProfType}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Select your profession…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">— Not applicable —</SelectItem>
-                  {PROFESSIONAL_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Selected badges */}
-            {(gcType || subType || profType) && (
-              <div className="flex flex-wrap gap-1.5">
-                {gcType && <Badge variant="secondary" className="gap-1 text-xs"><HardHat className="w-3 h-3" />{gcType}<button type="button" onClick={() => setGcType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
-                {subType && <Badge variant="secondary" className="gap-1 text-xs"><Wrench className="w-3 h-3" />{subType}<button type="button" onClick={() => setSubType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
-                {profType && <Badge variant="secondary" className="gap-1 text-xs"><Scale className="w-3 h-3" />{profType}<button type="button" onClick={() => setProfType('')}><X className="h-3 w-3 ml-1" /></button></Badge>}
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep('profile')}>
-                <ArrowLeft className="w-4 h-4 mr-1" />Back
-              </Button>
-              <Button
-                onClick={handleSaveServices}
-                className="flex-1"
-                disabled={isLoading || (!gcType && !subType && !profType)}
-              >
-                {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                Continue to Location
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Location */}
-        {step === 'location' && (
-          <div className="space-y-4 max-w-lg mx-auto">
-            <div>
-              <Label>Service Area Postcode <span className="text-destructive">*</span></Label>
-              <p className="text-xs text-muted-foreground mb-2">Enter your primary service area postcode so customers can find you.</p>
-              <LocationPicker
-                onLocationSelect={(loc) => setSelectedLocation(loc)}
-                initialLocation={selectedLocation ? {
-                  latitude: selectedLocation.latitude,
-                  longitude: selectedLocation.longitude,
-                  address: selectedLocation.address,
-                } : undefined}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep('services')}>
-                <ArrowLeft className="w-4 h-4 mr-1" />Back
-              </Button>
-              <Button onClick={handleSaveLocation} className="flex-1" disabled={isLoading || !selectedLocation}>
-                {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                Finish Setup
-                <CheckCircle className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        )}
+          <Button
+            onClick={handleNext}
+            disabled={isLoading}
+            className="ml-auto bg-amber-400 text-slate-900 hover:bg-amber-300"
+            size="lg"
+          >
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {step === 'location' ? 'Finish Setup' : `Continue to ${stepTitles[step === 'profile' ? 'services' : 'location']}`}
+            {step === 'location' ? <CheckCircle className="ml-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

@@ -13,7 +13,7 @@ import {
   Wrench, FileCheck, PenLine, Flame, HeartPulse, Umbrella,
   FolderOpen, Quote, Building2, ShieldAlert, Landmark, Map, BadgeCheck,
   Loader2, BrainCircuit, Download, AlertTriangle, Siren, Sparkles, Globe2,
-  Star, ThumbsUp, Send as SendIcon, GitPullRequest,
+  Star, ThumbsUp, Send as SendIcon, GitPullRequest, Wind, Sparkles as SparklesIcon, Camera, Zap, Hammer, Trees, Pipette,
 } from 'lucide-react';
 import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
 import { FloatingAIChat } from '@/components/dashboard/FloatingAIChat';
@@ -49,9 +49,23 @@ const PermitsDept = lazy(() => import('./legals/PermitsDept'));
 const ReviewsDept = lazy(() => import('./legals/ReviewsDept'));
 const FollowUpsDept = lazy(() => import('./legals/FollowUpsDept'));
 const MarketRatesDept = lazy(() => import('./legals/MarketRatesDept'));
+const HVACDept = lazy(() => import('./trades/HVACDept'));
 
 // ─── Sidebar data ───────────────────────────────────────────────
 const sidebarSections = [
+  {
+    label: 'TRADES',
+    items: [
+      { icon: SparklesIcon, name: 'Cleaning Services', badge: null },
+      { icon: Camera, name: 'CCTV / Security Systems', badge: null },
+      { icon: Zap, name: 'Electricians', badge: null },
+      { icon: Hammer, name: 'General Maintenance', badge: null },
+      { icon: Wrench, name: 'Handyman', badge: null },
+      { icon: Wind, name: 'HVAC', badge: 'New', badgeType: 'green' },
+      { icon: Trees, name: 'Landscaping', badge: null },
+      { icon: Pipette, name: 'Plumbers', badge: null },
+    ],
+  },
   {
     label: 'Overview',
     items: [
@@ -157,6 +171,7 @@ const deptComponentMap: Record<string, React.LazyExoticComponent<(p: { onBack: (
   Reviews: ReviewsDept,
   'Follow-ups': FollowUpsDept,
   'Market Rates': MarketRatesDept,
+  HVAC: HVACDept,
 };
 
 // ─── Summary dashboard data ──────────────────────────────────────
@@ -238,6 +253,7 @@ export default function GCCommandDashboard() {
   const [activeTab, setActiveTab] = useState(0);
   const [activeSidebar, setActiveSidebar] = useState('GC-Dashboard');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    TRADES: false,
     Overview: false,
     Communications: false,
     Materials: true,
@@ -308,6 +324,12 @@ export default function GCCommandDashboard() {
       nav('/contractor/quote-intake');
       return;
     }
+
+    if (name === 'Cleaning Services') {
+      nav('/dashboard?tab=janitorial');
+      return;
+    }
+
     setActiveSidebar(name);
   };
 

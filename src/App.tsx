@@ -62,6 +62,7 @@ const ZipExplorerHub = lazy(() => import("./pages/ZipExplorerHub"));
 const AdminPartnersDashboardPage = lazy(() => import("./pages/admin/AdminPartnersDashboardPage"));
 const CleanScopePage = lazy(() => import("./pages/CleanScopePage"));
 const JanitorialManagerDashboard = lazy(() => import("./pages/JanitorialManagerDashboard"));
+const JanitorialManagerPage = lazy(() => import("./pages/JanitorialManagerPage"));
 const ClientProjectPortal = lazy(() => import("./pages/ClientProjectPortal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -145,6 +146,7 @@ const App = () => (
               <Route path="/zip/:zipCode" element={<ZipExplorer />} />
               <Route path="/cleanscope" element={<CleanScopePage />} />
               <Route path="/janitorial-dashboard" element={<JanitorialManagerDashboard />} />
+              <Route path="/janitorial-manager" element={<JanitorialManagerPage />} />
               <Route path="/project/:id" element={<ClientProjectPortal />} />
               {getCommandCenterRoutes()}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

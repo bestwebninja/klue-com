@@ -1,7 +1,7 @@
 // CleanScope AI v1.0 — Janitorial Manager CRM Dashboard
 // Features: Quote Builder · Site Intel · Sentiment Portal · Legal & Consent · Geo-Tracking · Billing
 // Sync: 2026-04-18
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { SettingsModal } from './components/SettingsModal';
 import type { Area, ClientInfo, ResultState, SalesRepInfo, ScopeRow, SettingsState, WeatherState } from './types';
+import { SubscriptionChoiceModal } from '@/components/janitorial/SubscriptionChoiceModal';
+import type { PlanKey, BillingCycle as ChoiceBillingCycle } from '@/components/janitorial/SubscriptionChoiceModal';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 const WMO: Record<number, { label: string; emoji: string }> = {
   0: { label: 'Clear sky', emoji: '☀️' }, 1: { label: 'Mainly clear', emoji: '🌤️' },
@@ -24,19 +28,29 @@ const WMO: Record<number, { label: string; emoji: string }> = {
 };
 
 type SubscriptionTier = 'none' | 'starter' | 'professional' | 'growth';
-type BillingCycle = 'monthly' | 'annual';
+type BillingCycle = 'monthly' | 'annual' | 'annual_veteran';
+
+interface ActiveSubscription {
+  id: string;
+  plan: string;
+  billing_cycle: string;
+  payment_path: string;
+  status: string;
+  shopify_checkout_ref: string | null;
+  created_at: string;
+}
 
 const TIERS = {
   starter: {
-    name: 'Starter', monthly: 89, annual: 79, annualTotal: 948, users: '5 users', popular: false,
+    name: 'Starter', monthly: 89, annual: 79, annualTotal: 948, veteranAnnual: 69, veteranTotal: 828, users: '5 users', popular: false,
     features: ['Core AI bidding engine', 'Up to 5 users', 'Basic proposal builder', 'Pipeline tracking', 'Email quote output', 'CSV export'],
   },
   professional: {
-    name: 'Professional', monthly: 169, annual: 149, annualTotal: 1788, users: '5 users', popular: true,
+    name: 'Professional', monthly: 169, annual: 149, annualTotal: 1788, veteranAnnual: 129, veteranTotal: 1548, users: '5 users', popular: true,
     features: ['Everything in Starter', 'Full CRM & pipeline', 'AI Sales Reports', 'Weather + Traffic intel', 'Dual email system', 'Client + Rep branding', 'Win probability scores'],
   },
   growth: {
-    name: 'Growth', monthly: 279, annual: 249, annualTotal: 2988, users: '10 users', popular: false,
+    name: 'Growth', monthly: 279, annual: 249, annualTotal: 2988, veteranAnnual: 219, veteranTotal: 2628, users: '10 users', popular: false,
     features: ['Everything in Professional', 'Priority support (4hr SLA)', 'Advanced CRM sync', 'Custom branding', 'API access', 'Dedicated account manager'],
   },
 } as const;
@@ -399,6 +413,8 @@ const INITIAL_SALES_DATA: SalesRecord[] = [
 ];
 
 export default function JanitorialDashboard() {
+  const { user } = useAuth();
+
   // ── core quote state ──
   const [topTab, setTopTab] = useState<TopTab>('walkthroughs');
   const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
@@ -435,18 +451,13 @@ export default function JanitorialDashboard() {
   const [currentTier, setCurrentTier] = useState<SubscriptionTier>('none');
   const [checkoutTier, setCheckoutTier] = useState<SubscriptionTier | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [activeSubscription, setActiveSubscription] = useState<ActiveSubscription | null>(null);
+  const [subLoadError, setSubLoadError] = useState<string | null>(null);
+  const [subSuccessMsg, setSubSuccessMsg] = useState<string | null>(null);
+  // Legacy demo fields retained for invoice modal compatibility
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [customerId, setCustomerId] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
-  const [paymentProcessing, setPaymentProcessing] = useState(false);
-
-  // ── stripe admin (settings modal) ──
-  const [stripePubKey, setStripePubKey] = useState('');
-  const [stripeSecretKey, setStripeSecretKey] = useState('');
-  const [stripeConnected, setStripeConnected] = useState(false);
 
   // ── costing wizard ──
   const [costingWizardOpen, setCostingWizardOpen] = useState(false);
@@ -585,18 +596,30 @@ export default function JanitorialDashboard() {
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   };
 
-  const completePayment = () => {
-    setPaymentProcessing(true);
-    setTimeout(() => {
-      const cid = generateCustomerId();
-      const inv = generateInvoiceNumber();
-      setCustomerId(cid); setInvoiceNumber(inv);
-      setCurrentTier(checkoutTier!);
-      setPaymentProcessing(false); setCheckoutOpen(false);
-      setCardNumber(''); setCardExpiry(''); setCardCvc('');
-      setInvoiceOpen(true);
-    }, 1500);
-  };
+  // ── load user's active Kluje subscription record ──
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('janitorial_subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+      .then(({ data, error }) => {
+        if (error && error.code !== 'PGRST116') {
+          setSubLoadError('Could not load subscription record.');
+          return;
+        }
+        if (data) {
+          setActiveSubscription(data as ActiveSubscription);
+          if (data.status === 'active') setCurrentTier(data.plan as SubscriptionTier);
+        }
+      });
+  }, [user]);
+
+  // stub retained for invoice modal compatibility
+  const completePayment = () => {};
 
   // ── weather fetch (Open-Meteo — no API key required) ──
   const fetchWeather = useCallback(async (address: string) => {
@@ -1017,104 +1040,155 @@ export default function JanitorialDashboard() {
   };
 
   // ── render: subscription tab ──
-  const renderSubscription = () => (
-    <div className="space-y-6">
-      <div className="text-center space-y-3">
-        <h2 className="text-2xl font-bold">CleanScope AI Plans</h2>
-        <p className="text-muted-foreground">Powering janitorial sales teams across the US</p>
-        <div className="inline-flex items-center gap-1 rounded-2xl bg-muted/40 p-1">
-          <Button variant={billingCycle === 'monthly' ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setBillingCycle('monthly')}>Monthly</Button>
-          <Button variant={billingCycle === 'annual' ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setBillingCycle('annual')}>Annual <Badge className="ml-2 bg-emerald-500 text-white text-xs">Save 10%</Badge></Button>
+  const renderSubscription = () => {
+    const getPriceLabel = (tier: keyof typeof TIERS) => {
+      const d = TIERS[tier];
+      if (billingCycle === 'monthly') return { price: d.monthly, sub: null };
+      if (billingCycle === 'annual_veteran') return { price: d.veteranAnnual, sub: `$${d.veteranTotal}/yr (3 months off)` };
+      return { price: d.annual, sub: `$${d.annualTotal}/yr — 2 months included` };
+    };
+
+    const STATUS_BADGE: Record<string, string> = {
+      active: 'bg-emerald-500 text-white',
+      pending: 'bg-amber-400 text-white',
+      awaiting_wire: 'bg-blue-500 text-white',
+      canceled: 'bg-muted text-muted-foreground',
+      past_due: 'bg-orange-500 text-white',
+      failed: 'bg-red-500 text-white',
+    };
+    const PATH_LABELS: Record<string, string> = {
+      ach_wire: 'ACH / Wire',
+      shopify_online: 'Shopify Online',
+    };
+    const CYCLE_LABELS: Record<string, string> = {
+      monthly: 'Monthly',
+      annual: 'Annual',
+      annual_veteran: 'Annual Veteran',
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* ── Current plan status panel ── */}
+        {activeSubscription ? (
+          <Card className="rounded-3xl border-primary/30 bg-primary/5">
+            <CardContent className="py-5 space-y-3">
+              <div className="flex items-start justify-between flex-wrap gap-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">Your Current Plan</p>
+                  <p className="text-xl font-bold capitalize">{activeSubscription.plan} · {CYCLE_LABELS[activeSubscription.billing_cycle] ?? activeSubscription.billing_cycle} · {PATH_LABELS[activeSubscription.payment_path] ?? activeSubscription.payment_path}</p>
+                </div>
+                <Badge className={`text-sm ${STATUS_BADGE[activeSubscription.status] ?? 'bg-muted'}`}>
+                  {activeSubscription.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                </Badge>
+              </div>
+              {activeSubscription.shopify_checkout_ref && (
+                <p className="text-xs text-muted-foreground font-mono">Shopify Ref: {activeSubscription.shopify_checkout_ref}</p>
+              )}
+              <p className="text-xs text-muted-foreground">Record created {new Date(activeSubscription.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+              {activeSubscription.status === 'awaiting_wire' && (
+                <p className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-800">
+                  Your plan is pending wire payment confirmation. Features will activate once our finance team confirms receipt.
+                  Questions? <a href="mailto:marcus@kluje.com" className="underline">marcus@kluje.com</a>
+                </p>
+              )}
+              {activeSubscription.status === 'pending' && (
+                <p className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                  Your Shopify checkout was started but payment has not yet been confirmed. If you didn't complete checkout, you can start again below.
+                </p>
+              )}
+              {billingCycle === 'monthly' && activeSubscription.status === 'active' && (
+                <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+                  You are on month-to-month billing. Switching to Annual saves 10% and includes 2 free months.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : subLoadError ? (
+          <p className="text-sm text-red-600">{subLoadError}</p>
+        ) : null}
+
+        {subSuccessMsg && (
+          <p className="rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4 text-sm text-emerald-800 font-medium">{subSuccessMsg}</p>
+        )}
+
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-bold">CleanScope AI Plans</h2>
+          <p className="text-muted-foreground">Powering janitorial sales teams across the US</p>
+          <div className="inline-flex items-center gap-1 rounded-2xl bg-muted/40 p-1 flex-wrap justify-center">
+            <Button size="sm" variant={billingCycle === 'monthly' ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setBillingCycle('monthly')}>Monthly</Button>
+            <Button size="sm" variant={billingCycle === 'annual' ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setBillingCycle('annual')}>Annual <Badge className="ml-2 bg-emerald-500 text-white text-xs">Save 10%</Badge></Button>
+            <Button size="sm" variant={billingCycle === 'annual_veteran' ? 'default' : 'ghost'} className="rounded-xl" onClick={() => setBillingCycle('annual_veteran')}>Annual Veteran <Badge className="ml-2 bg-blue-500 text-white text-xs">3 months off</Badge></Button>
+          </div>
+          {billingCycle === 'monthly' && (
+            <p className="text-xs text-muted-foreground">You are viewing month-to-month pricing. Annual plans offer significant savings.</p>
+          )}
         </div>
-      </div>
-      {currentTier !== 'none' && (
-        <Card className="rounded-3xl border-emerald-500/40 bg-emerald-500/5">
-          <CardContent className="flex items-center justify-between py-4">
-            <div><p className="font-semibold">Active: {TIERS[currentTier as keyof typeof TIERS].name}</p><p className="text-sm text-muted-foreground">Customer ID: {customerId}</p></div>
-            <Badge className="bg-emerald-500 text-white">Active</Badge>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {(['starter', 'professional', 'growth'] as const).map(tier => {
+            const d = TIERS[tier];
+            const { price, sub } = getPriceLabel(tier);
+            const isActive = currentTier === tier;
+            return (
+              <Card key={tier} className={`rounded-3xl relative ${d.popular ? 'ring-2 ring-emerald-500' : ''}`}>
+                {d.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge className="bg-emerald-500 text-white px-4">Most Popular</Badge></div>}
+                <CardHeader className="pt-7">
+                  <CardTitle className="text-lg">{d.name}</CardTitle>
+                  <div><span className="text-4xl font-bold">${price}</span><span className="text-muted-foreground">/mo</span></div>
+                  {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+                  <p className="text-sm text-muted-foreground">{d.users}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-2">{d.features.map(f => (<li key={f} className="flex items-start gap-2 text-sm"><span className="text-emerald-500 mt-0.5">✓</span><span>{f}</span></li>))}</ul>
+                  {isActive ? (
+                    <Button disabled className="w-full rounded-2xl bg-emerald-500 text-white">✓ Active Plan</Button>
+                  ) : (
+                    <Button className="w-full rounded-2xl" variant={d.popular ? 'default' : 'outline'} onClick={() => { setCheckoutTier(tier); setCheckoutOpen(true); }}>
+                      {currentTier === 'none' ? 'Buy ' + d.name : 'Switch to ' + d.name}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        <Card className="rounded-3xl bg-muted/30">
+          <CardContent className="py-4 text-sm text-muted-foreground space-y-1">
+            <p className="font-semibold text-foreground">Divitiae Terrae LLC — "The Wealth of the Earth"</p>
+            <p>M. Marcus Mommsen, Managing Member · <a href="https://www.linkedin.com/in/marcusmommsen" target="_blank" rel="noreferrer" className="underline">LinkedIn</a></p>
+            <p>1309 Coffeen Avenue, STE 1200, Sheridan, Wyoming 82801, USA</p>
+            <p>Billing: <a href="mailto:marcus@kluje.com" className="underline">marcus@kluje.com</a></p>
           </CardContent>
         </Card>
-      )}
-      <div className="grid gap-4 md:grid-cols-3">
-        {(['starter', 'professional', 'growth'] as const).map(tier => {
-          const d = TIERS[tier];
-          const price = billingCycle === 'annual' ? d.annual : d.monthly;
-          const isActive = currentTier === tier;
-          return (
-            <Card key={tier} className={`rounded-3xl relative ${d.popular ? 'ring-2 ring-emerald-500' : ''}`}>
-              {d.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge className="bg-emerald-500 text-white px-4">Most Popular</Badge></div>}
-              <CardHeader className="pt-7">
-                <CardTitle className="text-lg">{d.name}</CardTitle>
-                <div><span className="text-4xl font-bold">${price}</span><span className="text-muted-foreground">/mo</span></div>
-                {billingCycle === 'annual' && <p className="text-xs text-muted-foreground">${d.annualTotal}/yr billed annually</p>}
-                <p className="text-sm text-muted-foreground">{d.users}</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-2">{d.features.map(f => (<li key={f} className="flex items-start gap-2 text-sm"><span className="text-emerald-500 mt-0.5">✓</span><span>{f}</span></li>))}</ul>
-                {isActive ? (
-                  <Button disabled className="w-full rounded-2xl bg-emerald-500 text-white">✓ Active Plan</Button>
-                ) : (
-                  <Button className="w-full rounded-2xl" variant={d.popular ? 'default' : 'outline'} onClick={() => { setCheckoutTier(tier); setCheckoutOpen(true); }}>{currentTier === 'none' ? 'Get Started' : 'Switch Plan'}</Button>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
       </div>
-      <Card className="rounded-3xl">
-        <CardHeader><CardTitle className="text-base">Stripe Integration</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="space-y-1"><Label>Publishable Key</Label><Input value={stripePubKey} onChange={e => setStripePubKey(e.target.value)} className="rounded-xl font-mono text-xs" placeholder="pk_live_…" /></div>
-          <div className="space-y-1"><Label>Secret Key</Label><Input type="password" value={stripeSecretKey} onChange={e => setStripeSecretKey(e.target.value)} className="rounded-xl font-mono text-xs" placeholder="sk_live_…" /></div>
-          <div className="flex items-center gap-3">
-            <Button className="rounded-2xl" variant="outline" onClick={() => setStripeConnected(!!(stripePubKey && stripeSecretKey))}>{stripeConnected ? 'Reconnect' : 'Connect Stripe'}</Button>
-            <Badge className={stripeConnected ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'}>{stripeConnected ? '● Connected' : '○ Not Connected'}</Badge>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="rounded-3xl bg-muted/30">
-        <CardContent className="py-4 text-sm text-muted-foreground space-y-1">
-          <p className="font-semibold text-foreground">Divitiae Terrae LLC — "The Wealth of the Earth"</p>
-          <p>M. Marcus Mommsen, Managing Member · <a href="https://www.linkedin.com/in/marcusmommsen" target="_blank" rel="noreferrer" className="underline">LinkedIn</a></p>
-          <p>1309 Coffeen Avenue, STE 1200, Sheridan, Wyoming 82801, USA</p>
-          <p>Billing: marcus@kluje.com</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  // ── render: stripe checkout modal ──
-  const renderStripeCheckoutModal = () => {
-    if (!checkoutTier) return null;
-    const d = TIERS[checkoutTier as keyof typeof TIERS];
-    const price = billingCycle === 'annual' ? d.annual : d.monthly;
-    return (
-      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="rounded-3xl sm:max-w-md">
-          <DialogHeader><DialogTitle>Complete Subscription</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div className="rounded-2xl bg-muted/40 p-4">
-              <p className="font-semibold">{d.name} — {billingCycle === 'annual' ? 'Annual' : 'Monthly'}</p>
-              <p className="text-2xl font-bold">${price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-              {billingCycle === 'annual' && <p className="text-xs text-muted-foreground">Billed as ${d.annualTotal}/year</p>}
-            </div>
-            <div className="space-y-3">
-              <div className="space-y-1"><Label>Card Number</Label><Input placeholder="4242 4242 4242 4242" value={cardNumber} onChange={e => setCardNumber(e.target.value)} className="rounded-2xl font-mono" /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label>Expiry</Label><Input placeholder="MM / YY" value={cardExpiry} onChange={e => setCardExpiry(e.target.value)} className="rounded-2xl" /></div>
-                <div className="space-y-1"><Label>CVC</Label><Input placeholder="123" value={cardCvc} onChange={e => setCardCvc(e.target.value)} className="rounded-2xl" /></div>
-              </div>
-            </div>
-            <p className="text-center text-xs text-muted-foreground">🔒 Demo — no real payment processed</p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" className="rounded-2xl" onClick={() => setCheckoutOpen(false)}>Cancel</Button>
-            <Button className="rounded-2xl" disabled={paymentProcessing} onClick={completePayment}>{paymentProcessing ? 'Processing…' : `Pay $${price}`}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     );
   };
+
+  // ── render: stripe checkout modal ──
+  const renderSubscriptionChoiceModal = () => (
+    <SubscriptionChoiceModal
+      open={checkoutOpen}
+      plan={checkoutTier as PlanKey | null}
+      billingCycle={billingCycle as ChoiceBillingCycle}
+      onClose={() => setCheckoutOpen(false)}
+      onSuccess={({ paymentPath, recordId }) => {
+        const pathMsg = paymentPath === 'ach_wire'
+          ? 'Your subscription record has been created. Status: Awaiting Wire. Instructions were emailed to you.'
+          : 'Checkout started on www.kluje.app. Your subscription record is saved. A confirmation email has been sent.';
+        setSubSuccessMsg(pathMsg);
+        // Reload subscription record
+        if (user) {
+          supabase
+            .from('janitorial_subscriptions')
+            .select('*')
+            .eq('id', recordId)
+            .single()
+            .then(({ data }) => { if (data) setActiveSubscription(data as ActiveSubscription); });
+        }
+      }}
+    />
+  );
 
   // ── render: invoice modal ──
   const renderInvoiceModal = () => {
@@ -2070,7 +2144,7 @@ export default function JanitorialDashboard() {
       <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} onSave={setSettings} />
       {renderCostingWizard()}
       {renderQuoteEmailModal()}
-      {renderStripeCheckoutModal()}
+      {renderSubscriptionChoiceModal()}
       {renderInvoiceModal()}
       {renderInviteModal()}
     </div>

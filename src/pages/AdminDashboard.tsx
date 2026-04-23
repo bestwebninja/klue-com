@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LogOut, Users, Briefcase, FolderTree, Shield, ScrollText, BookOpen, ShieldCheck, Settings2, Mail } from 'lucide-react';
+import { LogOut, Users, Briefcase, FolderTree, Shield, ScrollText, BookOpen, ShieldCheck, Settings2, Mail, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminJobs from '@/components/admin/AdminJobs';
@@ -16,6 +16,7 @@ import AdminBlogPosts from '@/components/admin/AdminBlogPosts';
 import AdminVerifications from '@/components/admin/AdminVerifications';
 import AdminSiteSettings from '@/components/admin/AdminSiteSettings';
 import AdminNewsletter from '@/components/admin/AdminNewsletter';
+import { JanitorialSubscriptionsAdmin } from '@/components/admin/JanitorialSubscriptionsAdmin';
 
 const AdminDashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -133,6 +134,10 @@ const AdminDashboard = () => {
               <Settings2 className="w-4 h-4" />
               <span className="hidden sm:inline">Site Settings</span>
             </TabsTrigger>
+            <TabsTrigger value="janitorial-subs" className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              <span className="hidden sm:inline">Janitorial Subs</span>
+            </TabsTrigger>
           </TabsList>
           </div>
 
@@ -170,6 +175,15 @@ const AdminDashboard = () => {
 
           <TabsContent value="settings">
             <AdminSiteSettings />
+          </TabsContent>
+          <TabsContent value="janitorial-subs">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold">Janitorial Subscriptions</h2>
+                <p className="text-sm text-muted-foreground">All CleanScope AI subscription purchase records. Kluje is the source of truth — Shopify handles hosted payment only.</p>
+              </div>
+              <JanitorialSubscriptionsAdmin />
+            </div>
           </TabsContent>
         </Tabs>
       </main>

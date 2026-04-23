@@ -24,6 +24,23 @@ export async function getWalkthroughById(id: string): Promise<WalkthroughWithChi
     supabase.from("walkthrough_tasks").select("*").eq("walkthrough_id", id).order("sort_order", { ascending: true }),
   );
 
+  const floorIds = floors.map((floor) => floor.id);
+  const areas = floorIds.length
+    ? await runQuery(
+      supabase.from("walkthrough_areas").select("*").in("floor_id", floorIds).order("sort_order", { ascending: true }),
+    )
+    : [];
+
+  const areaIds = areas.map((area) => area.id);
+  const areaTaskStatus = areaIds.length
+    ? await runQuery(
+      supabase
+        .from("walkthrough_area_task_status")
+        .select("*")
+        .in("area_id", areaIds),
+    )
+    : [];
+
   const { data: settings } = await supabase
     .from("walkthrough_settings")
     .select("*")
@@ -33,7 +50,9 @@ export async function getWalkthroughById(id: string): Promise<WalkthroughWithChi
   return {
     ...walkthrough,
     floors,
+    areas,
     tasks,
+    areaTaskStatus,
     settings: settings ?? null,
   };
 }

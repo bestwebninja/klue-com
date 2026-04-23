@@ -60,7 +60,9 @@ export interface WalkthroughSettings {
 
 export interface WalkthroughWithChildren extends Walkthrough {
   floors: WalkthroughFloor[];
+  areas: WalkthroughArea[];
   tasks: WalkthroughTask[];
+  areaTaskStatus: WalkthroughAreaTaskStatus[];
   settings: WalkthroughSettings | null;
 }
 

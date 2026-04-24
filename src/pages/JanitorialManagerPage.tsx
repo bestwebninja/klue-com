@@ -1,7 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Check } from "lucide-react";
+import { useState, useEffect, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { useAuth } from "@/hooks/useAuth";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHOPIFY PRODUCT URLs — update each value with the exact product page URL
@@ -133,6 +136,29 @@ const territories = [
 
 export default function JanitorialManagerPage() {
   const [cycle, setCycle] = useState<BillingCycle>("annual");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const { signIn, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate("/janitorial-dashboard");
+  }, [user, navigate]);
+
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoginLoading(true);
+    const { error } = await signIn(loginEmail, loginPassword);
+    if (error) {
+      setLoginError(error.message || "Login failed. Please check your credentials.");
+    } else {
+      navigate("/janitorial-dashboard");
+    }
+    setLoginLoading(false);
+  };
 
   return (
     <main className="bg-background text-foreground">
@@ -141,6 +167,69 @@ export default function JanitorialManagerPage() {
         description="Janitorial Manager helps janitorial businesses scale operations and route demand using ZIP-based territory intelligence."
         canonical={`${(import.meta.env.VITE_PUBLIC_SITE_URL || "https://kluje.com").replace(/\/$/, "")}/janitorial-manager`}
       />
+
+      {/* ── Trial Login section ────────────────────────────────────────────── */}
+      <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
+          <div className="mb-7 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-300/80">Trial Access</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              Janitorial Manager (Trial Accounts)
+            </h2>
+            <p className="mt-2 text-sm text-blue-200/70">
+              Access is available for approved users only. Public signup is not available.
+            </p>
+          </div>
+
+          <form
+            onSubmit={handleLogin}
+            className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-sm"
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider text-blue-200/80">
+                Email Address
+              </Label>
+              <Input
+                id="login-email"
+                type="email"
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="you@company.com"
+                className="border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:ring-blue-400"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider text-blue-200/80">
+                Password
+              </Label>
+              <Input
+                id="login-password"
+                type="password"
+                value={loginPassword}
+                onChange={e => setLoginPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="border-white/20 bg-white/10 text-white placeholder:text-white/40 focus-visible:ring-blue-400"
+              />
+            </div>
+            {loginError && (
+              <p className="text-sm text-red-400">{loginError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loginLoading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-60"
+              style={{ backgroundColor: "#1a2744" }}
+            >
+              {loginLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loginLoading ? "Signing in…" : "Login to Janitorial Manager"}
+            </button>
+          </form>
+        </div>
+      </section>
 
       {/* ── Hero / Territory section ───────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">

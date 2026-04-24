@@ -9,15 +9,15 @@ import { SeoHead } from "@/components/seo/SeoHead";
 // Format: https://kluje.app/products/<product-handle>
 // ─────────────────────────────────────────────────────────────────────────────
 const SHOPIFY_URLS: Record<string, string> = {
-  "starter-monthly":          "https://kluje.app/products/cleanscope-starter-monthly",
-  "starter-annual":           "https://kluje.app/products/cleanscope-starter-annual",
-  "starter-annual_veteran":   "https://kluje.app/products/cleanscope-starter-annual-veteran",
-  "professional-monthly":     "https://kluje.app/products/cleanscope-professional-monthly",
-  "professional-annual":      "https://kluje.app/products/cleanscope-professional-annual",
-  "professional-annual_veteran": "https://kluje.app/products/cleanscope-professional-annual-veteran",
-  "growth-monthly":           "https://kluje.app/products/cleanscope-growth-monthly",
-  "growth-annual":            "https://kluje.app/products/cleanscope-growth-annual",
-  "growth-annual_veteran":    "https://kluje.app/products/cleanscope-growth-annual-veteran",
+  "starter-monthly":             "https://kluje.app/products/cleanscope-ai-v1-starter-monthly?variant=44995551527120",
+  "starter-annual":              "https://kluje.app/products/cleanscope-ai-v1-starter-annual?variant=44995551625424",
+  "starter-annual_veteran":      "https://kluje.app/products/cleanscope-ai-v1-starter-annual-veteran?variant=44995551723728",
+  "professional-monthly":        "https://kluje.app/products/cleanscope-ai-v1-pro-monthly?variant=44995551592656",
+  "professional-annual":         "https://kluje.app/products/cleanscope-ai-v1-pro-annual?variant=44995551690960",
+  "professional-annual_veteran": "https://kluje.app/products/cleanscope-ai-v1-pro-annual-veteran?variant=44995551789264",
+  "growth-monthly":              "https://kluje.app/products/cleanscope-ai-v1-growth-monthly?variant=44995551559888",
+  "growth-annual":               "https://kluje.app/products/cleanscope-ai-v1-growth-annual?variant=44995551658192",
+  "growth-annual_veteran":       "https://kluje.app/products/cleanscope-ai-v1-growth-annual-veteran?variant=44995551756496",
 };
 
 type BillingCycle = "monthly" | "annual" | "annual_veteran";

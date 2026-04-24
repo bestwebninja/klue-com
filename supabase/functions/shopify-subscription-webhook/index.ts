@@ -1,24 +1,26 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const VARIANT_MAP: Record<string, { plan: string; billing_cycle: string }> = {
-  "44995551527120": { plan: "starter",      billing_cycle: "monthly"        },
-  "44995551625424": { plan: "starter",      billing_cycle: "annual"         },
-  "44995551723728": { plan: "starter",      billing_cycle: "annual_veteran" },
-  "44995551592656": { plan: "professional", billing_cycle: "monthly"        },
-  "44995551690960": { plan: "professional", billing_cycle: "annual"         },
-  "44995551789264": { plan: "professional", billing_cycle: "annual_veteran" },
-  "44995551559888": { plan: "growth",       billing_cycle: "monthly"        },
-  "44995551658192": { plan: "growth",       billing_cycle: "annual"         },
-  "44995551756496": { plan: "growth",       billing_cycle: "annual_veteran" },
+// Veteran SKUs map to billing_interval="annual" + is_veteran=true
+const VARIANT_MAP: Record<
+  string,
+  { plan_tier: "starter" | "growth" | "pro"; billing_interval: "monthly" | "annual"; is_veteran: boolean }
+> = {
+  "44995551527120": { plan_tier: "starter", billing_interval: "monthly", is_veteran: false },
+  "44995551625424": { plan_tier: "starter", billing_interval: "annual",  is_veteran: false },
+  "44995551723728": { plan_tier: "starter", billing_interval: "annual",  is_veteran: true  },
+  "44995551592656": { plan_tier: "pro",     billing_interval: "monthly", is_veteran: false },
+  "44995551690960": { plan_tier: "pro",     billing_interval: "annual",  is_veteran: false },
+  "44995551789264": { plan_tier: "pro",     billing_interval: "annual",  is_veteran: true  },
+  "44995551559888": { plan_tier: "growth",  billing_interval: "monthly", is_veteran: false },
+  "44995551658192": { plan_tier: "growth",  billing_interval: "annual",  is_veteran: false },
+  "44995551756496": { plan_tier: "growth",  billing_interval: "annual",  is_veteran: true  },
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function isUuid(s: string) {
-  return UUID_RE.test(s);
-}
+function isUuid(s: string) { return UUID_RE.test(s); }
 
 async function verifyHmac(secret: string, rawBody: Uint8Array, header: string): Promise<boolean> {
+  if (!header) return false;
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
@@ -28,7 +30,6 @@ async function verifyHmac(secret: string, rawBody: Uint8Array, header: string): 
   );
   const sig = await crypto.subtle.sign("HMAC", key, rawBody);
   const computed = btoa(String.fromCharCode(...new Uint8Array(sig)));
-  // Timing-safe compare via fixed-length XOR
   if (computed.length !== header.length) return false;
   let diff = 0;
   for (let i = 0; i < computed.length; i++) {
@@ -38,28 +39,21 @@ async function verifyHmac(secret: string, rawBody: Uint8Array, header: string): 
 }
 
 function extractKlujeRef(order: Record<string, unknown>): string | null {
-  // 1. order.note — format "kluje_ref:UUID"
   const note = typeof order.note === "string" ? order.note : "";
   const noteMatch = note.match(/kluje_ref[=:]([0-9a-f-]{36})/i);
-  if (noteMatch) return noteMatch[1];
+  if (noteMatch && isUuid(noteMatch[1])) return noteMatch[1];
 
-  // 2. note_attributes array — [{ name, value }]
   const attrs = Array.isArray(order.note_attributes) ? order.note_attributes : [];
   for (const a of attrs) {
-    if (
-      typeof a === "object" && a !== null &&
-      (a as Record<string, unknown>).name === "kluje_ref"
-    ) {
+    if (typeof a === "object" && a !== null && (a as Record<string, unknown>).name === "kluje_ref") {
       const v = String((a as Record<string, unknown>).value ?? "");
       if (isUuid(v)) return v;
     }
   }
 
-  // 3. Top-level kluje_ref field
   if (typeof order.kluje_ref === "string" && isUuid(order.kluje_ref)) {
     return order.kluje_ref;
   }
-
   return null;
 }
 
@@ -74,26 +68,23 @@ function extractVariantId(order: Record<string, unknown>): string | null {
   return null;
 }
 
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+
 Deno.serve(async (req: Request) => {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   const secret = Deno.env.get("SHOPIFY_WEBHOOK_SECRET");
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
   if (!secret || !supabaseUrl || !serviceKey) {
     return new Response("Server misconfiguration", { status: 500 });
   }
 
   const hmacHeader = req.headers.get("x-shopify-hmac-sha256") ?? "";
   const rawBody = new Uint8Array(await req.arrayBuffer());
-
   const valid = await verifyHmac(secret, rawBody, hmacHeader);
-  if (!valid) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  if (!valid) return new Response("Unauthorized", { status: 401 });
 
   let order: Record<string, unknown>;
   try {
@@ -103,101 +94,55 @@ Deno.serve(async (req: Request) => {
   }
 
   const klujeRef = extractKlujeRef(order);
-  if (!klujeRef || !isUuid(klujeRef)) {
-    // No kluje_ref — not a CleanScope AI order, ignore gracefully
-    return new Response(JSON.stringify({ ok: true, skipped: "no_kluje_ref" }), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
-  }
+  if (!klujeRef) return json({ ok: true, skipped: "no_kluje_ref" });
 
   const variantId = extractVariantId(order);
-  if (!variantId) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "no_approved_variant" }),
-      { status: 422, headers: { "content-type": "application/json" } },
-    );
-  }
+  if (!variantId) return json({ ok: false, error: "no_approved_variant" }, 422);
 
-  const { plan, billing_cycle } = VARIANT_MAP[variantId];
+  const { plan_tier, billing_interval, is_veteran } = VARIANT_MAP[variantId];
   const orderId = String(order.id ?? "");
-  const checkoutRef = String(
-    order.checkout_id ?? order.checkout_token ?? order.cart_token ?? "",
-  );
+  const checkoutRef = String(order.checkout_id ?? order.checkout_token ?? order.cart_token ?? "");
 
   const supabase = createClient(supabaseUrl, serviceKey);
 
   const { data: sub, error: fetchErr } = await supabase
     .from("janitorial_subscriptions")
-    .select("id, status, plan, billing_cycle, payment_path, shopify_order_ref")
+    .select("id, status, plan_tier, billing_interval, payment_path, shopify_order_ref, is_veteran")
     .eq("id", klujeRef)
     .maybeSingle();
 
-  if (fetchErr) {
-    return new Response(JSON.stringify({ ok: false, error: fetchErr.message }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
-  }
+  if (fetchErr) return json({ ok: false, error: fetchErr.message }, 500);
+  if (!sub) return json({ ok: false, error: "subscription_not_found" }, 404);
 
-  if (!sub) {
-    return new Response(JSON.stringify({ ok: false, error: "subscription_not_found" }), {
-      status: 404,
-      headers: { "content-type": "application/json" },
-    });
-  }
-
-  // Duplicate webhook — same order already activated
   if (sub.status === "active" && sub.shopify_order_ref === orderId) {
-    return new Response(JSON.stringify({ ok: true, skipped: "already_active" }), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+    return json({ ok: true, skipped: "already_active" });
   }
-
-  // Already active with a DIFFERENT order — conflict
-  if (sub.status === "active" && sub.shopify_order_ref !== orderId) {
-    return new Response(JSON.stringify({ ok: false, error: "conflict_different_order" }), {
-      status: 409,
-      headers: { "content-type": "application/json" },
-    });
+  if (sub.status === "active" && sub.shopify_order_ref && sub.shopify_order_ref !== orderId) {
+    return json({ ok: false, error: "conflict_different_order" }, 409);
   }
-
-  // Plan or cycle mismatch
-  if (sub.plan !== plan || sub.billing_cycle !== billing_cycle) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "plan_cycle_mismatch", expected: { plan, billing_cycle }, found: { plan: sub.plan, billing_cycle: sub.billing_cycle } }),
-      { status: 409, headers: { "content-type": "application/json" } },
-    );
+  if (sub.plan_tier !== plan_tier || sub.billing_interval !== billing_interval) {
+    return json({ ok: false, error: "plan_cycle_mismatch" }, 409);
   }
-
-  // Wrong payment path — should be shopify_online
   if (sub.payment_path !== "shopify_online") {
-    return new Response(
-      JSON.stringify({ ok: false, error: "wrong_payment_path", path: sub.payment_path }),
-      { status: 409, headers: { "content-type": "application/json" } },
-    );
+    return json({ ok: false, error: "wrong_payment_path" }, 409);
   }
 
-  // Activate
+  const updatePayload: Record<string, unknown> = {
+    status: "active",
+    shopify_order_ref: orderId,
+    shopify_checkout_ref: checkoutRef || null,
+  };
+  if (is_veteran && !sub.is_veteran) {
+    updatePayload.is_veteran = true;
+    updatePayload.veteran_attested_at = new Date().toISOString();
+  }
+
   const { error: updateErr } = await supabase
     .from("janitorial_subscriptions")
-    .update({
-      status: "active",
-      shopify_order_ref: orderId,
-      shopify_checkout_ref: checkoutRef || null,
-    })
+    .update(updatePayload)
     .eq("id", klujeRef);
 
-  if (updateErr) {
-    return new Response(JSON.stringify({ ok: false, error: updateErr.message }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
-  }
+  if (updateErr) return json({ ok: false, error: updateErr.message }, 500);
 
-  return new Response(JSON.stringify({ ok: true, activated: klujeRef, plan, billing_cycle }), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
+  return json({ ok: true, activated: klujeRef, plan_tier, billing_interval });
 });

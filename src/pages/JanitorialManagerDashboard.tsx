@@ -324,15 +324,20 @@ export default function JanitorialManagerDashboard() {
   const handleCreateUser = async () => {
     setCreateLoading(true);
     setCreateMsg("");
+
+    const isNewCompany = createForm.companyId === "__new__";
+    const companyId = isNewCompany ? null : (createForm.companyId || null);
+    const newCompanyName = isNewCompany ? (createForm.newCompanyName.trim() || null) : null;
+
     const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: {
         action: "createUser",
-        first_name: createForm.firstName,
-        surname: createForm.surname,
-        email: createForm.email,
+        first_name: createForm.firstName.trim(),
+        surname: createForm.surname.trim(),
+        email: createForm.email.trim(),
         password: createForm.password,
-        company_id: createForm.companyId || null,
-        new_company_name: createForm.companyId ? null : createForm.newCompanyName || null,
+        company_id: companyId,
+        new_company_name: newCompanyName,
         role: createForm.role,
         city: createForm.city || null,
         state: createForm.state || null,
@@ -342,7 +347,18 @@ export default function JanitorialManagerDashboard() {
       },
     });
     setCreateLoading(false);
-    if (error) { setCreateMsg(`Error: ${error.message}`); return; }
+
+    if (error) {
+      const detailedMessage = typeof data?.error === "string" ? data.error : error.message;
+      setCreateMsg(`Error: ${detailedMessage}`);
+      return;
+    }
+
+    if (data?.error) {
+      setCreateMsg(`Error: ${data.error}`);
+      return;
+    }
+
     setCreateMsg(`Trial user created: ${data?.email ?? createForm.email}`);
     setCreateForm({ ...EMPTY_CREATE_FORM });
     setShowCreateForm(false);
@@ -579,7 +595,7 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                   <div className="flex gap-2 justify-end">
                     <Button variant="outline" onClick={() => setShowCreateForm(false)}>Cancel</Button>
                     <Button
-                      disabled={createLoading || !createForm.firstName || !createForm.email || !createForm.password}
+                      disabled={createLoading || !createForm.firstName.trim() || !createForm.surname.trim() || !createForm.email.trim() || !createForm.password || !createForm.role || (createForm.companyId === "__new__" && !createForm.newCompanyName.trim())}
                       onClick={handleCreateUser}
                       style={{ backgroundColor: "#2563eb" }}
                       className="text-white hover:opacity-90"

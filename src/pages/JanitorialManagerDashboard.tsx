@@ -29,6 +29,13 @@ type AdminUser = {
   can_edit_pricing: boolean;
   can_edit_branding: boolean;
   is_frozen: boolean;
+  auth_user?: {
+    id: string;
+    email: string | null;
+    created_at: string | null;
+    last_sign_in_at: string | null;
+    is_banned: boolean;
+  } | null;
 };
 type AdminCompany = { id: string; name: string };
 
@@ -287,6 +294,11 @@ export default function JanitorialManagerDashboard() {
   const [createForm, setCreateForm] = useState({ ...EMPTY_CREATE_FORM });
   const [createLoading, setCreateLoading] = useState(false);
   const [createMsg, setCreateMsg] = useState("");
+  const [duplicateEmailPrompt, setDuplicateEmailPrompt] = useState<{ email: string } | null>(null);
+  const [findExistingLoading, setFindExistingLoading] = useState(false);
+  const [findExistingMsg, setFindExistingMsg] = useState("");
+  const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [editForm, setEditForm] = useState({ ...EMPTY_CREATE_FORM, trial_expires_at: "", can_edit_pricing: false, can_edit_branding: false, is_frozen: false });
 
   const getInvokeErrorMessage = useCallback(async (
     error: unknown,
@@ -347,6 +359,26 @@ export default function JanitorialManagerDashboard() {
     setAdminCompanies(data?.companies ?? []);
   }, [getInvokeErrorMessage]);
 
+  const parseErrorPayload = useCallback(async (error: unknown, fallbackData?: unknown) => {
+    const fallback = (fallbackData && typeof fallbackData === "object")
+      ? (fallbackData as Record<string, unknown>)
+      : null;
+    if (fallback?.error) return fallback;
+
+    const errorRecord = (error && typeof error === "object")
+      ? (error as Record<string, unknown>)
+      : null;
+    const context = errorRecord?.context;
+    if (context && typeof context === "object" && "json" in (context as object)) {
+      try {
+        return await (context as { json: () => Promise<Record<string, unknown>> }).json();
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }, []);
+
   useEffect(() => {
     if (activeTab === "admin-manager") loadAdminData();
   }, [activeTab, loadAdminData]);
@@ -371,6 +403,7 @@ export default function JanitorialManagerDashboard() {
   const handleCreateUser = async () => {
     setCreateLoading(true);
     setCreateMsg("");
+    setDuplicateEmailPrompt(null);
 
     const isNewCompany = createForm.companyId === "__new__";
     const companyId = isNewCompany ? null : (createForm.companyId || null);
@@ -397,6 +430,12 @@ export default function JanitorialManagerDashboard() {
 
     if (error) {
       console.error("janitorial-admin-users createUser error", error);
+      const errorPayload = await parseErrorPayload(error, data);
+      const code = typeof errorPayload?.code === "string" ? errorPayload.code : "";
+      const status = typeof errorPayload?.status === "number" ? errorPayload.status : null;
+      if (code === "AUTH_USER_EXISTS" || status === 409) {
+        setDuplicateEmailPrompt({ email: createForm.email.trim().toLowerCase() });
+      }
       const detailedMessage = await getInvokeErrorMessage(error, data);
       setCreateMsg(`Error: ${detailedMessage}`);
       return;
@@ -409,7 +448,69 @@ export default function JanitorialManagerDashboard() {
 
     setCreateMsg(`Trial user created: ${data?.email ?? createForm.email}`);
     setCreateForm({ ...EMPTY_CREATE_FORM });
+    setDuplicateEmailPrompt(null);
+    setFindExistingMsg("");
     setShowCreateForm(false);
+    loadAdminData();
+  };
+
+  const handleFindExistingByEmail = async () => {
+    const email = createForm.email.trim().toLowerCase();
+    if (!email) {
+      setFindExistingMsg("Enter an email first.");
+      return;
+    }
+    setFindExistingLoading(true);
+    setFindExistingMsg("");
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "findExistingUserByEmail", email },
+    });
+    setFindExistingLoading(false);
+    if (error) {
+      const message = await getInvokeErrorMessage(error, data);
+      setFindExistingMsg(`Error: ${message}`);
+      return;
+    }
+    if (data?.found) {
+      setFindExistingMsg("Existing Auth user found for this email.");
+      setDuplicateEmailPrompt({ email });
+      return;
+    }
+    setFindExistingMsg("No existing Auth user found for this email.");
+  };
+
+  const handleAllocateExistingUser = async () => {
+    setCreateLoading(true);
+    setCreateMsg("");
+    const isNewCompany = createForm.companyId === "__new__";
+    const companyId = isNewCompany ? null : (createForm.companyId || null);
+    const newCompanyName = isNewCompany ? (createForm.newCompanyName.trim() || null) : null;
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: {
+        action: "allocateTrialToExistingUser",
+        email: createForm.email.trim().toLowerCase(),
+        first_name: createForm.firstName.trim(),
+        surname: createForm.surname.trim(),
+        company_id: companyId,
+        new_company_name: newCompanyName,
+        role: createForm.role,
+        city: createForm.city || null,
+        state: createForm.state || null,
+        zip_code: createForm.zip || null,
+        cell_number: createForm.cell || null,
+        linkedin_url: createForm.linkedin || null,
+      },
+    });
+    setCreateLoading(false);
+    if (error) {
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
+    setCreateMsg(`Allocated trial to existing user: ${data?.email ?? createForm.email}`);
+    setDuplicateEmailPrompt(null);
+    setShowCreateForm(false);
+    setCreateForm({ ...EMPTY_CREATE_FORM });
     loadAdminData();
   };
 
@@ -427,9 +528,9 @@ export default function JanitorialManagerDashboard() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Delete this trial user? This cannot be undone.")) return;
+    if (!confirm("Delete this user everywhere? This removes both janitorial profile and Auth user permanently.")) return;
     const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
-      body: { action: "deleteUser", user_id: userId },
+      body: { action: "deleteUserEverywhere", user_id: userId },
     });
     if (error) {
       console.error("janitorial-admin-users deleteUser error", error);
@@ -437,6 +538,76 @@ export default function JanitorialManagerDashboard() {
       setCreateMsg(`Error: ${message}`);
       return;
     }
+    loadAdminData();
+  };
+
+  const handleRemoveJanitorialAccess = async (userId: string) => {
+    if (!confirm("Remove janitorial access only? This keeps the Auth user account.")) return;
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "removeJanitorialAccess", user_id: userId },
+    });
+    if (error) {
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
+    setCreateMsg("Removed janitorial access.");
+    loadAdminData();
+  };
+
+  const startEditUser = (user: AdminUser) => {
+    setEditUser(user);
+    setEditForm({
+      firstName: user.first_name ?? "",
+      surname: user.surname ?? "",
+      email: user.email ?? "",
+      password: "",
+      companyId: user.company_id ?? "",
+      newCompanyName: "",
+      role: user.role ?? "janitorial_owner",
+      city: user.city ?? "",
+      state: user.state ?? "",
+      zip: user.zip_code ?? "",
+      cell: user.cell_number ?? "",
+      linkedin: user.linkedin_url ?? "",
+      trial_expires_at: user.trial_expires_at ?? "",
+      can_edit_pricing: !!user.can_edit_pricing,
+      can_edit_branding: !!user.can_edit_branding,
+      is_frozen: !!user.is_frozen,
+    });
+  };
+
+  const handleUpdateUserProfile = async () => {
+    if (!editUser) return;
+    const isNewCompany = editForm.companyId === "__new__";
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: {
+        action: "updateUserProfile",
+        user_id: editUser.id,
+        email: editForm.email.trim().toLowerCase(),
+        first_name: editForm.firstName.trim(),
+        surname: editForm.surname.trim(),
+        company_id: isNewCompany ? null : (editForm.companyId || null),
+        new_company_name: isNewCompany ? (editForm.newCompanyName.trim() || null) : null,
+        role: editForm.role,
+        city: editForm.city || null,
+        state: editForm.state || null,
+        zip_code: editForm.zip || null,
+        cell_number: editForm.cell || null,
+        linkedin_url: editForm.linkedin || null,
+        trial_expires_at: editForm.trial_expires_at || null,
+        can_edit_pricing: editForm.can_edit_pricing,
+        can_edit_branding: editForm.can_edit_branding,
+        is_frozen: editForm.is_frozen,
+      },
+    });
+    if (error) {
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
+    setCreateMsg("User profile updated.");
+    setEditUser(null);
     loadAdminData();
   };
 
@@ -657,6 +828,27 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                     <div><Label className="text-xs">Cell Number (optional)</Label><Input type="tel" value={createForm.cell} onChange={e => setCreateForm(p => ({ ...p, cell: e.target.value }))} placeholder="+1 (206) 555-0100" /></div>
                     <div><Label className="text-xs">LinkedIn URL (optional)</Label><Input value={createForm.linkedin} onChange={e => setCreateForm(p => ({ ...p, linkedin: e.target.value }))} placeholder="https://linkedin.com/in/jane" /></div>
                   </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={handleFindExistingByEmail} disabled={findExistingLoading}>
+                      {findExistingLoading ? "Searching…" : "Search Existing by Email"}
+                    </Button>
+                    {findExistingMsg && <p className="text-sm text-muted-foreground">{findExistingMsg}</p>}
+                  </div>
+                  {duplicateEmailPrompt && (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+                      <p className="text-sm font-medium text-amber-900">
+                        This email already exists. Allocate a janitorial trial to this existing user?
+                      </p>
+                      <Button
+                        type="button"
+                        className="mt-2"
+                        onClick={handleAllocateExistingUser}
+                        disabled={createLoading}
+                      >
+                        Allocate Trial to Existing User
+                      </Button>
+                    </div>
+                  )}
                   {createMsg && <p className={`text-sm ${createMsg.startsWith("Error") ? "text-red-500" : "text-emerald-600"}`}>{createMsg}</p>}
                   <div className="flex gap-2 justify-end">
                     <Button variant="outline" onClick={() => setShowCreateForm(false)}>Cancel</Button>
@@ -702,6 +894,7 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                           <TableHead>Pricing</TableHead>
                           <TableHead>Branding</TableHead>
                           <TableHead>Status</TableHead>
+                          <TableHead>Auth</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -743,8 +936,23 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                                 {u.is_frozen ? "Frozen" : "Active"}
                               </Badge>
                             </TableCell>
+                            <TableCell className="text-xs">
+                              {u.auth_user ? (
+                                <span>{u.auth_user.is_banned ? "Banned" : "Exists"}</span>
+                              ) : (
+                                <span className="text-red-500">Missing</span>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <div className="flex gap-1 whitespace-nowrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => startEditUser(u)}
+                                >
+                                  Edit
+                                </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -755,11 +963,19 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                                 </Button>
                                 <Button
                                   size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => handleRemoveJanitorialAccess(u.id)}
+                                >
+                                  Remove Access
+                                </Button>
+                                <Button
+                                  size="sm"
                                   variant="destructive"
                                   className="h-7 px-2 text-xs"
                                   onClick={() => handleDeleteUser(u.id)}
                                 >
-                                  Delete
+                                  Delete Everywhere
                                 </Button>
                               </div>
                             </TableCell>
@@ -771,6 +987,54 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                 )}
               </CardContent>
             </Card>
+
+            <Dialog open={!!editUser} onOpenChange={(open) => { if (!open) setEditUser(null); }}>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader><DialogTitle>Edit Janitorial User</DialogTitle></DialogHeader>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div><Label className="text-xs">First Name</Label><Input value={editForm.firstName} onChange={e => setEditForm(p => ({ ...p, firstName: e.target.value }))} /></div>
+                  <div><Label className="text-xs">Surname</Label><Input value={editForm.surname} onChange={e => setEditForm(p => ({ ...p, surname: e.target.value }))} /></div>
+                  <div><Label className="text-xs">Email</Label><Input value={editForm.email} onChange={e => setEditForm(p => ({ ...p, email: e.target.value }))} /></div>
+                  <div>
+                    <Label className="text-xs">Role</Label>
+                    <Select value={editForm.role} onValueChange={v => setEditForm(p => ({ ...p, role: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="janitorial_owner">Owner</SelectItem>
+                        <SelectItem value="janitorial_manager">Manager</SelectItem>
+                        <SelectItem value="janitorial_sales_rep">Sales Rep</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Company</Label>
+                    <Select value={editForm.companyId} onValueChange={v => setEditForm(p => ({ ...p, companyId: v, newCompanyName: v === "__new__" ? p.newCompanyName : "" }))}>
+                      <SelectTrigger><SelectValue placeholder="Select or create company" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__new__">+ New company…</SelectItem>
+                        {adminCompanies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {editForm.companyId === "__new__" && (
+                      <Input className="mt-1.5" placeholder="Company name" value={editForm.newCompanyName} onChange={e => setEditForm(p => ({ ...p, newCompanyName: e.target.value }))} />
+                    )}
+                  </div>
+                  <div><Label className="text-xs">Trial Expires (ISO)</Label><Input value={editForm.trial_expires_at} onChange={e => setEditForm(p => ({ ...p, trial_expires_at: e.target.value }))} /></div>
+                  <div><Label className="text-xs">City</Label><Input value={editForm.city} onChange={e => setEditForm(p => ({ ...p, city: e.target.value }))} /></div>
+                  <div><Label className="text-xs">State</Label><Input value={editForm.state} onChange={e => setEditForm(p => ({ ...p, state: e.target.value }))} /></div>
+                  <div><Label className="text-xs">ZIP</Label><Input value={editForm.zip} onChange={e => setEditForm(p => ({ ...p, zip: e.target.value }))} /></div>
+                  <div><Label className="text-xs">Cell</Label><Input value={editForm.cell} onChange={e => setEditForm(p => ({ ...p, cell: e.target.value }))} /></div>
+                  <div><Label className="text-xs">LinkedIn</Label><Input value={editForm.linkedin} onChange={e => setEditForm(p => ({ ...p, linkedin: e.target.value }))} /></div>
+                  <div className="flex items-center justify-between"><Label className="text-xs">Can Edit Pricing</Label><Switch checked={editForm.can_edit_pricing} onCheckedChange={v => setEditForm(p => ({ ...p, can_edit_pricing: v }))} /></div>
+                  <div className="flex items-center justify-between"><Label className="text-xs">Can Edit Branding</Label><Switch checked={editForm.can_edit_branding} onCheckedChange={v => setEditForm(p => ({ ...p, can_edit_branding: v }))} /></div>
+                  <div className="flex items-center justify-between"><Label className="text-xs">Frozen</Label><Switch checked={editForm.is_frozen} onCheckedChange={v => setEditForm(p => ({ ...p, is_frozen: v }))} /></div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setEditUser(null)}>Cancel</Button>
+                  <Button onClick={handleUpdateUserProfile}>Save</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </TabsContent>
 

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,32 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+type AdminUser = {
+  id: string;
+  first_name: string;
+  surname: string;
+  email: string;
+  company_name: string | null;
+  company_id: string | null;
+  role: string;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  cell_number: string | null;
+  linkedin_url: string | null;
+  trial_expires_at: string | null;
+  can_edit_pricing: boolean;
+  can_edit_branding: boolean;
+  is_frozen: boolean;
+};
+type AdminCompany = { id: string; name: string };
+
+const EMPTY_CREATE_FORM = {
+  firstName: "", surname: "", email: "", password: "",
+  companyId: "", newCompanyName: "", role: "janitorial_owner",
+  city: "", state: "", zip: "", cell: "", linkedin: "",
+};
 
 type CrmStatus = "Lead" | "Opportunity" | "Won" | "Lost" | "Active";
 type PipelineColumn = "Leads" | "Opportunities" | "Won Contracts" | "Lost / Archived";
@@ -250,6 +277,101 @@ function SettingsModal({ open, onOpenChange, settings, onSave }: { open: boolean
 
 export default function JanitorialManagerDashboard() {
   const [activeTab, setActiveTab] = useState("active-contracts");
+
+  // ── Admin Manager state ──────────────────────────────────────────────
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [adminCompanies, setAdminCompanies] = useState<AdminCompany[]>([]);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({ ...EMPTY_CREATE_FORM });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createMsg, setCreateMsg] = useState("");
+
+  const loadAdminData = useCallback(async () => {
+    setAdminLoading(true);
+    setAdminError("");
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "list" },
+    });
+    setAdminLoading(false);
+    if (error) { setAdminError(error.message); return; }
+    setAdminUsers(data?.users ?? []);
+    setAdminCompanies(data?.companies ?? []);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "admin-manager") loadAdminData();
+  }, [activeTab, loadAdminData]);
+
+  const handleZipLookup = useCallback(async (zip: string) => {
+    if (zip.length !== 5) return;
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (!res.ok) return;
+      const json = await res.json();
+      const place = json["places"]?.[0];
+      if (place) {
+        setCreateForm(prev => ({
+          ...prev,
+          city: place["place name"] ?? prev.city,
+          state: place["state abbreviation"] ?? prev.state,
+        }));
+      }
+    } catch { /* silent */ }
+  }, []);
+
+  const handleCreateUser = async () => {
+    setCreateLoading(true);
+    setCreateMsg("");
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: {
+        action: "createUser",
+        first_name: createForm.firstName,
+        surname: createForm.surname,
+        email: createForm.email,
+        password: createForm.password,
+        company_id: createForm.companyId || null,
+        new_company_name: createForm.companyId ? null : createForm.newCompanyName || null,
+        role: createForm.role,
+        city: createForm.city || null,
+        state: createForm.state || null,
+        zip_code: createForm.zip || null,
+        cell_number: createForm.cell || null,
+        linkedin_url: createForm.linkedin || null,
+      },
+    });
+    setCreateLoading(false);
+    if (error) { setCreateMsg(`Error: ${error.message}`); return; }
+    setCreateMsg(`Trial user created: ${data?.email ?? createForm.email}`);
+    setCreateForm({ ...EMPTY_CREATE_FORM });
+    setShowCreateForm(false);
+    loadAdminData();
+  };
+
+  const handleFreezeUser = async (userId: string, freeze: boolean) => {
+    await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: freeze ? "freeze" : "unfreeze", user_id: userId },
+    });
+    loadAdminData();
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Delete this trial user? This cannot be undone.")) return;
+    await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "deleteUser", user_id: userId },
+    });
+    loadAdminData();
+  };
+
+  const handleTogglePerm = async (userId: string, field: "can_edit_pricing" | "can_edit_branding", value: boolean) => {
+    await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "updatePermissions", user_id: userId, [field]: value },
+    });
+    loadAdminData();
+  };
+  // ────────────────────────────────────────────────────────────────────
+
   const [clientFilter, setClientFilter] = useState("All Clients");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -370,6 +492,12 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4 h-auto flex-wrap rounded-2xl p-1">
+          <TabsTrigger
+            value="admin-manager"
+            className="data-[state=active]:bg-[#2563eb] data-[state=active]:text-white data-[state=inactive]:bg-[#2563eb]/20 data-[state=inactive]:text-[#2563eb] font-semibold"
+          >
+            ADMIN-MANAGER
+          </TabsTrigger>
           <TabsTrigger value="active-contracts">Active Janitorial Contracts</TabsTrigger>
           <TabsTrigger value="historical-jobs">Historical Janitorial Jobs</TabsTrigger>
           <TabsTrigger value="walkthroughs">Janitorial Walkthroughs</TabsTrigger>
@@ -379,6 +507,190 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
           <TabsTrigger value="calculator">Janitorial Pricing Calculator</TabsTrigger>
           <TabsTrigger value="new-bid">New Bid / Proposal</TabsTrigger>
         </TabsList>
+
+        {/* ── ADMIN-MANAGER tab (full-width, outside the 3-col grid) ── */}
+        <TabsContent value="admin-manager" className="mt-0">
+          <div className="space-y-4">
+            {/* Top: Create Trial User button */}
+            <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-2">
+              <p className="text-sm font-semibold text-blue-800">Trial User Management</p>
+              <button
+                type="button"
+                onClick={() => { setShowCreateForm(v => !v); setCreateMsg(""); }}
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+                style={{ backgroundColor: "#2563eb" }}
+              >
+                {showCreateForm ? "Cancel" : "Create Trial User"}
+              </button>
+            </div>
+
+            {/* Create form (collapsible) */}
+            {showCreateForm && (
+              <Card className="rounded-2xl border-blue-200">
+                <CardHeader className="py-3"><CardTitle className="text-sm text-blue-700">New Trial User (7-day access)</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div><Label className="text-xs">First Name *</Label><Input value={createForm.firstName} onChange={e => setCreateForm(p => ({ ...p, firstName: e.target.value }))} placeholder="Jane" /></div>
+                    <div><Label className="text-xs">Surname *</Label><Input value={createForm.surname} onChange={e => setCreateForm(p => ({ ...p, surname: e.target.value }))} placeholder="Smith" /></div>
+                    <div><Label className="text-xs">Email *</Label><Input type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} placeholder="jane@company.com" /></div>
+                    <div><Label className="text-xs">Password *</Label><Input type="password" value={createForm.password} onChange={e => setCreateForm(p => ({ ...p, password: e.target.value }))} placeholder="Temp password" /></div>
+                    <div>
+                      <Label className="text-xs">Company</Label>
+                      <Select value={createForm.companyId} onValueChange={v => setCreateForm(p => ({ ...p, companyId: v, newCompanyName: v === "__new__" ? p.newCompanyName : "" }))}>
+                        <SelectTrigger><SelectValue placeholder="Select or create company" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__new__">+ New company…</SelectItem>
+                          {adminCompanies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {createForm.companyId === "__new__" && (
+                        <Input className="mt-1.5" placeholder="Company name" value={createForm.newCompanyName} onChange={e => setCreateForm(p => ({ ...p, newCompanyName: e.target.value }))} />
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-xs">Role *</Label>
+                      <Select value={createForm.role} onValueChange={v => setCreateForm(p => ({ ...p, role: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="janitorial_owner">Owner</SelectItem>
+                          <SelectItem value="janitorial_manager">Manager</SelectItem>
+                          <SelectItem value="janitorial_sales_rep">Sales Rep</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">ZIP (optional — auto-fills City/State)</Label>
+                      <Input
+                        value={createForm.zip}
+                        maxLength={5}
+                        onChange={e => {
+                          setCreateForm(p => ({ ...p, zip: e.target.value }));
+                          handleZipLookup(e.target.value);
+                        }}
+                        placeholder="e.g. 98101"
+                      />
+                    </div>
+                    <div><Label className="text-xs">City (optional)</Label><Input value={createForm.city} onChange={e => setCreateForm(p => ({ ...p, city: e.target.value }))} placeholder="Seattle" /></div>
+                    <div><Label className="text-xs">State (optional)</Label><Input value={createForm.state} onChange={e => setCreateForm(p => ({ ...p, state: e.target.value }))} placeholder="WA" /></div>
+                    <div><Label className="text-xs">Cell Number (optional)</Label><Input type="tel" value={createForm.cell} onChange={e => setCreateForm(p => ({ ...p, cell: e.target.value }))} placeholder="+1 (206) 555-0100" /></div>
+                    <div><Label className="text-xs">LinkedIn URL (optional)</Label><Input value={createForm.linkedin} onChange={e => setCreateForm(p => ({ ...p, linkedin: e.target.value }))} placeholder="https://linkedin.com/in/jane" /></div>
+                  </div>
+                  {createMsg && <p className={`text-sm ${createMsg.startsWith("Error") ? "text-red-500" : "text-emerald-600"}`}>{createMsg}</p>}
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setShowCreateForm(false)}>Cancel</Button>
+                    <Button
+                      disabled={createLoading || !createForm.firstName || !createForm.email || !createForm.password}
+                      onClick={handleCreateUser}
+                      style={{ backgroundColor: "#2563eb" }}
+                      className="text-white hover:opacity-90"
+                    >
+                      {createLoading ? "Creating…" : "Create Trial User"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Users table (bottom) */}
+            <Card className="rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between py-3">
+                <CardTitle className="text-sm">Trial Users</CardTitle>
+                <Button variant="outline" size="sm" onClick={loadAdminData} disabled={adminLoading}>
+                  {adminLoading ? "Loading…" : "Refresh"}
+                </Button>
+              </CardHeader>
+              <CardContent className="p-0">
+                {adminError && <p className="px-4 py-3 text-sm text-red-500">{adminError}</p>}
+                {!adminLoading && adminUsers.length === 0 && !adminError && (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">No trial users yet.</p>
+                )}
+                {adminUsers.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Company</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>City / State</TableHead>
+                          <TableHead>Cell</TableHead>
+                          <TableHead>LinkedIn</TableHead>
+                          <TableHead>Trial Ends</TableHead>
+                          <TableHead>Pricing</TableHead>
+                          <TableHead>Branding</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {adminUsers.map(u => (
+                          <TableRow key={u.id} className={u.is_frozen ? "opacity-50" : ""}>
+                            <TableCell className="font-medium whitespace-nowrap">{u.first_name} {u.surname}</TableCell>
+                            <TableCell className="text-xs">{u.email}</TableCell>
+                            <TableCell className="text-xs">{u.company_name ?? "—"}</TableCell>
+                            <TableCell><Badge variant="outline" className="text-xs">{u.role.replace("janitorial_", "")}</Badge></TableCell>
+                            <TableCell className="text-xs whitespace-nowrap">{[u.city, u.state].filter(Boolean).join(", ") || "—"}</TableCell>
+                            <TableCell className="text-xs">
+                              {u.cell_number ? <a href={`tel:${u.cell_number}`} className="text-primary hover:underline">{u.cell_number}</a> : "—"}
+                            </TableCell>
+                            <TableCell>
+                              {u.linkedin_url ? (
+                                <a href={u.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                                  in
+                                </a>
+                              ) : "—"}
+                            </TableCell>
+                            <TableCell className="text-xs whitespace-nowrap">
+                              {u.trial_expires_at ? new Date(u.trial_expires_at).toLocaleDateString() : "—"}
+                            </TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={u.can_edit_pricing}
+                                onCheckedChange={v => handleTogglePerm(u.id, "can_edit_pricing", v)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={u.can_edit_branding}
+                                onCheckedChange={v => handleTogglePerm(u.id, "can_edit_branding", v)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={u.is_frozen ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"}>
+                                {u.is_frozen ? "Frozen" : "Active"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1 whitespace-nowrap">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => handleFreezeUser(u.id, !u.is_frozen)}
+                                >
+                                  {u.is_frozen ? "Unfreeze" : "Freeze"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={() => handleDeleteUser(u.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">

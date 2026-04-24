@@ -42,16 +42,16 @@ interface ActiveSubscription {
 
 const TIERS = {
   starter: {
-    name: 'Starter', monthly: 89, annual: 79, annualTotal: 948, veteranAnnual: 69, veteranTotal: 828, users: '5 users', popular: false,
+    name: 'Starter', monthly: 14.99, annual: 12.49, annualTotal: 149.90, veteranAnnual: 11.24, veteranTotal: 134.91, users: 'per user / mo', popular: false,
     features: ['Core AI bidding engine', 'Up to 5 users', 'Basic proposal builder', 'Pipeline tracking', 'Email quote output', 'CSV export'],
   },
   professional: {
-    name: 'Professional', monthly: 169, annual: 149, annualTotal: 1788, veteranAnnual: 129, veteranTotal: 1548, users: '5 users', popular: true,
+    name: 'Pro', monthly: 149.99, annual: 124.99, annualTotal: 1499.90, veteranAnnual: 112.49, veteranTotal: 1349.91, users: 'per user / mo', popular: true,
     features: ['Everything in Starter', 'Full CRM & pipeline', 'AI Sales Reports', 'Weather + Traffic intel', 'Dual email system', 'Client + Rep branding', 'Win probability scores'],
   },
   growth: {
-    name: 'Growth', monthly: 279, annual: 249, annualTotal: 2988, veteranAnnual: 219, veteranTotal: 2628, users: '10 users', popular: false,
-    features: ['Everything in Professional', 'Priority support (4hr SLA)', 'Advanced CRM sync', 'Custom branding', 'API access', 'Dedicated account manager'],
+    name: 'Growth', monthly: 49.99, annual: 41.66, annualTotal: 499.90, veteranAnnual: 37.49, veteranTotal: 449.91, users: 'per user / mo', popular: false,
+    features: ['Everything in Pro', 'Priority support (4hr SLA)', 'Advanced CRM sync', 'Custom branding', 'API access', 'Dedicated account manager'],
   },
 } as const;
 

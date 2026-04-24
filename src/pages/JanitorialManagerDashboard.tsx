@@ -288,6 +288,48 @@ export default function JanitorialManagerDashboard() {
   const [createLoading, setCreateLoading] = useState(false);
   const [createMsg, setCreateMsg] = useState("");
 
+  const getInvokeErrorMessage = useCallback(async (
+    error: unknown,
+    fallbackData?: unknown,
+  ) => {
+    const dataRecord = (fallbackData && typeof fallbackData === "object")
+      ? (fallbackData as Record<string, unknown>)
+      : null;
+    const errorRecord = (error && typeof error === "object")
+      ? (error as Record<string, unknown>)
+      : null;
+
+    if (dataRecord?.error && typeof dataRecord.error === "string") {
+      const detailParts = [
+        dataRecord.error,
+        typeof dataRecord.step === "string" ? `(step: ${dataRecord.step})` : null,
+        typeof dataRecord.details === "string" ? `details: ${dataRecord.details}` : null,
+      ].filter(Boolean);
+      return detailParts.join(" ");
+    }
+
+    const context = errorRecord?.context;
+    if (context && typeof context === "object" && "json" in (context as object)) {
+      try {
+        const payload = await (context as { json: () => Promise<Record<string, unknown>> }).json();
+        if (typeof payload?.error === "string") {
+          const detailParts = [
+            payload.error,
+            typeof payload.step === "string" ? `(step: ${payload.step})` : null,
+            typeof payload.details === "string" ? `details: ${payload.details}` : null,
+          ].filter(Boolean);
+          return detailParts.join(" ");
+        }
+      } catch {
+        // ignore parse errors and use fallback
+      }
+    }
+
+    return typeof errorRecord?.message === "string"
+      ? errorRecord.message
+      : "Edge function request failed";
+  }, []);
+
   const loadAdminData = useCallback(async () => {
     setAdminLoading(true);
     setAdminError("");
@@ -295,10 +337,15 @@ export default function JanitorialManagerDashboard() {
       body: { action: "list" },
     });
     setAdminLoading(false);
-    if (error) { setAdminError(error.message); return; }
+    if (error) {
+      console.error("janitorial-admin-users list error", error);
+      const message = await getInvokeErrorMessage(error, data);
+      setAdminError(message);
+      return;
+    }
     setAdminUsers(data?.users ?? []);
     setAdminCompanies(data?.companies ?? []);
-  }, []);
+  }, [getInvokeErrorMessage]);
 
   useEffect(() => {
     if (activeTab === "admin-manager") loadAdminData();
@@ -349,7 +396,8 @@ export default function JanitorialManagerDashboard() {
     setCreateLoading(false);
 
     if (error) {
-      const detailedMessage = typeof data?.error === "string" ? data.error : error.message;
+      console.error("janitorial-admin-users createUser error", error);
+      const detailedMessage = await getInvokeErrorMessage(error, data);
       setCreateMsg(`Error: ${detailedMessage}`);
       return;
     }
@@ -366,24 +414,42 @@ export default function JanitorialManagerDashboard() {
   };
 
   const handleFreezeUser = async (userId: string, freeze: boolean) => {
-    await supabase.functions.invoke("janitorial-admin-users", {
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: { action: freeze ? "freeze" : "unfreeze", user_id: userId },
     });
+    if (error) {
+      console.error("janitorial-admin-users freeze/unfreeze error", error);
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
     loadAdminData();
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm("Delete this trial user? This cannot be undone.")) return;
-    await supabase.functions.invoke("janitorial-admin-users", {
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: { action: "deleteUser", user_id: userId },
     });
+    if (error) {
+      console.error("janitorial-admin-users deleteUser error", error);
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
     loadAdminData();
   };
 
   const handleTogglePerm = async (userId: string, field: "can_edit_pricing" | "can_edit_branding", value: boolean) => {
-    await supabase.functions.invoke("janitorial-admin-users", {
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: { action: "updatePermissions", user_id: userId, [field]: value },
     });
+    if (error) {
+      console.error("janitorial-admin-users updatePermissions error", error);
+      const message = await getInvokeErrorMessage(error, data);
+      setCreateMsg(`Error: ${message}`);
+      return;
+    }
     loadAdminData();
   };
   // ────────────────────────────────────────────────────────────────────

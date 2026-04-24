@@ -21,6 +21,8 @@ type CreateUserPayload = {
   zip_code?: string | null;
   cell_number?: string | null;
   linkedin_url?: string | null;
+  can_edit_pricing?: boolean;
+  can_edit_branding?: boolean;
 };
 
 const jsonResponse = (status: number, body: JsonRecord) =>
@@ -41,9 +43,26 @@ const errorResponse = (
     details: details ? String(details) : null,
   });
 
+const getTableColumns = async (supabase: ReturnType<typeof createClient>, tableName: string) => {
+  const { data, error } = await supabase
+    .from("information_schema.columns")
+    .select("column_name")
+    .eq("table_schema", "public")
+    .eq("table_name", tableName);
+
+  if (error) {
+    return { columns: new Set<string>(), error };
+  }
+
+  return {
+    columns: new Set((data ?? []).map((row) => String((row as { column_name: string }).column_name))),
+    error: null,
+  };
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { status: 200, headers: corsHeaders });
   }
 
   let body: JsonRecord = {};
@@ -73,7 +92,7 @@ serve(async (req) => {
     const [{ data: users, error: usersError }, { data: companies, error: companiesError }] = await Promise.all([
       supabase
         .from("janitorial_user_profiles")
-        .select("id, email, first_name, surname, role, company_id, city, state, zip_code, cell_number, linkedin_url, trial_expires_at, can_edit_pricing, can_edit_branding, is_frozen, created_at")
+        .select("id, email, first_name, surname, role, company_id, company_name, city, state, zip_code, cell_number, linkedin_url, trial_expires_at, can_edit_pricing, can_edit_branding, is_frozen, created_at")
         .order("created_at", { ascending: false }),
       supabase
         .from("janitorial_companies")
@@ -89,7 +108,13 @@ serve(async (req) => {
       return errorResponse(500, "Failed to load companies", "list_companies", companiesError.message);
     }
 
-    return jsonResponse(200, { users: users ?? [], companies: companies ?? [] });
+    const companyNameById = new Map((companies ?? []).map((company) => [company.id, company.name]));
+    const hydratedUsers = (users ?? []).map((user) => ({
+      ...user,
+      company_name: user.company_name ?? (user.company_id ? companyNameById.get(user.company_id) ?? null : null),
+    }));
+
+    return jsonResponse(200, { users: hydratedUsers, companies: companies ?? [] });
   }
 
   if (action === "createUser") {
@@ -109,34 +134,46 @@ serve(async (req) => {
       );
     }
 
-    console.log("janitorial-admin-users: validated payload", {
-      email,
-      role,
-      has_company_id: Boolean(payload.company_id),
-      has_new_company_name: Boolean(payload.new_company_name),
-    });
+    console.log("janitorial-admin-users: validation passed", { email, role });
 
     const requestedCompanyId = payload.company_id === "__new__" ? null : payload.company_id ?? null;
     const newCompanyName = payload.new_company_name?.trim() || null;
 
     let companyId: string | null = requestedCompanyId;
+    let companyName: string | null = null;
 
     if (newCompanyName) {
-      const { data: insertedCompany, error: companyInsertError } = await supabase
+      const { data: existingCompany, error: existingCompanyError } = await supabase
         .from("janitorial_companies")
-        .insert({ name: newCompanyName })
-        .select("id")
-        .single();
+        .select("id, name")
+        .ilike("name", newCompanyName)
+        .maybeSingle();
 
-      if (companyInsertError) {
-        return errorResponse(500, "Failed to create company", "create_company", companyInsertError.message);
+      if (existingCompanyError) {
+        return errorResponse(500, "Failed to resolve company", "resolve_company", existingCompanyError.message);
       }
 
-      companyId = insertedCompany.id;
+      if (existingCompany) {
+        companyId = existingCompany.id;
+        companyName = existingCompany.name;
+      } else {
+        const { data: insertedCompany, error: companyInsertError } = await supabase
+          .from("janitorial_companies")
+          .insert({ name: newCompanyName })
+          .select("id, name")
+          .single();
+
+        if (companyInsertError) {
+          return errorResponse(500, "Failed to create company", "create_company", companyInsertError.message);
+        }
+
+        companyId = insertedCompany.id;
+        companyName = insertedCompany.name;
+      }
     } else if (companyId) {
       const { data: existingCompany, error: companyLookupError } = await supabase
         .from("janitorial_companies")
-        .select("id")
+        .select("id, name")
         .eq("id", companyId)
         .maybeSingle();
 
@@ -147,10 +184,13 @@ serve(async (req) => {
       if (!existingCompany) {
         return errorResponse(400, "Invalid company_id", "resolve_company", "Company not found");
       }
+
+      companyName = existingCompany.name;
     }
 
-    console.log("janitorial-admin-users: company resolved", { companyId });
+    console.log("janitorial-admin-users: company resolved", { companyId, companyName });
 
+    const fullName = `${firstName} ${surname}`.trim();
     const { data: createdUserData, error: createUserError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -158,7 +198,10 @@ serve(async (req) => {
       user_metadata: {
         first_name: firstName,
         surname,
+        full_name: fullName,
         role,
+        company_id: companyId,
+        company_name: companyName,
       },
     });
 
@@ -166,7 +209,7 @@ serve(async (req) => {
       const lowerMessage = createUserError.message.toLowerCase();
       const isDuplicateEmail = lowerMessage.includes("already") || lowerMessage.includes("exists") || createUserError.status === 422;
       if (isDuplicateEmail) {
-        return errorResponse(409, "User already exists for this email", "create_auth_user", createUserError.message);
+        return errorResponse(409, "A user with this email already exists", "create_auth_user", createUserError.message);
       }
       return errorResponse(500, "Failed to create auth user", "create_auth_user", createUserError.message);
     }
@@ -180,23 +223,42 @@ serve(async (req) => {
 
     const trialExpiresAt = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString();
 
+    const { columns, error: columnsError } = await getTableColumns(supabase, "janitorial_user_profiles");
+    if (columnsError) {
+      return errorResponse(500, "Failed to inspect profile schema", "inspect_profile_schema", columnsError.message);
+    }
+
+    const profileUpsert: JsonRecord = {
+      id: createdUserId,
+      email,
+      first_name: firstName,
+      surname,
+      role,
+      company_id: companyId,
+      city: payload.city ?? null,
+      state: payload.state ?? null,
+      zip_code: payload.zip_code ?? null,
+      cell_number: payload.cell_number ?? null,
+      linkedin_url: payload.linkedin_url ?? null,
+      trial_expires_at: trialExpiresAt,
+      can_edit_pricing: payload.can_edit_pricing ?? false,
+      can_edit_branding: payload.can_edit_branding ?? false,
+      is_frozen: false,
+    };
+
+    if (columns.has("company_name")) {
+      profileUpsert.company_name = companyName;
+    }
+
+    for (const key of Object.keys(profileUpsert)) {
+      if (!columns.has(key)) {
+        delete profileUpsert[key];
+      }
+    }
+
     const { error: profileError } = await supabase
       .from("janitorial_user_profiles")
-      .upsert({
-        id: createdUserId,
-        email,
-        first_name: firstName,
-        surname,
-        role,
-        company_id: companyId,
-        city: payload.city ?? null,
-        state: payload.state ?? null,
-        zip_code: payload.zip_code ?? null,
-        cell_number: payload.cell_number ?? null,
-        linkedin_url: payload.linkedin_url ?? null,
-        trial_expires_at: trialExpiresAt,
-        is_frozen: false,
-      });
+      .upsert(profileUpsert);
 
     if (profileError) {
       return errorResponse(500, "Failed to upsert user profile", "upsert_profile", profileError.message);
@@ -210,6 +272,7 @@ serve(async (req) => {
       user_id: createdUserId,
       email,
       company_id: companyId,
+      company_name: companyName,
       trial_expires_at: trialExpiresAt,
     });
   }

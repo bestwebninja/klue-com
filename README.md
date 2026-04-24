@@ -75,3 +75,5 @@ Required structure:
 - Database logic lives in `lib/supabase/`
 - Metrics and calculations live in `lib/metrics/`
 - SQL schema lives in `supabase/migrations/`
+
+<!-- Lovable sync nudge: PR #169 / commit 3c04d999040fc9bf8a0466a1e1fbec25d7410f6a -->

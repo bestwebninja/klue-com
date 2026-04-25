@@ -331,6 +331,98 @@ serve(async (req) => {
       const lowerMessage = createUserError.message.toLowerCase();
       const isDuplicateEmail = lowerMessage.includes("already") || lowerMessage.includes("exists") || createUserError.status === 422 || createUserError.status === 409;
       if (isDuplicateEmail) {
+        const { user: existingAuthUser, error: existingAuthLookupError } = await findAuthUserByEmail(supabase, email);
+        if (existingAuthLookupError) {
+          return errorResponse(500, "Failed to find existing auth user", "find_auth_user", existingAuthLookupError.message);
+        }
+
+        if (existingAuthUser) {
+          const { data: existingProfile, error: existingProfileError } = await supabase
+            .from("janitorial_user_profiles")
+            .select("id")
+            .eq("id", existingAuthUser.id)
+            .maybeSingle();
+
+          if (existingProfileError) {
+            return errorResponse(500, "Failed to inspect existing janitorial profile", "find_profile", existingProfileError.message);
+          }
+
+          if (!existingProfile) {
+            const trialDays = typeof payload.trial_days === "number" && Number.isFinite(payload.trial_days) && payload.trial_days > 0
+              ? Math.floor(payload.trial_days)
+              : 7;
+            const trialExpiresAt = new Date(Date.now() + (trialDays * 24 * 60 * 60 * 1000)).toISOString();
+            const { columns, error: columnsError } = await getTableColumns(supabase, "janitorial_user_profiles");
+            if (columnsError) {
+              return errorResponse(500, "Failed to inspect profile schema", "inspect_profile_schema", columnsError.message);
+            }
+
+            const profileUpsert: JsonRecord = {
+              id: existingAuthUser.id,
+              email,
+              first_name: firstName,
+              surname,
+              role,
+              company_id: companyId,
+              city: payload.city ?? null,
+              state: payload.state ?? null,
+              zip_code: payload.zip_code ?? null,
+              cell_number: payload.cell_number ?? null,
+              linkedin_url: payload.linkedin_url ?? null,
+              trial_expires_at: trialExpiresAt,
+              can_edit_pricing: payload.can_edit_pricing ?? false,
+              can_edit_branding: payload.can_edit_branding ?? false,
+              is_frozen: false,
+            };
+
+            if (columns.has("company_name")) {
+              profileUpsert.company_name = companyName;
+            }
+
+            for (const key of Object.keys(profileUpsert)) {
+              if (!columns.has(key)) {
+                delete profileUpsert[key];
+              }
+            }
+
+            const { error: profileUpsertError } = await supabase
+              .from("janitorial_user_profiles")
+              .upsert(profileUpsert, { onConflict: "id" });
+
+            if (profileUpsertError) {
+              return errorResponse(500, "Failed to upsert user profile", "upsert_profile", profileUpsertError.message);
+            }
+
+            const { error: authUpdateError } = await supabase.auth.admin.updateUserById(existingAuthUser.id, {
+              user_metadata: {
+                ...(existingAuthUser.user_metadata ?? {}),
+                janitorial_trial: true,
+                first_name: firstName,
+                surname,
+                full_name: fullName,
+                role,
+                company_id: companyId,
+                company_name: companyName,
+              },
+            });
+
+            if (authUpdateError) {
+              return errorResponse(500, "Failed to update auth user metadata", "update_auth_user", authUpdateError.message);
+            }
+
+            return jsonResponse(200, {
+              success: true,
+              adopted_existing_user: true,
+              recovered_orphaned_auth_user: true,
+              user_id: existingAuthUser.id,
+              email,
+              company_id: companyId,
+              company_name: companyName,
+              trial_expires_at: trialExpiresAt,
+            });
+          }
+        }
+
         return jsonResponse(409, {
           error: "A user with this email already exists",
           step: "create_auth_user",

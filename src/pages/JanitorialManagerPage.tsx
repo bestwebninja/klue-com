@@ -3,8 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const JANITORIAL_ADMIN_EMAILS = [
+  "marcus@kluje.com",
+  "divitiae.terrae.llc@gmail.com",
+  "marcusmommsen@gmail.com",
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHOPIFY PRODUCT URLs — update each value with the exact product page URL
@@ -151,12 +158,31 @@ export default function JanitorialManagerPage() {
     e.preventDefault();
     setLoginError("");
     setLoginLoading(true);
+
     const { error } = await signIn(loginEmail, loginPassword);
     if (error) {
       setLoginError(error.message || "Login failed. Please check your credentials.");
-    } else {
-      navigate("/janitorial-dashboard");
+      setLoginLoading(false);
+      return;
     }
+
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const email = currentUser?.email?.trim().toLowerCase() ?? "";
+    const isAdmin = JANITORIAL_ADMIN_EMAILS.includes(email);
+    const hasTrialAccess = currentUser?.user_metadata?.janitorial_trial === true;
+
+    if (!isAdmin && !hasTrialAccess) {
+      await supabase.auth.signOut({ scope: "local" });
+      setLoginError(
+        "Account not active in our live system. We couldn't sign you in. " +
+        "If you've already requested access, your live account may not be activated yet. " +
+        "Please contact support or request access below.",
+      );
+      setLoginLoading(false);
+      return;
+    }
+
+    navigate("/janitorial-dashboard");
     setLoginLoading(false);
   };
 

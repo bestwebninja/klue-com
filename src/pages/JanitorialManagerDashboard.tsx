@@ -41,9 +41,64 @@ type AdminCompany = { id: string; name: string };
 
 const EMPTY_CREATE_FORM = {
   firstName: "", surname: "", email: "", password: "",
-  companyId: "", newCompanyName: "", role: "janitorial_owner",
+  companyId: "", newCompanyName: "", companyText: "", role: "janitorial_owner",
   city: "", state: "", zip: "", cell: "", linkedin: "",
 };
+
+function CompanyComboBox({
+  companies,
+  companyId,
+  companyText,
+  onSelect,
+  placeholder = "Type 3+ letters to search…",
+}: {
+  companies: AdminCompany[];
+  companyId: string;
+  companyText: string;
+  onSelect: (id: string, text: string) => void;
+  placeholder?: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const isExisting = !!companyId;
+  const suggestions = companyText.length >= 3
+    ? companies.filter(c => c.name.toLowerCase().includes(companyText.toLowerCase())).slice(0, 8)
+    : [];
+
+  return (
+    <div className="relative">
+      <Input
+        value={companyText}
+        onChange={e => { onSelect("", e.target.value); setOpen(true); }}
+        onFocus={() => { if (companyText.length >= 3) setOpen(true); }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        placeholder={placeholder}
+        className={isExisting ? "border-emerald-500" : ""}
+      />
+      {isExisting && (
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-emerald-600 font-medium">✓</span>
+      )}
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-48 overflow-y-auto">
+          {suggestions.map(c => (
+            <button
+              key={c.id}
+              type="button"
+              className="w-full px-3 py-2 text-left text-sm hover:bg-accent"
+              onMouseDown={() => { onSelect(c.id, c.name); setOpen(false); }}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+      {open && companyText.length >= 3 && suggestions.length === 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg">
+          <div className="px-3 py-2 text-xs text-muted-foreground">No match — will create "{companyText}" as new company</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type CrmStatus = "Lead" | "Opportunity" | "Won" | "Lost" | "Active";
 type PipelineColumn = "Leads" | "Opportunities" | "Won Contracts" | "Lost / Archived";
@@ -405,9 +460,8 @@ export default function JanitorialManagerDashboard() {
     setCreateMsg("");
     setDuplicateEmailPrompt(null);
 
-    const isNewCompany = createForm.companyId === "__new__";
-    const companyId = isNewCompany ? null : (createForm.companyId || null);
-    const newCompanyName = isNewCompany ? (createForm.newCompanyName.trim() || null) : null;
+    const companyId = createForm.companyId || null;
+    const newCompanyName = !companyId && createForm.companyText.trim() ? createForm.companyText.trim() : null;
 
     const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: {
@@ -482,9 +536,8 @@ export default function JanitorialManagerDashboard() {
   const handleAllocateExistingUser = async () => {
     setCreateLoading(true);
     setCreateMsg("");
-    const isNewCompany = createForm.companyId === "__new__";
-    const companyId = isNewCompany ? null : (createForm.companyId || null);
-    const newCompanyName = isNewCompany ? (createForm.newCompanyName.trim() || null) : null;
+    const companyId = createForm.companyId || null;
+    const newCompanyName = !companyId && createForm.companyText.trim() ? createForm.companyText.trim() : null;
     const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: {
         action: "allocateTrialToExistingUser",
@@ -557,6 +610,7 @@ export default function JanitorialManagerDashboard() {
 
   const startEditUser = (user: AdminUser) => {
     setEditUser(user);
+    const existingCompanyName = user.company_name ?? "";
     setEditForm({
       firstName: user.first_name ?? "",
       surname: user.surname ?? "",
@@ -564,6 +618,7 @@ export default function JanitorialManagerDashboard() {
       password: "",
       companyId: user.company_id ?? "",
       newCompanyName: "",
+      companyText: existingCompanyName,
       role: user.role ?? "janitorial_owner",
       city: user.city ?? "",
       state: user.state ?? "",
@@ -579,7 +634,8 @@ export default function JanitorialManagerDashboard() {
 
   const handleUpdateUserProfile = async () => {
     if (!editUser) return;
-    const isNewCompany = editForm.companyId === "__new__";
+    const editCompanyId = editForm.companyId || null;
+    const editNewCompanyName = !editCompanyId && editForm.companyText.trim() ? editForm.companyText.trim() : null;
     const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
       body: {
         action: "updateUserProfile",
@@ -587,8 +643,8 @@ export default function JanitorialManagerDashboard() {
         email: editForm.email.trim().toLowerCase(),
         first_name: editForm.firstName.trim(),
         surname: editForm.surname.trim(),
-        company_id: isNewCompany ? null : (editForm.companyId || null),
-        new_company_name: isNewCompany ? (editForm.newCompanyName.trim() || null) : null,
+        company_id: editCompanyId,
+        new_company_name: editNewCompanyName,
         role: editForm.role,
         city: editForm.city || null,
         state: editForm.state || null,
@@ -620,6 +676,24 @@ export default function JanitorialManagerDashboard() {
       const message = await getInvokeErrorMessage(error, data);
       setCreateMsg(`Error: ${message}`);
       return;
+    }
+    loadAdminData();
+  };
+
+  const handleDeduplicateCompanies = async () => {
+    if (!confirm("Remove all duplicate companies? Profile references will be updated to the oldest matching company.")) return;
+    const { data, error } = await supabase.functions.invoke("janitorial-admin-users", {
+      body: { action: "deduplicateCompanies" },
+    });
+    if (error) {
+      const message = await getInvokeErrorMessage(error, data);
+      setAdminError(`Dedup error: ${message}`);
+      return;
+    }
+    if (data?.removed === 0) {
+      setCreateMsg("No duplicate companies found.");
+    } else {
+      setCreateMsg(`Removed ${data?.removed} duplicate company record(s). Kept ${data?.kept} unique companies.`);
     }
     loadAdminData();
   };
@@ -767,14 +841,25 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
             {/* Top: Create Trial User button */}
             <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 px-4 py-2">
               <p className="text-sm font-semibold text-blue-800">Trial User Management</p>
-              <button
-                type="button"
-                onClick={() => { setShowCreateForm(v => !v); setCreateMsg(""); }}
-                className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: "#2563eb" }}
-              >
-                {showCreateForm ? "Cancel" : "Create Trial User"}
-              </button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDeduplicateCompanies}
+                  className="text-xs"
+                >
+                  Fix Duplicate Companies
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateForm(v => !v); setCreateMsg(""); }}
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
+                  style={{ backgroundColor: "#2563eb" }}
+                >
+                  {showCreateForm ? "Cancel" : "Create Trial User"}
+                </button>
+              </div>
             </div>
 
             {/* Create form (collapsible) */}
@@ -788,17 +873,15 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                     <div><Label className="text-xs">Email *</Label><Input type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} placeholder="jane@company.com" /></div>
                     <div><Label className="text-xs">Password *</Label><Input type="password" value={createForm.password} onChange={e => setCreateForm(p => ({ ...p, password: e.target.value }))} placeholder="Temp password" /></div>
                     <div>
-                      <Label className="text-xs">Company</Label>
-                      <Select value={createForm.companyId} onValueChange={v => setCreateForm(p => ({ ...p, companyId: v, newCompanyName: v === "__new__" ? p.newCompanyName : "" }))}>
-                        <SelectTrigger><SelectValue placeholder="Select or create company" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__new__">+ New company…</SelectItem>
-                          {adminCompanies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      {createForm.companyId === "__new__" && (
-                        <Input className="mt-1.5" placeholder="Company name" value={createForm.newCompanyName} onChange={e => setCreateForm(p => ({ ...p, newCompanyName: e.target.value }))} />
-                      )}
+                      <Label className="text-xs">Company (optional)</Label>
+                      <CompanyComboBox
+                        companies={adminCompanies}
+                        companyId={createForm.companyId}
+                        companyText={createForm.companyText}
+                        onSelect={(id, text) => setCreateForm(p => ({ ...p, companyId: id, companyText: text }))}
+                      />
+                      {createForm.companyId && <p className="mt-0.5 text-xs text-emerald-600">Existing company selected</p>}
+                      {!createForm.companyId && createForm.companyText.length >= 3 && <p className="mt-0.5 text-xs text-blue-500">Will create new company</p>}
                     </div>
                     <div>
                       <Label className="text-xs">Role *</Label>
@@ -853,7 +936,7 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                   <div className="flex gap-2 justify-end">
                     <Button variant="outline" onClick={() => setShowCreateForm(false)}>Cancel</Button>
                     <Button
-                      disabled={createLoading || !createForm.firstName.trim() || !createForm.surname.trim() || !createForm.email.trim() || !createForm.password || !createForm.role || (createForm.companyId === "__new__" && !createForm.newCompanyName.trim())}
+                      disabled={createLoading || !createForm.firstName.trim() || !createForm.surname.trim() || !createForm.email.trim() || !createForm.password || !createForm.role}
                       onClick={handleCreateUser}
                       style={{ backgroundColor: "#2563eb" }}
                       className="text-white hover:opacity-90"
@@ -1008,16 +1091,14 @@ Janitorial Manager Team`, attachmentName: "Proposal.pdf" });
                   </div>
                   <div>
                     <Label className="text-xs">Company</Label>
-                    <Select value={editForm.companyId} onValueChange={v => setEditForm(p => ({ ...p, companyId: v, newCompanyName: v === "__new__" ? p.newCompanyName : "" }))}>
-                      <SelectTrigger><SelectValue placeholder="Select or create company" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__new__">+ New company…</SelectItem>
-                        {adminCompanies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    {editForm.companyId === "__new__" && (
-                      <Input className="mt-1.5" placeholder="Company name" value={editForm.newCompanyName} onChange={e => setEditForm(p => ({ ...p, newCompanyName: e.target.value }))} />
-                    )}
+                    <CompanyComboBox
+                      companies={adminCompanies}
+                      companyId={editForm.companyId}
+                      companyText={editForm.companyText}
+                      onSelect={(id, text) => setEditForm(p => ({ ...p, companyId: id, companyText: text }))}
+                    />
+                    {editForm.companyId && <p className="mt-0.5 text-xs text-emerald-600">Existing company selected</p>}
+                    {!editForm.companyId && editForm.companyText.length >= 3 && <p className="mt-0.5 text-xs text-blue-500">Will create new company</p>}
                   </div>
                   <div><Label className="text-xs">Trial Expires (ISO)</Label><Input value={editForm.trial_expires_at} onChange={e => setEditForm(p => ({ ...p, trial_expires_at: e.target.value }))} /></div>
                   <div><Label className="text-xs">City</Label><Input value={editForm.city} onChange={e => setEditForm(p => ({ ...p, city: e.target.value }))} /></div>

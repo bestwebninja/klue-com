@@ -78,15 +78,18 @@ const resolveCompany = async (
   let companyName: string | null = null;
 
   if (newCompanyName) {
-    const { data: existingCompany, error: existingCompanyError } = await supabase
+    const { data: matchingCompanies, error: existingCompanyError } = await supabase
       .from("janitorial_companies")
       .select("id, name")
       .ilike("name", newCompanyName)
-      .maybeSingle();
+      .order("created_at", { ascending: true })
+      .limit(1);
 
     if (existingCompanyError) {
       return { companyId: null, companyName: null, error: errorResponse(500, "Failed to resolve company", "resolve_company", existingCompanyError.message) };
     }
+
+    const existingCompany = matchingCompanies?.[0] ?? null;
 
     if (existingCompany) {
       companyId = existingCompany.id;
@@ -680,6 +683,58 @@ serve(async (req) => {
     }
 
     return jsonResponse(200, { success: true, user_id: userId });
+  }
+
+  if (action === "deduplicateCompanies") {
+    const { data: allCompanies, error: listError } = await supabase
+      .from("janitorial_companies")
+      .select("id, name, created_at")
+      .order("created_at", { ascending: true });
+
+    if (listError) {
+      return errorResponse(500, "Failed to list companies", "list_companies", listError.message);
+    }
+
+    const companies = allCompanies ?? [];
+    const seen = new Map<string, string>();
+    const toDelete: string[] = [];
+    const redirectMap = new Map<string, string>();
+
+    for (const company of companies) {
+      const key = (company.name as string).trim().toLowerCase();
+      if (seen.has(key)) {
+        toDelete.push(company.id as string);
+        redirectMap.set(company.id as string, seen.get(key)!);
+      } else {
+        seen.set(key, company.id as string);
+      }
+    }
+
+    if (toDelete.length === 0) {
+      return jsonResponse(200, { success: true, removed: 0, message: "No duplicate companies found." });
+    }
+
+    for (const [dupId, keepId] of redirectMap.entries()) {
+      const { error: updateError } = await supabase
+        .from("janitorial_user_profiles")
+        .update({ company_id: keepId })
+        .eq("company_id", dupId);
+
+      if (updateError) {
+        return errorResponse(500, "Failed to update profile references", "update_profiles", updateError.message);
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("janitorial_companies")
+      .delete()
+      .in("id", toDelete);
+
+    if (deleteError) {
+      return errorResponse(500, "Failed to delete duplicate companies", "delete_duplicates", deleteError.message);
+    }
+
+    return jsonResponse(200, { success: true, removed: toDelete.length, kept: seen.size });
   }
 
   return errorResponse(400, "Unknown action", "route_action", action);

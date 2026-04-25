@@ -486,9 +486,9 @@ export default function JanitorialManagerDashboard() {
       console.error("janitorial-admin-users createUser error", error);
       const errorPayload = await parseErrorPayload(error, data);
       const code = typeof errorPayload?.code === "string" ? errorPayload.code : "";
-      const status = typeof errorPayload?.status === "number" ? errorPayload.status : null;
-      if (code === "AUTH_USER_EXISTS" || status === 409) {
+      if (code === "AUTH_USER_EXISTS") {
         setDuplicateEmailPrompt({ email: createForm.email.trim().toLowerCase() });
+        return;
       }
       const detailedMessage = await getInvokeErrorMessage(error, data);
       setCreateMsg(`Error: ${detailedMessage}`);
@@ -496,6 +496,10 @@ export default function JanitorialManagerDashboard() {
     }
 
     if (data?.error) {
+      if (data.code === "AUTH_USER_EXISTS") {
+        setDuplicateEmailPrompt({ email: createForm.email.trim().toLowerCase() });
+        return;
+      }
       setCreateMsg(`Error: ${data.error}`);
       return;
     }
